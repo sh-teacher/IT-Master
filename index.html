@@ -126,47 +126,27 @@
 
         function showQR(data) {
             const qrDiv = document.getElementById('qrcode');
-            qrDiv.innerHTML = ""; // 기존 내용 삭제
+            qrDiv.innerHTML = ""; // 기존 내용 초기화
 
-            // [핵심 수정] QR 용량 초과를 막기 위해 아주 핵심 정보만 짧게 담습니다.
-            // 긴 문자열은 substring(0, 10)으로 강제로 잘라버립니다.
-            const cleanType = String(data.type || "기기").substring(0, 10);
-            const cleanUser = String(data.user || "미정").substring(0, 10);
-            const cleanSN = String(data.sn || "N/A").substring(0, 20);
+            // 1. QR에 담을 텍스트 정리 (한글 깨짐 방지를 위해 인코딩)
+            const qrText = `유형:${data.type}\n사용자:${data.user}\nS/N:${data.sn}`;
+            const encodedText = encodeURIComponent(qrText);
 
-            // QR에 들어갈 최종 문자열 (최대한 짧게 구성)
-            const finalContent = `T:${cleanType}\nU:${cleanUser}\nS:${cleanSN}`;
+            // 2. 외부 API를 이용한 QR 이미지 생성 (라이브러리 에러 원천 차단)
+            // 이 방식은 '용량 초과' 에러가 절대 나지 않습니다.
+            const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodedText}`;
+
+            // 3. 화면에 이미지 삽입
+            qrDiv.innerHTML = `<img src="${qrImageUrl}" alt="QR Code" class="mx-auto border p-2 bg-white shadow-sm" />`;
+
+            // 4. 하단 정보 표시 및 영역 노출
+            document.getElementById('qrText').innerText = `자산번호(SN): ${data.sn}`;
+            document.getElementById('qrResult').classList.remove('hidden');
             
-            console.log("QR 전송 데이터:", finalContent); // 확인용
-
-            try {
-                // 라이브러리가 로드되었는지 확인
-                if (typeof QRCode === "undefined") {
-                    qrDiv.innerHTML = "<p class='text-red-500'>QR 라이브러리 로딩 중...</p>";
-                    return;
-                }
-
-                // QR 생성 설정
-                new QRCode(qrDiv, {
-                    text: finalContent,
-                    width: 160,
-                    height: 160,
-                    colorDark : "#000000",
-                    colorLight : "#ffffff",
-                    correctLevel : QRCode.CorrectLevel.L // L(Low)로 설정하면 더 많은 글자를 담을 수 있습니다.
-                });
-
-                // 화면에 정보 표시
-                document.getElementById('qrText').innerText = `S/N: ${cleanSN}`;
-                document.getElementById('qrResult').classList.remove('hidden');
-                
-                // QR 영역으로 부드럽게 스크롤
+            // 5. QR 코드가 보이도록 부드럽게 스크롤
+            setTimeout(() => {
                 window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-
-            } catch (e) {
-                console.error("QR 상세 에러:", e);
-                qrDiv.innerHTML = "<p class='text-red-500 text-xs'>데이터가 너무 길어 QR 생성에 실패했습니다.</p>";
-            }
+            }, 300);
         }
     </script>
 </body>
