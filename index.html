@@ -126,29 +126,46 @@
 
         function showQR(data) {
             const qrDiv = document.getElementById('qrcode');
-            qrDiv.innerHTML = ""; // 초기화
+            qrDiv.innerHTML = ""; // 기존 내용 삭제
+
+            // [핵심 수정] QR 용량 초과를 막기 위해 아주 핵심 정보만 짧게 담습니다.
+            // 긴 문자열은 substring(0, 10)으로 강제로 잘라버립니다.
+            const cleanType = String(data.type || "기기").substring(0, 10);
+            const cleanUser = String(data.user || "미정").substring(0, 10);
+            const cleanSN = String(data.sn || "N/A").substring(0, 20);
+
+            // QR에 들어갈 최종 문자열 (최대한 짧게 구성)
+            const finalContent = `T:${cleanType}\nU:${cleanUser}\nS:${cleanSN}`;
             
-            // 핵심 정보만 담아서 QR 생성 (너무 길면 생성 에러 날 수 있음)
-            const qrContent = `유형:${data.type}\n사용자:${data.user}\nSN:${data.sn}\nIP:${data.ip || '-'}`;
-            
+            console.log("QR 전송 데이터:", finalContent); // 확인용
+
             try {
+                // 라이브러리가 로드되었는지 확인
                 if (typeof QRCode === "undefined") {
-                    throw new Error("라이브러리 로딩 실패");
+                    qrDiv.innerHTML = "<p class='text-red-500'>QR 라이브러리 로딩 중...</p>";
+                    return;
                 }
+
+                // QR 생성 설정
                 new QRCode(qrDiv, {
-                    text: qrContent,
+                    text: finalContent,
                     width: 160,
                     height: 160,
                     colorDark : "#000000",
                     colorLight : "#ffffff",
-                    correctLevel : QRCode.CorrectLevel.H
+                    correctLevel : QRCode.CorrectLevel.L // L(Low)로 설정하면 더 많은 글자를 담을 수 있습니다.
                 });
-                document.getElementById('qrText').innerText = `S/N: ${data.sn}`;
+
+                // 화면에 정보 표시
+                document.getElementById('qrText').innerText = `S/N: ${cleanSN}`;
                 document.getElementById('qrResult').classList.remove('hidden');
+                
+                // QR 영역으로 부드럽게 스크롤
                 window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+
             } catch (e) {
-                console.error("QR 생성 실패:", e);
-                Swal.fire("참고", "데이터는 등록되었으나 QR 생성에 실패했습니다. (라이브러리 로딩 지연)", "warning");
+                console.error("QR 상세 에러:", e);
+                qrDiv.innerHTML = "<p class='text-red-500 text-xs'>데이터가 너무 길어 QR 생성에 실패했습니다.</p>";
             }
         }
     </script>
