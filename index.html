@@ -102,9 +102,7 @@
     </div>
 
     <script>
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbw4a7_cBsYzArwE4IrxC7tSPJoYGg3_ilOkf5D12guaAsOGgazpi1Ku9aTyEWthOGuWjQ/exec";
-
-        function updateFormLayout() {
+        const GAS_URL="https://script.google.com/macros/s/AKfycbw4a7_cBsYzArwE4IrxC7tSPJoYGg3_ilOkf5D12guaAsOGgazpi1Ku9aTyEWthOGuWjQ/exec";        function updateFormLayout() {
             const type = document.getElementById('assetType').value;
             document.getElementById('monitorSection').classList.toggle('hidden', type !== '데스크톱');
             document.getElementById('printerTypeContainer').classList.toggle('hidden', type !== '프린터');
