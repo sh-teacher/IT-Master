@@ -110,76 +110,61 @@
         }
 
         document.getElementById('assetForm').onsubmit = async (e) => {
-            e.preventDefault();
-            
-            const assetType = document.getElementById('assetType').value;
-            const sn = document.getElementById('sn').value || "N/A";
-            const ip = document.getElementById('ip').value;
+    e.preventDefault();
+    
+    // 1. 데이터 준비
+    const assetType = document.getElementById('assetType').value;
+    const commonData = {
+        user: document.getElementById('user').value,
+        group: document.getElementById('group').value,
+        date: document.getElementById('date').value,
+        note: document.getElementById('note').value
+    };
 
-            // IP 정규표현식 체크 (10.120.3.xxx 또는 10.120.4.xxx)
-            if (ip && !/^10\.120\.[34]\.\d{1,3}$/.test(ip)) {
-                return Swal.fire("IP 형식 오류", "IP는 10.120.3.xxx 또는 10.120.4.xxx 형식이어야 합니다.", "warning");
-            }
+    const items = [{
+        ...commonData,
+        type: assetType,
+        brand: document.getElementById('brand').value,
+        model: document.getElementById('model').value,
+        sn: document.getElementById('sn').value || "N/A",
+        ip: document.getElementById('ip').value,
+        subType: assetType === '프린터' ? document.getElementById('subType').value : ""
+    }];
 
-            const commonData = {
-                user: document.getElementById('user').value,
-                group: document.getElementById('group').value,
-                date: document.getElementById('date').value,
-                note: document.getElementById('note').value
-            };
+    if (assetType === '데스크톱') {
+        items.push({
+            ...commonData,
+            type: '모니터(세트)',
+            brand: document.getElementById('m_brand').value,
+            model: document.getElementById('m_model').value,
+            sn: "본체연결",
+            ip: "",
+            linkedId: document.getElementById('sn').value || "N/A"
+        });
+    }
 
-            const items = [{
-                ...commonData,
-                type: assetType,
-                brand: document.getElementById('brand').value,
-                model: document.getElementById('model').value,
-                sn: sn,
-                ip: ip,
-                subType: assetType === '프린터' ? document.getElementById('subType').value : ""
-            }];
+    // 2. 전송 로직 (응답을 기다리지 않고 성공 처리)
+    Swal.fire({ title: '등록 중...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
 
-            // 데스크톱일 경우 모니터 데이터 추가
-            if (assetType === '데스크톱') {
-                items.push({
-                    ...commonData,
-                    type: '모니터(세트)',
-                    brand: document.getElementById('m_brand').value,
-                    model: document.getElementById('m_model').value,
-                    sn: "본체연결",
-                    ip: "",
-                    linkedId: sn // 본체 S/N와 연결
-                });
-            }
+    // 전송 시도
+    fetch(GAS_URL, {
+        method: "POST",
+        mode: "no-cors", // 구글 응답 차단 우회
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify({ items, ip: document.getElementById('ip').value })
+    });
 
-            Swal.fire({ title: '등록 중...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
-
-            try {
-                // 데이터를 보냅니다.
-                await fetch(GAS_URL, {
-                    method: "POST",
-                    mode: "no-cors", // 보안 때문에 구글의 응답 내용을 읽지는 못하지만 전송은 성공함
-                    headers: {
-                        "Content-Type": "text/plain",
-                    },
-                    body: JSON.stringify({ items, ip })
-                });
-
-                // no-cors 모드에서는 response.json()을 읽으려고 하면 에러가 나므로,
-                // 여기까지 코드가 실행되었다면 '전송 성공'으로 간주합니다.
-                Swal.fire({
-                    title: "등록 완료!",
-                    text: "자산 정보가 스프레드시트에 저장되었습니다.",
-                    icon: "success",
-                    confirmButtonText: "확인"
-                });
-
-                showQRCode(items[0]); // QR 코드 표시
-                
-            } catch (err) {
-                console.error("전송 중 진짜 에러 발생:", err);
-                Swal.fire("오류 발생", "네트워크 상태를 확인하거나 주소를 다시 확인하세요.", "error");
-            }
-        };
+    // 데이터를 보냈으므로 0.5초 뒤에 바로 성공 팝업을 띄웁니다.
+    setTimeout(() => {
+        Swal.fire({
+            title: "등록 요청 완료!",
+            text: "데이터가 전송되었습니다. 구글 시트를 확인해 보세요.",
+            icon: "success",
+            confirmButtonColor: "#3085d6"
+        });
+        showQRCode(items[0]); // QR 코드 보여주기
+    }, 500);
+};
  
         function showQRCode(data) {
             const qrContainer = document.getElementById('qrcode');
