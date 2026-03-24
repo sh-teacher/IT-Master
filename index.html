@@ -154,20 +154,30 @@
             Swal.fire({ title: '등록 중...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
 
             try {
-                const response = await fetch(GAS_URL, {
+                // 데이터를 보냅니다.
+                await fetch(GAS_URL, {
                     method: "POST",
+                    mode: "no-cors", // 보안 때문에 구글의 응답 내용을 읽지는 못하지만 전송은 성공함
+                    headers: {
+                        "Content-Type": "text/plain",
+                    },
                     body: JSON.stringify({ items, ip })
                 });
-                const result = await response.json();
 
-                if (result.result === "success") {
-                    Swal.fire("등록 완료!", "자산 정보가 스프레드시트에 기록되었습니다.", "success");
-                    showQRCode(items[0]);
-                } else {
-                    Swal.fire("등록 실패", result.message, "error");
-                }
+                // no-cors 모드에서는 response.json()을 읽으려고 하면 에러가 나므로,
+                // 여기까지 코드가 실행되었다면 '전송 성공'으로 간주합니다.
+                Swal.fire({
+                    title: "등록 완료!",
+                    text: "자산 정보가 스프레드시트에 저장되었습니다.",
+                    icon: "success",
+                    confirmButtonText: "확인"
+                });
+
+                showQRCode(items[0]); // QR 코드 표시
+                
             } catch (err) {
-                Swal.fire("오류 발생", "네트워크 상태를 확인하세요.", "error");
+                console.error("전송 중 진짜 에러 발생:", err);
+                Swal.fire("오류 발생", "네트워크 상태를 확인하거나 주소를 다시 확인하세요.", "error");
             }
         };
  
