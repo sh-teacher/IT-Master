@@ -3,64 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IT 자산 관리 시스템</title>
+    <title>IT 자산 등록 - IT Master</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
-<body class="bg-gray-100 p-4 md:p-10">
-    <nav class="bg-blue-600 text-white p-4 shadow-md mb-6 no-print">
-    <div class="max-w-4xl mx-auto flex justify-between items-center">
-        <span class="font-bold">IT 자산 관리 시스템</span>
-        <div class="space-x-4 text-sm">
-            <a href="index.html" class="hover:underline">➕ 등록</a>
-            <a href="list.html" class="hover:underline">📋 목록현황</a>
+<body class="bg-gray-100 min-h-screen">
+    <nav class="bg-blue-600 text-white p-4 shadow-md mb-6">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <span class="font-bold text-lg">💻 IT 자산 관리</span>
+            <div class="space-x-4 text-sm font-medium">
+                <a href="index.html" class="bg-blue-700 px-3 py-1 rounded">등록</a>
+                <a href="list.html" class="hover:underline">목록현황</a>
+            </div>
         </div>
-    </div>
     </nav>
-    <div class="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-lg">
-        <h1 class="text-2xl font-bold mb-6 text-blue-600 font-sans">💻 IT 자산 등록 시스템</h1>
+
+    <div class="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-lg border border-gray-200 mb-10">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">➕ 신규 자산 등록</h1>
         
-        <form id="assetForm" class="space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <select id="assetType" class="border p-3 rounded-lg bg-white" onchange="updateFormLayout()">
-                    <option value="노트북">노트북</option>
-                    <option value="데스크톱">데스크톱PC (+모니터)</option>
-                    <option value="태블릿">태블릿</option>
-                    <option value="프린터">프린터/복합기</option>
-                </select>
-                <input type="text" id="user" placeholder="사용자 성명" class="border p-3 rounded-lg" required>
-                <input type="text" id="group" placeholder="부서명" class="border p-3 rounded-lg">
-                <input type="date" id="date" class="border p-3 rounded-lg">
-                <input type="text" id="brand" placeholder="제조사" class="border p-3 rounded-lg">
-                <input type="text" id="model" placeholder="모델명" class="border p-3 rounded-lg">
-                <input type="text" id="sn" placeholder="시리얼 번호(S/N)" class="border p-3 rounded-lg">
-                <input type="text" id="ip" placeholder="IP (10.120.3.XXX)" class="border p-3 rounded-lg">
+        <form id="assetForm" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">자산 유형 *</label>
+                    <select id="assetType" class="w-full border-gray-300 border p-3 rounded-lg bg-white" onchange="updateFormLayout()">
+                        <option value="노트북">노트북</option>
+                        <option value="데스크톱">데스크톱PC (+모니터 세트)</option>
+                        <option value="태블릿">태블릿</option>
+                        <option value="프린터">프린터/복합기/복사기</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">사용자 성명 *</label>
+                    <input type="text" id="user" placeholder="성함 입력" class="w-full border border-gray-300 p-3 rounded-lg" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">부서/그룹명</label>
+                    <input type="text" id="group" placeholder="부서명 입력" class="w-full border border-gray-300 p-3 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">취득일</label>
+                    <input type="date" id="date" class="w-full border border-gray-300 p-3 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">제조사/브랜드</label>
+                    <input type="text" id="brand" placeholder="예: 삼성, LG, HP" class="w-full border border-gray-300 p-3 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">모델명</label>
+                    <input type="text" id="model" placeholder="상세 모델명" class="w-full border border-gray-300 p-3 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">시리얼 번호 (S/N) *</label>
+                    <input type="text" id="sn" placeholder="기기 고유 번호" class="w-full border border-gray-300 p-3 rounded-lg font-mono" required>
+                </div>
+                <div id="ipContainer">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">IP 주소</label>
+                    <input type="text" id="ip" placeholder="10.120.3.XXX" class="w-full border border-gray-300 p-3 rounded-lg font-mono">
+                </div>
             </div>
 
-            <div id="monitorSection" class="hidden bg-blue-50 p-4 rounded-lg border border-blue-100">
-                <h3 class="font-bold mb-2 text-blue-800">🖥️ 연결 모니터 정보</h3>
-                <input type="text" id="m_brand" placeholder="모니터 제조사" class="border p-2 rounded w-full mb-2">
-                <input type="text" id="m_model" placeholder="모니터 모델명" class="border p-2 rounded w-full">
+            <div id="monitorSection" class="hidden border-2 border-blue-50 bg-blue-50 p-6 rounded-xl space-y-4">
+                <h3 class="font-bold text-blue-800 flex items-center gap-2">🖥️ 연결 모니터 정보</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" id="m_brand" placeholder="모니터 제조사" class="border border-gray-300 p-3 rounded-lg bg-white">
+                    <input type="text" id="m_model" placeholder="모니터 모델명" class="border border-gray-300 p-3 rounded-lg bg-white">
+                </div>
             </div>
 
-            <textarea id="note" placeholder="비고 (특이사항)" class="border p-3 rounded-lg w-full"></textarea>
-            
-            <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 transition-all shadow-md">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">비고</label>
+                <textarea id="note" rows="2" placeholder="특이사항 입력" class="w-full border border-gray-300 p-3 rounded-lg"></textarea>
+            </div>
+
+            <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 transition shadow-lg">
                 자산 등록 및 QR 생성
             </button>
         </form>
 
         <div id="qrResult" class="hidden mt-10 p-6 border-2 border-dashed border-gray-300 rounded-xl text-center bg-gray-50">
-            <h3 class="font-bold mb-4 text-gray-700">✅ 등록 완료! 기기 부착용 QR</h3>
-            <div id="qrcode" class="flex justify-center mb-4 bg-white p-2 inline-block"></div>
-            <p id="qrText" class="text-sm font-mono text-blue-600 font-bold"></p>
-            <button onclick="location.reload()" class="mt-4 bg-white border border-gray-300 px-6 py-2 rounded-lg text-sm hover:bg-gray-100">새로 등록하기</button>
+            <h3 class="font-bold mb-4 text-gray-700">✅ 등록 성공! 기기 부착용 QR</h3>
+            <div id="qrcode" class="flex justify-center mb-4 bg-white p-2 inline-block shadow-sm"></div>
+            <p id="qrText" class="text-sm font-mono text-blue-600 font-bold mb-4"></p>
+            <div class="flex justify-center gap-2">
+                <button onclick="window.print()" class="bg-white border border-gray-300 px-4 py-2 rounded-lg text-sm hover:bg-gray-100">인쇄하기</button>
+                <button onclick="location.reload()" class="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-900">새로 등록</button>
+            </div>
         </div>
     </div>
-    
+
     <script>
-        // *** 1. 구글 앱스 스크립트 URL을 "한 줄로" 정확히 입력하세요 ***
+        // *** 여기에 본인의 구글 스크립트 URL을 넣으세요 ***
         const GAS_URL = "https://script.google.com/macros/s/AKfycbyZvgICRHPoQFHKrRX-bI27Ti9RUNWMjdMOlDTzzSNdviEjC1Gxpa0jlMYBi5bOotLyxQ/exec";
 
         function updateFormLayout() {
@@ -68,94 +100,64 @@
             document.getElementById('monitorSection').classList.toggle('hidden', type !== '데스크톱');
         }
 
-        document.getElementById('assetForm').addEventListener('submit', function(e) {
+        document.getElementById('assetForm').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
-            
-            // 데이터 수집
-            const assetType = document.getElementById('assetType').value;
-            const snVal = document.getElementById('sn').value || "N/A";
+            const snVal = document.getElementById('sn').value;
+
+            // 데이터 정리
             const formData = {
                 user: document.getElementById('user').value,
                 group: document.getElementById('group').value,
                 date: document.getElementById('date').value,
-                note: document.getElementById('note').value,
-                type: assetType,
+                type: document.getElementById('assetType').value,
                 brand: document.getElementById('brand').value,
                 model: document.getElementById('model').value,
                 sn: snVal,
-                ip: document.getElementById('ip').value
+                ip: document.getElementById('ip').value,
+                note: document.getElementById('note').value
             };
 
             const items = [formData];
-            if (assetType === '데스크톱') {
-                items.push({ 
-                    ...formData, 
-                    type: '모니터(세트)', 
-                    brand: document.getElementById('m_brand').value, 
-                    model: document.getElementById('m_model').value, 
-                    sn: '본체연결', 
-                    linkedId: snVal 
-                });
+            if (formData.type === '데스크톱') {
+                items.push({ ...formData, type: '모니터(세트)', brand: document.getElementById('m_brand').value, model: document.getElementById('m_model').value, sn: '본체연결', linkedId: snVal });
             }
 
-            // UI 처리
             btn.disabled = true;
             btn.innerText = "전송 중...";
             Swal.fire({ title: '데이터 전송 중...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
 
-            // 서버 전송
-            fetch(GAS_URL, {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "text/plain" },
-                body: JSON.stringify({ items, ip: formData.ip })
-            })
-            .then(() => {
-                // 전송 성공 시 처리
+            try {
+                await fetch(GAS_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { "Content-Type": "text/plain" },
+                    body: JSON.stringify({ items, ip: formData.ip })
+                });
+
                 setTimeout(() => {
-                    Swal.fire({
-                        title: "성공!",
-                        text: "시트에 등록되었습니다.",
-                        icon: "success",
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
+                    Swal.fire("성공!", "구글 시트에 등록되었습니다.", "success");
                     btn.disabled = false;
                     btn.innerText = "자산 등록 및 QR 생성";
                     showQR(formData);
                 }, 1000);
-            })
-            .catch(err => {
+            } catch (err) {
                 Swal.fire("오류", "전송 실패: " + err, "error");
                 btn.disabled = false;
-                btn.innerText = "다시 시도";
-            });
-        });
+            }
+        };
 
         function showQR(data) {
             const qrDiv = document.getElementById('qrcode');
-            qrDiv.innerHTML = ""; // 기존 내용 초기화
+            // QR 스캔 시 view.html로 연결되도록 현재 주소 기반 URL 생성
+            const currentPath = window.location.href.split('index.html')[0];
+            const viewUrl = `${currentPath}view.html?sn=${encodeURIComponent(data.sn)}`;
+            const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(viewUrl)}`;
 
-            // 1. QR에 담을 텍스트 정리 (한글 깨짐 방지를 위해 인코딩)
-            const qrText = `유형:${data.type}\n사용자:${data.user}\nS/N:${data.sn}`;
-            const encodedText = encodeURIComponent(qrText);
-
-            // 2. 외부 API를 이용한 QR 이미지 생성 (라이브러리 에러 원천 차단)
-            // 이 방식은 '용량 초과' 에러가 절대 나지 않습니다.
-            const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodedText}`;
-
-            // 3. 화면에 이미지 삽입
-            qrDiv.innerHTML = `<img src="${qrImageUrl}" alt="QR Code" class="mx-auto border p-2 bg-white shadow-sm" />`;
-
-            // 4. 하단 정보 표시 및 영역 노출
-            document.getElementById('qrText').innerText = `자산번호(SN): ${data.sn}`;
+            qrDiv.innerHTML = `<img src="${qrImageUrl}" alt="QR" class="border p-1" />`;
+            document.getElementById('qrText').innerText = `S/N: ${data.sn}`;
             document.getElementById('qrResult').classList.remove('hidden');
-            
-            // 5. QR 코드가 보이도록 부드럽게 스크롤
-            setTimeout(() => {
-                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-            }, 300);
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
         }
     </script>
 </body>
