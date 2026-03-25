@@ -129,23 +129,27 @@
             Swal.fire({ title: '데이터 저장 중...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
 
             try {
-                await fetch(GAS_URL, {
-                    method: "POST",
-                    mode: "no-cors",
-                    headers: { "Content-Type": "text/plain" },
-                    body: JSON.stringify({ 
+            const response = await fetch(GAS_URL, {
+                method: "POST",
+                mode: "cors", // 보안을 위해 cors로 변경 권장 (GAS에서 응답을 읽기 위함)
+                headers: { "Content-Type": "text/plain" },
+                body: JSON.stringify({ 
                     items: items, 
                     ip: formData.ip, 
-                    pw: savedPw  // ★ 여기에 비밀번호를 실어서 보냅니다!
+                    pw: savedPw  // 세션에 저장된 비번 전송
                 })
-                });
+            });
 
-                setTimeout(() => {
-                    Swal.fire("등록 완료!", "구글 시트에 저장되었습니다.", "success");
-                    btn.disabled = false;
-                    btn.innerText = "등록 및 QR 생성";
-                    showQR(formData);
-                }, 1000);
+            const resultText = await response.text();
+            if (resultText.includes("인증 실패")) {
+                alert("비밀번호 인증에 실패했습니다.");
+                btn.disabled = false;
+                btn.innerText = "등록 및 QR 생성";
+                return;
+            }
+
+            Swal.fire("등록 완료!", "구글 시트에 저장되었습니다.", "success");
+            showQR(formData);
             } catch (err) {
                 Swal.fire("오류", "전송 실패: " + err, "error");
                 btn.disabled = false;

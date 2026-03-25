@@ -113,13 +113,30 @@
         let mChart, yChart;
 
         async function loadData() {
+            // 세션에서 비번 가져오기
+            const savedPw = sessionStorage.getItem('asset_pw');
+            
             try {
-                const res = await fetch(GAS_URL);
-                assetData = await res.json();
+                // 주소 뒤에 비밀번호를 꼭 붙여야 합니다!
+                const res = await fetch(`${GAS_URL}?pw=${encodeURIComponent(savedPw)}`);
+                
+                // 만약 구글 문지기가 거절했다면 (응답이 JSON이 아니거나 인증실패 문구인 경우)
+                const text = await res.text();
+                if (text === "인증 실패") {
+                    sessionStorage.removeItem('asset_pw'); // 잘못된 비번 삭제
+                    alert("비밀번호가 틀렸습니다. 다시 로그인하세요.");
+                    location.href = 'login.html';
+                    return;
+                }
+
+                // 인증 통과 시 데이터를 JSON으로 변환
+                assetData = JSON.parse(text);
                 updateDashboard(assetData);
                 renderTable(assetData);
+
             } catch (err) {
-                document.getElementById('listBody').innerHTML = `<tr><td colspan="9" class="p-10 text-center text-red-500 font-bold">연결 실패</td></tr>`;
+                console.error(err);
+                document.getElementById('listBody').innerHTML = `<tr><td colspan="9" class="p-10 text-center text-red-500 font-bold">인증 실패 또는 네트워크 오류</td></tr>`;
             }
         }
 
