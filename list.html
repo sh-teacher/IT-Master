@@ -3,20 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>자산 보유 현황 - IT Master</title>
+    <title>자산 관리 대시보드 - IT Master</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         th.sortable { cursor: pointer; position: relative; white-space: nowrap; }
         th.sortable:hover { background-color: #f3f4f6; }
         th.sortable::after { content: ' ↕'; font-size: 0.8em; color: #ccc; }
-        /* 테이블 텍스트 줄바꿈 방지 */
         td { white-space: nowrap; }
+        .chart-container { position: relative; height: 200px; width: 100%; }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
-    <nav class="bg-blue-600 text-white p-4 shadow-md mb-6">
+<body class="bg-gray-50 min-h-screen">
+    <nav class="bg-blue-600 text-white p-4 shadow-md mb-6 no-print">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <span class="font-bold text-lg">📋 전체 자산 관리 대장</span>
+            <span class="font-bold text-lg">📊 IT 자산 관리 대시보드</span>
             <div class="space-x-4 text-sm font-medium">
                 <a href="index.html" class="hover:underline">등록</a>
                 <a href="list.html" class="bg-blue-700 px-3 py-1 rounded">목록현황</a>
@@ -24,30 +25,71 @@
         </div>
     </nav>
 
-    <div class="max-w-7xl mx-auto bg-white p-6 rounded-xl shadow-lg border border-gray-200">
-        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-            <h1 class="text-xl font-bold text-gray-800">보유 자산 리스트</h1>
-            <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="검색어 입력..." class="border border-gray-300 p-2 rounded-lg w-full md:w-64 focus:ring-2 focus:ring-blue-500 outline-none">
-        </div>
+    <div class="max-w-7xl mx-auto px-6 pb-10">
         
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-sm">
-                <thead>
-                    <tr class="bg-gray-100 text-gray-600 uppercase text-xs">
-                        <th class="p-4 border-b sortable" onclick="handleSort('type')">종류</th>
-                        <th class="p-4 border-b sortable" onclick="handleSort('user')">사용자</th>
-                        <th class="p-4 border-b sortable" onclick="handleSort('group')">부서</th>
-                        <th class="p-4 border-b sortable" onclick="handleSort('brand')">제조사</th>
-                        <th class="p-4 border-b sortable" onclick="handleSort('model')">모델명</th>
-                        <th class="p-4 border-b sortable" onclick="handleSort('ip')">IP 주소</th>
-                        <th class="p-4 border-b sortable" onclick="handleSort('date')">취득일</th>
-                        <th class="p-4 border-b text-center">관리</th>
-                    </tr>
-                </thead>
-                <tbody id="listBody" class="text-gray-700">
-                    <tr><td colspan="8" class="p-10 text-center text-gray-400">데이터를 불러오는 중...</td></tr>
-                </tbody>
-            </table>
+        <div id="statsSummary" class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                <p class="text-xs text-gray-400 font-bold uppercase">전체 자산</p>
+                <h3 id="statTotal" class="text-2xl font-black text-blue-600">0</h3>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                <p class="text-xs text-gray-400 font-bold uppercase">노트북</p>
+                <h3 id="statLaptop" class="text-2xl font-black text-gray-700">0</h3>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                <p class="text-xs text-gray-400 font-bold uppercase">데스크톱</p>
+                <h3 id="statDesktop" class="text-2xl font-black text-gray-700">0</h3>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                <p class="text-xs text-gray-400 font-bold uppercase">태블릿</p>
+                <h3 id="statTablet" class="text-2xl font-black text-gray-700">0</h3>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                <p class="text-xs text-gray-400 font-bold uppercase">프린터류</p>
+                <h3 id="statPrinter" class="text-2xl font-black text-gray-700">0</h3>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h4 class="text-sm font-bold text-gray-500 mb-4">🏆 모델별 보유 TOP 5</h4>
+                <div class="chart-container">
+                    <canvas id="modelChart"></canvas>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h4 class="text-sm font-bold text-gray-500 mb-4">📅 연도별 도입 현황</h4>
+                <div class="chart-container">
+                    <canvas id="yearChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                <h1 class="text-xl font-bold text-gray-800 underline decoration-blue-200 decoration-4">보유 자산 상세 리스트</h1>
+                <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="검색어 입력 (사용자, 모델, IP...)" class="border border-gray-300 p-2 rounded-lg w-full md:w-64 focus:ring-2 focus:ring-blue-500 outline-none">
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="bg-gray-50 text-gray-500 uppercase text-[10px] font-black tracking-widest">
+                            <th class="p-4 border-b sortable" onclick="handleSort('type')">종류</th>
+                            <th class="p-4 border-b sortable" onclick="handleSort('user')">사용자</th>
+                            <th class="p-4 border-b sortable" onclick="handleSort('group')">부서</th>
+                            <th class="p-4 border-b sortable" onclick="handleSort('brand')">제조사</th>
+                            <th class="p-4 border-b sortable" onclick="handleSort('model')">모델명</th>
+                            <th class="p-4 border-b sortable" onclick="handleSort('ip')">IP 주소</th>
+                            <th class="p-4 border-b sortable" onclick="handleSort('date')">취득일</th>
+                            <th class="p-4 border-b text-center">관리</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listBody" class="text-gray-700">
+                        <tr><td colspan="8" class="p-10 text-center text-gray-400">데이터를 불러오는 중...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -55,49 +97,109 @@
         <div class="bg-white p-8 rounded-2xl text-center max-w-xs w-full shadow-2xl">
             <div id="modalQrCode" class="flex justify-center mb-4"></div>
             <p id="modalSnText" class="font-mono text-blue-600 font-bold mb-6"></p>
-            <button onclick="closeModal()" class="w-full bg-gray-200 py-2 rounded-lg hover:bg-gray-300 transition text-gray-700 font-bold">닫기</button>
+            <button onclick="closeModal()" class="w-full bg-gray-200 py-2 rounded-lg hover:bg-gray-300 transition text-gray-700 font-bold font-sans">닫기</button>
         </div>
     </div>
-    
+
     <script>
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbyZvgICRHPoQFHKrRX-bI27Ti9RUNWMjdMOlDTzzSNdviEjC1Gxpa0jlMYBi5bOotLyxQ/exec"; 
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbyZvgICRHPoQFHKrRX-bI27Ti9RUNWMjdMOlDTzzSNdviEjC1Gxpa0jlMYBi5bOotLyxQ/exec"; // 본인의 URL로 교체
         let assetData = [];
         let currentSort = { column: '', ascending: true };
+        let mChart, yChart; // 차트 객체
 
         async function loadData() {
             try {
                 const res = await fetch(GAS_URL);
                 assetData = await res.json();
+                updateDashboard(assetData); // 통계 업데이트
                 renderTable(assetData);
             } catch (err) {
-                document.getElementById('listBody').innerHTML = `<tr><td colspan="8" class="p-10 text-center text-red-500 font-bold">데이터 로드 실패</td></tr>`;
+                document.getElementById('listBody').innerHTML = `<tr><td colspan="8" class="p-10 text-center text-red-500 font-bold">연결 실패</td></tr>`;
             }
+        }
+
+        // 통계 및 차트 업데이트 함수
+        function updateDashboard(data) {
+            const counts = { 노트북: 0, 데스크톱: 0, 태블릿: 0, 프린터: 0 };
+            const models = {};
+            const years = {};
+
+            data.forEach(item => {
+                // 1. 유형별 카운트
+                if(item.type.includes('노트북')) counts.노트북++;
+                else if(item.type.includes('데스크톱')) counts.데스크톱++;
+                else if(item.type.includes('태블릿')) counts.태블릿++;
+                else if(item.type.includes('프린터') || item.type.includes('복합기')) counts.프린터++;
+
+                // 2. 모델별 카운트
+                const modelName = item.model || "알수없음";
+                models[modelName] = (models[modelName] || 0) + 1;
+
+                // 3. 연도별 카운트
+                const year = item.date ? String(item.date).substring(0, 4) : "미등록";
+                if(year !== "미등록") years[year] = (years[year] || 0) + 1;
+            });
+
+            // 상단 카드 업데이트
+            document.getElementById('statTotal').innerText = data.length;
+            document.getElementById('statLaptop').innerText = counts.노트북;
+            document.getElementById('statDesktop').innerText = counts.데스크톱;
+            document.getElementById('statTablet').innerText = counts.태블릿;
+            document.getElementById('statPrinter').innerText = counts.프린터;
+
+            // 모델 차트 (Top 5)
+            const topModels = Object.entries(models).sort((a,b) => b[1] - a[1]).slice(0, 5);
+            renderModelChart(topModels);
+
+            // 연도 차트
+            const sortedYears = Object.entries(years).sort((a,b) => a[0].localeCompare(b[0]));
+            renderYearChart(sortedYears);
+        }
+
+        function renderModelChart(items) {
+            const ctx = document.getElementById('modelChart').getContext('2d');
+            if(mChart) mChart.destroy();
+            mChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: items.map(i => i[0]),
+                    datasets: [{ label: '보유 대수', data: items.map(i => i[1]), backgroundColor: '#3b82f6', borderRadius: 5 }]
+                },
+                options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+        }
+
+        function renderYearChart(items) {
+            const ctx = document.getElementById('yearChart').getContext('2d');
+            if(yChart) yChart.destroy();
+            yChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: items.map(i => i[0]),
+                    datasets: [{ label: '도입 수', data: items.map(i => i[1]), borderColor: '#10b981', backgroundColor: '#10b98122', fill: true, tension: 0.4 }]
+                },
+                options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
         }
 
         function renderTable(data) {
             const tbody = document.getElementById('listBody');
             tbody.innerHTML = "";
-
-            if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="p-10 text-center text-gray-400">표시할 데이터가 없습니다.</td></tr>`;
-                return;
-            }
-
             data.forEach(item => {
                 const dateStr = item.date ? String(item.date).split('T')[0] : "-";
                 const row = `
                     <tr class="border-b hover:bg-blue-50 transition">
-                        <td class="p-4 font-semibold text-blue-700">${item.type}</td>
-                        <td class="p-4">${item.user}</td>
-                        <td class="p-4 text-gray-500">${item.group || '-'}</td>
-                        <td class="p-4">${item.brand}</td>
-                        <td class="p-4 font-medium">${item.model}</td>
-                        <td class="p-4 font-mono text-xs text-blue-600 font-bold">${item.ip || '-'}</td>
-                        <td class="p-4 text-xs text-gray-400">${dateStr}</td>
+                        <td class="p-4 font-bold text-gray-800 text-xs">${item.type}</td>
+                        <td class="p-4 text-xs font-bold">${item.user}</td>
+                        <td class="p-4 text-gray-400 text-[11px]">${item.group || '-'}</td>
+                        <td class="p-4 text-xs">${item.brand}</td>
+                        <td class="p-4 text-xs font-medium">${item.model}</td>
+                        <td class="p-4 font-mono text-[11px] text-blue-600 font-black">${item.ip || '-'}</td>
+                        <td class="p-4 text-[11px] text-gray-400">${dateStr}</td>
                         <td class="p-4 text-center">
                             <div class="flex justify-center gap-1">
-                                <a href="view.html?sn=${encodeURIComponent(item.sn)}" class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-[10px] font-bold hover:bg-gray-200">상세</a>
-                                <button onclick="openQR('${item.sn}')" class="bg-blue-100 text-blue-600 px-2 py-1 rounded text-[10px] font-bold hover:bg-blue-200">QR</button>
+                                <a href="view.html?sn=${encodeURIComponent(item.sn)}" class="bg-gray-100 text-gray-500 px-2 py-1 rounded text-[9px] font-black uppercase hover:bg-gray-200">View</a>
+                                <button onclick="openQR('${item.sn}')" class="bg-blue-600 text-white px-2 py-1 rounded text-[9px] font-black uppercase hover:bg-blue-700">QR</button>
                             </div>
                         </td>
                     </tr>`;
@@ -105,37 +207,24 @@
             });
         }
 
-        // 정렬 기능 핵심 로직
         function handleSort(column) {
-            if (currentSort.column === column) {
-                currentSort.ascending = !currentSort.ascending;
-            } else {
-                currentSort.column = column;
-                currentSort.ascending = true;
-            }
+            if (currentSort.column === column) currentSort.ascending = !currentSort.ascending;
+            else { currentSort.column = column; currentSort.ascending = true; }
 
-            const sortedData = [...assetData].sort((a, b) => {
+            assetData.sort((a, b) => {
                 let valA = (a[column] || "").toString();
                 let valB = (b[column] || "").toString();
-
-                // IP 주소 또는 숫자 포함 문자열 정렬 (Natural Sort)
-                // localeCompare의 numeric: true 옵션을 사용하면 3.2 < 3.10 으로 정렬됩니다.
                 return currentSort.ascending 
-                    ? valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' })
-                    : valB.localeCompare(valA, undefined, { numeric: true, sensitivity: 'base' });
+                    ? valA.localeCompare(valB, undefined, { numeric: true }) 
+                    : valB.localeCompare(valA, undefined, { numeric: true });
             });
-
-            renderTable(sortedData);
+            renderTable(assetData);
         }
 
         function filterTable() {
             const input = document.getElementById("searchInput").value.toLowerCase();
-            const filteredData = assetData.filter(item => {
-                return Object.values(item).some(val => 
-                    val.toString().toLowerCase().includes(input)
-                );
-            });
-            renderTable(filteredData);
+            const filtered = assetData.filter(item => Object.values(item).some(v => v.toString().toLowerCase().includes(input)));
+            renderTable(filtered);
         }
 
         function openQR(sn) {
