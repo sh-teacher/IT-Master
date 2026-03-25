@@ -87,6 +87,14 @@
     </div>
 
     <script>
+        // 1. 페이지 로드되자마자 세션에서 비밀번호 가져오기 (★ 추가)
+        const savedPw = sessionStorage.getItem('asset_pw');
+
+        // 2. 비밀번호가 없으면 로그인 페이지로 쫓아내기 (★ 추가)
+        if (!savedPw) {
+            alert("로그인이 필요합니다.");
+            location.href = 'login.html';
+        }
         const GAS_URL = "https://script.google.com/macros/s/AKfycbyZvgICRHPoQFHKrRX-bI27Ti9RUNWMjdMOlDTzzSNdviEjC1Gxpa0jlMYBi5bOotLyxQ/exec";
 
         function updateFormLayout() {
@@ -125,7 +133,11 @@
                     method: "POST",
                     mode: "no-cors",
                     headers: { "Content-Type": "text/plain" },
-                    body: JSON.stringify({ items, ip: formData.ip })
+                    body: JSON.stringify({ 
+                    items: items, 
+                    ip: formData.ip, 
+                    pw: savedPw  // ★ 여기에 비밀번호를 실어서 보냅니다!
+                })
                 });
 
                 setTimeout(() => {

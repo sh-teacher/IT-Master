@@ -47,6 +47,10 @@
     </div>
 
     <script>
+        const savedPw = sessionStorage.getItem('asset_pw');
+        if (!savedPw && !window.location.href.includes('login.html')) {
+            location.href = 'login.html'; // 비밀번호 없으면 로그인창으로 강제 이동
+        }
         const GAS_URL = "https://script.google.com/macros/s/AKfycbyZvgICRHPoQFHKrRX-bI27Ti9RUNWMjdMOlDTzzSNdviEjC1Gxpa0jlMYBi5bOotLyxQ/exec"; // 본인의 URL로 교체
         const urlParams = new URLSearchParams(window.location.search);
         const sn = urlParams.get('sn');

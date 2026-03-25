@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 로그인</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm text-center">
+        <h1 class="text-2xl font-bold mb-6 text-gray-800">🔐 자산 관리 시스템</h1>
+        <p class="text-gray-500 text-sm mb-6">시스템 접속을 위해 비밀번호를 입력하세요.</p>
+        <input type="password" id="pwInput" class="w-full border-2 border-gray-100 p-4 rounded-xl mb-4 focus:border-blue-500 outline-none transition" placeholder="비밀번호 입력">
+        <button onclick="login()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 transition shadow-lg">접속하기</button>
+    </div>
+
+    <script>
+        function login() {
+            const pw = document.getElementById('pwInput').value;
+            if (pw) {
+                // 브라우저 세션에 비밀번호 임시 저장
+                sessionStorage.setItem('asset_pw', pw);
+                // 메인 리스트(index.html)로 이동
+                location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>
