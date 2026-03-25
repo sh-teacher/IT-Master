@@ -6,16 +6,16 @@
     <title>자산 보유 현황 - IT Master</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* 정렬 가능한 헤더에 마우스 커서 모양 변경 */
-        th.sortable { cursor: pointer; position: relative; }
+        th.sortable { cursor: pointer; position: relative; white-space: nowrap; }
         th.sortable:hover { background-color: #f3f4f6; }
-        /* 정렬 아이콘 표시를 위한 가상 요소 */
         th.sortable::after { content: ' ↕'; font-size: 0.8em; color: #ccc; }
+        /* 테이블 텍스트 줄바꿈 방지 */
+        td { white-space: nowrap; }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
     <nav class="bg-blue-600 text-white p-4 shadow-md mb-6">
-        <div class="max-w-6xl mx-auto flex justify-between items-center">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
             <span class="font-bold text-lg">📋 전체 자산 관리 대장</span>
             <div class="space-x-4 text-sm font-medium">
                 <a href="index.html" class="hover:underline">등록</a>
@@ -24,10 +24,10 @@
         </div>
     </nav>
 
-    <div class="max-w-6xl mx-auto bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+    <div class="max-w-7xl mx-auto bg-white p-6 rounded-xl shadow-lg border border-gray-200">
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
             <h1 class="text-xl font-bold text-gray-800">보유 자산 리스트</h1>
-            <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="사용자, 모델, IP 검색..." class="border border-gray-300 p-2 rounded-lg w-full md:w-64 focus:ring-2 focus:ring-blue-500 outline-none">
+            <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="검색어 입력..." class="border border-gray-300 p-2 rounded-lg w-full md:w-64 focus:ring-2 focus:ring-blue-500 outline-none">
         </div>
         
         <div class="overflow-x-auto">
@@ -35,15 +35,17 @@
                 <thead>
                     <tr class="bg-gray-100 text-gray-600 uppercase text-xs">
                         <th class="p-4 border-b sortable" onclick="handleSort('type')">종류</th>
-                        <th class="p-4 border-b sortable" onclick="handleSort('user')">사용자(부서)</th>
-                        <th class="p-4 border-b sortable" onclick="handleSort('model')">제조사/모델</th>
+                        <th class="p-4 border-b sortable" onclick="handleSort('user')">사용자</th>
+                        <th class="p-4 border-b sortable" onclick="handleSort('group')">부서</th>
+                        <th class="p-4 border-b sortable" onclick="handleSort('brand')">제조사</th>
+                        <th class="p-4 border-b sortable" onclick="handleSort('model')">모델명</th>
                         <th class="p-4 border-b sortable" onclick="handleSort('ip')">IP 주소</th>
                         <th class="p-4 border-b sortable" onclick="handleSort('date')">취득일</th>
-                        <th class="p-4 border-b text-center">조회/QR</th>
+                        <th class="p-4 border-b text-center">관리</th>
                     </tr>
                 </thead>
                 <tbody id="listBody" class="text-gray-700">
-                    <tr><td colspan="6" class="p-10 text-center text-gray-400">데이터를 불러오는 중...</td></tr>
+                    <tr><td colspan="8" class="p-10 text-center text-gray-400">데이터를 불러오는 중...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -59,27 +61,25 @@
 
     <script>
         const GAS_URL = "https://script.google.com/macros/s/AKfycbyZvgICRHPoQFHKrRX-bI27Ti9RUNWMjdMOlDTzzSNdviEjC1Gxpa0jlMYBi5bOotLyxQ/exec"; 
-        let assetData = []; // 전체 데이터를 담을 배열
-        let currentSort = { column: '', ascending: true }; // 현재 정렬 상태 저장
+        let assetData = [];
+        let currentSort = { column: '', ascending: true };
 
-        // 데이터 로드
         async function loadData() {
             try {
                 const res = await fetch(GAS_URL);
                 assetData = await res.json();
                 renderTable(assetData);
             } catch (err) {
-                document.getElementById('listBody').innerHTML = `<tr><td colspan="6" class="p-10 text-center text-red-500">데이터 로드 실패</td></tr>`;
+                document.getElementById('listBody').innerHTML = `<tr><td colspan="8" class="p-10 text-center text-red-500 font-bold">데이터 로드 실패</td></tr>`;
             }
         }
 
-        // 테이블 그리기 함수
         function renderTable(data) {
             const tbody = document.getElementById('listBody');
             tbody.innerHTML = "";
 
             if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-gray-400">표시할 데이터가 없습니다.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="p-10 text-center text-gray-400">표시할 데이터가 없습니다.</td></tr>`;
                 return;
             }
 
@@ -88,10 +88,12 @@
                 const row = `
                     <tr class="border-b hover:bg-blue-50 transition">
                         <td class="p-4 font-semibold text-blue-700">${item.type}</td>
-                        <td class="p-4">${item.user} <span class="text-gray-400 text-xs">(${item.group || '-'})</span></td>
-                        <td class="p-4">${item.brand} ${item.model}</td>
-                        <td class="p-4 font-mono text-xs text-gray-500">${item.ip || '-'}</td>
-                        <td class="p-4 text-xs">${dateStr}</td>
+                        <td class="p-4">${item.user}</td>
+                        <td class="p-4 text-gray-500">${item.group || '-'}</td>
+                        <td class="p-4">${item.brand}</td>
+                        <td class="p-4 font-medium">${item.model}</td>
+                        <td class="p-4 font-mono text-xs text-blue-600 font-bold">${item.ip || '-'}</td>
+                        <td class="p-4 text-xs text-gray-400">${dateStr}</td>
                         <td class="p-4 text-center">
                             <div class="flex justify-center gap-1">
                                 <a href="view.html?sn=${encodeURIComponent(item.sn)}" class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-[10px] font-bold hover:bg-gray-200">상세</a>
@@ -103,9 +105,8 @@
             });
         }
 
-        // 정렬 핸들러
+        // 정렬 기능 핵심 로직
         function handleSort(column) {
-            // 현재 열을 다시 클릭하면 정렬 방향 반전, 다른 열이면 오름차순 시작
             if (currentSort.column === column) {
                 currentSort.ascending = !currentSort.ascending;
             } else {
@@ -114,27 +115,24 @@
             }
 
             const sortedData = [...assetData].sort((a, b) => {
-                let valA = a[column] || "";
-                let valB = b[column] || "";
+                let valA = (a[column] || "").toString();
+                let valB = (b[column] || "").toString();
 
-                // 날짜나 문자열 비교
-                if (valA < valB) return currentSort.ascending ? -1 : 1;
-                if (valA > valB) return currentSort.ascending ? 1 : -1;
-                return 0;
+                // IP 주소 또는 숫자 포함 문자열 정렬 (Natural Sort)
+                // localeCompare의 numeric: true 옵션을 사용하면 3.2 < 3.10 으로 정렬됩니다.
+                return currentSort.ascending 
+                    ? valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' })
+                    : valB.localeCompare(valA, undefined, { numeric: true, sensitivity: 'base' });
             });
 
             renderTable(sortedData);
         }
 
-        // 검색 필터 (정렬된 상태에서도 작동하도록 수정)
         function filterTable() {
             const input = document.getElementById("searchInput").value.toLowerCase();
             const filteredData = assetData.filter(item => {
-                return (
-                    item.user.toLowerCase().includes(input) ||
-                    item.model.toLowerCase().includes(input) ||
-                    (item.ip && item.ip.toLowerCase().includes(input)) ||
-                    item.type.toLowerCase().includes(input)
+                return Object.values(item).some(val => 
+                    val.toString().toLowerCase().includes(input)
                 );
             });
             renderTable(filteredData);
