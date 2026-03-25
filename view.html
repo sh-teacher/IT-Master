@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>자산 정보 조회 - IT Master</title>
+    <title>자산 상세 정보 - IT Master</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 min-h-screen flex flex-col items-center p-4">
@@ -11,46 +11,43 @@
     
     <div id="content" class="hidden w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 mt-10">
         <div class="bg-blue-600 p-8 text-white text-center">
-            <div id="v_type" class="inline-block bg-blue-400 px-3 py-1 rounded-full text-[10px] font-bold mb-2 uppercase">ASSET</div>
-            <h2 id="v_model" class="text-2xl font-bold">모델명</h2>
+            <div id="v_type" class="inline-block bg-blue-400 px-3 py-1 rounded-full text-[10px] font-bold mb-2 uppercase">ASSET INFO</div>
+            <h2 id="v_model" class="text-2xl font-bold leading-tight">모델명</h2>
         </div>
 
         <div class="p-6 space-y-5">
             <div class="flex flex-col border-b border-gray-50 pb-2">
-                <span class="text-gray-400 text-[10px] font-bold uppercase">현재 사용자</span>
+                <span class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">현재 사용자</span>
                 <span id="v_user" class="font-bold text-gray-800 text-lg">-</span>
             </div>
             <div class="flex flex-col border-b border-gray-50 pb-2">
-                <span class="text-gray-400 text-[10px] font-bold uppercase">소속 부서/그룹</span>
+                <span class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">소속 부서/그룹</span>
                 <span id="v_group" class="font-bold text-gray-800">-</span>
             </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div class="flex flex-col border-b border-gray-50 pb-2">
-                    <span class="text-gray-400 text-[10px] font-bold uppercase">도입일자</span>
-                    <span id="v_date" class="font-medium text-gray-700 text-sm">-</span>
-                </div>
-                <div class="flex flex-col border-b border-gray-50 pb-2">
-                    <span class="text-gray-400 text-[10px] font-bold uppercase">IP 주소</span>
-                    <span id="v_ip" class="font-medium text-gray-700 text-sm">-</span>
-                </div>
+            
+            <div class="flex flex-col border-b border-gray-50 pb-2">
+                <span class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">취득일자 (도입일)</span>
+                <span id="v_date" class="font-bold text-gray-700">-</span>
             </div>
-            <div class="bg-gray-50 p-4 rounded-xl flex flex-col">
-                <span class="text-gray-400 text-[10px] font-bold mb-1">시리얼 번호 (S/N)</span>
-                <span id="v_sn" class="font-mono text-blue-600 font-bold tracking-tight">SN-00000000</span>
+
+            <div class="bg-blue-50 p-4 rounded-xl flex flex-col border border-blue-100">
+                <span class="text-blue-400 text-[10px] font-bold mb-1">시리얼 번호 (S/N)</span>
+                <span id="v_sn" class="font-mono text-blue-700 font-bold tracking-tight">SN-00000000</span>
             </div>
+
             <div class="pt-2">
-                <span class="text-gray-400 text-[10px] font-bold">비고</span>
+                <span class="text-gray-400 text-[10px] font-bold">기타 비고</span>
                 <p id="v_note" class="text-gray-600 text-xs mt-1 leading-relaxed">-</p>
             </div>
         </div>
 
-        <div class="bg-gray-100 p-4 text-center">
-            <button onclick="location.href='list.html'" class="text-xs text-gray-400 font-medium hover:text-blue-600 transition">전체 목록 보기</button>
+        <div class="bg-gray-50 p-4 text-center">
+            <button onclick="location.href='list.html'" class="text-xs text-blue-500 font-bold hover:underline">자산 목록 전체보기</button>
         </div>
     </div>
 
     <script>
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbyZvgICRHPoQFHKrRX-bI27Ti9RUNWMjdMOlDTzzSNdviEjC1Gxpa0jlMYBi5bOotLyxQ/exec";
+        const GAS_URL = https://script.google.com/macros/s/AKfycbyZvgICRHPoQFHKrRX-bI27Ti9RUNWMjdMOlDTzzSNdviEjC1Gxpa0jlMYBi5bOotLyxQ/exec; // 본인의 URL로 교체
         const urlParams = new URLSearchParams(window.location.search);
         const sn = urlParams.get('sn');
 
@@ -65,16 +62,13 @@
                     document.getElementById('v_model').innerText = `${data.brand} ${data.model}`;
                     document.getElementById('v_user').innerText = data.user || "미지정";
                     document.getElementById('v_group').innerText = data.group || "-";
-                    document.getElementById('v_date').innerText = (data.date || "").split('T')[0];
+                    document.getElementById('v_date').innerText = (data.date || "").split('T')[0] || "정보없음";
                     document.getElementById('v_sn').innerText = data.sn;
-                    document.getElementById('v_ip').innerText = data.ip || "N/A";
                     document.getElementById('v_note').innerText = data.note || "특이사항 없음";
                 })
                 .catch(err => {
-                    document.getElementById('loader').innerHTML = `<p class='text-red-500 font-bold'>자산 정보를 찾을 수 없거나<br>연결에 실패했습니다.</p>`;
+                    document.getElementById('loader').innerHTML = `<p class='text-red-500 font-bold'>조회 실패: 데이터를 찾을 수 없습니다.</p>`;
                 });
-        } else {
-            document.getElementById('loader').innerText = "조회할 S/N 정보가 없습니다.";
         }
     </script>
 </body>
