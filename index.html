@@ -75,7 +75,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse text-sm">
                     <thead>
-                        <tr class="bg-gray-50 text-gray-500 uppercase text-[10px] font-black tracking-widest">
+                        <tr class="bg-gray-50 text-gray-500 uppercase text-xs font-sm tracking-widest">
                             <th class="p-4 border-b sortable" onclick="handleSort('type')">종류</th>
                             <th class="p-4 border-b sortable" onclick="handleSort('user')">사용자</th>
                             <th class="p-4 border-b sortable" onclick="handleSort('group')">부서</th>
@@ -218,11 +218,11 @@
                     <tr class="border-b hover:bg-blue-50 transition">
                         <td class="p-4 font-bold text-gray-800 text-xs">${item.type}</td>
                         <td class="p-4 text-xs font-bold">${item.user}</td>
-                        <td class="p-4 text-gray-400 text-[11px]">${item.group || '-'}</td>
+                        <td class="p-4 text-bold text-[12px]">${item.group || '-'}</td>
                         <td class="p-4 text-xs">${item.brand}</td>
                         <td class="p-4 text-xs font-medium">${item.model}</td>
                         <td class="p-4 font-mono text-[11px] text-blue-600 font-black">${item.ip || '-'}</td>
-                        <td class="p-4 text-[11px] text-gray-400">${dateStr}</td>
+                        <td class="p-4 text-[12px] text-gray-400">${dateStr}</td>
                         <td class="p-4 text-[10px] text-gray-500"><div class="note-cell" title="${item.note || ''}">${item.note || '-'}</div></td> <td class="p-4 text-center">
                             <div class="flex justify-center gap-1">
                                 <a href="view.html?sn=${encodeURIComponent(item.sn)}" class="bg-gray-100 text-gray-500 px-2 py-1 rounded text-[9px] font-black uppercase hover:bg-gray-200">View</a>
