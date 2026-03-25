@@ -3,62 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>자산 상세 정보 조회</title>
+    <title>자산 정보 조회 - IT Master</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <nav class="bg-gray-800 text-white p-4 shadow-md mb-6">
-        <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <span class="font-bold">자산 정보 조회</span>
-            <a href="list.html" class="text-sm bg-gray-700 px-3 py-1 rounded">목록으로</a>
+<body class="bg-gray-50 min-h-screen flex flex-col items-center p-4">
+    <div id="loader" class="mt-20 text-gray-400 animate-pulse">데이터를 실시간으로 불러오는 중...</div>
+    
+    <div id="content" class="hidden w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 mt-10">
+        <div class="bg-blue-600 p-8 text-white text-center">
+            <div id="v_type" class="inline-block bg-blue-400 px-3 py-1 rounded-full text-[10px] font-bold mb-2 uppercase">ASSET</div>
+            <h2 id="v_model" class="text-2xl font-bold">모델명</h2>
         </div>
-    </nav>
 
-    <div class="max-w-md mx-auto p-4">
-        <div id="loader" class="text-center py-10 text-gray-500">데이터를 찾는 중...</div>
-        
-        <div id="content" class="hidden bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
-            <div class="bg-blue-600 p-8 text-white text-center">
-                <div id="v_type" class="inline-block bg-blue-400 px-3 py-1 rounded-full text-xs mb-2">노트북</div>
-                <h2 id="v_model_full" class="text-2xl font-bold">제조사 모델명</h2>
+        <div class="p-6 space-y-5">
+            <div class="flex flex-col border-b border-gray-50 pb-2">
+                <span class="text-gray-400 text-[10px] font-bold uppercase">현재 사용자</span>
+                <span id="v_user" class="font-bold text-gray-800 text-lg">-</span>
             </div>
-
-            <div class="p-6 space-y-5">
-                <div class="flex flex-col border-b pb-2">
-                    <span class="text-gray-400 text-xs uppercase tracking-wider">사용자 / 부서</span>
-                    <span class="font-bold text-gray-800 text-lg"><span id="v_user">-</span> (<span id="v_group">-</span>)</span>
+            <div class="flex flex-col border-b border-gray-50 pb-2">
+                <span class="text-gray-400 text-[10px] font-bold uppercase">소속 부서/그룹</span>
+                <span id="v_group" class="font-bold text-gray-800">-</span>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="flex flex-col border-b border-gray-50 pb-2">
+                    <span class="text-gray-400 text-[10px] font-bold uppercase">도입일자</span>
+                    <span id="v_date" class="font-medium text-gray-700 text-sm">-</span>
                 </div>
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="flex flex-col border-b pb-2">
-                        <span class="text-gray-400 text-xs uppercase tracking-wider">취득일자</span>
-                        <span id="v_date" class="font-medium text-gray-700">-</span>
-                    </div>
-                    <div class="flex flex-col border-b pb-2">
-                        <span class="text-gray-400 text-xs uppercase tracking-wider">IP 주소</span>
-                        <span id="v_ip" class="font-medium text-gray-700">-</span>
-                    </div>
-                </div>
-
-                <div class="flex flex-col bg-gray-50 p-4 rounded-xl">
-                    <span class="text-gray-400 text-xs uppercase tracking-wider mb-1">시리얼 번호 (S/N)</span>
-                    <span id="v_sn" class="font-mono text-blue-600 font-bold text-sm tracking-tighter">-</span>
-                </div>
-
-                <div class="flex flex-col pt-2">
-                    <span class="text-gray-400 text-xs uppercase tracking-wider">비고</span>
-                    <p id="v_note" class="text-gray-600 text-sm mt-1">-</p>
+                <div class="flex flex-col border-b border-gray-50 pb-2">
+                    <span class="text-gray-400 text-[10px] font-bold uppercase">IP 주소</span>
+                    <span id="v_ip" class="font-medium text-gray-700 text-sm">-</span>
                 </div>
             </div>
-
-            <div class="p-4 bg-gray-50 text-center">
-                <button onclick="window.print()" class="text-xs text-blue-500 font-bold border border-blue-200 px-4 py-2 rounded-lg">정보 인쇄하기</button>
+            <div class="bg-gray-50 p-4 rounded-xl flex flex-col">
+                <span class="text-gray-400 text-[10px] font-bold mb-1">시리얼 번호 (S/N)</span>
+                <span id="v_sn" class="font-mono text-blue-600 font-bold tracking-tight">SN-00000000</span>
             </div>
+            <div class="pt-2">
+                <span class="text-gray-400 text-[10px] font-bold">비고</span>
+                <p id="v_note" class="text-gray-600 text-xs mt-1 leading-relaxed">-</p>
+            </div>
+        </div>
+
+        <div class="bg-gray-100 p-4 text-center">
+            <button onclick="location.href='list.html'" class="text-xs text-gray-400 font-medium hover:text-blue-600 transition">전체 목록 보기</button>
         </div>
     </div>
 
     <script>
-        const GAS_URL = "본인의_GAS_URL_입력"; // 반드시 수정!
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbyZvgICRHPoQFHKrRX-bI27Ti9RUNWMjdMOlDTzzSNdviEjC1Gxpa0jlMYBi5bOotLyxQ/exec";
         const urlParams = new URLSearchParams(window.location.search);
         const sn = urlParams.get('sn');
 
@@ -66,27 +58,23 @@
             fetch(`${GAS_URL}?sn=${encodeURIComponent(sn)}`)
                 .then(res => res.json())
                 .then(data => {
-                    if(data.result === "error") throw new Error();
-                    
                     document.getElementById('loader').classList.add('hidden');
                     document.getElementById('content').classList.remove('hidden');
                     
                     document.getElementById('v_type').innerText = data.type;
-                    document.getElementById('v_model_full').innerText = `${data.brand} ${data.model}`;
+                    document.getElementById('v_model').innerText = `${data.brand} ${data.model}`;
                     document.getElementById('v_user').innerText = data.user || "미지정";
-                    document.getElementById('v_group').innerText = data.group || "소속없음";
-                    
-                    // 날짜 형식 예쁘게 처리 (2024-03-25T... -> 2024-03-25)
-                    const dateRaw = new String(data.date);
-                    document.getElementById('v_date').innerText = dateRaw.split('T')[0] || "-";
-                    
+                    document.getElementById('v_group').innerText = data.group || "-";
+                    document.getElementById('v_date').innerText = (data.date || "").split('T')[0];
                     document.getElementById('v_sn').innerText = data.sn;
                     document.getElementById('v_ip').innerText = data.ip || "N/A";
                     document.getElementById('v_note').innerText = data.note || "특이사항 없음";
                 })
-                .catch(() => {
-                    document.getElementById('loader').innerHTML = "<p class='text-red-500'>데이터를 찾을 수 없습니다.<br><br><a href='list.html' class='underline'>목록으로 돌아가기</a></p>";
+                .catch(err => {
+                    document.getElementById('loader').innerHTML = `<p class='text-red-500 font-bold'>자산 정보를 찾을 수 없거나<br>연결에 실패했습니다.</p>`;
                 });
+        } else {
+            document.getElementById('loader').innerText = "조회할 S/N 정보가 없습니다.";
         }
     </script>
 </body>
