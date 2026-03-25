@@ -121,7 +121,7 @@
 
         function updateDashboard(data) {
             const counts = { 노트북: 0, 데스크톱: 0, 태블릿: 0, 프린터: 0 };
-            const models = {};
+            const modelGroups = {}; // 모델별 그룹화
             const years = {};
 
             data.forEach(item => {
@@ -130,8 +130,12 @@
                 else if(item.type.includes('태블릿')) counts.태블릿++;
                 else if(item.type.includes('프린터') || item.type.includes('복합기')) counts.프린터++;
 
-                const modelName = item.model || "알수없음";
-                models[modelName] = (models[modelName] || 0) + 1;
+                // 제조사|모델명|취득일 정보를 키(Key)로 결합 (취득일은 0000-00-00 형식으로)
+                const dateStr = item.date ? String(item.date).split('T')[0] : "날짜미상";
+                const key = `${item.brand || '기타'}|${item.model || '기타'}|${dateStr}`;
+                
+                if(!modelGroups[key]) modelGroups[key] = 0;
+                modelGroups[key]++;
 
                 const year = item.date ? String(item.date).substring(0, 4) : "미등록";
                 if(year !== "미등록") years[year] = (years[year] || 0) + 1;
@@ -143,23 +147,52 @@
             document.getElementById('statTablet').innerText = counts.태블릿;
             document.getElementById('statPrinter').innerText = counts.프린터;
 
-            const topModels = Object.entries(models).sort((a,b) => b[1] - a[1]).slice(0, 5);
-            renderModelChart(topModels);
+            // TOP 5 추출 및 라벨 생성
+            const top5 = Object.entries(modelGroups).sort((a,b) => b[1] - a[1]).slice(0, 5);
+            
+            const labels = top5.map(i => {
+                const info = i[0].split('|'); // [제조사, 모델명, 취득일]
+                // 1행: 제조사 모델명 / 2행: 취득일
+                return [`${info[0]} ${info[1]}`, `(${info[2]})` ]; 
+            });
+            const countsArray = top5.map(i => i[1]);
 
+            renderModelChart(labels, countsArray); // 수정된 인자 전달
+            
             const sortedYears = Object.entries(years).sort((a,b) => a[0].localeCompare(b[0]));
             renderYearChart(sortedYears);
         }
 
-        function renderModelChart(items) {
+        function renderModelChart(labels, counts) {
             const ctx = document.getElementById('modelChart').getContext('2d');
             if(mChart) mChart.destroy();
             mChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: items.map(i => i[0]),
-                    datasets: [{ label: '보유 대수', data: items.map(i => i[1]), backgroundColor: '#3b82f6', borderRadius: 5 }]
+                    labels: labels, // 2차원 배열 형태의 라벨
+                    datasets: [{ 
+                        label: '보유 대수', 
+                        data: counts, 
+                        backgroundColor: '#3b82f6', 
+                        borderRadius: 5 
+                    }]
                 },
-                options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                options: { 
+                    indexAxis: 'y', 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { display: false } 
+                    },
+                    scales: {
+                        y: {
+                            ticks: {
+                                font: {
+                                    size: 10 // 라벨이 2줄이므로 폰트를 조금 줄이는 것이 보기 좋습니다.
+                                }
+                            }
+                        }
+                    }
+                }
             });
         }
 
