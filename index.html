@@ -226,10 +226,22 @@
 
         function renderTable(data) {
             const tbody = document.getElementById('listBody');
-            tbody.innerHTML = "";
-            // 상단 카운트 업데이트
-            document.getElementById('statTotal').innerText = data.length;
+            const resultCount = document.getElementById('resultCount'); // ★ 숫자 그릇 찾기
+            
+            // 1. [핵심] 테이블을 그리기 전, 상단 개수부터 무조건 업데이트!
+            if (resultCount) {
+                resultCount.innerText = data.length; 
+                console.log("현재 조회된 개수:", data.length); // 브라우저 검사창(F12)에서 확인용
+            }
+            
+            tbody.innerHTML = ""; // 기존 내용 비우기
 
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="10" class="p-10 text-center text-gray-400">조회된 데이터가 없습니다.</td></tr>`;
+                return;
+            }
+
+            // 2. 리스트 그리기
             data.forEach((item, index) => {
                 const dateStr = item.date ? String(item.date).split('T')[0] : "-";
                 const row = `
