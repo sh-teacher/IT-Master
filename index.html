@@ -306,12 +306,15 @@
             renderTable(filtered); 
         }
 
-        function openQR(sn) {
-            const currentPath = window.location.href.split('index.html')[0];
-            const viewUrl = `${currentPath}view.html?sn=${encodeURIComponent(sn)}`;
+        function openQR(id) {
+            // 현재 페이지의 URL에서 파일명(index.html)을 제거하고 폴더 경로만 추출
+            const path = window.location.href.substring(0, window.location.href.lastIndexOf("/") + 1);
+            const viewUrl = `${path}view.html?id=${id}`;
+            
             const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(viewUrl)}`;
+            
             document.getElementById('modalQrCode').innerHTML = `<img src="${qrImageUrl}" class="rounded-lg shadow-sm" />`;
-            document.getElementById('modalSnText').innerText = sn;
+            document.getElementById('modalSnText').innerText = `관리번호: ${id}번`;
             document.getElementById('qrModal').classList.remove('hidden');
         }
 

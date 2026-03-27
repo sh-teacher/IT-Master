@@ -79,7 +79,7 @@
                     document.getElementById('v_user').innerText = data.user || "미지정";
                     document.getElementById('v_group').innerText = data.group || "-";
                     document.getElementById('v_date').innerText = (data.date || "").split('T')[0] || "정보없음";
-                    document.getElementById('v_sn').innerText = data.sn;
+                    document.getElementById('v_sn').innerText = data.id;
                     document.getElementById('v_note').innerText = data.note || "특이사항 없음";
                 })
                 .catch(err => {
