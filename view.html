@@ -7,14 +7,13 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 min-h-screen flex flex-col items-center p-4">
-    <div id="loader" class="mt-20 text-gray-400 animate-pulse">데이터를 실시간으로 불러오는 중...</div>
+    <div id="loader" class="mt-20 text-gray-400 animate-pulse font-bold">데이터를 실시간으로 불러오는 중...</div>
     
     <div id="content" class="hidden w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 mt-10">
         <div class="bg-blue-600 p-8 text-white text-center">
             <div id="v_type" class="inline-block bg-blue-400 px-3 py-1 rounded-full text-[10px] font-bold mb-2 uppercase">ASSET INFO</div>
             <h2 id="v_model" class="text-2xl font-bold leading-tight">모델명</h2>
         </div>
-
         <div class="p-6 space-y-5">
             <div class="flex flex-col border-b border-gray-50 pb-2">
                 <span class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">현재 사용자</span>
@@ -24,41 +23,54 @@
                 <span class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">소속 부서/그룹</span>
                 <span id="v_group" class="font-bold text-gray-800">-</span>
             </div>
-            
             <div class="flex flex-col border-b border-gray-50 pb-2">
                 <span class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">취득일자 (도입일)</span>
                 <span id="v_date" class="font-bold text-gray-700">-</span>
             </div>
-
             <div class="bg-blue-50 p-4 rounded-xl flex flex-col border border-blue-100">
                 <span class="text-blue-400 text-[10px] font-bold mb-1">시리얼 번호 (S/N)</span>
-                <span id="v_sn" class="font-mono text-blue-700 font-bold tracking-tight">SN-00000000</span>
+                <span id="v_sn" class="font-mono text-blue-700 font-bold tracking-tight text-sm">-</span>
             </div>
-
             <div class="pt-2">
                 <span class="text-gray-400 text-[10px] font-bold">기타 비고</span>
                 <p id="v_note" class="text-gray-600 text-xs mt-1 leading-relaxed">-</p>
             </div>
         </div>
-
         <div class="bg-gray-50 p-4 text-center">
-            <button onclick="location.href='list.html'" class="text-xs text-blue-500 font-bold hover:underline">자산 목록 전체보기</button>
+            <button onclick="location.href='index.html'" class="text-xs text-blue-500 font-bold hover:underline">자산 목록 전체보기</button>
         </div>
     </div>
 
     <script>
+        // 1. GAS URL (본인의 URL로 반드시 확인!)
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbyZvgICRHPoQFHKrRX-bI27Ti9RUNWMjdMOlDTzzSNdviEjC1Gxpa0jlMYBi5bOotLyxQ/exec";
+        
+        // 2. 세션에서 비밀번호와 URL에서 ID 가져오기
         const savedPw = sessionStorage.getItem('asset_pw');
-        if (!savedPw && !window.location.href.includes('login.html')) {
-            location.href = 'login.html'; // 비밀번호 없으면 로그인창으로 강제 이동
-        }
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbyZvgICRHPoQFHKrRX-bI27Ti9RUNWMjdMOlDTzzSNdviEjC1Gxpa0jlMYBi5bOotLyxQ/exec"; // 본인의 URL로 교체
         const urlParams = new URLSearchParams(window.location.search);
         const id = urlParams.get('id');
 
+        // 비밀번호가 없으면 로그인으로 튕겨내기
+        if (!savedPw) {
+            alert("인증 정보가 없습니다. 다시 로그인하세요.");
+            location.href = 'login.html';
+        }
+
         if (id) {
-            fetch(`${GAS_URL}?sn=${encodeURIComponent(sn)}`)
-                .then(res => res.json())
-                .then(data => {
+            // ★ fetch 요청 시 id와 pw를 모두 정확히 전달
+            fetch(`${GAS_URL}?id=${encodeURIComponent(id)}&pw=${encodeURIComponent(savedPw)}`)
+                .then(res => {
+                    if (!res.ok) throw new Error();
+                    return res.text(); // 인증실패 메시지 확인을 위해 text로 먼저 받음
+                })
+                .then(text => {
+                    if (text === "인증 실패") {
+                        alert("비밀번호가 틀렸거나 세션이 만료되었습니다.");
+                        location.href = 'login.html';
+                        return;
+                    }
+                    
+                    const data = JSON.parse(text);
                     document.getElementById('loader').classList.add('hidden');
                     document.getElementById('content').classList.remove('hidden');
                     
@@ -73,6 +85,8 @@
                 .catch(err => {
                     document.getElementById('loader').innerHTML = `<p class='text-red-500 font-bold'>조회 실패: 데이터를 찾을 수 없습니다.</p>`;
                 });
+        } else {
+            document.getElementById('loader').innerText = "ID 정보가 없습니다.";
         }
     </script>
 </body>
