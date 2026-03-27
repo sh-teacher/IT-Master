@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>. 
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>자산 관리 대시보드 - IT Master</title>
@@ -67,22 +67,30 @@
         </div>
 
         <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
-            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+            <div class="flex flex-col md:flex-row justify-between items-start mb-6 gap-4">
                 <div class="flex flex-col">
-                    <h1 class="text-xl font-bold text-gray-800 underline decoration-blue-200 decoration-4 text-left">보유 자산 상세 리스트</h1>
-                    <p class="text-sm text-gray-500 font-bold mt-1 text-left">
-                        조회된 자산: <span id="resultCount" class="text-blue-600">0</span>대
-                    </p>
+                    <h1 class="text-xl font-bold text-gray-800 underline decoration-blue-200 decoration-4">보유 자산 상세 리스트</h1>
+                    <p class="text-sm text-gray-500 font-bold mt-2">조회된 자산: <span id="resultCount" class="text-blue-600">0</span>대</p>
                 </div>
-                <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="검색어 입력..." class="border border-gray-300 p-2 rounded-lg w-full md:w-64 focus:ring-2 focus:ring-blue-500 outline-none">
+                
+                <div class="flex flex-col items-end gap-2 w-full md:w-auto">
+                    <div class="flex flex-wrap gap-2 no-print justify-end">
+                        <button onclick="filterByType('전체')" class="bg-gray-200 px-3 py-1 rounded-full text-xs font-bold hover:bg-gray-300">전체</button>
+                        <button onclick="filterByType('노트북')" class="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-xs font-bold hover:bg-blue-200">💻 노트북</button>
+                        <button onclick="filterByType('데스크톱')" class="bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs font-bold hover:bg-green-200">🖥️ 데스크톱</button>
+                        <button onclick="filterByType('태블릿')" class="bg-purple-100 text-purple-600 px-3 py-1 rounded-full text-xs font-bold hover:bg-purple-200">📱 태블릿</button>
+                        <button onclick="filterByType('프린터')" class="bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-xs font-bold hover:bg-orange-200">📠 프린터/복사기</button>
+                        <button onclick="filterByAging()" class="bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-bold hover:bg-red-200">⚠️ 교체대상(5년↑)</button>
+                    </div>
+                    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="검색어 입력..." class="border border-gray-300 p-2 rounded-lg w-full md:w-64 focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
             </div>
-
-            
             
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse text-sm">
                     <thead>
                         <tr class="bg-gray-50 text-gray-500 uppercase text-xs font-sm tracking-widest">
+                            <th class="p-4 border-b">No.</th>
                             <th class="p-4 border-b sortable" onclick="handleSort('type')">종류</th>
                             <th class="p-4 border-b sortable" onclick="handleSort('user')">사용자</th>
                             <th class="p-4 border-b sortable" onclick="handleSort('group')">부서</th>
@@ -90,11 +98,12 @@
                             <th class="p-4 border-b sortable" onclick="handleSort('model')">모델명</th>
                             <th class="p-4 border-b sortable" onclick="handleSort('ip')">IP 주소</th>
                             <th class="p-4 border-b sortable" onclick="handleSort('date')">취득일</th>
-                            <th class="p-4 border-b sortable" onclick="handleSort('note')">비고</th> <th class="p-4 border-b text-center">관리</th>
+                            <th class="p-4 border-b sortable" onclick="handleSort('note')">비고</th> 
+                            <th class="p-4 border-b text-center">관리</th>
                         </tr>
                     </thead>
                     <tbody id="listBody" class="text-gray-700">
-                        <tr><td colspan="9" class="p-10 text-center text-gray-400">데이터를 불러오는 중...</td></tr>
+                        <tr><td colspan="10" class="p-10 text-center text-gray-400 animate-pulse">데이터 로드 중...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -105,14 +114,14 @@
         <div class="bg-white p-8 rounded-2xl text-center max-w-xs w-full shadow-2xl">
             <div id="modalQrCode" class="flex justify-center mb-4"></div>
             <p id="modalSnText" class="font-mono text-blue-600 font-bold mb-6"></p>
-            <button onclick="closeModal()" class="w-full bg-gray-200 py-2 rounded-lg hover:bg-gray-300 transition text-gray-700 font-bold">닫기</button>
+            <button onclick="closeModal()" class="w-full bg-gray-200 py-2 rounded-lg hover:bg-gray-300 transition text-gray-700 font-bold font-sans">닫기</button>
         </div>
     </div>
 
     <script>
         const savedPw = sessionStorage.getItem('asset_pw');
         if (!savedPw && !window.location.href.includes('login.html')) {
-            location.href = 'login.html'; // 비밀번호 없으면 로그인창으로 강제 이동
+            location.href = 'login.html';
         }
         const GAS_URL = "https://script.google.com/macros/s/AKfycbyZvgICRHPoQFHKrRX-bI27Ti9RUNWMjdMOlDTzzSNdviEjC1Gxpa0jlMYBi5bOotLyxQ/exec"; 
         let assetData = [];
@@ -120,56 +129,41 @@
         let mChart, yChart;
 
         async function loadData() {
-            // 세션에서 비번 가져오기
             const savedPw = sessionStorage.getItem('asset_pw');
-            
             try {
-                // 주소 뒤에 비밀번호를 꼭 붙여야 합니다!
                 const res = await fetch(`${GAS_URL}?pw=${encodeURIComponent(savedPw)}`);
-                
-                // 만약 구글 문지기가 거절했다면 (응답이 JSON이 아니거나 인증실패 문구인 경우)
                 const text = await res.text();
                 if (text === "인증 실패") {
-                    sessionStorage.removeItem('asset_pw'); // 잘못된 비번 삭제
-                    alert("비밀번호가 틀렸습니다. 다시 로그인하세요.");
+                    sessionStorage.removeItem('asset_pw');
+                    alert("비밀번호가 틀렸습니다.");
                     location.href = 'login.html';
                     return;
                 }
-
-                // 인증 통과 시 데이터를 JSON으로 변환
                 assetData = JSON.parse(text);
                 updateDashboard(assetData);
                 renderTable(assetData);
-
             } catch (err) {
-                console.error(err);
-                document.getElementById('listBody').innerHTML = `<tr><td colspan="9" class="p-10 text-center text-red-500 font-bold">인증 실패 또는 네트워크 오류</td></tr>`;
+                document.getElementById('listBody').innerHTML = `<tr><td colspan="10" class="p-10 text-center text-red-500 font-bold">인증 실패 또는 네트워크 오류</td></tr>`;
             }
         }
 
         function updateDashboard(data) {
             const counts = { 노트북: 0, 데스크톱: 0, 태블릿: 0, 프린터: 0 };
-            const groupData = {}; // 부서별 분포
+            const groupData = {};
             const ageData = { "신규(3년이내)": 0, "보통(3~5년)": 0, "교체대상(5년이상)": 0 };
-            
-            const currentYear = 2026; // 현재 연도 기준 (시스템 설정)
+            const currentYear = 2026;
 
             data.forEach(item => {
-                // 1. 분류 집계 (누락된 8대 해결: 복사기, 렌탈 포함)
                 const type = (item.type || "").trim();
                 if (type.includes('노트북')) counts.노트북++;
                 else if (type.includes('데스크톱')) counts.데스크톱++;
                 else if (type.includes('태블릿')) counts.태블릿++;
-                // 프린터, 복사기, 렌탈, 다기능 등 모든 출력기기 포함
                 else if (type.includes('프린터') || type.includes('복사기') || type.includes('복합기') || type.includes('렌탈')) counts.프린터++;
 
-                // 2. 부서별 분포 데이터 가공
                 const group = (item.group || "미지정").trim();
                 groupData[group] = (groupData[group] || 0) + 1;
 
-                // 3. 노후도 데이터 가공 (취득일 기준)
                 if (item.date) {
-                    // 날짜 형식에서 연도만 추출 (예: 2022.5 -> 2022)
                     const buyYear = parseInt(String(item.date).split('.')[0]);
                     if (!isNaN(buyYear)) {
                         const age = currentYear - buyYear;
@@ -180,48 +174,15 @@
                 }
             });
 
-            // 상단 숫자 카드 업데이트
             document.getElementById('statTotal').innerText = data.length;
             document.getElementById('statLaptop').innerText = counts.노트북;
             document.getElementById('statDesktop').innerText = counts.데스크톱;
             document.getElementById('statTablet').innerText = counts.태블릿;
             document.getElementById('statPrinter').innerText = counts.프린터;
 
-            // 차트 그리기 (기존 함수명 유지)
             const sortedGroups = Object.entries(groupData).sort((a,b) => b[1] - a[1]).slice(0, 10);
-            renderModelChart(sortedGroups); // 부서별 차트로 사용
-            renderYearChart(ageData);      // 노후도 차트로 사용
-        }
-
-        // 부서별 바 차트
-        function renderBarChart(id, items, label, color) {
-            const ctx = document.getElementById(id).getContext('2d');
-            if(mChart) mChart.destroy();
-            mChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: items.map(i => i[0]),
-                    datasets: [{ label: label, data: items.map(i => i[1]), backgroundColor: color, borderRadius: 5 }]
-                },
-                options: { indexAxis: 'y', maintainAspectRatio: false }
-            });
-        }
-
-        // 노후도 파이 차트
-        function renderPieChart(id, dataObj) {
-            const ctx = document.getElementById(id).getContext('2d');
-            if(yChart) yChart.destroy();
-            yChart = new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: Object.keys(dataObj),
-                    datasets: [{
-                        data: Object.values(dataObj),
-                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'] // 초록, 노랑, 빨강
-                    }]
-                },
-                options: { maintainAspectRatio: false }
-            });
+            renderModelChart(sortedGroups);
+            renderYearChart(ageData);
         }
 
         function renderModelChart(items) {
@@ -239,18 +200,9 @@
                     }]
                 },
                 options: {
-                    indexAxis: 'y', // 가로 막대
+                    indexAxis: 'y',
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        datalabels: {
-                            anchor: 'end',
-                            align: 'right',
-                            color: '#3b82f6',
-                            font: { weight: 'bold' },
-                            formatter: (val) => val + '대'
-                        }
-                    }
+                    plugins: { legend: { display: false } }
                 }
             });
         }
@@ -259,70 +211,59 @@
             const ctx = document.getElementById('yearChart').getContext('2d');
             if(yChart) yChart.destroy();
             yChart = new Chart(ctx, {
-                type: 'doughnut', // 도넛 모양이 더 세련되어 보입니다
+                type: 'doughnut',
                 data: {
                     labels: Object.keys(ageObj),
                     datasets: [{
                         data: Object.values(ageObj),
-                        backgroundColor: [
-                            '#10b981', // 신규: 초록
-                            '#f59e0b', // 보통: 주황
-                            '#ef4444'  // 교체대상: 빨강
-                        ],
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
                         hoverOffset: 4
                     }]
                 },
-                options: {
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'right' },
-                        datalabels: {
-                            color: '#fff',
-                            font: { weight: 'bold', size: 12 },
-                            formatter: (val) => val > 0 ? val + '대' : '' 
-                        }
-                    }
-                }
+                options: { maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
             });
         }
 
         function renderTable(data) {
             const tbody = document.getElementById('listBody');
-            const countSpan = document.getElementById('resultCount');
-            
             tbody.innerHTML = "";
-            
-            // 1. 상단 카운트 숫자 업데이트
-            countSpan.innerText = data.length;
+            // 상단 카운트 업데이트
+            document.getElementById('statTotal').innerText = data.length;
 
-            if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="10" class="p-10 text-center text-gray-400">조회된 데이터가 없습니다.</td></tr>`;
-                return;
-            }
-
-            // 2. 순번(Index)을 포함하여 테이블 그리기
             data.forEach((item, index) => {
                 const dateStr = item.date ? String(item.date).split('T')[0] : "-";
                 const row = `
                     <tr class="border-b hover:bg-blue-50 transition text-[11px]">
-                        <td class="p-4 text-center font-bold text-gray-400">${index + 1}</td> 
+                        <td class="p-4 text-center font-bold text-gray-400">${index + 1}</td>
                         <td class="p-4 font-bold text-gray-800 text-xs">${item.type}</td>
                         <td class="p-4 text-xs font-bold">${item.user}</td>
-                        <td class="p-4 text-gray-400 text-[11px]">${item.group || '-'}</td>
+                        <td class="p-4 text-bold text-[12px]">${item.group || '-'}</td>
                         <td class="p-4 text-xs">${item.brand}</td>
                         <td class="p-4 text-xs font-medium">${item.model}</td>
-                        <td class="p-4 font-mono text-[11px] text-blue-600 font-black">${item.ip || '-'}</td>
-                        <td class="p-4 text-[11px] text-gray-400">${dateStr}</td>
-                        <td class="p-4 text-[10px] text-gray-500"><div class="note-cell" title="${item.note || ''}">${item.note || '-'}</div></td>
+                        <td class="p-4 font-mono text-base text-blue-600 font-bold">${item.ip || '-'}</td>
+                        <td class="p-4 text-[12px] text-gray-400">${dateStr}</td>
+                        <td class="p-4 text-[10px] text-gray-500"><div class="note-cell" title="${item.note || ''}">${item.note || '-'}</div></td> 
                         <td class="p-4 text-center">
                             <div class="flex justify-center gap-1">
-                                <a href="view.html?sn=${encodeURIComponent(item.sn)}" class="bg-gray-100 text-gray-500 px-2 py-1 rounded text-[9px] font-black uppercase hover:bg-gray-200">View</a>
-                                <button onclick="openQR('${item.sn}')" class="bg-blue-600 text-white px-2 py-1 rounded text-[9px] font-black uppercase hover:bg-blue-700">QR</button>
+                                <a href="view.html?id=${item.id}" class="bg-gray-100 text-gray-500 px-2 py-1 rounded text-[9px] font-black uppercase hover:bg-gray-200">View</a>
+                                <button onclick="openQR('${item.id}')" class="bg-blue-600 text-white px-2 py-1 rounded text-[9px] font-black uppercase hover:bg-blue-700 shadow-sm">QR</button>
                             </div>
                         </td>
                     </tr>`;
                 tbody.innerHTML += row;
             });
+        }
+
+        function openQR(id) {
+            // ★ 경로 버그 수정: 파일명에 상관없이 현재 폴더 경로를 정확히 가져옴
+            const currentUrl = window.location.origin + window.location.pathname;
+            const currentFolder = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
+            const viewUrl = `${currentFolder}view.html?id=${id}`;
+            
+            const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(viewUrl)}`;
+            document.getElementById('modalQrCode').innerHTML = `<img src="${qrImageUrl}" class="rounded-lg shadow-sm" />`;
+            document.getElementById('modalSnText').innerText = `관리번호: ${id}번`;
+            document.getElementById('qrModal').classList.remove('hidden');
         }
 
         function handleSort(column) {
@@ -346,14 +287,14 @@
         }
 
         function openQR(sn) {
-            const currentPath = window.location.href.split('list.html')[0];
+            const currentPath = window.location.href.split('index.html')[0];
             const viewUrl = `${currentPath}view.html?sn=${encodeURIComponent(sn)}`;
             const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(viewUrl)}`;
-            document.getElementById('modalQrCode').innerHTML = `<img src="${qrImageUrl}" class="border-4 border-white shadow-sm" />`;
+            document.getElementById('modalQrCode').innerHTML = `<img src="${qrImageUrl}" class="rounded-lg shadow-sm" />`;
             document.getElementById('modalSnText').innerText = sn;
             document.getElementById('qrModal').classList.remove('hidden');
         }
-        // 종류별 필터
+
         function filterByType(type) {
             if (type === '전체') {
                 renderTable(assetData);
@@ -363,7 +304,6 @@
             }
         }
 
-        // 노후 장비 필터 (5년 이상)
         function filterByAging() {
             const currentYear = 2026;
             const filtered = assetData.filter(item => {
@@ -373,6 +313,7 @@
             });
             renderTable(filtered);
         }
+
         function closeModal() { document.getElementById('qrModal').classList.add('hidden'); }
         window.onload = loadData;
     </script>
