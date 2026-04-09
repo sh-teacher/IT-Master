@@ -22,7 +22,7 @@
             <span class="font-bold text-lg">📊 교육정보화 기자재현황 대시보드</span>
             <div class="space-x-4 text-sm font-medium">
                 <a href="write.html" class="hover:underline">등록</a>
-                <a href="index.html" class="bg-blue-700 px-3 py-1 rounded">목록현황</a>
+                <a href="sangildevice.html" class="bg-blue-700 px-3 py-1 rounded">목록현황</a>
             </div>
         </div>
     </nav>
@@ -307,7 +307,7 @@
         }
 
         function openQR(id) {
-            const currentPath = window.location.href.split('index.html')[0];
+            const currentPath = window.location.href.split('sangildevice.html')[0];
             const viewUrl = `${currentPath}view.html?sn=${encodeURIComponent(sn)}`;
             const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(viewUrl)}`;
             document.getElementById('modalQrCode').innerHTML = `<img src="${qrImageUrl}" class="rounded-lg shadow-sm" />`;
