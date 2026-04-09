@@ -353,17 +353,29 @@
         // 페이지 로드 시 구글 시트에서 데이터 불러오기
         async function loadDataFromSheet() {
             try {
-                const response = await fetch(GAS_URL);
+                // GAS_URL 뒤에 이미 물음표(?)가 있는지 확인해서 안전하게 캐시 방지 코드를 붙입니다.
+                const urlWithCacheBuster = GAS_URL + (GAS_URL.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
+                
+                const response = await fetch(urlWithCacheBuster);
                 const data = await response.json();
                 
-                if (data.memo) document.getElementById('quick-memo').value = data.memo;
+                // 메모 복구
+                if (data.memo) {
+                    document.getElementById('quick-memo').value = data.memo;
+                } else {
+                    document.getElementById('quick-memo').value = "";
+                }
                 
+                // 할 일 목록 복구
                 if (data.todos && data.todos !== "[]") {
                     todos = JSON.parse(data.todos);
                     renderTodos();
+                } else {
+                    todos = [];
+                    renderTodos();
                 }
             } catch (e) {
-                console.error("데이터 로딩 실패:", e);
+                console.error("데이터 로딩 실패! F12를 눌러 콘솔 창의 에러를 확인하세요:", e);
             }
         }
 
