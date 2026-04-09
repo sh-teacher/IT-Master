@@ -190,7 +190,17 @@
         /* ==========================================
            1. 설정 및 데이터 (선생님 일정에 맞게 수정하세요)
            ========================================== */
-        
+        // 과목별 지정 색상표 (원하시는 색상 코드(HEX)로 변경 가능합니다)
+        const subjectColors = {
+            "인공I": "#E8D0FF",   // 연한 보라
+            "인공H": "#FFD1DC",   // 연한 핑크
+            "정보A": "#CBE4F9",   // 연한 하늘색
+            "정보B": "#CDF5F6",   // 연한 민트
+            "정보E": "#AEE1FF",   // 맑은 파랑
+            "교육학J": "#FFF1A8", // 연한 노랑
+            "자율": "#EFEFEF",    // 연한 회색
+            "동아리": "#FFDFBA"   // 연한 주황
+        };
         // 시간표 데이터 (1:월, 2:화, 3:수, 4:목, 5:금)
         // 빈칸은 공강입니다.
         const scheduleData = {
@@ -302,8 +312,17 @@
                 html += `<tr><th>${period + 1}</th>`;
                 for (let day = 1; day <= 5; day++) {
                     const subject = scheduleData[day] ? scheduleData[day][period] : "";
-                    const cellClass = subject ? "cell-active" : "";
-                    html += `<td class="${cellClass}">${subject}</td>`;
+                    
+                    // 색상 결정 로직: 과목명이 색상표에 있으면 그 색상을, 없으면 기본색(노랑)을, 빈칸이면 투명하게
+                    let bgColor = "";
+                    if (subject) {
+                        bgColor = subjectColors[subject] || "#fff2cc"; 
+                    }
+
+                    // HTML 태그에 직접 배경색 스타일 입히기
+                    const styleAttr = bgColor ? `style="background-color: ${bgColor}; font-weight: bold;"` : "";
+                    
+                    html += `<td ${styleAttr}>${subject}</td>`;
                 }
                 html += `</tr>`;
             }
