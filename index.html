@@ -54,12 +54,16 @@
         /* 메인 콘텐츠 영역 */
         .main-content { flex: 1; padding: 40px 60px; max-width: 1000px; margin: 0 auto; box-sizing: border-box; width: 100%;}
         
-        /* 상단 시계 영역 */
-        .header-area { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; }
-        .page-title { font-size: 36px; font-weight: 700; outline: none; margin: 0; }
-        .clock-container { text-align: right; }
+        /* 상단 시계 & 날씨 영역 */
+        .header-area { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
+        .page-title { font-size: 36px; font-weight: 700; outline: none; margin: 0; margin-top: 10px;}
+        .clock-weather-container { text-align: right; display: flex; flex-direction: column; align-items: flex-end;}
         .date-text { font-size: 14px; color: #787774; margin-bottom: 5px; }
         .time-text { font-size: 28px; font-weight: 700; color: #2eaadc; font-variant-numeric: tabular-nums; }
+        
+        /* 추가된 날씨 & 운세 스타일 */
+        .weather-text { font-size: 13px; color: #555; margin-top: 12px; background: #f0f4f8; padding: 6px 12px; border-radius: 20px;}
+        .horoscope-text { font-size: 13px; color: #d9730d; margin-top: 8px; max-width: 320px; line-height: 1.4; word-break: keep-all; text-align: right; background: #fff8e6; padding: 8px 12px; border-radius: 8px; border: 1px solid #faebd7;}
 
         .section { margin-bottom: 40px; }
         .section-title { font-size: 20px; font-weight: 600; margin-bottom: 15px; border-bottom: 2px solid #eaeaea; padding-bottom: 5px; display: flex; justify-content: space-between; align-items: center;}
@@ -116,52 +120,24 @@
 
 
         /* =========================================================================
-           📱 모바일 반응형 미디어 쿼리 (화면 너비 768px 이하일 때 적용) 
+           📱 모바일 반응형 미디어 쿼리
            ========================================================================= */
         @media screen and (max-width: 768px) {
-            body { 
-                flex-direction: column; 
-            }
-            
-            /* [수정 1] 배치 순서 변경: 메인 콘텐츠를 1번, 사이드바를 2번으로 설정 */
-            .main-content { 
-                order: 1; 
-                padding: 20px; 
-            }
+            body { flex-direction: column; }
+            .main-content { order: 1; padding: 20px; }
             .sidebar { 
-                order: 2; 
-                width: 100%; 
-                border-right: none; 
-                border-top: 2px dashed #e0e0e0; /* 메인 영역과 구분되도록 점선 추가 */
-                padding: 20px; 
-                margin-top: 20px;
+                order: 2; width: 100%; border-right: none; 
+                border-top: 2px dashed #e0e0e0; padding: 20px; margin-top: 20px;
             }
-
             .header-area { 
-                flex-direction: column; 
-                align-items: flex-start; 
-                gap: 10px; 
-                margin-bottom: 25px;
+                flex-direction: column; align-items: flex-start; gap: 10px; margin-bottom: 25px;
             }
-            .clock-container { text-align: left; }
-            .page-title { font-size: 24px; } /* 인사말 크기 약간 조정 */
-            
-            .grid-row { 
-                grid-template-columns: 1fr; 
-                gap: 30px; 
-            }
-
-            /* [수정 2] 시간표 다이어트: 모바일에서 뚱뚱해 보이지 않게 조절 */
-            .timetable {
-                min-width: 100%; /* 가로 스크롤을 없애고 화면에 꽉 차게 변경 */
-                font-size: 12px; /* 폰트 크기 축소 */
-            }
-            .timetable th, .timetable td {
-                padding: 6px 4px; /* 여백(Padding)을 줄여서 날씬하게 */
-                height: 32px; /* 칸 높이 축소 */
-                word-break: keep-all; /* 과목 이름이 이상하게 줄바꿈 되지 않도록 방지 */
-            }
-
+            .clock-weather-container { text-align: left; align-items: flex-start; }
+            .horoscope-text { text-align: left; max-width: 100%; }
+            .page-title { font-size: 24px; margin-top: 0;}
+            .grid-row { grid-template-columns: 1fr; gap: 30px; }
+            .timetable { min-width: 100%; font-size: 12px; }
+            .timetable th, .timetable td { padding: 6px 4px; height: 32px; word-break: keep-all; }
             .calendar-container { height: 500px; }
         }
     </style>
@@ -193,32 +169,31 @@
 
         <div>
             <h3>⏳ 학사일정 D-Day</h3>
-            <div class="d-day-widget" id="dday-container">
-            </div>
+            <div class="d-day-widget" id="dday-container"></div>
         </div>
     </div>
 
     <div class="main-content">
         <div class="header-area">
             <div class="page-title" contenteditable="true" id="main-title">👋 배성환 선생님! 화이팅~</div>
-            <div class="clock-container">
+            <div class="clock-weather-container">
                 <div class="date-text" id="current-date">0000년 00월 00일 0요일</div>
                 <div class="time-text" id="current-time">00:00:00</div>
+                <div class="weather-text">☁️ 광주 서구: 오늘 밤 비 (10℃) / 내일 오후 맑음 (16℃)</div>
+                <div class="horoscope-text">🌟 오늘의 운세: 주변의 작은 변화가 큰 행운으로 이어질 수 있는 긍정적인 하루입니다. 오늘만큼은 평소보다 조금 더 자신감을 가지고 새로운 것에 도전해 보셔도 좋습니다.</div>
             </div>
         </div>
 
         <div class="section">
             <div class="section-title">🏃‍♂️ 오늘의 수업 타임라인</div>
-            <div class="timeline-container" id="timeline-container">
-            </div>
+            <div class="timeline-container" id="timeline-container"></div>
         </div>
 
         <div class="grid-row">
             <div class="section" style="margin-bottom: 0;">
                 <div class="section-title">📊 이번 학기 시간표</div>
                 <div class="table-wrapper">
-                    <table class="timetable" id="weekly-timetable">
-                    </table>
+                    <table class="timetable" id="weekly-timetable"></table>
                 </div>
             </div>
 
@@ -248,14 +223,8 @@
            1. 설정 및 데이터
            ========================================== */
         const subjectColors = {
-            "인공I": "#E8D0FF",
-            "인공H": "#FFD1DC",
-            "정보A": "#CBE4F9",
-            "정보B": "#CDF5F6",
-            "정보E": "#AEE1FF",
-            "교육학J": "#FFF1A8",
-            "자율": "#EFEFEF",
-            "동아리": "#FFDFBA"
+            "인공I": "#E8D0FF", "인공H": "#FFD1DC", "정보A": "#CBE4F9", "정보B": "#CDF5F6",
+            "정보E": "#AEE1FF", "교육학J": "#FFF1A8", "자율": "#EFEFEF", "동아리": "#FFDFBA"
         };
         const scheduleData = {
             1: ["인공I", "", "", "정보B", "", "", "자율"],
@@ -266,36 +235,25 @@
         };
 
         const periodTimes = [
-            { period: 1, start: "08:45", end: "09:35" },
-            { period: 2, start: "09:45", end: "10:35" },
-            { period: 3, start: "10:45", end: "11:35" },
-            { period: 4, start: "11:45", end: "12:35" },
-            { period: 5, start: "13:35", end: "14:25" },
-            { period: 6, start: "14:35", end: "15:25" },
+            { period: 1, start: "08:45", end: "09:35" }, { period: 2, start: "09:45", end: "10:35" },
+            { period: 3, start: "10:45", end: "11:35" }, { period: 4, start: "11:45", end: "12:35" },
+            { period: 5, start: "13:35", end: "14:25" }, { period: 6, start: "14:35", end: "15:25" },
             { period: 7, start: "15:40", end: "16:30" }
         ];
 
         const dDayDates = [
-            { name: "1차 정기시험", date: "2026-04-23" },
-            { name: "친목 교직원 명랑운동회", date: "2026-04-27" },
-            { name: "체육대회", date: "2026-04-30" },
-            { name: "2차 정기시험", date: "2026-06-29" },
-            { name: "🌴 여름방학식", date: "2026-07-21" },
-            { name: "개학일", date: "2026-08-10" },
-            { name: "1차 정기시험", date: "2026-09-29" },
-            { name: "푸소,수학여행(1,2)~30일", date: "2026-10-28" },
-            { name: "수능 (수능대박!)", date: "2026-11-19" },
-            { name: "2차 정기시험", date: "2026-12-01" },
-            { name: "🌴 겨울방학식", date: "2026-12-28" },
-            { name: "개학일", date: "2027-01-20" },
+            { name: "1차 정기시험", date: "2026-04-23" }, { name: "친목 교직원 명랑운동회", date: "2026-04-27" },
+            { name: "체육대회", date: "2026-04-30" }, { name: "2차 정기시험", date: "2026-06-29" },
+            { name: "🌴 여름방학식", date: "2026-07-21" }, { name: "개학일", date: "2026-08-10" },
+            { name: "1차 정기시험", date: "2026-09-29" }, { name: "푸소,수학여행(1,2)~30일", date: "2026-10-28" },
+            { name: "수능 (수능대박!)", date: "2026-11-19" }, { name: "2차 정기시험", date: "2026-12-01" },
+            { name: "🌴 겨울방학식", date: "2026-12-28" }, { name: "개학일", date: "2027-01-20" },
             { name: "졸업식", date: "2027-01-21" },
         ];
-
 
         /* ==========================================
            2. 시스템 기능
            ========================================== */
-
         function updateClockAndTimeline() {
             const now = new Date();
             const days = ['일', '월', '화', '수', '목', '금', '토'];
@@ -315,11 +273,8 @@
                 const endMin = parseInt(endArr[0]) * 60 + parseInt(endArr[1]);
 
                 box.classList.remove('active', 'past');
-                if (currentMin >= startMin && currentMin <= endMin) {
-                    box.classList.add('active');
-                } else if (currentMin > endMin) {
-                    box.classList.add('past');
-                }
+                if (currentMin >= startMin && currentMin <= endMin) { box.classList.add('active'); } 
+                else if (currentMin > endMin) { box.classList.add('past'); }
             });
         }
         setInterval(updateClockAndTimeline, 1000);
@@ -359,14 +314,8 @@
                 html += `<tr><th>${period + 1}</th>`;
                 for (let day = 1; day <= 5; day++) {
                     const subject = scheduleData[day] ? scheduleData[day][period] : "";
-                    
-                    let bgColor = "";
-                    if (subject) {
-                        bgColor = subjectColors[subject] || "#fff2cc"; 
-                    }
-
+                    let bgColor = subject ? (subjectColors[subject] || "#fff2cc") : "";
                     const styleAttr = bgColor ? `style="background-color: ${bgColor}; font-weight: bold;"` : "";
-                    
                     html += `<td ${styleAttr}>${subject}</td>`;
                 }
                 html += `</tr>`;
@@ -390,21 +339,14 @@
                 else if(diffDays === 0) ddayText = `D-Day! 🎉`;
                 else ddayText = `D+${Math.abs(diffDays)}`;
 
-                html += `
-                    <div class="d-day-item">
-                        <span>${d.name}</span>
-                        <strong>${ddayText}</strong>
-                    </div>
-                `;
+                html += `<div class="d-day-item"><span>${d.name}</span><strong>${ddayText}</strong></div>`;
             });
             container.innerHTML = html;
         }
 
-
         /* ==========================================
            3. 로컬 저장소 연동 기능
            ========================================== */
-
         const editableElements = ['main-title', 'quick-memo'];
         editableElements.forEach(id => {
             const el = document.getElementById(id);
@@ -461,7 +403,6 @@
         todoInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') addTodo();
         });
-
 
         /* ==========================================
            4. 초기 실행
