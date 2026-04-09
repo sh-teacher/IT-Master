@@ -55,7 +55,7 @@
         .main-content { flex: 1; padding: 40px 60px; max-width: 1000px; margin: 0 auto; box-sizing: border-box; width: 100%;}
         
         /* 상단 시계 & 날씨 영역 */
-         { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
+        .header-area { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
         .page-title { font-size: 36px; font-weight: 700; outline: none; margin: 0; margin-top: 10px;}
         .clock-weather-container { text-align: right; display: flex; flex-direction: column; align-items: flex-end;}
         .date-text { font-size: 14px; color: #787774; margin-bottom: 5px; }
@@ -129,20 +129,11 @@
                 order: 2; width: 100%; border-right: none; 
                 border-top: 2px dashed #e0e0e0; padding: 20px; margin-top: 20px;
             }
-            /* 상단 시계 & 날씨 영역 (레이아웃 개선) */
-            .header-area { flex-direction: column; align-items: flex-start; gap: 20px; margin-bottom: 25px; }
-            .header-right { align-items: flex-start; text-align: left; }
-            .horoscope-text { width: 100%; box-sizing: border-box; }
-
-            /* 왼쪽: 인사말 + 운세 */
-            .header-left { flex: 1; display: flex; flex-direction: column; gap: 15px; }
-            .page-title { font-size: 34px; font-weight: 700; outline: none; margin: 0; }
-            
-            /* 오른쪽: 시계 + 날씨 */
-            
-            .date-text { font-size: 14px; color: #787774; margin-bottom: 5px; }
-            .time-text { font-size: 28px; font-weight: 700; color: #2eaadc; font-variant-numeric: tabular-nums; margin-bottom: 10px; }
-            .weather-text { font-size: 13px; color: #555; background: #f0f4f8; padding: 8px 14px; border-radius: 20px; }
+            .header-area { 
+                flex-direction: column; align-items: flex-start; gap: 10px; margin-bottom: 25px;
+            }
+            .clock-weather-container { text-align: left; align-items: flex-start; }
+            .horoscope-text { text-align: left; max-width: 100%; }
             .page-title { font-size: 24px; margin-top: 0;}
             .grid-row { grid-template-columns: 1fr; gap: 30px; }
             .timetable { min-width: 100%; font-size: 12px; }
@@ -184,15 +175,12 @@
 
     <div class="main-content">
         <div class="header-area">
-            <div class="header-left">
-                <div class="page-title" contenteditable="true" id="main-title">👋 배성환 선생님! 화이팅~</div>
-                <div class="horoscope-text">🌟 오늘의 운세: 주변의 작은 변화가 큰 행운으로 이어질 수 있는 긍정적인 하루입니다. 오늘만큼은 평소보다 조금 더 자신감을 가지고 새로운 것에 도전해 보셔도 좋습니다.</div>
-            </div>
-
-            <div class="header-right">
+            <div class="page-title" contenteditable="true" id="main-title">👋 배성환 선생님! 화이팅~</div>
+            <div class="clock-weather-container">
                 <div class="date-text" id="current-date">0000년 00월 00일 0요일</div>
                 <div class="time-text" id="current-time">00:00:00</div>
                 <div class="weather-text">☁️ 광주 서구: 오늘 밤 비 (10℃) / 내일 오후 맑음 (16℃)</div>
+                <div class="horoscope-text">🌟 오늘의 운세: 주변의 작은 변화가 큰 행운으로 이어질 수 있는 긍정적인 하루입니다. 오늘만큼은 평소보다 조금 더 자신감을 가지고 새로운 것에 도전해 보셔도 좋습니다.</div>
             </div>
         </div>
 
