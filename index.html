@@ -1,5 +1,3 @@
-<!-- 메인홈페이지 노션기반 -->
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -7,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teacher's Workspace</title>
     <style>
-        /* 노션 스타일의 깔끔한 폰트와 배경 */
+        /* 기본 스타일 */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: #ffffff;
@@ -18,209 +16,395 @@
             min-height: 100vh;
         }
 
-        /* 왼쪽 사이드바 (북마크 등) */
+        /* 왼쪽 사이드바 */
         .sidebar {
-            width: 250px;
+            width: 260px;
             background-color: #f7f6f3;
             padding: 20px;
             border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
         }
 
-        .sidebar h3 {
-            font-size: 14px;
-            color: #787774;
-            margin-bottom: 10px;
-        }
-
-        .bookmark-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .bookmark-list li {
-            margin-bottom: 8px;
-        }
-
+        .sidebar h3 { font-size: 14px; color: #787774; margin-bottom: 10px; }
+        .bookmark-list, .sub-bookmark-list { list-style: none; padding: 0; margin: 0; }
+        .bookmark-list li { margin-bottom: 5px; }
         .bookmark-list a {
-            text-decoration: none;
-            color: #37352f;
-            font-size: 15px;
-            display: block;
-            padding: 5px;
-            border-radius: 3px;
+            text-decoration: none; color: #37352f; font-size: 14px;
+            display: block; padding: 6px 8px; border-radius: 5px; transition: background 0.2s;
         }
+        .bookmark-list a:hover { background-color: #efeeea; }
+        .sub-bookmark-list { padding-left: 15px; margin-top: 2px; margin-bottom: 8px; }
+        .sub-bookmark-list a { font-size: 13px; color: #6b6b6b; padding: 4px 8px; }
 
-        .bookmark-list a:hover {
-            background-color: #e8e7e4;
+        /* D-Day 위젯 */
+        .d-day-widget {
+            background: #fff; border: 1px solid #e0e0e0; padding: 15px; border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
+        .d-day-item {
+            display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px;
+            padding-bottom: 8px; border-bottom: 1px dashed #eee;
+        }
+        .d-day-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .d-day-item strong { color: #eb5757; }
 
         /* 메인 콘텐츠 영역 */
-        .main-content {
-            flex: 1;
-            padding: 50px 80px;
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        .page-title {
-            font-size: 40px;
-            font-weight: 700;
-            margin-bottom: 30px;
-            outline: none; /* 클릭 시 테두리 제거 */
-        }
-
-        .section {
-            margin-bottom: 40px;
-        }
-
-        .section-title {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #eaeaea;
-            padding-bottom: 5px;
-        }
-
-        /* 편집 가능한 텍스트 영역 */
-        .editable-area {
-            min-height: 100px;
-            padding: 10px;
-            background-color: #fdfdfc;
-            border: 1px dashed #d9d9d9;
-            border-radius: 4px;
-            font-size: 16px;
-            line-height: 1.6;
-            outline: none;
-        }
+        .main-content { flex: 1; padding: 40px 60px; max-width: 1000px; margin: 0 auto; }
         
-        .editable-area:focus {
-            border-color: #2eaadc;
-            background-color: #fff;
+        /* 상단 시계 영역 */
+        .header-area { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; }
+        .page-title { font-size: 36px; font-weight: 700; outline: none; margin: 0; }
+        .clock-container { text-align: right; }
+        .date-text { font-size: 14px; color: #787774; margin-bottom: 5px; }
+        .time-text { font-size: 28px; font-weight: 700; color: #2eaadc; font-variant-numeric: tabular-nums; }
+
+        .section { margin-bottom: 40px; }
+        .section-title { font-size: 20px; font-weight: 600; margin-bottom: 15px; border-bottom: 2px solid #eaeaea; padding-bottom: 5px; display: flex; justify-content: space-between; align-items: center;}
+
+        /* 타임라인 (오늘의 수업) */
+        .timeline-container { display: flex; gap: 10px; overflow-x: auto; padding: 10px 0; }
+        .timeline-box {
+            flex: 1; min-width: 80px; text-align: center; padding: 15px 10px; 
+            background: #fdfdfc; border: 1px solid #e0e0e0; border-radius: 8px;
+            display: flex; flex-direction: column; gap: 5px; opacity: 0.6; transition: 0.3s;
+        }
+        .timeline-box.active {
+            opacity: 1; background: #e6f4ea; border-color: #34a853; box-shadow: 0 4px 6px rgba(52, 168, 83, 0.2); transform: translateY(-2px);
+        }
+        .timeline-box.past { opacity: 0.4; background: #f1f1f1; }
+        .tb-period { font-size: 12px; font-weight: bold; color: #787774; }
+        .tb-subject { font-size: 16px; font-weight: 700; color: #37352f; }
+        .tb-time { font-size: 11px; color: #999; }
+
+        /* 그리드 레이아웃 (주간시간표 & 생산성 도구) */
+        .grid-row { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
+
+        /* 시간표 테이블 */
+        .timetable { width: 100%; border-collapse: collapse; text-align: center; font-size: 14px; }
+        .timetable th, .timetable td { border: 1px solid #e0e0e0; padding: 10px; }
+        .timetable th { background-color: #f7f6f3; font-weight: 600; }
+        .timetable td { height: 40px; vertical-align: middle; }
+        .cell-active { background-color: #fff2cc; font-weight: bold; } /* 수업 있는 칸 강조 */
+
+        /* To-Do 리스트 */
+        .todo-input-group { display: flex; gap: 10px; margin-bottom: 15px; }
+        .todo-input { flex: 1; padding: 10px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 15px; }
+        .todo-btn { padding: 10px 15px; background: #37352f; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .todo-btn:hover { background: #555; }
+        .todo-list { list-style: none; padding: 0; margin: 0; }
+        .todo-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+        .todo-item label { display: flex; align-items: center; gap: 10px; cursor: pointer; flex: 1; font-size: 15px; }
+        .todo-item input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+        .todo-item.completed label span { text-decoration: line-through; color: #999; }
+        .delete-btn { background: none; border: none; color: #ff4d4f; cursor: pointer; font-size: 16px; padding: 0 5px; }
+
+        /* 포스트잇 (빠른 메모장) */
+        .post-it {
+            background-color: #fff9b1; border: none; padding: 20px; min-height: 180px;
+            font-size: 15px; line-height: 1.6; box-shadow: 2px 4px 8px rgba(0,0,0,0.1);
+            border-bottom-right-radius: 20px 15px; outline: none; width: 100%; box-sizing: border-box; resize: vertical;
         }
 
-        /* 구글 캘린더 영역 */
-        .calendar-container {
-            width: 100%;
-            height: 800px;
-            border-radius: 4px;
-            overflow: hidden;
-            border: 1px solid #eaeaea;
-        }
-        
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: 0;
-        }
-        /* 기존 스타일 아래에 추가하세요 */
-        .bookmark-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .bookmark-list li {
-            margin-bottom: 5px;
-        }
-
-        .bookmark-list a {
-            text-decoration: none;
-            color: #37352f;
-            font-size: 14px; /* 폰트 크기를 살짝 조절했습니다 */
-            display: block;
-            padding: 6px 8px;
-            border-radius: 5px;
-            transition: background 0.2s;
-        }
-
-        .bookmark-list a:hover {
-            background-color: #efeeea;
-        }
-
-        /* 하위 즐겨찾기 스타일 (구글 설문지, 스프레드시트) */
-        .sub-bookmark-list {
-            list-style: none;
-            padding-left: 15px; /* 들여쓰기 */
-            margin-top: 2px;
-            margin-bottom: 8px;
-        }
-
-        .sub-bookmark-list a {
-            font-size: 13px;
-            color: #6b6b6b; /* 하위 항목은 색상을 살짝 연하게 */
-            padding: 4px 8px;
-        }
+        /* 캘린더 */
+        .calendar-container { width: 100%; height: 500px; border-radius: 4px; overflow: hidden; border: 1px solid #eaeaea; }
+        iframe { width: 100%; height: 100%; border: 0; }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
-        <h3>📌 즐겨찾기</h3>
-        <ul class="bookmark-list">
-        <li><a href="https://sh-teacher.github.io/IT-Master/sanildevice.html" target="_blank">💻 상일여고 정보화기기 대시보드</a></li>
-        <li><a href="https://gen.eduptl.go.kr" target="_blank">🏫 업무포탈</a></li>
-        <li><a href="https://tiny.cc/sangil" target="_blank">📓 학교 노션 수업자료</a></li>
-        <li><a href="https://09c857dd-8fe2-4113-95f4-7785ea3e7a8a-00-elavhvcz6ong.spock.replit.dev/" target="_blank">🪪 학교 학생 계정 정보조회</a></li>
-        <li>
-            <a href="https://drive.google.com" target="_blank">☁️ 구글 드라이브</a>
-            <ul class="sub-bookmark-list">
-                <li><a href="https://docs.google.com/forms" target="_blank">└ 구글 설문지</a></li>
-                <li><a href="https://docs.google.com/spreadsheets" target="_blank">└ 구글 스프레드시트</a></li>
+        <div>
+            <h3>📌 즐겨찾기</h3>
+            <ul class="bookmark-list">
+                <li><a href="https://sh-teacher.github.io/IT-Master/asset.html" target="_blank">💻 상일여고 정보기기 대시보드</a></li>
+                <li><a href="https://evid.gen.go.kr" target="_blank">🏫 업무포탈</a></li>
+                <li><a href="https://tiny.cc/sangil" target="_blank">📓 학교 노션 수업자료</a></li>
+                <li><a href="https://09c857dd-8fe2-4113-95f4-7785ea3e7a8a-00-elavhvcz6ong.spock.replit.dev/" target="_blank">🪪 학교 학생 계정 정보조회</a></li>
+                <li>
+                    <a href="https://drive.google.com" target="_blank">☁️ 구글 드라이브</a>
+                    <ul class="sub-bookmark-list">
+                        <li><a href="https://docs.google.com/forms" target="_blank">└ 구글 설문지</a></li>
+                        <li><a href="https://docs.google.com/spreadsheets" target="_blank">└ 구글 스프레드시트</a></li>
+                    </ul>
+                </li>
+                <li><a href="https://gemini.google.com" target="_blank">🤖 Gemini</a></li>
+                <li><a href="https://claude.ai" target="_blank">🤖 Claude</a></li>
+                <li><a href="https://weiss.or.kr/" target="_blank">🌐 학교유무선통합센터</a></li>
+                <li><a href="https://mypc.gen.go.kr:8803" target="_blank">🛡️ 내PC 지키미</a></li>
             </ul>
-        </li>
-        <li><a href="https://gemini.google.com" target="_blank">🤖 Gemini</a></li>
-        <li><a href="https://claude.ai" target="_blank">🤖 Claude</a></li>
-        <li><a href="https://weiss.or.kr/" target="_blank">🌐 학교유무선통합센터</a></li>
-        <li><a href="https://mypc.gen.go.kr:8803" target="_blank">🛡️ 내PC 지키미</a></li>
-    </ul>
+        </div>
+
+        <div>
+            <h3>⏳ 학사일정 D-Day</h3>
+            <div class="d-day-widget" id="dday-container">
+                </div>
+        </div>
     </div>
 
     <div class="main-content">
-        <div class="page-title" contenteditable="true" id="main-title">👋 환영합니다, 멋진 선생님!</div>
-
-        <div class="section">
-            <div class="section-title">📝 오늘의 업무 및 일기</div>
-            <div class="editable-area" contenteditable="true" id="daily-log">
-                여기를 클릭해서 오늘의 업무 내용이나 일기를 작성해 보세요.<br>
-                새로고침해도 내용이 지워지지 않습니다!
+        <div class="header-area">
+            <div class="page-title" contenteditable="true" id="main-title">👋 배성환 선생님! 화이팅~</div>
+            <div class="clock-container">
+                <div class="date-text" id="current-date">0000년 00월 00일 0요일</div>
+                <div class="time-text" id="current-time">00:00:00</div>
             </div>
         </div>
 
         <div class="section">
-            <div class="section-title">📚 교과 수업 메모</div>
-            <div class="editable-area" contenteditable="true" id="class-memo">
-                수업 진도나 아이디어, 특이사항을 기록하세요.
+            <div class="section-title">🏃‍♂️ 오늘의 수업 타임라인</div>
+            <div class="timeline-container" id="timeline-container">
+                </div>
+        </div>
+
+        <div class="grid-row">
+            <div class="section" style="margin-bottom: 0;">
+                <div class="section-title">📊 이번 학기 시간표</div>
+                <table class="timetable" id="weekly-timetable">
+                    </table>
+            </div>
+
+            <div class="section" style="margin-bottom: 0;">
+                <div class="section-title">✅ 오늘 꼭 할 일 (To-Do)</div>
+                <div class="todo-input-group">
+                    <input type="text" id="todo-input" class="todo-input" placeholder="새로운 할 일을 입력하세요 (엔터)">
+                    <button class="todo-btn" onclick="addTodo()">추가</button>
+                </div>
+                <ul class="todo-list" id="todo-list"></ul>
+                
+                <div class="section-title" style="margin-top: 30px;">⚡ 빠른 메모 (Post-it)</div>
+                <textarea class="post-it" id="quick-memo" placeholder="전화 메모나 임시 기록을 자유롭게 남겨보세요. 자동 저장됩니다."></textarea>
             </div>
         </div>
 
         <div class="section">
-            <div class="section-title">📅 내 스케줄 (구글 캘린더)</div>
+            <div class="section-title">📅 전체 스케줄 (구글 캘린더)</div>
             <div class="calendar-container">
-                <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=Asia%2FSeoul&title=%ED%86%B5%ED%95%A9%EB%8B%AC%EB%A0%A5&showPrint=0&showTitle=0&src=Y29taHdhbkBnbWFpbC5jb20&src=YjAxOWI3MWE3ZjEzYjRlZjQ1MmU0ZGU5ZmE1MzdmNDdhNzYyZTVjMDNjN2Y1YmQzMjBkNzU5YzdjNTZjYzgxY0Bncm91cC5jYWxlbmRhci5nb29nbGUuY29t&src=ZmFtaWx5MDk0NTQ4MTA1NDc1ODg4OTQ1MjRAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ&color=%237986cb&color=%237cb342&color=%23e67c73" style="border-width:0" width="800" height="600" frameborder="0" scrolling="no"></iframe>
+                <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&bgcolor=%23ffffff&ctz=Asia%2FSeoul&showTitle=0&showPrint=0&showTabs=0&showCalendars=0&showTz=0" frameborder="0" scrolling="no"></iframe>
             </div>
         </div>
     </div>
 
     <script>
-        // 저장할 요소들의 ID 목록
-        const editableElements = ['main-title', 'daily-log', 'class-memo'];
-
-        // 페이지가 열릴 때, 저장된 데이터가 있으면 불러오기
-        window.onload = function() {
-            editableElements.forEach(id => {
-                const savedData = localStorage.getItem(id);
-                if (savedData) {
-                    document.getElementById(id).innerHTML = savedData;
-                }
-            });
+        /* ==========================================
+           1. 설정 및 데이터 (선생님 일정에 맞게 수정하세요)
+           ========================================== */
+        
+        // 시간표 데이터 (1:월, 2:화, 3:수, 4:목, 5:금)
+        // 빈칸은 공강입니다.
+        const scheduleData = {
+            1: ["", "정보(1반)", "정보(2반)", "", "동아리", "동아리", ""], // 월
+            2: ["정보(3반)", "", "정보(4반)", "정보(1반)", "", "", ""], // 화
+            3: ["", "", "정보(2반)", "", "정보(3반)", "정보(4반)", ""], // 수
+            4: ["정보(1반)", "정보(2반)", "", "", "정보(3반)", "", "정보(4반)"], // 목
+            5: ["", "", "자율", "자율", "", "", ""]  // 금
         };
 
-        // 글씨를 입력(수정)할 때마다 브라우저에 즉시 저장하기
+        // 교시별 시간대 (타임라인 판별용)
+        const periodTimes = [
+            { period: 1, start: "09:00", end: "09:50" },
+            { period: 2, start: "10:00", end: "10:50" },
+            { period: 3, start: "11:00", end: "11:50" },
+            { period: 4, start: "12:00", end: "12:50" },
+            { period: 5, start: "13:50", end: "14:40" },
+            { period: 6, start: "14:50", end: "15:40" },
+            { period: 7, start: "15:50", end: "16:40" }
+        ];
+
+        // D-Day 데이터 (YYYY-MM-DD 포맷)
+        const dDayDates = [
+            { name: "1학기 기말고사", date: "2026-07-03" },
+            { name: "🌴 여름방학식", date: "2026-07-17" },
+            { name: "수능 (수능대박!)", date: "2026-11-12" }
+        ];
+
+
+        /* ==========================================
+           2. 시스템 기능 (시계, 타임라인, D-Day, 시간표 렌더링)
+           ========================================== */
+
+        // 시계 및 타임라인 업데이트 (1초마다 실행)
+        function updateClockAndTimeline() {
+            const now = new Date();
+            const days = ['일', '월', '화', '수', '목', '금', '토'];
+            
+            // 날짜/시계 텍스트 업데이트
+            document.getElementById('current-date').innerText = 
+                `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일 ${days[now.getDay()]}요일`;
+            document.getElementById('current-time').innerText = 
+                now.toLocaleTimeString('ko-KR', { hour12: false, hour: '2-digit', minute:'2-digit', second:'2-digit' });
+
+            // 타임라인 하이라이트 업데이트 로직
+            const currentMin = now.getHours() * 60 + now.getMinutes();
+            const boxes = document.querySelectorAll('.timeline-box');
+            
+            boxes.forEach((box, index) => {
+                const startArr = periodTimes[index].start.split(':');
+                const endArr = periodTimes[index].end.split(':');
+                const startMin = parseInt(startArr[0]) * 60 + parseInt(startArr[1]);
+                const endMin = parseInt(endArr[0]) * 60 + parseInt(endArr[1]);
+
+                box.classList.remove('active', 'past');
+                if (currentMin >= startMin && currentMin <= endMin) {
+                    box.classList.add('active'); // 현재 진행중인 교시
+                } else if (currentMin > endMin) {
+                    box.classList.add('past'); // 지나간 교시
+                }
+            });
+        }
+        setInterval(updateClockAndTimeline, 1000);
+
+        // 오늘 타임라인 그리기
+        function renderTimeline() {
+            const today = new Date().getDay(); // 0:일 ~ 6:토
+            const container = document.getElementById('timeline-container');
+            let html = '';
+
+            if(today === 0 || today === 6) {
+                container.innerHTML = '<div class="timeline-box" style="flex:none; width:100%; opacity:1;">오늘은 주말입니다! 편안한 휴식 보내세요. 🛋️</div>';
+                return;
+            }
+
+            const todaySchedule = scheduleData[today] || [];
+            periodTimes.forEach((pt, index) => {
+                const subject = todaySchedule[index] || '공강';
+                html += `
+                    <div class="timeline-box" id="period-${pt.period}">
+                        <span class="tb-period">${pt.period}교시</span>
+                        <span class="tb-subject">${subject}</span>
+                        <span class="tb-time">${pt.start} ~ ${pt.end}</span>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // 주간 시간표 표 그리기
+        function renderTimetable() {
+            const table = document.getElementById('weekly-timetable');
+            const days = ['월', '화', '수', '목', '금'];
+            let html = '<tr><th>교시</th>';
+            days.forEach(d => html += `<th>${d}</th>`);
+            html += '</tr>';
+
+            for (let period = 0; period < 7; period++) {
+                html += `<tr><th>${period + 1}</th>`;
+                for (let day = 1; day <= 5; day++) {
+                    const subject = scheduleData[day] ? scheduleData[day][period] : "";
+                    const cellClass = subject ? "cell-active" : "";
+                    html += `<td class="${cellClass}">${subject}</td>`;
+                }
+                html += `</tr>`;
+            }
+            table.innerHTML = html;
+        }
+
+        // D-Day 계산 및 그리기
+        function renderDDay() {
+            const container = document.getElementById('dday-container');
+            let html = '';
+            const today = new Date();
+            today.setHours(0,0,0,0);
+
+            dDayDates.forEach(d => {
+                const targetDate = new Date(d.date);
+                const diffTime = targetDate - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                let ddayText = '';
+                if(diffDays > 0) ddayText = `D-${diffDays}`;
+                else if(diffDays === 0) ddayText = `D-Day! 🎉`;
+                else ddayText = `D+${Math.abs(diffDays)}`;
+
+                html += `
+                    <div class="d-day-item">
+                        <span>${d.name}</span>
+                        <strong>${ddayText}</strong>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+
+        /* ==========================================
+           3. 로컬 저장소 연동 기능 (To-Do & 포스트잇 등)
+           ========================================== */
+
+        // 요소 자동 저장 연동 (제목, 메모)
+        const editableElements = ['main-title', 'quick-memo'];
         editableElements.forEach(id => {
-            const element = document.getElementById(id);
-            element.addEventListener('input', function() {
-                localStorage.setItem(id, this.innerHTML);
+            const el = document.getElementById(id);
+            const savedData = localStorage.getItem(id);
+            // 복원
+            if (savedData) {
+                if (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT') el.value = savedData;
+                else el.innerHTML = savedData;
+            }
+            // 저장 이벤트
+            el.addEventListener('input', function() {
+                localStorage.setItem(id, this.value || this.innerHTML);
             });
         });
+
+        // To-Do 리스트 로직
+        let todos = JSON.parse(localStorage.getItem('teacherTodos')) || [];
+        const todoInput = document.getElementById('todo-input');
+        const todoList = document.getElementById('todo-list');
+
+        function renderTodos() {
+            todoList.innerHTML = '';
+            todos.forEach((todo, index) => {
+                const li = document.createElement('li');
+                li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
+                li.innerHTML = `
+                    <label>
+                        <input type="checkbox" onchange="toggleTodo(${index})" ${todo.completed ? 'checked' : ''}>
+                        <span>${todo.text}</span>
+                    </label>
+                    <button class="delete-btn" onclick="deleteTodo(${index})">×</button>
+                `;
+                todoList.appendChild(li);
+            });
+            localStorage.setItem('teacherTodos', JSON.stringify(todos));
+        }
+
+        function addTodo() {
+            const text = todoInput.value.trim();
+            if (text !== '') {
+                todos.push({ text: text, completed: false });
+                todoInput.value = '';
+                renderTodos();
+            }
+        }
+
+        function toggleTodo(index) {
+            todos[index].completed = !todos[index].completed;
+            renderTodos();
+        }
+
+        function deleteTodo(index) {
+            todos.splice(index, 1);
+            renderTodos();
+        }
+
+        // To-Do 엔터키 입력 지원
+        todoInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') addTodo();
+        });
+
+
+        /* ==========================================
+           4. 초기 실행
+           ========================================== */
+        window.onload = function() {
+            renderTimetable();
+            renderTimeline();
+            updateClockAndTimeline();
+            renderDDay();
+            renderTodos();
+        };
     </script>
 </body>
 </html>
