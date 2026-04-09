@@ -63,7 +63,9 @@
         .time-text { font-size: 28px; font-weight: 700; color: #2eaadc; font-variant-numeric: tabular-nums; }
 
         /* 실시간 날씨 & 동기화 운세 스타일 */
-        #weather-info { font-size: 13px; color: #555; margin-top: 10px; background: #f0f4f8; padding: 6px 12px; border-radius: 20px; display: inline-block; }
+        /* 실시간 날씨 버튼 스타일 (클릭 효과 추가) */
+        #weather-info { font-size: 13px; color: #555; margin-top: 10px; background: #f0f4f8; padding: 6px 12px; border-radius: 20px; display: inline-block; text-decoration: none; transition: background 0.2s; cursor: pointer; border: 1px solid #e2e8f0;}
+        #weather-info:hover { background: #e2e8f0; }
         .horoscope-section { margin-bottom: 40px; }
         .horoscope-box { background-color: #fff8e6; border: 1px solid #faebd7; padding: 15px; border-radius: 8px; font-size: 15px; line-height: 1.6; color: #d9730d; outline: none; min-height: 40px; }
 
@@ -176,7 +178,7 @@
         <div class="header-area">
             <div>
                 <div class="page-title" contenteditable="true" id="main-title">👋 배성환 선생님! 화이팅~</div>
-                <div id="weather-info">🌤️ 날씨 불러오는 중...</div>
+                <a href="https://weather.naver.com/today/05140000" target="_blank" id="weather-info" title="자세한 날씨 보기">🌤️ 날씨 불러오는 중...</a>
             </div>
             <div class="clock-container">
                 <div class="date-text" id="current-date">0000년 00월 00일 0요일</div>
@@ -249,13 +251,13 @@
         ];
 
         const dDayDates = [
-            { name: "1차 정기시험", date: "2026-04-23" }, { name: "친목 교직원 명랑운동회", date: "2026-04-27" },
-            { name: "체육대회", date: "2026-04-30" }, { name: "2차 정기시험", date: "2026-06-29" },
-            { name: "🌴 여름방학식", date: "2026-07-21" }, { name: "개학일", date: "2026-08-10" },
-            { name: "1차 정기시험", date: "2026-09-29" }, { name: "푸소,수학여행(1,2)~30일", date: "2026-10-28" },
-            { name: "수능 (수능대박!)", date: "2026-11-19" }, { name: "2차 정기시험", date: "2026-12-01" },
-            { name: "🌴 겨울방학식", date: "2026-12-28" }, { name: "개학일", date: "2027-01-20" },
-            { name: "졸업식", date: "2027-01-21" },
+            { name: "💯 1차 정기시험(4일)", date: "2026-04-23" }, { name: "👟 친목 교직원 명랑운동회", date: "2026-04-27" },
+            { name: "🏆 체육대회", date: "2026-04-30" }, { name: "💯 2차 정기시험(4일)", date: "2026-06-29" },
+            { name: "🌊 여름방학식", date: "2026-07-21" }, { name: "🏫 개학일", date: "2026-08-10" },
+            { name: "💯 1차 정기시험(4일)", date: "2026-09-29" }, { name: "🚌 푸소,수학여행(~30)", date: "2026-10-28" },
+            { name: "🍀 수능 (수능대박!)", date: "2026-11-19" }, { name: "💯 2차 정기시험(4일)", date: "2026-12-01" },
+            { name: "⛄ 겨울방학식", date: "2026-12-28" }, { name: "🏫 개학일", date: "2027-01-20" },
+            { name: "🎓 졸업식", date: "2027-01-21" },
         ];
 
         /* ==========================================
@@ -459,10 +461,11 @@
         document.getElementById('quick-memo').addEventListener('input', triggerAutoSave);
         document.getElementById('horoscope-data').addEventListener('input', triggerAutoSave); // 운세 자동 저장 연결
 
-        // 실시간 날씨 가져오기 (공공 API)
+        // 실시간 상세 날씨 가져오기 (기온, 체감온도, 습도, 바람)
         async function fetchWeather() {
             try {
-                const response = await fetch('https://wttr.in/Gwangju?format=%c+%t+습도:%h');
+                // %c(아이콘) %t(현재기온) %f(체감온도) %h(습도) %w(바람)
+                const response = await fetch('https://wttr.in/Gwangju?format=%c+%t+(체감:%f)+|+습도:%h+|+바람:%w');
                 const weatherText = await response.text();
                 document.getElementById('weather-info').innerText = "📍 광주 서구: " + weatherText;
             } catch (e) {
