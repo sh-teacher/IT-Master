@@ -42,7 +42,7 @@
     </div>
 
     <script>
-        // 1. GAS URL (본인의 URL로 반드시 확인!)
+        // 1. GAS URL (본인의 URL)
         const GAS_URL = "https://script.google.com/macros/s/AKfycbyZvgICRHPoQFHKrRX-bI27Ti9RUNWMjdMOlDTzzSNdviEjC1Gxpa0jlMYBi5bOotLyxQ/exec";
         
         // 2. 세션에서 비밀번호와 URL에서 ID 가져오기
@@ -50,43 +50,52 @@
         const urlParams = new URLSearchParams(window.location.search);
         const id = urlParams.get('id');
 
-        // 비밀번호가 없으면 로그인으로 튕겨내기
+        // ★ 수정 포인트 1: 비밀번호가 없으면 밑에 있는 코드가 아예 실행되지 않도록 구조 변경
         if (!savedPw) {
             alert("인증 정보가 없습니다. 다시 로그인하세요.");
             location.href = 'login.html';
-        }
-
-        if (id) {
-            // ★ fetch 요청 시 id와 pw를 모두 정확히 전달
-            fetch(`${GAS_URL}?id=${encodeURIComponent(id)}&pw=${encodeURIComponent(savedPw)}`)
-                .then(res => {
-                    if (!res.ok) throw new Error();
-                    return res.text(); // 인증실패 메시지 확인을 위해 text로 먼저 받음
-                })
-                .then(text => {
-                    if (text === "인증 실패") {
-                        alert("비밀번호가 틀렸거나 세션이 만료되었습니다.");
-                        location.href = 'login.html';
-                        return;
-                    }
-                    
-                    const data = JSON.parse(text);
-                    document.getElementById('loader').classList.add('hidden');
-                    document.getElementById('content').classList.remove('hidden');
-                    
-                    document.getElementById('v_type').innerText = data.type;
-                    document.getElementById('v_model').innerText = `${data.brand} ${data.model}`;
-                    document.getElementById('v_user').innerText = data.user || "미지정";
-                    document.getElementById('v_group').innerText = data.group || "-";
-                    document.getElementById('v_date').innerText = (data.date || "").split('T')[0] || "정보없음";
-                    document.getElementById('v_sn').innerText = data.id;
-                    document.getElementById('v_note').innerText = data.note || "특이사항 없음";
-                })
-                .catch(err => {
-                    document.getElementById('loader').innerHTML = `<p class='text-red-500 font-bold'>조회 실패: 데이터를 찾을 수 없습니다.</p>`;
-                });
         } else {
-            document.getElementById('loader').innerText = "ID 정보가 없습니다.";
+            // 비밀번호가 있을 때만 아래 로직 실행
+            if (id) {
+                fetch(`${GAS_URL}?id=${encodeURIComponent(id)}&pw=${encodeURIComponent(savedPw)}`)
+                    .then(res => {
+                        if (!res.ok) throw new Error("서버 응답 오류");
+                        return res.text(); 
+                    })
+                    .then(text => {
+                        console.log("서버 응답 내용:", text); // F12 콘솔에서 에러 원인 파악용
+
+                        if (text === "인증 실패") {
+                            alert("비밀번호가 틀렸거나 세션이 만료되었습니다.");
+                            location.href = 'login.html';
+                            return;
+                        }
+                        
+                        // ★ 수정 포인트 2: 구글 시트에서 해당 ID를 못 찾았을 때의 방어 코드
+                        if (text === "null" || text === "") {
+                            throw new Error("해당 ID의 자산 정보를 찾을 수 없습니다.");
+                        }
+
+                        // 정상적으로 데이터를 받았을 때 파싱
+                        const data = JSON.parse(text);
+                        document.getElementById('loader').classList.add('hidden');
+                        document.getElementById('content').classList.remove('hidden');
+                        
+                        document.getElementById('v_type').innerText = data.type || "N/A";
+                        document.getElementById('v_model').innerText = `${data.brand || ""} ${data.model || ""}`;
+                        document.getElementById('v_user').innerText = data.user || "미지정";
+                        document.getElementById('v_group').innerText = data.group || "-";
+                        document.getElementById('v_date').innerText = (data.date || "").split('T')[0] || "정보없음";
+                        document.getElementById('v_sn').innerText = data.id || "-";
+                        document.getElementById('v_note').innerText = data.note || "특이사항 없음";
+                    })
+                    .catch(err => {
+                        console.error("에러 상세:", err);
+                        document.getElementById('loader').innerHTML = `<p class='text-red-500 font-bold'>조회 실패: 데이터를 가져올 수 없습니다.</p>`;
+                    });
+            } else {
+                document.getElementById('loader').innerText = "ID 정보가 없습니다.";
+            }
         }
     </script>
 </body>
