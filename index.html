@@ -345,6 +345,9 @@
            ========================================== */
 
         const GAS_URL = "https://script.google.com/macros/s/AKfycbxh5lZ6pTNaWnZ1Z4gY7U2q4ZvHmdnZlKN8GRNs9MIooyCi0kh6T1ODx4UTQVpR-D6qKw/exec"; // 👈 중요!
+        let todos = []; // 👈 이게 꼭 있어야 합니다!
+        const todoInput = document.getElementById('todo-input');
+        const todoList = document.getElementById('todo-list');
         let saveTimer; // 자동 저장을 위한 타이머 변수
 
         // 페이지 로드 시 구글 시트에서 데이터 불러오기
@@ -353,11 +356,9 @@
                 const response = await fetch(GAS_URL);
                 const data = await response.json();
                 
-                // 메모 복구
                 if (data.memo) document.getElementById('quick-memo').value = data.memo;
                 
-                // 할 일 목록 복구
-                if (data.todos) {
+                if (data.todos && data.todos !== "[]") {
                     todos = JSON.parse(data.todos);
                     renderTodos();
                 }
@@ -366,31 +367,27 @@
             }
         }
 
-        // 구글 시트로 데이터 전송 (자동 저장 핵심함수)
+        // 구글 시트로 데이터 전송
         async function saveToSheet() {
             const memo = document.getElementById('quick-memo').value;
             const todoData = JSON.stringify(todos);
 
-            console.log("저장 시도 중...");
-            
             try {
                 await fetch(GAS_URL, {
                     method: 'POST',
                     body: JSON.stringify({ memo: memo, todos: todoData })
                 });
-                console.log("구글 시트 저장 완료! ✅");
+                console.log("자동 저장 완료!");
             } catch (e) {
                 console.error("저장 실패:", e);
             }
         }
 
-        // 2~3초 뒤에 저장을 실행하는 '디바운싱' 함수
         function triggerAutoSave() {
-            clearTimeout(saveTimer); // 기존 타이머 취소
-            saveTimer = setTimeout(saveToSheet, 2500); // 2.5초 뒤에 실행
+            clearTimeout(saveTimer);
+            saveTimer = setTimeout(saveToSheet, 2000); // 2초 뒤 저장
         }
 
-        // To-Do 관련 기존 함수들 수정 (마지막에 triggerAutoSave 호출 추가)
         function renderTodos() {
             todoList.innerHTML = '';
             todos.forEach((todo, index) => {
@@ -405,7 +402,6 @@
                 `;
                 todoList.appendChild(li);
             });
-            // localStorage 대신 triggerAutoSave 사용 가능
         }
 
         function addTodo() {
@@ -414,34 +410,37 @@
                 todos.push({ text: text, completed: false });
                 todoInput.value = '';
                 renderTodos();
-                triggerAutoSave(); // 추가 시 저장
+                triggerAutoSave();
             }
         }
 
         function toggleTodo(index) {
             todos[index].completed = !todos[index].completed;
             renderTodos();
-            triggerAutoSave(); // 상태 변경 시 저장
+            triggerAutoSave();
         }
 
         function deleteTodo(index) {
             todos.splice(index, 1);
             renderTodos();
-            triggerAutoSave(); // 삭제 시 저장
+            triggerAutoSave();
         }
 
-        // 메모장 입력 시 자동 저장 연결
+        todoInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') addTodo();
+        });
+
         document.getElementById('quick-memo').addEventListener('input', triggerAutoSave);
 
         /* ==========================================
-        4. 초기 실행 수정
-        ========================================== */
+           4. 초기 실행
+           ========================================== */
         window.onload = function() {
             renderTimetable();
             renderTimeline();
             updateClockAndTimeline();
             renderDDay();
-            loadDataFromSheet(); // 👈 로컬 대신 구글 시트에서 가져오기
+            loadDataFromSheet(); // 👈 시트에서 불러오기 실행
         };
         /* ==========================================
            4. 초기 실행
