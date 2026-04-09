@@ -25,6 +25,7 @@
             display: flex;
             flex-direction: column;
             gap: 30px;
+            box-sizing: border-box; /* 패딩 포함 크기 계산 */
         }
 
         .sidebar h3 { font-size: 14px; color: #787774; margin-bottom: 10px; }
@@ -51,7 +52,7 @@
         .d-day-item strong { color: #eb5757; }
 
         /* 메인 콘텐츠 영역 */
-        .main-content { flex: 1; padding: 40px 60px; max-width: 1000px; margin: 0 auto; }
+        .main-content { flex: 1; padding: 40px 60px; max-width: 1000px; margin: 0 auto; box-sizing: border-box; width: 100%;}
         
         /* 상단 시계 영역 */
         .header-area { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; }
@@ -64,11 +65,12 @@
         .section-title { font-size: 20px; font-weight: 600; margin-bottom: 15px; border-bottom: 2px solid #eaeaea; padding-bottom: 5px; display: flex; justify-content: space-between; align-items: center;}
 
         /* 타임라인 (오늘의 수업) */
-        .timeline-container { display: flex; gap: 10px; overflow-x: auto; padding: 10px 0; }
+        .timeline-container { display: flex; gap: 10px; overflow-x: auto; padding: 10px 0; scroll-snap-type: x mandatory; }
         .timeline-box {
-            flex: 1; min-width: 80px; text-align: center; padding: 15px 10px; 
+            flex: 1; min-width: 100px; text-align: center; padding: 15px 10px; 
             background: #fdfdfc; border: 1px solid #e0e0e0; border-radius: 8px;
             display: flex; flex-direction: column; gap: 5px; opacity: 0.6; transition: 0.3s;
+            scroll-snap-align: start;
         }
         .timeline-box.active {
             opacity: 1; background: #e6f4ea; border-color: #34a853; box-shadow: 0 4px 6px rgba(52, 168, 83, 0.2); transform: translateY(-2px);
@@ -82,7 +84,8 @@
         .grid-row { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
 
         /* 시간표 테이블 */
-        .timetable { width: 100%; border-collapse: collapse; text-align: center; font-size: 14px; table-layout: fixed;}
+        .table-wrapper { overflow-x: auto; width: 100%; border-radius: 8px; } /* 모바일 가로 스크롤을 위한 래퍼 */
+        .timetable { width: 100%; min-width: 400px; border-collapse: collapse; text-align: center; font-size: 14px; table-layout: fixed;}
         .timetable th, .timetable td { border: 1px solid #e0e0e0; padding: 10px; }
         .timetable th { background-color: #f7f6f3; font-weight: 600; }
         .timetable td { height: 40px; vertical-align: middle; }
@@ -91,12 +94,12 @@
         /* To-Do 리스트 */
         .todo-input-group { display: flex; gap: 10px; margin-bottom: 15px; }
         .todo-input { flex: 1; padding: 10px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 15px; }
-        .todo-btn { padding: 10px 15px; background: #37352f; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .todo-btn { padding: 10px 15px; background: #37352f; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; min-width: 60px; }
         .todo-btn:hover { background: #555; }
         .todo-list { list-style: none; padding: 0; margin: 0; }
         .todo-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
         .todo-item label { display: flex; align-items: center; gap: 10px; cursor: pointer; flex: 1; font-size: 15px; }
-        .todo-item input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+        .todo-item input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; }
         .todo-item.completed label span { text-decoration: line-through; color: #999; }
         .delete-btn { background: none; border: none; color: #ff4d4f; cursor: pointer; font-size: 16px; padding: 0 5px; }
 
@@ -110,6 +113,43 @@
         /* 캘린더 */
         .calendar-container { width: 100%; height: 800px; border-radius: 4px; overflow: hidden; border: 1px solid #eaeaea; }
         iframe { width: 100%; height: 100%; border: 0; }
+
+
+        /* =========================================================================
+           📱 모바일 반응형 미디어 쿼리 (화면 너비 768px 이하일 때 적용되는 스타일) 
+           ========================================================================= */
+        @media screen and (max-width: 768px) {
+            body { 
+                flex-direction: column; /* 가로 배치를 세로 배치로 변경 */
+            }
+            .sidebar { 
+                width: 100%; 
+                border-right: none; 
+                border-bottom: 1px solid #e0e0e0; 
+                padding: 20px; 
+            }
+            .main-content { 
+                padding: 20px; /* 모바일에서는 여백을 줄여 화면을 넓게 씁니다 */
+            }
+            .header-area { 
+                flex-direction: column; /* 제목과 시계를 위아래로 배치 */
+                align-items: flex-start; 
+                gap: 15px; 
+            }
+            .clock-container { 
+                text-align: left; /* 모바일에서는 시계도 왼쪽 정렬 */
+            }
+            .page-title { 
+                font-size: 26px; /* 모바일용 제목 크기 축소 */
+            }
+            .grid-row { 
+                grid-template-columns: 1fr; /* 시간표와 To-Do 리스트를 1단(위아래)으로 배치 */
+                gap: 40px; 
+            }
+            .calendar-container { 
+                height: 500px; /* 모바일에서는 캘린더 높이를 살짝 줄임 */
+            }
+        }
     </style>
 </head>
 <body>
@@ -134,14 +174,13 @@
                 <li><a href="https://weiss.or.kr/" target="_blank">🌐 학교유무선통합센터</a></li>
                 <li><a href="https://mypc.gen.go.kr:8803" target="_blank">🛡️ 내PC 지키미</a></li>
                 <li><a href="https://smart.gen.go.kr" target="_blank">🛡️ 스마트기기 통합관리시스템</a></li>
-                
             </ul>
         </div>
 
         <div>
             <h3>⏳ 학사일정 D-Day</h3>
             <div class="d-day-widget" id="dday-container">
-                </div>
+            </div>
         </div>
     </div>
 
@@ -157,14 +196,16 @@
         <div class="section">
             <div class="section-title">🏃‍♂️ 오늘의 수업 타임라인</div>
             <div class="timeline-container" id="timeline-container">
-                </div>
+            </div>
         </div>
 
         <div class="grid-row">
             <div class="section" style="margin-bottom: 0;">
                 <div class="section-title">📊 이번 학기 시간표</div>
-                <table class="timetable" id="weekly-timetable">
+                <div class="table-wrapper">
+                    <table class="timetable" id="weekly-timetable">
                     </table>
+                </div>
             </div>
 
             <div class="section" style="margin-bottom: 0;">
@@ -183,7 +224,7 @@
         <div class="section">
             <div class="section-title">📅 전체 스케줄 (구글 캘린더)</div>
             <div class="calendar-container">
-                <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=Asia%2FSeoul&showPrint=0&src=Y29taHdhbkBnbWFpbC5jb20&src=YjAxOWI3MWE3ZjEzYjRlZjQ1MmU0ZGU5ZmE1MzdmNDdhNzYyZTVjMDNjN2Y1YmQzMjBkNzU5YzdjNTZjYzgxY0Bncm91cC5jYWxlbmRhci5nb29nbGUuY29t&src=ZmFtaWx5MDk0NTQ4MTA1NDc1ODg4OTQ1MjRAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ&color=%237986cb&color=%237cb342&color=%23e67c73" style="border-width:0" width="800" height="800" frameborder="0" scrolling="no"></iframe>
+                <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=Asia%2FSeoul&showPrint=0&src=Y29taHdhbkBnbWFpbC5jb20&src=YjAxOWI3MWE3ZjEzYjRlZjQ1MmU0ZGU5ZmE1MzdmNDdhNzYyZTVjMDNjN2Y1YmQzMjBkNzU5YzdjNTZjYzgxY0Bncm91cC5jYWxlbmRhci5nb29nbGUuY29t&src=ZmFtaWx5MDk0NTQ4MTA1NDc1ODg4OTQ1MjRAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ&color=%237986cb&color=%237cb342&color=%23e67c73" style="border-width:0" width="100%" height="100%" frameborder="0" scrolling="no"></iframe>
             </div>
         </div>
     </div>
