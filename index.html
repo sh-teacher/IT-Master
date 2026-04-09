@@ -112,6 +112,43 @@
             height: 100%;
             border: 0;
         }
+        /* 기존 스타일 아래에 추가하세요 */
+        .bookmark-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .bookmark-list li {
+            margin-bottom: 5px;
+        }
+
+        .bookmark-list a {
+            text-decoration: none;
+            color: #37352f;
+            font-size: 14px; /* 폰트 크기를 살짝 조절했습니다 */
+            display: block;
+            padding: 6px 8px;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+
+        .bookmark-list a:hover {
+            background-color: #efeeea;
+        }
+
+        /* 하위 즐겨찾기 스타일 (구글 설문지, 스프레드시트) */
+        .sub-bookmark-list {
+            list-style: none;
+            padding-left: 15px; /* 들여쓰기 */
+            margin-top: 2px;
+            margin-bottom: 8px;
+        }
+
+        .sub-bookmark-list a {
+            font-size: 13px;
+            color: #6b6b6b; /* 하위 항목은 색상을 살짝 연하게 */
+            padding: 4px 8px;
+        }
     </style>
 </head>
 <body>
