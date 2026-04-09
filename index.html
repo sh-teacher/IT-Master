@@ -16,7 +16,7 @@
             min-height: 100vh;
         }
 
-        /* 왼쪽 사이드바 */
+        /* 왼쪽 사이드바 (즐겨찾기, D-Day) */
         .sidebar {
             width: 260px;
             background-color: #f7f6f3;
@@ -25,7 +25,7 @@
             display: flex;
             flex-direction: column;
             gap: 30px;
-            box-sizing: border-box; /* 패딩 포함 크기 계산 */
+            box-sizing: border-box; 
         }
 
         .sidebar h3 { font-size: 14px; color: #787774; margin-bottom: 10px; }
@@ -84,12 +84,12 @@
         .grid-row { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
 
         /* 시간표 테이블 */
-        .table-wrapper { overflow-x: auto; width: 100%; border-radius: 8px; } /* 모바일 가로 스크롤을 위한 래퍼 */
-        .timetable { width: 100%; min-width: 400px; border-collapse: collapse; text-align: center; font-size: 14px; table-layout: fixed;}
+        .table-wrapper { overflow-x: auto; width: 100%; border-radius: 8px; } 
+        .timetable { width: 100%; border-collapse: collapse; text-align: center; font-size: 14px; table-layout: fixed; min-width: 400px; }
         .timetable th, .timetable td { border: 1px solid #e0e0e0; padding: 10px; }
         .timetable th { background-color: #f7f6f3; font-weight: 600; }
         .timetable td { height: 40px; vertical-align: middle; }
-        .cell-active { background-color: #fff2cc; font-weight: bold; } /* 수업 있는 칸 강조 */
+        .cell-active { background-color: #fff2cc; font-weight: bold; } 
 
         /* To-Do 리스트 */
         .todo-input-group { display: flex; gap: 10px; margin-bottom: 15px; }
@@ -116,39 +116,53 @@
 
 
         /* =========================================================================
-           📱 모바일 반응형 미디어 쿼리 (화면 너비 768px 이하일 때 적용되는 스타일) 
+           📱 모바일 반응형 미디어 쿼리 (화면 너비 768px 이하일 때 적용) 
            ========================================================================= */
         @media screen and (max-width: 768px) {
             body { 
-                flex-direction: column; /* 가로 배치를 세로 배치로 변경 */
+                flex-direction: column; 
             }
-            .sidebar { 
-                width: 100%; 
-                border-right: none; 
-                border-bottom: 1px solid #e0e0e0; 
+            
+            /* [수정 1] 배치 순서 변경: 메인 콘텐츠를 1번, 사이드바를 2번으로 설정 */
+            .main-content { 
+                order: 1; 
                 padding: 20px; 
             }
-            .main-content { 
-                padding: 20px; /* 모바일에서는 여백을 줄여 화면을 넓게 씁니다 */
+            .sidebar { 
+                order: 2; 
+                width: 100%; 
+                border-right: none; 
+                border-top: 2px dashed #e0e0e0; /* 메인 영역과 구분되도록 점선 추가 */
+                padding: 20px; 
+                margin-top: 20px;
             }
+
             .header-area { 
-                flex-direction: column; /* 제목과 시계를 위아래로 배치 */
+                flex-direction: column; 
                 align-items: flex-start; 
-                gap: 15px; 
+                gap: 10px; 
+                margin-bottom: 25px;
             }
-            .clock-container { 
-                text-align: left; /* 모바일에서는 시계도 왼쪽 정렬 */
-            }
-            .page-title { 
-                font-size: 26px; /* 모바일용 제목 크기 축소 */
-            }
+            .clock-container { text-align: left; }
+            .page-title { font-size: 24px; } /* 인사말 크기 약간 조정 */
+            
             .grid-row { 
-                grid-template-columns: 1fr; /* 시간표와 To-Do 리스트를 1단(위아래)으로 배치 */
-                gap: 40px; 
+                grid-template-columns: 1fr; 
+                gap: 30px; 
             }
-            .calendar-container { 
-                height: 500px; /* 모바일에서는 캘린더 높이를 살짝 줄임 */
+
+            /* [수정 2] 시간표 다이어트: 모바일에서 뚱뚱해 보이지 않게 조절 */
+            .timetable {
+                min-width: 100%; /* 가로 스크롤을 없애고 화면에 꽉 차게 변경 */
+                font-size: 12px; /* 폰트 크기 축소 */
             }
+            .timetable th, .timetable td {
+                padding: 6px 4px; /* 여백(Padding)을 줄여서 날씬하게 */
+                height: 32px; /* 칸 높이 축소 */
+                word-break: keep-all; /* 과목 이름이 이상하게 줄바꿈 되지 않도록 방지 */
+            }
+
+            .calendar-container { height: 500px; }
         }
     </style>
 </head>
@@ -231,30 +245,26 @@
 
     <script>
         /* ==========================================
-           1. 설정 및 데이터 (선생님 일정에 맞게 수정하세요)
+           1. 설정 및 데이터
            ========================================== */
-        // 과목별 지정 색상표 (원하시는 색상 코드(HEX)로 변경 가능합니다)
         const subjectColors = {
-            "인공I": "#E8D0FF",   // 연한 보라
-            "인공H": "#FFD1DC",   // 연한 핑크
-            "정보A": "#CBE4F9",   // 연한 하늘색
-            "정보B": "#CDF5F6",   // 연한 민트
-            "정보E": "#AEE1FF",   // 맑은 파랑
-            "교육학J": "#FFF1A8", // 연한 노랑
-            "자율": "#EFEFEF",    // 연한 회색
-            "동아리": "#FFDFBA"   // 연한 주황
+            "인공I": "#E8D0FF",
+            "인공H": "#FFD1DC",
+            "정보A": "#CBE4F9",
+            "정보B": "#CDF5F6",
+            "정보E": "#AEE1FF",
+            "교육학J": "#FFF1A8",
+            "자율": "#EFEFEF",
+            "동아리": "#FFDFBA"
         };
-        // 시간표 데이터 (1:월, 2:화, 3:수, 4:목, 5:금)
-        // 빈칸은 공강입니다.
         const scheduleData = {
-            1: ["인공I", "", "", "정보B", "", "", "자율"], // 월
-            2: ["정보E", "인공H", "", "교육학J", "", "", "정보A"], // 화
-            3: ["인공I", "정보E", "교육학J", "", "", "동아리", ""], // 수
-            4: ["", "인공H", "정보E", "", "정보B", "정보A", ""], // 목
-            5: ["", "정보A", "", "", "", "정보B", ""]  // 금
+            1: ["인공I", "", "", "정보B", "", "", "자율"],
+            2: ["정보E", "인공H", "", "교육학J", "", "", "정보A"],
+            3: ["인공I", "정보E", "교육학J", "", "", "동아리", ""],
+            4: ["", "인공H", "정보E", "", "정보B", "정보A", ""],
+            5: ["", "정보A", "", "", "", "정보B", ""]
         };
 
-        // 교시별 시간대 (타임라인 판별용)
         const periodTimes = [
             { period: 1, start: "08:45", end: "09:35" },
             { period: 2, start: "09:45", end: "10:35" },
@@ -265,7 +275,6 @@
             { period: 7, start: "15:40", end: "16:30" }
         ];
 
-        // D-Day 데이터 (YYYY-MM-DD 포맷)
         const dDayDates = [
             { name: "1차 정기시험", date: "2026-04-23" },
             { name: "친목 교직원 명랑운동회", date: "2026-04-27" },
@@ -284,21 +293,18 @@
 
 
         /* ==========================================
-           2. 시스템 기능 (시계, 타임라인, D-Day, 시간표 렌더링)
+           2. 시스템 기능
            ========================================== */
 
-        // 시계 및 타임라인 업데이트 (1초마다 실행)
         function updateClockAndTimeline() {
             const now = new Date();
             const days = ['일', '월', '화', '수', '목', '금', '토'];
             
-            // 날짜/시계 텍스트 업데이트
             document.getElementById('current-date').innerText = 
                 `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일 ${days[now.getDay()]}요일`;
             document.getElementById('current-time').innerText = 
                 now.toLocaleTimeString('ko-KR', { hour12: false, hour: '2-digit', minute:'2-digit', second:'2-digit' });
 
-            // 타임라인 하이라이트 업데이트 로직
             const currentMin = now.getHours() * 60 + now.getMinutes();
             const boxes = document.querySelectorAll('.timeline-box');
             
@@ -310,17 +316,16 @@
 
                 box.classList.remove('active', 'past');
                 if (currentMin >= startMin && currentMin <= endMin) {
-                    box.classList.add('active'); // 현재 진행중인 교시
+                    box.classList.add('active');
                 } else if (currentMin > endMin) {
-                    box.classList.add('past'); // 지나간 교시
+                    box.classList.add('past');
                 }
             });
         }
         setInterval(updateClockAndTimeline, 1000);
 
-        // 오늘 타임라인 그리기
         function renderTimeline() {
-            const today = new Date().getDay(); // 0:일 ~ 6:토
+            const today = new Date().getDay(); 
             const container = document.getElementById('timeline-container');
             let html = '';
 
@@ -343,7 +348,6 @@
             container.innerHTML = html;
         }
 
-        // 주간 시간표 표 그리기
         function renderTimetable() {
             const table = document.getElementById('weekly-timetable');
             const days = ['월', '화', '수', '목', '금'];
@@ -356,13 +360,11 @@
                 for (let day = 1; day <= 5; day++) {
                     const subject = scheduleData[day] ? scheduleData[day][period] : "";
                     
-                    // 색상 결정 로직: 과목명이 색상표에 있으면 그 색상을, 없으면 기본색(노랑)을, 빈칸이면 투명하게
                     let bgColor = "";
                     if (subject) {
                         bgColor = subjectColors[subject] || "#fff2cc"; 
                     }
 
-                    // HTML 태그에 직접 배경색 스타일 입히기
                     const styleAttr = bgColor ? `style="background-color: ${bgColor}; font-weight: bold;"` : "";
                     
                     html += `<td ${styleAttr}>${subject}</td>`;
@@ -372,7 +374,6 @@
             table.innerHTML = html;
         }
 
-        // D-Day 계산 및 그리기
         function renderDDay() {
             const container = document.getElementById('dday-container');
             let html = '';
@@ -401,26 +402,22 @@
 
 
         /* ==========================================
-           3. 로컬 저장소 연동 기능 (To-Do & 포스트잇 등)
+           3. 로컬 저장소 연동 기능
            ========================================== */
 
-        // 요소 자동 저장 연동 (제목, 메모)
         const editableElements = ['main-title', 'quick-memo'];
         editableElements.forEach(id => {
             const el = document.getElementById(id);
             const savedData = localStorage.getItem(id);
-            // 복원
             if (savedData) {
                 if (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT') el.value = savedData;
                 else el.innerHTML = savedData;
             }
-            // 저장 이벤트
             el.addEventListener('input', function() {
                 localStorage.setItem(id, this.value || this.innerHTML);
             });
         });
 
-        // To-Do 리스트 로직
         let todos = JSON.parse(localStorage.getItem('teacherTodos')) || [];
         const todoInput = document.getElementById('todo-input');
         const todoList = document.getElementById('todo-list');
@@ -461,7 +458,6 @@
             renderTodos();
         }
 
-        // To-Do 엔터키 입력 지원
         todoInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') addTodo();
         });
