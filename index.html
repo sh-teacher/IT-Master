@@ -341,25 +341,56 @@
         }
 
         /* ==========================================
-           3. 로컬 저장소 연동 기능
+            3. 구글 시트 연동 및 자동 저장 (Option B: Debouncing)
            ========================================== */
-        const editableElements = ['main-title', 'quick-memo'];
-        editableElements.forEach(id => {
-            const el = document.getElementById(id);
-            const savedData = localStorage.getItem(id);
-            if (savedData) {
-                if (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT') el.value = savedData;
-                else el.innerHTML = savedData;
+
+        const GAS_URL = "여기에_복사한_웹앱_URL을_넣으세요"; // 👈 중요!
+        let saveTimer; // 자동 저장을 위한 타이머 변수
+
+        // 페이지 로드 시 구글 시트에서 데이터 불러오기
+        async function loadDataFromSheet() {
+            try {
+                const response = await fetch(GAS_URL);
+                const data = await response.json();
+                
+                // 메모 복구
+                if (data.memo) document.getElementById('quick-memo').value = data.memo;
+                
+                // 할 일 목록 복구
+                if (data.todos) {
+                    todos = JSON.parse(data.todos);
+                    renderTodos();
+                }
+            } catch (e) {
+                console.error("데이터 로딩 실패:", e);
             }
-            el.addEventListener('input', function() {
-                localStorage.setItem(id, this.value || this.innerHTML);
-            });
-        });
+        }
 
-        let todos = JSON.parse(localStorage.getItem('teacherTodos')) || [];
-        const todoInput = document.getElementById('todo-input');
-        const todoList = document.getElementById('todo-list');
+        // 구글 시트로 데이터 전송 (자동 저장 핵심함수)
+        async function saveToSheet() {
+            const memo = document.getElementById('quick-memo').value;
+            const todoData = JSON.stringify(todos);
 
+            console.log("저장 시도 중...");
+            
+            try {
+                await fetch(GAS_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ memo: memo, todos: todoData })
+                });
+                console.log("구글 시트 저장 완료! ✅");
+            } catch (e) {
+                console.error("저장 실패:", e);
+            }
+        }
+
+        // 2~3초 뒤에 저장을 실행하는 '디바운싱' 함수
+        function triggerAutoSave() {
+            clearTimeout(saveTimer); // 기존 타이머 취소
+            saveTimer = setTimeout(saveToSheet, 2500); // 2.5초 뒤에 실행
+        }
+
+        // To-Do 관련 기존 함수들 수정 (마지막에 triggerAutoSave 호출 추가)
         function renderTodos() {
             todoList.innerHTML = '';
             todos.forEach((todo, index) => {
@@ -374,7 +405,7 @@
                 `;
                 todoList.appendChild(li);
             });
-            localStorage.setItem('teacherTodos', JSON.stringify(todos));
+            // localStorage 대신 triggerAutoSave 사용 가능
         }
 
         function addTodo() {
@@ -383,23 +414,35 @@
                 todos.push({ text: text, completed: false });
                 todoInput.value = '';
                 renderTodos();
+                triggerAutoSave(); // 추가 시 저장
             }
         }
 
         function toggleTodo(index) {
             todos[index].completed = !todos[index].completed;
             renderTodos();
+            triggerAutoSave(); // 상태 변경 시 저장
         }
 
         function deleteTodo(index) {
             todos.splice(index, 1);
             renderTodos();
+            triggerAutoSave(); // 삭제 시 저장
         }
 
-        todoInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') addTodo();
-        });
+        // 메모장 입력 시 자동 저장 연결
+        document.getElementById('quick-memo').addEventListener('input', triggerAutoSave);
 
+        /* ==========================================
+        4. 초기 실행 수정
+        ========================================== */
+        window.onload = function() {
+            renderTimetable();
+            renderTimeline();
+            updateClockAndTimeline();
+            renderDDay();
+            loadDataFromSheet(); // 👈 로컬 대신 구글 시트에서 가져오기
+        };
         /* ==========================================
            4. 초기 실행
            ========================================== */
