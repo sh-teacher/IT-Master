@@ -3,398 +3,341 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SH Teacher's Workspace</title>
+    <title>자산 관리 대시보드 - IT Master</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* 기본 스타일 */
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #ffffff;
-            color: #37352f;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* 왼쪽 사이드바 (즐겨찾기, D-Day) */
-        .sidebar {
-            width: 260px;
-            background-color: #f7f6f3;
-            padding: 20px;
-            border-right: 1px solid #e0e0e0;
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-            box-sizing: border-box; 
-        }
-
-        .sidebar h3 { font-size: 14px; color: #787774; margin-bottom: 10px; }
-        .bookmark-list, .sub-bookmark-list { list-style: none; padding: 0; margin: 0; }
-        .bookmark-list li { margin-bottom: 5px; }
-        .bookmark-list a {
-            text-decoration: none; color: #37352f; font-size: 14px;
-            display: block; padding: 6px 8px; border-radius: 5px; transition: background 0.2s;
-        }
-        .bookmark-list a:hover { background-color: #efeeea; }
-        .sub-bookmark-list { padding-left: 15px; margin-top: 2px; margin-bottom: 8px; }
-        .sub-bookmark-list a { font-size: 13px; color: #6b6b6b; padding: 4px 8px; }
-
-        /* D-Day 위젯 */
-        .d-day-widget {
-            background: #fff; border: 1px solid #e0e0e0; padding: 15px; border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        }
-        .d-day-item {
-            display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px;
-            padding-bottom: 8px; border-bottom: 1px dashed #eee;
-        }
-        .d-day-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-        .d-day-item strong { color: #eb5757; }
-
-        /* 메인 콘텐츠 영역 */
-        .main-content { flex: 1; padding: 40px 60px; max-width: 1000px; margin: 0 auto; box-sizing: border-box; width: 100%;}
-        
-        /* 상단 시계 & 날씨 영역 */
-        .header-area { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
-        .page-title { font-size: 36px; font-weight: 700; outline: none; margin: 0; margin-top: 10px;}
-        
-        .section { margin-bottom: 40px; }
-        .section-title { font-size: 20px; font-weight: 600; margin-bottom: 15px; border-bottom: 2px solid #eaeaea; padding-bottom: 5px; display: flex; justify-content: space-between; align-items: center;}
-
-        /* 타임라인 (오늘의 수업) */
-        .timeline-container { display: flex; gap: 10px; overflow-x: auto; padding: 10px 0; scroll-snap-type: x mandatory; }
-        .timeline-box {
-            flex: 1; min-width: 100px; text-align: center; padding: 15px 10px; 
-            background: #fdfdfc; border: 1px solid #e0e0e0; border-radius: 8px;
-            display: flex; flex-direction: column; gap: 5px; opacity: 0.6; transition: 0.3s;
-            scroll-snap-align: start;
-        }
-        .timeline-box.active {
-            opacity: 1; background: #e6f4ea; border-color: #34a853; box-shadow: 0 4px 6px rgba(52, 168, 83, 0.2); transform: translateY(-2px);
-        }
-        .timeline-box.past { opacity: 0.4; background: #f1f1f1; }
-        .tb-period { font-size: 12px; font-weight: bold; color: #787774; }
-        .tb-subject { font-size: 16px; font-weight: 700; color: #37352f; }
-        .tb-time { font-size: 11px; color: #999; }
-
-        /* 그리드 레이아웃 (주간시간표 & 생산성 도구) */
-        .grid-row { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
-
-        /* 시간표 테이블 */
-        .table-wrapper { overflow-x: auto; width: 100%; border-radius: 8px; } 
-        .timetable { width: 100%; border-collapse: collapse; text-align: center; font-size: 14px; table-layout: fixed; min-width: 400px; }
-        .timetable th, .timetable td { border: 1px solid #e0e0e0; padding: 10px; }
-        .timetable th { background-color: #f7f6f3; font-weight: 600; }
-        .timetable td { height: 40px; vertical-align: middle; }
-        .cell-active { background-color: #fff2cc; font-weight: bold; } 
-
-        /* To-Do 리스트 */
-        .todo-input-group { display: flex; gap: 10px; margin-bottom: 15px; }
-        .todo-input { flex: 1; padding: 10px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 15px; }
-        .todo-btn { padding: 10px 15px; background: #37352f; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; min-width: 60px; }
-        .todo-btn:hover { background: #555; }
-        .todo-list { list-style: none; padding: 0; margin: 0; }
-        .todo-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
-        .todo-item label { display: flex; align-items: center; gap: 10px; cursor: pointer; flex: 1; font-size: 15px; }
-        .todo-item input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; }
-        .todo-item.completed label span { text-decoration: line-through; color: #999; }
-        .delete-btn { background: none; border: none; color: #ff4d4f; cursor: pointer; font-size: 16px; padding: 0 5px; }
-
-        /* 포스트잇 (빠른 메모장) */
-        .post-it {
-            background-color: #fff9b1; border: none; padding: 20px; min-height: 180px;
-            font-size: 15px; line-height: 1.6; box-shadow: 2px 4px 8px rgba(0,0,0,0.1);
-            border-bottom-right-radius: 20px 15px; outline: none; width: 100%; box-sizing: border-box; resize: vertical;
-        }
-
-        /* 캘린더 */
-        .calendar-container { width: 100%; height: 800px; border-radius: 4px; overflow: hidden; border: 1px solid #eaeaea; }
-        iframe { width: 100%; height: 100%; border: 0; }
-
-
-        /* =========================================================================
-           📱 모바일 반응형 미디어 쿼리
-           ========================================================================= */
-        @media screen and (max-width: 768px) {
-            body { flex-direction: column; }
-            .main-content { order: 1; padding: 20px; }
-            .sidebar { 
-                order: 2; width: 100%; border-right: none; 
-                border-top: 2px dashed #e0e0e0; padding: 20px; margin-top: 20px;
-            }
-            .header-area { 
-                flex-direction: column; align-items: flex-start; gap: 10px; margin-bottom: 25px;
-            }
-            .page-title { font-size: 24px; margin-top: 0;}
-            .grid-row { grid-template-columns: 1fr; gap: 30px; }
-            .timetable { min-width: 100%; font-size: 12px; }
-            .timetable th, .timetable td { padding: 6px 4px; height: 32px; word-break: keep-all; }
-            .calendar-container { height: 500px; }
-        }
+        th.sortable { cursor: pointer; position: relative; white-space: nowrap; }
+        th.sortable:hover { background-color: #f3f4f6; }
+        th.sortable::after { content: ' ↕'; font-size: 0.8em; color: #ccc; }
+        td { white-space: nowrap; }
+        /* 비고란이 너무 길면 잘라내고 말줄임표 처리 */
+        .note-cell { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .chart-container { position: relative; height: 200px; width: 100%; }
     </style>
 </head>
-<body>
+<body class="bg-gray-50 min-h-screen">
+    <nav class="bg-blue-600 text-white p-4 shadow-md mb-6 no-print">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <span class="font-bold text-lg">📊 교육정보화 기자재현황 대시보드</span>
+            <div class="space-x-4 text-sm font-medium">
+                <a href="write.html" class="hover:underline">등록</a>
+                <a href="index.html" class="bg-blue-700 px-3 py-1 rounded">목록현황</a>
+            </div>
+        </div>
+    </nav>
 
-    <div class="sidebar">
-        <div>
-            <h3>📌 즐겨찾기</h3>
-            <ul class="bookmark-list">
-                <li><a href="https://sh-teacher.github.io/IT-Master/sangildevice.html" target="_blank">💻 상일여고 정보기기 대시보드</a></li>
-                <li><a href="https://gen.eduptl.kr" target="_blank">🏫 업무포탈</a></li>
-                <li><a href="https://tiny.cc/sangil" target="_blank">📓 학교 노션 수업자료</a></li>
-                <li><a href="https://09c857dd-8fe2-4113-95f4-7785ea3e7a8a-00-elavhvcz6ong.spock.replit.dev/" target="_blank">🪪 학교 학생 계정 정보조회</a></li>
-                <li>
-                    <a href="https://drive.google.com" target="_blank">☁️ 구글 드라이브</a>
-                    <ul class="sub-bookmark-list">
-                        <li><a href="https://docs.google.com/forms" target="_blank">└ 구글 설문지</a></li>
-                        <li><a href="https://docs.google.com/spreadsheets" target="_blank">└ 구글 스프레드시트</a></li>
-                    </ul>
-                </li>
-                <li><a href="https://gemini.google.com" target="_blank">🤖 Gemini</a></li>
-                <li><a href="https://claude.ai" target="_blank">🤖 Claude</a></li>
-                <li><a href="https://weiss.or.kr/" target="_blank">🌐 학교유무선통합센터</a></li>
-                <li><a href="https://mypc.gen.go.kr:8803" target="_blank">🛡️ 내PC 지키미</a></li>
-                <li><a href="https://smart.gen.go.kr" target="_blank">🛡️ 스마트기기 통합관리시스템</a></li>
-            </ul>
+    <div class="max-w-7xl mx-auto px-6 pb-10">
+        <div id="statsSummary" class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                <p class="text-xs text-gray-400 font-bold uppercase">전체 자산</p>
+                <h3 id="statTotal" class="text-2xl font-black text-blue-600">0</h3>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                <p class="text-xs text-gray-400 font-bold uppercase">노트북</p>
+                <h3 id="statLaptop" class="text-2xl font-black text-gray-700">0</h3>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                <p class="text-xs text-gray-400 font-bold uppercase">데스크톱</p>
+                <h3 id="statDesktop" class="text-2xl font-black text-gray-700">0</h3>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                <p class="text-xs text-gray-400 font-bold uppercase">태블릿</p>
+                <h3 id="statTablet" class="text-2xl font-black text-gray-700">0</h3>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                <p class="text-xs text-gray-400 font-bold uppercase">프린터류</p>
+                <h3 id="statPrinter" class="text-2xl font-black text-gray-700">0</h3>
+            </div>
         </div>
 
-        <div>
-            <h3>⏳ 학사일정 D-Day</h3>
-            <div class="d-day-widget" id="dday-container"></div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h4 class="text-sm font-bold text-gray-500 mb-4">🏆 부서별 보유 순위</h4>
+                <div class="chart-container">
+                    <canvas id="modelChart"></canvas>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h4 class="text-sm font-bold text-gray-500 mb-4">📅 연도별 도입 현황</h4>
+                <div class="chart-container">
+                    <canvas id="yearChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
+            <div class="flex flex-col md:flex-row justify-between items-start mb-6 gap-4">
+                <div class="flex flex-col">
+                    <h1 class="text-xl font-bold text-gray-800 underline decoration-blue-200 decoration-4 text-left">보유 자산 상세 리스트</h1>
+                    <p class="text-sm text-gray-500 font-bold mt-2 text-left">조회된 자산: <span id="resultCount" class="text-blue-600 font-black text-lg">0</span>대</p>
+                </div>
+                
+                <div class="flex flex-col items-end gap-2 w-full md:w-auto">
+                    <div class="flex flex-wrap gap-2 no-print justify-end">
+                        <button onclick="filterByType('전체')" class="bg-gray-200 px-3 py-1 rounded-full text-xs font-bold hover:bg-gray-300">전체</button>
+                        <button onclick="filterByType('노트북')" class="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-xs font-bold hover:bg-blue-200">💻 노트북</button>
+                        <button onclick="filterByType('데스크톱')" class="bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs font-bold hover:bg-green-200">🖥️ 데스크톱</button>
+                        <button onclick="filterByType('태블릿')" class="bg-purple-100 text-purple-600 px-3 py-1 rounded-full text-xs font-bold hover:bg-purple-200">📱 태블릿</button>
+                        <button onclick="filterByType('프린터')" class="bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-xs font-bold hover:bg-orange-200">📠 프린터/복사기</button>
+                        <button onclick="filterByAging()" class="bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-bold hover:bg-red-200">⚠️ 교체대상</button>
+                    </div>
+                    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="검색어 입력..." class="border border-gray-300 p-2 rounded-lg w-full md:w-64 focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="bg-gray-50 text-gray-500 uppercase text-xs font-sm tracking-widest">
+                            <th class="p-4 border-b">No.</th>
+                            <th class="p-4 border-b sortable" onclick="handleSort('type')">종류</th>
+                            <th class="p-4 border-b sortable" onclick="handleSort('user')">사용자</th>
+                            <th class="p-4 border-b sortable" onclick="handleSort('group')">부서</th>
+                            <th class="p-4 border-b sortable" onclick="handleSort('brand')">제조사</th>
+                            <th class="p-4 border-b sortable" onclick="handleSort('model')">모델명</th>
+                            <th class="p-4 border-b sortable" onclick="handleSort('ip')">IP 주소</th>
+                            <th class="p-4 border-b sortable" onclick="handleSort('date')">취득일</th>
+                            <th class="p-4 border-b sortable" onclick="handleSort('note')">비고</th> 
+                            <th class="p-4 border-b text-center">관리</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listBody" class="text-gray-700">
+                        <tr><td colspan="10" class="p-10 text-center text-gray-400 animate-pulse">데이터 로드 중...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
-    <div class="main-content">
-        <div class="section">
-            <div class="section-title">🏃‍♂️ 오늘의 수업 타임라인</div>
-            <div class="timeline-container" id="timeline-container"></div>
-        </div>
-
-        <div class="grid-row">
-            <div class="section" style="margin-bottom: 0;">
-                <div class="section-title">📊 이번 학기 시간표</div>
-                <div class="table-wrapper">
-                    <table class="timetable" id="weekly-timetable"></table>
-                </div>
-            </div>
-
-            <div class="section" style="margin-bottom: 0;">
-                <div class="section-title">✅ 오늘 꼭 할 일 (To-Do)</div>
-                <div class="todo-input-group">
-                    <input type="text" id="todo-input" class="todo-input" placeholder="새로운 할 일을 입력하세요 (엔터)">
-                    <button class="todo-btn" onclick="addTodo()">추가</button>
-                </div>
-                <ul class="todo-list" id="todo-list"></ul>
-                
-                <div class="section-title" style="margin-top: 30px;">⚡ 빠른 메모 (Post-it)</div>
-                <textarea class="post-it" id="quick-memo" placeholder="전화 메모나 임시 기록을 자유롭게 남겨보세요. 자동 저장됩니다."></textarea>
-            </div>
-        </div>
-
-        <div class="section">
-            <div class="section-title">📅 전체 스케줄 (구글 캘린더)</div>
-            <div class="calendar-container">
-                <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=Asia%2FSeoul&showPrint=0&src=Y29taHdhbkBnbWFpbC5jb20&src=YjAxOWI3MWE3ZjEzYjRlZjQ1MmU0ZGU5ZmE1MzdmNDdhNzYyZTVjMDNjN2Y1YmQzMjBkNzU5YzdjNTZjYzgxY0Bncm91cC5jYWxlbmRhci5nb29nbGUuY29t&src=ZmFtaWx5MDk0NTQ4MTA1NDc1ODg4OTQ1MjRAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ&color=%237986cb&color=%237cb342&color=%23e67c73" style="border-width:0" width="100%" height="100%" frameborder="0" scrolling="no"></iframe>
-            </div>
+    <div id="qrModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white p-8 rounded-2xl text-center max-w-xs w-full shadow-2xl">
+            <div id="modalQrCode" class="flex justify-center mb-4"></div>
+            <p id="modalSnText" class="font-mono text-blue-600 font-bold mb-6"></p>
+            <button onclick="closeModal()" class="w-full bg-gray-200 py-2 rounded-lg hover:bg-gray-300 transition text-gray-700 font-bold font-sans">닫기</button>
         </div>
     </div>
 
     <script>
-        /* ==========================================
-           1. 설정 및 데이터
-           ========================================== */
-        const subjectColors = {
-            "인공I": "#E8D0FF", "인공H": "#FFD1DC", "정보A": "#CBE4F9", "정보B": "#CDF5F6",
-            "정보E": "#AEE1FF", "교육학J": "#FFF1A8", "자율": "#EFEFEF", "동아리": "#FFDFBA"
-        };
-        const scheduleData = {
-            1: ["인공I", "", "", "정보B", "", "", "자율"],
-            2: ["정보E", "인공H", "", "교육학J", "", "", "정보A"],
-            3: ["인공I", "정보E", "교육학J", "", "", "동아리", ""],
-            4: ["", "인공H", "정보E", "", "정보B", "정보A", ""],
-            5: ["", "정보A", "", "", "", "정보B", ""]
-        };
+        const savedPw = sessionStorage.getItem('asset_pw');
+        if (!savedPw && !window.location.href.includes('login.html')) {
+            location.href = 'login.html';
+        }
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbyZvgICRHPoQFHKrRX-bI27Ti9RUNWMjdMOlDTzzSNdviEjC1Gxpa0jlMYBi5bOotLyxQ/exec"; 
+        let assetData = [];
+        let currentSort = { column: '', ascending: true };
+        let mChart, yChart;
 
-        const periodTimes = [
-            { period: 1, start: "08:45", end: "09:35" }, { period: 2, start: "09:45", end: "10:35" },
-            { period: 3, start: "10:45", end: "11:35" }, { period: 4, start: "11:45", end: "12:35" },
-            { period: 5, start: "13:35", end: "14:25" }, { period: 6, start: "14:35", end: "15:25" },
-            { period: 7, start: "15:40", end: "16:30" }
-        ];
+        async function loadData() {
+            const savedPw = sessionStorage.getItem('asset_pw');
+            try {
+                const res = await fetch(`${GAS_URL}?pw=${encodeURIComponent(savedPw)}`);
+                const text = await res.text();
+                if (text === "인증 실패") {
+                    sessionStorage.removeItem('asset_pw');
+                    alert("비밀번호가 틀렸습니다.");
+                    location.href = 'login.html';
+                    return;
+                }
+                assetData = JSON.parse(text);
+                updateDashboard(assetData);
+                renderTable(assetData);
+            } catch (err) {
+                document.getElementById('listBody').innerHTML = `<tr><td colspan="10" class="p-10 text-center text-red-500 font-bold">인증 실패 또는 네트워크 오류</td></tr>`;
+            }
+        }
 
-        const dDayDates = [
-            { name: "1차 정기시험", date: "2026-04-23" }, { name: "친목 교직원 명랑운동회", date: "2026-04-27" },
-            { name: "체육대회", date: "2026-04-30" }, { name: "2차 정기시험", date: "2026-06-29" },
-            { name: "🌴 여름방학식", date: "2026-07-21" }, { name: "개학일", date: "2026-08-10" },
-            { name: "1차 정기시험", date: "2026-09-29" }, { name: "푸소,수학여행(1,2)~30일", date: "2026-10-28" },
-            { name: "수능 (수능대박!)", date: "2026-11-19" }, { name: "2차 정기시험", date: "2026-12-01" },
-            { name: "🌴 겨울방학식", date: "2026-12-28" }, { name: "개학일", date: "2027-01-20" },
-            { name: "졸업식", date: "2027-01-21" },
-        ];
+        function updateDashboard(data) {
+            const counts = { 노트북: 0, 데스크톱: 0, 태블릿: 0, 프린터: 0 };
+            const groupData = {};
+            const ageData = { "신규(3년이내)": 0, "보통(3~5년)": 0, "교체대상(5년이상)": 0 };
+            const currentYear = 2026;
 
-        /* ==========================================
-           2. 시스템 기능
-           ========================================== */
-        function updateClockAndTimeline() {
-            const now = new Date();
-            const days = ['일', '월', '화', '수', '목', '금', '토'];
-            
-            document.getElementById('current-date').innerText = 
-                `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일 ${days[now.getDay()]}요일`;
-            document.getElementById('current-time').innerText = 
-                now.toLocaleTimeString('ko-KR', { hour12: false, hour: '2-digit', minute:'2-digit', second:'2-digit' });
+            data.forEach(item => {
+                const type = (item.type || "").trim();
+                if (type.includes('노트북')) counts.노트북++;
+                else if (type.includes('데스크톱')) counts.데스크톱++;
+                else if (type.includes('태블릿')) counts.태블릿++;
+                else if (type.includes('프린터') || type.includes('복사기') || type.includes('복합기') || type.includes('렌탈')) counts.프린터++;
 
-            const currentMin = now.getHours() * 60 + now.getMinutes();
-            const boxes = document.querySelectorAll('.timeline-box');
-            
-            boxes.forEach((box, index) => {
-                const startArr = periodTimes[index].start.split(':');
-                const endArr = periodTimes[index].end.split(':');
-                const startMin = parseInt(startArr[0]) * 60 + parseInt(startArr[1]);
-                const endMin = parseInt(endArr[0]) * 60 + parseInt(endArr[1]);
+                const group = (item.group || "미지정").trim();
+                groupData[group] = (groupData[group] || 0) + 1;
 
-                box.classList.remove('active', 'past');
-                if (currentMin >= startMin && currentMin <= endMin) { box.classList.add('active'); } 
-                else if (currentMin > endMin) { box.classList.add('past'); }
+                if (item.date) {
+                    const buyYear = parseInt(String(item.date).split('.')[0]);
+                    if (!isNaN(buyYear)) {
+                        const age = currentYear - buyYear;
+                        if (age >= 5) ageData["교체대상(5년이상)"]++;
+                        else if (age >= 3) ageData["보통(3~5년)"]++;
+                        else ageData["신규(3년이내)"]++;
+                    }
+                }
+            });
+
+            document.getElementById('statTotal').innerText = data.length;
+            document.getElementById('statLaptop').innerText = counts.노트북;
+            document.getElementById('statDesktop').innerText = counts.데스크톱;
+            document.getElementById('statTablet').innerText = counts.태블릿;
+            document.getElementById('statPrinter').innerText = counts.프린터;
+
+            const sortedGroups = Object.entries(groupData).sort((a,b) => b[1] - a[1]).slice(0, 10);
+            renderModelChart(sortedGroups);
+            renderYearChart(ageData);
+        }
+
+        function renderModelChart(items) {
+            const ctx = document.getElementById('modelChart').getContext('2d');
+            if(mChart) mChart.destroy();
+            mChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: items.map(i => i[0]),
+                    datasets: [{
+                        label: '보유 대수',
+                        data: items.map(i => i[1]),
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
             });
         }
-        setInterval(updateClockAndTimeline, 1000);
 
-        function renderTimeline() {
-            const today = new Date().getDay(); 
-            const container = document.getElementById('timeline-container');
-            let html = '';
+        function renderYearChart(ageObj) {
+            const ctx = document.getElementById('yearChart').getContext('2d');
+            if(yChart) yChart.destroy();
+            yChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(ageObj),
+                    datasets: [{
+                        data: Object.values(ageObj),
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                        hoverOffset: 4
+                    }]
+                },
+                options: { maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+            });
+        }
 
-            if(today === 0 || today === 6) {
-                container.innerHTML = '<div class="timeline-box" style="flex:none; width:100%; opacity:1;">오늘은 주말입니다! 편안한 휴식 보내세요. 🛋️</div>';
+        function renderTable(data) {
+            const tbody = document.getElementById('listBody');
+            const resultCount = document.getElementById('resultCount'); // ★ 숫자 그릇 찾기
+            
+            // 1. [핵심] 테이블을 그리기 전, 상단 개수부터 무조건 업데이트!
+            if (resultCount) {
+                resultCount.innerText = data.length; 
+                console.log("현재 조회된 개수:", data.length); // 브라우저 검사창(F12)에서 확인용
+            }
+            
+            tbody.innerHTML = ""; // 기존 내용 비우기
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="10" class="p-10 text-center text-gray-400">조회된 데이터가 없습니다.</td></tr>`;
                 return;
             }
 
-            const todaySchedule = scheduleData[today] || [];
-            periodTimes.forEach((pt, index) => {
-                const subject = todaySchedule[index] || '공강';
-                html += `
-                    <div class="timeline-box" id="period-${pt.period}">
-                        <span class="tb-period">${pt.period}교시</span>
-                        <span class="tb-subject">${subject}</span>
-                        <span class="tb-time">${pt.start} ~ ${pt.end}</span>
-                    </div>
-                `;
+            // 2. 리스트 그리기
+            data.forEach((item, index) => {
+                const dateStr = item.date ? String(item.date).split('T')[0] : "-";
+                const row = `
+                    <tr class="border-b hover:bg-blue-50 transition text-[11px]">
+                        <td class="p-4 text-center font-bold text-gray-400">${index + 1}</td>
+                        <td class="p-4 font-bold text-gray-800 text-xs">${item.type}</td>
+                        <td class="p-4 text-xs font-bold">${item.user}</td>
+                        <td class="p-4 text-bold text-[12px]">${item.group || '-'}</td>
+                        <td class="p-4 text-xs">${item.brand}</td>
+                        <td class="p-4 text-xs font-medium">${item.model}</td>
+                        <td class="p-4 font-mono text-base text-blue-600 font-bold">${item.ip || '-'}</td>
+                        <td class="p-4 text-[12px] text-gray-400">${dateStr}</td>
+                        <td class="p-4 text-[10px] text-gray-500"><div class="note-cell" title="${item.note || ''}">${item.note || '-'}</div></td> 
+                        <td class="p-4 text-center">
+                            <div class="flex justify-center gap-1">
+                                <a href="view.html?id=${item.id}" class="bg-gray-100 text-gray-500 px-2 py-1 rounded text-[9px] font-black uppercase hover:bg-gray-200">View</a>
+                                <button onclick="openQR('${item.id}')" class="bg-blue-600 text-white px-2 py-1 rounded text-[9px] font-black uppercase hover:bg-blue-700 shadow-sm">QR</button>
+                            </div>
+                        </td>
+                    </tr>`;
+                tbody.innerHTML += row;
             });
-            container.innerHTML = html;
         }
 
-        function renderTimetable() {
-            const table = document.getElementById('weekly-timetable');
-            const days = ['월', '화', '수', '목', '금'];
-            let html = '<tr><th>교시</th>';
-            days.forEach(d => html += `<th>${d}</th>`);
-            html += '</tr>';
-
-            for (let period = 0; period < 7; period++) {
-                html += `<tr><th>${period + 1}</th>`;
-                for (let day = 1; day <= 5; day++) {
-                    const subject = scheduleData[day] ? scheduleData[day][period] : "";
-                    let bgColor = subject ? (subjectColors[subject] || "#fff2cc") : "";
-                    const styleAttr = bgColor ? `style="background-color: ${bgColor}; font-weight: bold;"` : "";
-                    html += `<td ${styleAttr}>${subject}</td>`;
-                }
-                html += `</tr>`;
-            }
-            table.innerHTML = html;
+        function openQR(id) {
+            // ★ 경로 버그 수정: 파일명에 상관없이 현재 폴더 경로를 정확히 가져옴
+            const currentUrl = window.location.origin + window.location.pathname;
+            const currentFolder = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
+            const viewUrl = `${currentFolder}view.html?id=${id}`;
+            
+            const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(viewUrl)}`;
+            document.getElementById('modalQrCode').innerHTML = `<img src="${qrImageUrl}" class="rounded-lg shadow-sm" />`;
+            document.getElementById('modalSnText').innerText = `관리번호: ${id}번`;
+            document.getElementById('qrModal').classList.remove('hidden');
         }
 
-        function renderDDay() {
-            const container = document.getElementById('dday-container');
-            let html = '';
-            const today = new Date();
-            today.setHours(0,0,0,0);
+        function handleSort(column) {
+            if (currentSort.column === column) currentSort.ascending = !currentSort.ascending;
+            else { currentSort.column = column; currentSort.ascending = true; }
 
-            dDayDates.forEach(d => {
-                const targetDate = new Date(d.date);
-                const diffTime = targetDate - today;
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                
-                let ddayText = '';
-                if(diffDays > 0) ddayText = `D-${diffDays}`;
-                else if(diffDays === 0) ddayText = `D-Day! 🎉`;
-                else ddayText = `D+${Math.abs(diffDays)}`;
-
-                html += `<div class="d-day-item"><span>${d.name}</span><strong>${ddayText}</strong></div>`;
+            assetData.sort((a, b) => {
+                let valA = (a[column] || "").toString();
+                let valB = (b[column] || "").toString();
+                return currentSort.ascending 
+                    ? valA.localeCompare(valB, undefined, { numeric: true }) 
+                    : valB.localeCompare(valA, undefined, { numeric: true });
             });
-            container.innerHTML = html;
+            renderTable(assetData);
         }
 
-        /* ==========================================
-           3. 로컬 저장소 연동 기능
-           ========================================== */
-        const editableElements = ['main-title', 'quick-memo'];
-        editableElements.forEach(id => {
-            const el = document.getElementById(id);
-            const savedData = localStorage.getItem(id);
-            if (savedData) {
-                if (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT') el.value = savedData;
-                else el.innerHTML = savedData;
-            }
-            el.addEventListener('input', function() {
-                localStorage.setItem(id, this.value || this.innerHTML);
+        function filterTable() {
+            const input = document.getElementById("searchInput").value.toLowerCase();
+            
+            // 전체 데이터에서 검색어 포함된 것만 필터링
+            const filtered = assetData.filter(item => {
+                return Object.values(item).some(v => 
+                    v && v.toString().toLowerCase().includes(input)
+                );
             });
-        });
 
-        let todos = JSON.parse(localStorage.getItem('teacherTodos')) || [];
-        const todoInput = document.getElementById('todo-input');
-        const todoList = document.getElementById('todo-list');
-
-        function renderTodos() {
-            todoList.innerHTML = '';
-            todos.forEach((todo, index) => {
-                const li = document.createElement('li');
-                li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
-                li.innerHTML = `
-                    <label>
-                        <input type="checkbox" onchange="toggleTodo(${index})" ${todo.completed ? 'checked' : ''}>
-                        <span>${todo.text}</span>
-                    </label>
-                    <button class="delete-btn" onclick="deleteTodo(${index})">×</button>
-                `;
-                todoList.appendChild(li);
-            });
-            localStorage.setItem('teacherTodos', JSON.stringify(todos));
+            // ★ 필터링된 데이터(filtered)를 다시 테이블에 그려라! (그래야 숫자도 바뀜)
+            renderTable(filtered); 
         }
 
-        function addTodo() {
-            const text = todoInput.value.trim();
-            if (text !== '') {
-                todos.push({ text: text, completed: false });
-                todoInput.value = '';
-                renderTodos();
+        function openQR(id) {
+            const currentPath = window.location.href.split('index.html')[0];
+            const viewUrl = `${currentPath}view.html?sn=${encodeURIComponent(sn)}`;
+            const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(viewUrl)}`;
+            document.getElementById('modalQrCode').innerHTML = `<img src="${qrImageUrl}" class="rounded-lg shadow-sm" />`;
+            document.getElementById('modalSnText').innerText = sn;
+            document.getElementById('qrModal').classList.remove('hidden');
+        }
+
+        function filterByType(type) {
+            if (type === '전체') {
+                renderTable(assetData);
+            } else {
+                const filtered = assetData.filter(item => 
+                    (item.type && item.type.includes(type)) || 
+                    (type === '프린터' && item.type && item.type.includes('복사기'))
+                );
+                renderTable(filtered);
             }
         }
-
-        function toggleTodo(index) {
-            todos[index].completed = !todos[index].completed;
-            renderTodos();
+        function filterByAging() {
+            const currentYear = 2026;
+            const filtered = assetData.filter(item => {
+                if (!item.date) return false;
+                const buyYear = parseInt(String(item.date).split('.')[0]);
+                return (currentYear - buyYear) >= 5;
+            });
+            renderTable(filtered);
         }
 
-        function deleteTodo(index) {
-            todos.splice(index, 1);
-            renderTodos();
-        }
-
-        todoInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') addTodo();
-        });
-
-        /* ==========================================
-           4. 초기 실행
-           ========================================== */
-        window.onload = function() {
-            renderTimetable();
-            renderTimeline();
-            updateClockAndTimeline();
-            renderDDay();
-            renderTodos();
-        };
+        function closeModal() { document.getElementById('qrModal').classList.add('hidden'); }
+        window.onload = loadData;
     </script>
 </body>
 </html>
