@@ -62,49 +62,37 @@
         // ★여기에 선생님의 새로운 GAS URL을 넣으세요!
         const GAS_URL = "https://script.google.com/macros/s/AKfycbyZvgICRHPoQFHKrRX-bI27Ti9RUNWMjdMOlDTzzSNdviEjC1Gxpa0jlMYBi5bOotLyxQ/exec";
         
-        const savedPw = sessionStorage.getItem('asset_pw');
         const urlParams = new URLSearchParams(window.location.search);
         const id = urlParams.get('id');
 
-        if (!savedPw) {
-            alert("인증 정보가 없습니다. 다시 로그인하세요.");
-            location.href = 'login.html';
-        } else if (id) {
-            fetch(`${GAS_URL}?id=${encodeURIComponent(id)}&pw=${encodeURIComponent(savedPw)}`)
+        if (id) {
+            // pw 없이 id만 서버로 요청합니다!
+            fetch(`${GAS_URL}?id=${encodeURIComponent(id)}`)
                 .then(res => res.text())
                 .then(text => {
-                    if (text === "인증 실패") {
-                        alert("세션이 만료되었습니다.");
-                        location.href = 'login.html';
-                        return;
-                    }
                     if (text === "null" || text === "") throw new Error("ID 찾을 수 없음");
 
                     const data = JSON.parse(text);
                     document.getElementById('loader').classList.add('hidden');
                     document.getElementById('content').classList.remove('hidden');
                     
-                    // 데이터 매핑
                     document.getElementById('v_type').innerText = data.type || "-";
                     document.getElementById('v_model').innerText = `${data.brand || ""} ${data.model || ""}`;
                     document.getElementById('v_user').innerText = data.user || "-";
                     document.getElementById('v_group').innerText = data.group || "-";
-                    
-                    // 날짜 형식 안전하게 처리 (2022.05 그대로 출력)
                     document.getElementById('v_date').innerText = data.date ? String(data.date).split('T')[0] : "-";
-                    
-                    // IP 및 비고
                     document.getElementById('v_ip').innerText = data.ip || "-";
                     document.getElementById('v_note').innerText = data.note || "-";
 
-                    // QR 코드 자동 생성 (현재 페이지 URL 기준)
                     const currentUrl = window.location.origin + window.location.pathname + '?id=' + id;
                     const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(currentUrl)}`;
                     document.getElementById('v_qr').innerHTML = `<img src="${qrImgUrl}" alt="QR Code" class="w-24 h-24">`;
                 })
                 .catch(err => {
-                    document.getElementById('loader').innerHTML = `<p class='text-red-500 font-bold'>오류: 데이터를 찾을 수 없습니다.</p>`;
+                    document.getElementById('loader').innerHTML = `<p class='text-red-500 font-bold'>오류: 기기 정보를 찾을 수 없습니다.</p>`;
                 });
+        } else {
+            document.getElementById('loader').innerText = "기기 관리 번호(ID)가 없습니다.";
         }
     </script>
 </body>
