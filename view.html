@@ -6,96 +6,105 @@
     <title>자산 상세 정보 - IT Master</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 min-h-screen flex flex-col items-center p-4">
-    <div id="loader" class="mt-20 text-gray-400 animate-pulse font-bold">데이터를 실시간으로 불러오는 중...</div>
+<body class="bg-gray-200 min-h-screen flex items-center justify-center p-4">
     
-    <div id="content" class="hidden w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 mt-10">
-        <div class="bg-blue-600 p-8 text-white text-center">
-            <div id="v_type" class="inline-block bg-blue-400 px-3 py-1 rounded-full text-[10px] font-bold mb-2 uppercase">ASSET INFO</div>
-            <h2 id="v_model" class="text-2xl font-bold leading-tight">모델명</h2>
+    <div id="loader" class="text-gray-500 animate-pulse font-bold text-lg">데이터를 불러오는 중입니다...</div>
+    
+    <div id="content" class="hidden w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden transform transition-all">
+        <div class="bg-blue-600 p-6 text-white text-center relative">
+            <div id="v_type" class="inline-block bg-blue-400 px-3 py-1 rounded-full text-xs font-bold mb-2">로딩중</div>
+            <h2 id="v_model" class="text-xl font-bold leading-tight">모델명</h2>
         </div>
-        <div class="p-6 space-y-5">
-            <div class="flex flex-col border-b border-gray-50 pb-2">
-                <span class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">현재 사용자</span>
-                <span id="v_user" class="font-bold text-gray-800 text-lg">-</span>
+        
+        <div class="p-6 space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="flex flex-col border-b border-gray-100 pb-2">
+                    <span class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">현재 사용자</span>
+                    <span id="v_user" class="font-bold text-gray-800 text-base">-</span>
+                </div>
+                <div class="flex flex-col border-b border-gray-100 pb-2">
+                    <span class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">소속 부서/그룹</span>
+                    <span id="v_group" class="font-bold text-gray-800 text-base">-</span>
+                </div>
             </div>
-            <div class="flex flex-col border-b border-gray-50 pb-2">
-                <span class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">소속 부서/그룹</span>
-                <span id="v_group" class="font-bold text-gray-800">-</span>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div class="flex flex-col border-b border-gray-100 pb-2">
+                    <span class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">취득일자 (도입일)</span>
+                    <span id="v_date" class="font-bold text-gray-700 text-sm">-</span>
+                </div>
+                <div class="flex flex-col border-b border-gray-100 pb-2">
+                    <span class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">IP 주소</span>
+                    <span id="v_ip" class="font-bold text-blue-600 text-sm">-</span>
+                </div>
             </div>
-            <div class="flex flex-col border-b border-gray-50 pb-2">
-                <span class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">취득일자 (도입일)</span>
-                <span id="v_date" class="font-bold text-gray-700">-</span>
-            </div>
-            <div class="bg-blue-50 p-4 rounded-xl flex flex-col border border-blue-100">
-                <span class="text-blue-400 text-[10px] font-bold mb-1">시리얼 번호 (S/N)</span>
-                <span id="v_sn" class="font-mono text-blue-700 font-bold tracking-tight text-sm">-</span>
-            </div>
+
             <div class="pt-2">
-                <span class="text-gray-400 text-[10px] font-bold">기타 비고</span>
-                <p id="v_note" class="text-gray-600 text-xs mt-1 leading-relaxed">-</p>
+                <span class="text-gray-400 text-[10px] font-bold">비고</span>
+                <div id="v_note" class="bg-gray-50 text-gray-700 text-sm mt-1 p-3 rounded-lg border border-gray-100 min-h-[40px]">-</div>
+            </div>
+
+            <div class="flex flex-col items-center pt-4 border-t border-gray-100">
+                <span class="text-gray-400 text-[10px] font-bold mb-2">해당 기기 QR코드</span>
+                <div id="v_qr" class="p-2 border border-gray-200 rounded-lg bg-white shadow-sm">
+                    </div>
             </div>
         </div>
+        
         <div class="bg-gray-50 p-4 text-center">
-            <button onclick="location.href='sangildevice.html'" class="text-xs text-blue-500 font-bold hover:underline">자산 목록 전체보기</button>
+            <button onclick="location.href='sangildevice.html'" class="w-full py-2 bg-gray-200 text-gray-700 rounded-lg font-bold hover:bg-gray-300 transition">
+                자산 목록 전체보기
+            </button>
         </div>
     </div>
 
     <script>
-        // 1. GAS URL (본인의 URL)
+        // ★여기에 선생님의 새로운 GAS URL을 넣으세요!
         const GAS_URL = "https://script.google.com/macros/s/AKfycbyZvgICRHPoQFHKrRX-bI27Ti9RUNWMjdMOlDTzzSNdviEjC1Gxpa0jlMYBi5bOotLyxQ/exec";
         
-        // 2. 세션에서 비밀번호와 URL에서 ID 가져오기
         const savedPw = sessionStorage.getItem('asset_pw');
         const urlParams = new URLSearchParams(window.location.search);
         const id = urlParams.get('id');
 
-        // ★ 수정 포인트 1: 비밀번호가 없으면 밑에 있는 코드가 아예 실행되지 않도록 구조 변경
         if (!savedPw) {
             alert("인증 정보가 없습니다. 다시 로그인하세요.");
             location.href = 'login.html';
-        } else {
-            // 비밀번호가 있을 때만 아래 로직 실행
-            if (id) {
-                fetch(`${GAS_URL}?id=${encodeURIComponent(id)}&pw=${encodeURIComponent(savedPw)}`)
-                    .then(res => {
-                        if (!res.ok) throw new Error("서버 응답 오류");
-                        return res.text(); 
-                    })
-                    .then(text => {
-                        console.log("서버 응답 내용:", text); // F12 콘솔에서 에러 원인 파악용
+        } else if (id) {
+            fetch(`${GAS_URL}?id=${encodeURIComponent(id)}&pw=${encodeURIComponent(savedPw)}`)
+                .then(res => res.text())
+                .then(text => {
+                    if (text === "인증 실패") {
+                        alert("세션이 만료되었습니다.");
+                        location.href = 'login.html';
+                        return;
+                    }
+                    if (text === "null" || text === "") throw new Error("ID 찾을 수 없음");
 
-                        if (text === "인증 실패") {
-                            alert("비밀번호가 틀렸거나 세션이 만료되었습니다.");
-                            location.href = 'login.html';
-                            return;
-                        }
-                        
-                        // ★ 수정 포인트 2: 구글 시트에서 해당 ID를 못 찾았을 때의 방어 코드
-                        if (text === "null" || text === "") {
-                            throw new Error("해당 ID의 자산 정보를 찾을 수 없습니다.");
-                        }
+                    const data = JSON.parse(text);
+                    document.getElementById('loader').classList.add('hidden');
+                    document.getElementById('content').classList.remove('hidden');
+                    
+                    // 데이터 매핑
+                    document.getElementById('v_type').innerText = data.type || "-";
+                    document.getElementById('v_model').innerText = `${data.brand || ""} ${data.model || ""}`;
+                    document.getElementById('v_user').innerText = data.user || "-";
+                    document.getElementById('v_group').innerText = data.group || "-";
+                    
+                    // 날짜 형식 안전하게 처리 (2022.05 그대로 출력)
+                    document.getElementById('v_date').innerText = data.date ? String(data.date).split('T')[0] : "-";
+                    
+                    // IP 및 비고
+                    document.getElementById('v_ip').innerText = data.ip || "-";
+                    document.getElementById('v_note').innerText = data.note || "-";
 
-                        // 정상적으로 데이터를 받았을 때 파싱
-                        const data = JSON.parse(text);
-                        document.getElementById('loader').classList.add('hidden');
-                        document.getElementById('content').classList.remove('hidden');
-                        
-                        document.getElementById('v_type').innerText = data.type || "N/A";
-                        document.getElementById('v_model').innerText = `${data.brand || ""} ${data.model || ""}`;
-                        document.getElementById('v_user').innerText = data.user || "미지정";
-                        document.getElementById('v_group').innerText = data.group || "-";
-                        document.getElementById('v_date').innerText = (data.date || "").split('T')[0] || "정보없음";
-                        document.getElementById('v_sn').innerText = data.id || "-";
-                        document.getElementById('v_note').innerText = data.note || "특이사항 없음";
-                    })
-                    .catch(err => {
-                        console.error("에러 상세:", err);
-                        document.getElementById('loader').innerHTML = `<p class='text-red-500 font-bold'>조회 실패: 데이터를 가져올 수 없습니다.</p>`;
-                    });
-            } else {
-                document.getElementById('loader').innerText = "ID 정보가 없습니다.";
-            }
+                    // QR 코드 자동 생성 (현재 페이지 URL 기준)
+                    const currentUrl = window.location.origin + window.location.pathname + '?id=' + id;
+                    const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(currentUrl)}`;
+                    document.getElementById('v_qr').innerHTML = `<img src="${qrImgUrl}" alt="QR Code" class="w-24 h-24">`;
+                })
+                .catch(err => {
+                    document.getElementById('loader').innerHTML = `<p class='text-red-500 font-bold'>오류: 데이터를 찾을 수 없습니다.</p>`;
+                });
         }
     </script>
 </body>
