@@ -1,4 +1,3 @@
-<!-- 상일여고 정보화기기 자산 관리 대시보드 -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -15,6 +14,9 @@
         /* 비고란이 너무 길면 잘라내고 말줄임표 처리 */
         .note-cell { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .chart-container { position: relative; height: 200px; width: 100%; }
+        /* 팝업창 스크롤바 숨기기 (깔끔한 디자인) */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -55,15 +57,11 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                 <h4 class="text-sm font-bold text-gray-500 mb-4">🏆 부서별 보유 순위</h4>
-                <div class="chart-container">
-                    <canvas id="modelChart"></canvas>
-                </div>
+                <div class="chart-container"><canvas id="modelChart"></canvas></div>
             </div>
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                 <h4 class="text-sm font-bold text-gray-500 mb-4">📅 연도별 도입 현황</h4>
-                <div class="chart-container">
-                    <canvas id="yearChart"></canvas>
-                </div>
+                <div class="chart-container"><canvas id="yearChart"></canvas></div>
             </div>
         </div>
 
@@ -111,6 +109,57 @@
         </div>
     </div>
 
+    <div id="assetModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 transition-opacity">
+        <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
+            <div class="bg-blue-600 p-6 text-white text-center relative">
+                <button onclick="closeAssetModal()" class="absolute top-4 right-4 text-white hover:text-blue-200 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                <div id="m_type" class="inline-block bg-blue-400 px-3 py-1 rounded-full text-xs font-bold mb-2 uppercase">ASSET INFO</div>
+                <h2 id="m_model" class="text-xl font-bold leading-tight">모델명</h2>
+            </div>
+            
+            <div class="p-6 space-y-4 max-h-[60vh] overflow-y-auto no-scrollbar">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex flex-col border-b border-gray-100 pb-2">
+                        <span class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">현재 사용자</span>
+                        <span id="m_user" class="font-bold text-gray-800 text-base">-</span>
+                    </div>
+                    <div class="flex flex-col border-b border-gray-100 pb-2">
+                        <span class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">소속 부서/그룹</span>
+                        <span id="m_group" class="font-bold text-gray-800 text-base">-</span>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex flex-col border-b border-gray-100 pb-2">
+                        <span class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">취득일자</span>
+                        <span id="m_date" class="font-bold text-gray-700 text-sm">-</span>
+                    </div>
+                    <div class="flex flex-col border-b border-gray-100 pb-2">
+                        <span class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">IP 주소</span>
+                        <span id="m_ip" class="font-bold text-blue-600 text-sm">-</span>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <span class="text-gray-400 text-[10px] font-bold">비고</span>
+                    <div id="m_note" class="bg-gray-50 text-gray-700 text-sm mt-1 p-3 rounded-lg border border-gray-100 min-h-[40px]">-</div>
+                </div>
+
+                <div class="flex flex-col items-center pt-4 border-t border-gray-100">
+                    <span class="text-gray-400 text-[10px] font-bold mb-2">해당 기기 QR코드</span>
+                    <div id="m_qr" class="p-2 border border-gray-200 rounded-lg bg-white shadow-sm"></div>
+                </div>
+            </div>
+            <div class="bg-gray-50 p-4 text-center border-t border-gray-100">
+                <button onclick="closeAssetModal()" class="w-full py-2 bg-gray-200 text-gray-700 rounded-lg font-bold hover:bg-gray-300 transition">닫기</button>
+            </div>
+        </div>
+    </div>
+
     <div id="qrModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div class="bg-white p-8 rounded-2xl text-center max-w-xs w-full shadow-2xl">
             <div id="modalQrCode" class="flex justify-center mb-4"></div>
@@ -124,13 +173,13 @@
         if (!savedPw && !window.location.href.includes('login.html')) {
             location.href = 'login.html';
         }
+        
         const GAS_URL = "https://script.google.com/macros/s/AKfycbyZvgICRHPoQFHKrRX-bI27Ti9RUNWMjdMOlDTzzSNdviEjC1Gxpa0jlMYBi5bOotLyxQ/exec"; 
         let assetData = [];
         let currentSort = { column: '', ascending: true };
         let mChart, yChart;
 
         async function loadData() {
-            const savedPw = sessionStorage.getItem('asset_pw');
             try {
                 const res = await fetch(`${GAS_URL}?pw=${encodeURIComponent(savedPw)}`);
                 const text = await res.text();
@@ -144,7 +193,7 @@
                 updateDashboard(assetData);
                 renderTable(assetData);
             } catch (err) {
-                document.getElementById('listBody').innerHTML = `<tr><td colspan="10" class="p-10 text-center text-red-500 font-bold">인증 실패 또는 네트워크 오류</td></tr>`;
+                document.getElementById('listBody').innerHTML = `<tr><td colspan="10" class="p-10 text-center text-red-500 font-bold">네트워크 오류가 발생했습니다.</td></tr>`;
             }
         }
 
@@ -193,18 +242,9 @@
                 type: 'bar',
                 data: {
                     labels: items.map(i => i[0]),
-                    datasets: [{
-                        label: '보유 대수',
-                        data: items.map(i => i[1]),
-                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
-                        borderRadius: 5
-                    }]
+                    datasets: [{ label: '보유 대수', data: items.map(i => i[1]), backgroundColor: 'rgba(59, 130, 246, 0.8)', borderRadius: 5 }]
                 },
-                options: {
-                    indexAxis: 'y',
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } }
-                }
+                options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
         }
 
@@ -215,11 +255,7 @@
                 type: 'doughnut',
                 data: {
                     labels: Object.keys(ageObj),
-                    datasets: [{
-                        data: Object.values(ageObj),
-                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
-                        hoverOffset: 4
-                    }]
+                    datasets: [{ data: Object.values(ageObj), backgroundColor: ['#10b981', '#f59e0b', '#ef4444'], hoverOffset: 4 }]
                 },
                 options: { maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
             });
@@ -227,24 +263,19 @@
 
         function renderTable(data) {
             const tbody = document.getElementById('listBody');
-            const resultCount = document.getElementById('resultCount'); // ★ 숫자 그릇 찾기
+            const resultCount = document.getElementById('resultCount');
             
-            // 1. [핵심] 테이블을 그리기 전, 상단 개수부터 무조건 업데이트!
-            if (resultCount) {
-                resultCount.innerText = data.length; 
-                console.log("현재 조회된 개수:", data.length); // 브라우저 검사창(F12)에서 확인용
-            }
-            
-            tbody.innerHTML = ""; // 기존 내용 비우기
+            if (resultCount) resultCount.innerText = data.length; 
+            tbody.innerHTML = ""; 
 
             if (!data || data.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="10" class="p-10 text-center text-gray-400">조회된 데이터가 없습니다.</td></tr>`;
                 return;
             }
 
-            // 2. 리스트 그리기
             data.forEach((item, index) => {
                 const dateStr = item.date ? String(item.date).split('T')[0] : "-";
+                // ★수정됨: View 버튼을 a 태그에서 button 태그로 바꾸고 팝업 함수 연결
                 const row = `
                     <tr class="border-b hover:bg-blue-50 transition text-[11px]">
                         <td class="p-4 text-center font-bold text-gray-400">${index + 1}</td>
@@ -258,7 +289,7 @@
                         <td class="p-4 text-[10px] text-gray-500"><div class="note-cell" title="${item.note || ''}">${item.note || '-'}</div></td> 
                         <td class="p-4 text-center">
                             <div class="flex justify-center gap-1">
-                                <a href="view.html?id=${item.id}" class="bg-gray-100 text-gray-500 px-2 py-1 rounded text-[9px] font-black uppercase hover:bg-gray-200">View</a>
+                                <button onclick="openAssetDetail('${item.id}')" class="bg-gray-100 text-gray-500 px-2 py-1 rounded text-[9px] font-black uppercase hover:bg-gray-200">View</button>
                                 <button onclick="openQR('${item.id}')" class="bg-blue-600 text-white px-2 py-1 rounded text-[9px] font-black uppercase hover:bg-blue-700 shadow-sm">QR</button>
                             </div>
                         </td>
@@ -267,12 +298,42 @@
             });
         }
 
-        function openQR(id) {
-            // ★ 경로 버그 수정: 파일명에 상관없이 현재 폴더 경로를 정확히 가져옴
-            const currentUrl = window.location.origin + window.location.pathname;
-            const currentFolder = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
-            const viewUrl = `${currentFolder}view.html?id=${id}`;
+        // ★ 추가됨: 초고속 상세 팝업창 띄우기 함수
+        function openAssetDetail(id) {
+            // 이미 다운받은 assetData에서 해당 id를 가진 데이터를 찾습니다 (서버 요청 필요 없음)
+            const data = assetData.find(item => item.id == id);
             
+            if (!data) {
+                alert("해당 기기의 정보를 찾을 수 없습니다.");
+                return;
+            }
+
+            // 찾은 데이터를 팝업창에 매핑합니다
+            document.getElementById('m_type').innerText = data.type || "-";
+            document.getElementById('m_model').innerText = `${data.brand || ""} ${data.model || ""}`.trim() || "-";
+            document.getElementById('m_user').innerText = data.user || "-";
+            document.getElementById('m_group').innerText = data.group || "-";
+            document.getElementById('m_date').innerText = data.date ? String(data.date).split('T')[0] : "-";
+            document.getElementById('m_ip').innerText = data.ip || "-";
+            document.getElementById('m_note').innerText = data.note || "-";
+
+            // 스마트폰으로 찍었을 때 view.html 페이지로 이동하는 QR 코드 생성
+            const currentUrl = window.location.origin + window.location.pathname.replace('sangildevice.html', '');
+            const viewUrl = `${currentUrl}view.html?id=${id}`;
+            const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(viewUrl)}`;
+            document.getElementById('m_qr').innerHTML = `<img src="${qrImgUrl}" alt="QR Code" class="w-24 h-24">`;
+
+            // 모달 열기
+            document.getElementById('assetModal').classList.remove('hidden');
+        }
+
+        function closeAssetModal() {
+            document.getElementById('assetModal').classList.add('hidden');
+        }
+
+        function openQR(id) {
+            const currentUrl = window.location.origin + window.location.pathname.replace('sangildevice.html', '');
+            const viewUrl = `${currentUrl}view.html?id=${id}`;
             const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(viewUrl)}`;
             document.getElementById('modalQrCode').innerHTML = `<img src="${qrImageUrl}" class="rounded-lg shadow-sm" />`;
             document.getElementById('modalSnText').innerText = `관리번호: ${id}번`;
@@ -295,38 +356,22 @@
 
         function filterTable() {
             const input = document.getElementById("searchInput").value.toLowerCase();
-            
-            // 전체 데이터에서 검색어 포함된 것만 필터링
             const filtered = assetData.filter(item => {
-                return Object.values(item).some(v => 
-                    v && v.toString().toLowerCase().includes(input)
-                );
+                return Object.values(item).some(v => v && v.toString().toLowerCase().includes(input));
             });
-
-            // ★ 필터링된 데이터(filtered)를 다시 테이블에 그려라! (그래야 숫자도 바뀜)
             renderTable(filtered); 
         }
 
-        function openQR(id) {
-            const currentPath = window.location.href.split('sangildevice.html')[0];
-            const viewUrl = `${currentPath}view.html?sn=${encodeURIComponent(sn)}`;
-            const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(viewUrl)}`;
-            document.getElementById('modalQrCode').innerHTML = `<img src="${qrImageUrl}" class="rounded-lg shadow-sm" />`;
-            document.getElementById('modalSnText').innerText = sn;
-            document.getElementById('qrModal').classList.remove('hidden');
-        }
-
         function filterByType(type) {
-            if (type === '전체') {
-                renderTable(assetData);
-            } else {
+            if (type === '전체') renderTable(assetData);
+            else {
                 const filtered = assetData.filter(item => 
-                    (item.type && item.type.includes(type)) || 
-                    (type === '프린터' && item.type && item.type.includes('복사기'))
+                    (item.type && item.type.includes(type)) || (type === '프린터' && item.type && item.type.includes('복사기'))
                 );
                 renderTable(filtered);
             }
         }
+
         function filterByAging() {
             const currentYear = 2026;
             const filtered = assetData.filter(item => {
@@ -338,6 +383,7 @@
         }
 
         function closeModal() { document.getElementById('qrModal').classList.add('hidden'); }
+        
         window.onload = loadData;
     </script>
 </body>
