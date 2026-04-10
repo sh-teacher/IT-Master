@@ -110,56 +110,60 @@
     </div>
 
     <div id="assetModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 transition-opacity">
-        <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
-            <div class="bg-blue-600 p-6 text-white text-center relative">
+        <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden border border-gray-100 flex flex-col max-h-[90vh]">
+            
+            <div class="bg-blue-600 pt-6 pb-5 px-6 text-white text-center relative shrink-0">
                 <button onclick="closeAssetModal()" class="absolute top-4 right-4 text-white hover:text-blue-200 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
-                <div id="m_type" class="inline-block bg-blue-400 px-3 py-1 rounded-full text-xs font-bold mb-2 uppercase">ASSET INFO</div>
-                <h2 id="m_model" class="text-xl font-bold leading-tight">모델명</h2>
+                <div id="m_type" class="inline-block bg-blue-400 px-4 py-1 rounded-full text-xs font-bold mb-3">ASSET INFO</div>
+                <h2 id="m_model" class="text-xl font-bold leading-tight tracking-wide">모델명</h2>
             </div>
             
-            <div class="p-6 space-y-4 max-h-[60vh] overflow-y-auto no-scrollbar">
-                <div class="bg-blue-50 p-3 rounded-xl flex flex-col border border-blue-100">
-                <span class="text-blue-500 text-[10px] font-bold uppercase">관리번호(ID)</span>
-                <span id="v_sn" class="font-mono text-blue-700 font-black tracking-tight text-lg">-</span>
+            <div class="p-6 space-y-5 overflow-y-auto no-scrollbar flex-1">
+                
+                <div class="bg-blue-50 border border-blue-100 rounded-xl p-4">
+                    <div class="text-blue-500 text-[11px] font-bold mb-1">관리번호(ID)</div>
+                    <div id="m_sn" class="font-bold text-xl text-blue-700">-</div>
                 </div>
+                
                 <div class="grid grid-cols-2 gap-4">
                     <div class="flex flex-col border-b border-gray-100 pb-2">
-                        <span class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">현재 사용자</span>
+                        <span class="text-gray-400 text-[11px] font-bold mb-1">현재 사용자</span>
                         <span id="m_user" class="font-bold text-gray-800 text-base">-</span>
                     </div>
                     <div class="flex flex-col border-b border-gray-100 pb-2">
-                        <span class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">소속 부서/그룹</span>
+                        <span class="text-gray-400 text-[11px] font-bold mb-1">소속 부서/그룹</span>
                         <span id="m_group" class="font-bold text-gray-800 text-base">-</span>
                     </div>
                 </div>
                 
                 <div class="grid grid-cols-2 gap-4">
                     <div class="flex flex-col border-b border-gray-100 pb-2">
-                        <span class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">취득일자</span>
+                        <span class="text-gray-400 text-[11px] font-bold mb-1">취득일자</span>
                         <span id="m_date" class="font-bold text-gray-700 text-sm">-</span>
                     </div>
                     <div class="flex flex-col border-b border-gray-100 pb-2">
-                        <span class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">IP 주소</span>
-                        <span id="m_ip" class="font-bold text-blue-600 text-sm">-</span>
+                        <span class="text-gray-400 text-[11px] font-bold mb-1">IP 주소</span>
+                        <span id="m_ip" class="font-bold text-blue-500 text-sm">-</span>
                     </div>
                 </div>
 
-                <div class="pt-2">
-                    <span class="text-gray-400 text-[10px] font-bold">비고</span>
-                    <div id="m_note" class="bg-gray-50 text-gray-700 text-sm mt-1 p-3 rounded-lg border border-gray-100 min-h-[40px]">-</div>
+                <div class="pt-1">
+                    <span class="text-gray-400 text-[11px] font-bold">비고</span>
+                    <div id="m_note" class="bg-gray-50 text-gray-700 text-sm mt-2 p-3 rounded-lg border border-gray-100 min-h-[44px] flex items-center">-</div>
                 </div>
 
-                <div class="flex flex-col items-center pt-4 border-t border-gray-100">
-                    <span class="text-gray-400 text-[10px] font-bold mb-2">해당 기기 QR코드</span>
-                    <div id="m_qr" class="p-2 border border-gray-200 rounded-lg bg-white shadow-sm"></div>
+                <div class="flex flex-col items-center pt-5">
+                    <span class="text-gray-400 text-[11px] font-bold mb-2">해당 기기 QR코드</span>
+                    <div id="m_qr" class="p-2 border border-gray-200 rounded-xl bg-white shadow-sm"></div>
                 </div>
             </div>
-            <div class="bg-gray-50 p-4 text-center border-t border-gray-100">
-                <button onclick="closeAssetModal()" class="w-full py-2 bg-gray-200 text-gray-700 rounded-lg font-bold hover:bg-gray-300 transition">닫기</button>
+
+            <div class="p-4 text-center shrink-0">
+                <button onclick="closeAssetModal()" class="w-full py-3 bg-gray-200 text-gray-700 rounded-lg font-bold text-base hover:bg-gray-300 transition">닫기</button>
             </div>
         </div>
     </div>
