@@ -11,8 +11,9 @@
         body { background-color: #f3f4f6; }
         .page-preview {
             width: 210mm;
-            min-height: 297mm;
-            padding: 10mm;
+            height: 296mm; /* ★ 297mm에서 1mm 줄여서 다음 장으로 넘어가는 현상 완벽 차단 */
+            padding: 8mm;  /* QR코드가 커질 공간을 확보하기 위해 바깥 여백 살짝 줄임 */
+            box-sizing: border-box; /* ★ 여백을 포함해 크기를 고정 (가장 중요) */
             margin: 20px auto;
             background: white;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
@@ -23,7 +24,7 @@
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             grid-template-rows: repeat(6, 1fr);
-            gap: 5mm; /* 라벨지 간격에 맞춰 조절 가능 */
+            gap: 3mm; /* 칸 사이 간격을 줄여서 QR코드가 들어갈 공간 확보 */
             height: 100%;
         }
         .qr-item {
@@ -31,26 +32,34 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            border: 1px dashed #ccc; /* 자르기 편하게 점선 표시 */
-            padding: 5px;
-            height: 42mm; /* A4 6줄 기준 높이 */
+            border: 1px dashed #ccc; 
+            padding: 3px; 
+            box-sizing: border-box;
+            overflow: hidden; /* ★ 아무리 QR이 커져도 칸 자체를 찢고 나가지 못하게 잠금 */
         }
-        .qr-item img { max-width: 100%; max-height: 70%; }
+        
+        /* QR코드 이미지가 칸 안에서 최대한 크게 렌더링되도록 설정 */
+        .qr-item img, .qr-item canvas { 
+            width: auto;
+            height: auto;
+            max-width: 95%; 
+            max-height: 85%; 
+            object-fit: contain;
+        }
 
-        /* ★ 실제 프린터로 인쇄할 때 적용되는 스타일 */
+        /* ★ 실제 프린터 인쇄 설정 */
         @media print {
-            @page { size: A4; margin: 10mm; }
+            @page { size: A4; margin: 0; } /* 프린터 기본 여백 완전 제거 */
             body { background: white; margin: 0; padding: 0; }
             .no-print { display: none !important; }
             .page-preview {
-                width: 100%;
-                height: 100%;
-                margin: 0;
-                padding: 0;
+                width: 210mm;
+                height: 296mm;
+                margin: 0 auto;
                 box-shadow: none;
-                page-break-after: always; /* 페이지가 넘어가면 강제로 다음 장으로 */
+                page-break-after: always; 
             }
-            .qr-item { border: 1px solid #eee; } /* 인쇄 시에는 연한 실선으로 */
+            .qr-item { border: 1px solid #eee; } 
         }
     </style>
 </head>
