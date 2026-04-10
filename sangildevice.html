@@ -113,21 +113,23 @@
         <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden border border-gray-100 flex flex-col max-h-[90vh]">
             
             <div class="bg-blue-600 pt-6 pb-5 px-6 text-white text-center relative shrink-0">
+                
+                <div class="absolute top-4 left-5 text-left">
+                    <div class="text-[9px] text-blue-200 font-bold uppercase tracking-wider mb-0.5">관리번호</div>
+                    <div id="m_sn" class="text-xl font-black text-white leading-none">-</div>
+                </div>
+
                 <button onclick="closeAssetModal()" class="absolute top-4 right-4 text-white hover:text-blue-200 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
-                <div id="m_type" class="inline-block bg-blue-400 px-4 py-1 rounded-full text-xs font-bold mb-3">ASSET INFO</div>
-                <h2 id="m_model" class="text-xl font-bold leading-tight tracking-wide">모델명</h2>
+                
+                <div id="m_type" class="inline-block bg-blue-400 px-4 py-1 rounded-full text-xs font-bold mb-2">ASSET INFO</div>
+                <h2 id="m_model" class="text-xl font-bold leading-tight tracking-wide mt-1">모델명</h2>
             </div>
             
             <div class="p-6 space-y-5 overflow-y-auto no-scrollbar flex-1">
-                
-                <div class="bg-blue-50 border border-blue-100 rounded-xl p-4">
-                    <div class="text-blue-500 text-[11px] font-bold mb-1">관리번호(ID)</div>
-                    <div id="m_sn" class="font-bold text-xl text-blue-700">-</div>
-                </div>
                 
                 <div class="grid grid-cols-2 gap-4">
                     <div class="flex flex-col border-b border-gray-100 pb-2">
