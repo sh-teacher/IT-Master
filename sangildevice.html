@@ -324,7 +324,7 @@
             document.getElementById('m_date').innerText = data.date ? String(data.date).split('T')[0] : "-";
             document.getElementById('m_ip').innerText = data.ip || "-";
             document.getElementById('m_note').innerText = data.note || "-";
-            document.getElementById('v_sn').innerText = data.id || "-";
+            document.getElementById('m_sn').innerText = data.id || "-";
             // 스마트폰으로 찍었을 때 view.html 페이지로 이동하는 QR 코드 생성
             const currentUrl = window.location.origin + window.location.pathname.replace('sangildevice.html', '');
             const viewUrl = `${currentUrl}view.html?id=${id}`;
