@@ -3,222 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>메신저 리액션 대백과 - 그림 스티커 편</title>
+    <title>쿨메신저 리액션 대백과</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: #f7f6f3; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .emoji-btn { transition: all 0.2s; cursor: pointer; word-break: keep-all; }
+        .emoji-btn:hover { transform: scale(1.03); background-color: #e6f4ea; border-color: #34a853; color: #1e8e3e; }
+        .emoji-btn:active { transform: scale(0.97); }
+        .gif-card img { width: 100%; height: 110px; object-fit: contain; border-radius: 8px; background: #fff; }
         
-        /* 스티커용 그리드 스타일 (둥글고 꽉 차게) */
-        .sticker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; }
-        
-        /* 움직이는 그림 카드 스타일 */
-        .gif-card { 
-            background: white; border-radius: 16px; padding: 10px; transition: all 0.2s; 
-            cursor: pointer; position: relative; border: 1px solid #e5e7eb; box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+        #toast {
+            visibility: hidden; min-width: 250px; background-color: #333; color: #fff;
+            text-align: center; border-radius: 30px; padding: 12px 20px; font-weight: bold;
+            position: fixed; z-index: 50; left: 50%; transform: translateX(-50%); bottom: 30px;
+            opacity: 0; transition: opacity 0.3s, bottom 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
-        .gif-card:hover { transform: translateY(-3px) scale(1.02); border-color: #3b82f6; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 10; }
-        .gif-card img { width: 100%; height: 100px; object-fit: contain; border-radius: 12px; }
-        .gif-label { text-align: center; font-size: 11px; font-weight: 800; color: #4b5563; mt-2; word-break: keep-all; line-height: 1.2;}
-
-        /* 배너용 그리드 스타일 (가로로 길게) */
-        .banner-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .banner-card img { height: 80px; width: 100%; object-fit: cover; }
-        .banner-card .gif-label { font-size: 13px; margin-top: 8px; }
-
-        /* 사용방법 안내용 상단 바 */
-        .guide-bar { background: #fee2e2; color: #991b1b; padding: 10px; border-radius: 12px; font-weight: bold; text-align: center; margin-bottom: 20px; font-size: 14px; border: 1px solid #fecaca;}
+        #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
     </style>
 </head>
 <body class="p-6 md:p-10">
 
-    <div class="max-w-7xl mx-auto">
-        <div class="flex items-center justify-between mb-2">
-            <h1 class="text-3xl font-black text-gray-800">✨ 메신저 리액션 대백과 <span class="text-blue-600">(그림 스티커)</span></h1>
-        </div>
-        <p class="text-gray-500 mb-6 font-medium">마음에 드는 그림에 **마우스 우클릭 -> '이미지 복사'** 후 메신저창에 **붙여넣기(Ctrl+V)** 하세요!</p>
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-black text-gray-800 mb-2">✨ 쿨메신저 리액션 대백과</h1>
+        <p class="text-gray-500 mb-8 font-medium">클릭해서 복사하거나, 우클릭으로 이미지를 복사하여 메신저에 붙여넣으세요! (Ctrl+V)</p>
 
-        <div class="guide-bar no-print">
-            🚨 주의: 클릭 복사가 아닙니다! 꼭 <span class="underline">우클릭 ➔ '이미지 복사'</span>를 사용해야 메신저에서 움직입니다!
-        </div>
-
-        <div id="reaction-container" class="space-y-10"></div>
+        <div id="reaction-container"></div>
     </div>
 
+    <div id="toast">📋 클립보드에 복사되었습니다!</div>
+
     <script>
-        // =========================================================================
-        // ★ 대규모 움직이는 그림 데이터베이스 (테마별 분류)
-        // (선생님이 이미지 주소(src)만 따옴표 안에 계속 추가하시면 무한 확장됩니다!)
-        // =========================================================================
         const reactionData = [
             {
-                title: "👋 아침 / 출근 / 반가움",
-                type: "sticker",
-                items: [
-                    { src: "https://media.tenor.com/bK-g878V5XUAAAAi/mocha-hello.gif", label: "좋은 아침! 👋" },
-                    { src: "https://media.tenor.com/gK2_N-w3N3sAAAAi/tkthao219-capoo.gif", label: "안녕~ 반갑습니다" },
-                    { src: "https://media.tenor.com/h5TzGzT36p4AAAAi/pikachu-poke.gif", label: "저 왔어요! 😎" },
-                    { src: "https://media.tenor.com/M67_S4yB9FwAAAAi/yoda-baby.gif", label: "출근 완료! 신고" },
-                    { src: "https://media.tenor.com/x0H6n8C488QAAAAi/mochi-peach.gif", label: "활기차게 시작!" },
-                    { src: "https://media.tenor.com/393yW0859_4AAAAi/minions-wave.gif", label: "안녕안녕~!!" }
-                ]
+                title: "☀️ 아침 인사 (출근)",
+                type: "text",
+                items: ["좋은 아침입니다! ☀️", "오늘도 화이팅! (๑•̀ㅂ•́)و", "반갑습니다 선생님! 🙇‍♂️", "출근 완료! 🫡", "안녕하세요~ ٩(๑❛ᴗ❛๑)۶", "상쾌한 아침입니다 🌿", "오늘 하루도 잘 부탁드립니다 🙏", "굿모닝! ☕", "활기찬 하루 되세요! ✨", "오늘도 평화로운 학교 🕊️", "일찍 오셨네요! 👍", "좋은 하루의 시작입니다 🌸", "반가운 아침입니다 😊", "햇살이 좋네요 ☀️", "오늘도 무사히! 🍀", "반갑게 인사드려요 👋", "미소 가득한 하루 되세요 😁", "힘차게 출발! 🚀", "활짝 웃는 아침 🌻", "기분 좋은 시작! 🎈"]
             },
             {
-                title: "🙆‍♂️ 확인 / 알겠습니다 / 넵!",
-                type: "sticker",
-                items: [
-                    { src: "https://media.tenor.com/7123L5GvXnsAAAAi/tkthao219-capoo.gif", label: "넵! 알겠습니다" },
-                    { src: "https://media.tenor.com/v8t_YI2v0f0AAAAi/kawaii-cute.gif", label: "확인 완료! ⭕" },
-                    { src: "https://media.tenor.com/8Qp49XpQ2x0AAAAi/mochi-peach.gif", label: "네! (끄덕끄덕)" },
-                    { src: "https://media.tenor.com/XqT7hC_t-7oAAAAi/capoo-noted.gif", label: "메모 완료 ✔️" },
-                    { src: "https://media.tenor.com/M7q10t42I4gAAAAi/cony-line.gif", label: "접수 완료!" },
-                    { src: "https://media.tenor.com/4q67i5G1W8wAAAAi/pepe-frog.gif", label: "문제없습니다!" }
-                ]
+                title: "🫡 네 / 확인 / 알겠습니다",
+                type: "text",
+                items: ["네, 확인했습니다! ⭕", "알겠습니다 (끄덕) 🫡", "넵! 처리하겠습니다 🏃‍♂️", "확인 완료했습니다 ✔️", "완전 동의합니다 💯", "맞습니다! 🙆‍♂️", "바로 진행하겠습니다 🚀", "접수 완료! 📝", "당연하죠! (´▽`ʃ♡ƪ)", "넵! ദ്ദി(⩌ᴗ⩌ )", "오케이입니다! 👌", "그대로 하겠습니다 📋", "이해했습니다 💡", "명령 받들겠습니다(?) 🫡", "좋은 생각입니다 ✨", "적극 찬성! 👏", "말씀하신 대로 할게요 🤝", "이미 확인 중입니다 🧐", "그럼요, 문제없죠! ✅", "넵, 알겠습니다! 😊"]
             },
             {
-                title: "💖 감사 / 고맙습니다 / 무한감동",
-                type: "sticker",
-                items: [
-                    { src: "https://media.tenor.com/zWp49G_T454AAAAi/thanks-thank-you.gif", label: "정말 감사합니다" },
-                    { src: "https://media.tenor.com/M67y009O4y4AAAAi/thank-you.gif", label: "도와주셔서 감사해요" },
-                    { src: "https://media.tenor.com/tH3A3X5B438AAAAi/pingu-heart.gif", label: "무한 감사 (감동)" },
-                    { src: "https://media.tenor.com/S6B9j4B-G18AAAAi/gudetama-thanks.gif", label: "우와 감사합니다" },
-                    { src: "https://media.tenor.com/vHqB3q93284AAAAi/thank-you.gif", label: "사랑합니다 샘💖" },
-                    { src: "https://media.tenor.com/gK2_N-w3N3sAAAAi/tkthao219-capoo.gif", label: "절 받으세요 🙇‍♂️" }
-                ]
+                title: "🙏 감사 / 고마움",
+                type: "text",
+                items: ["정말 감사합니다! 🙇‍♂️", "도와주셔서 감사합니다 😭", "압도적 감사! ( ˃̣̣̥᷄⌓˂̣̣̥᷅ )", "수고 많으셨습니다 👏", "덕분에 살았습니다 😇", "바쁘신데 감사합니다 🌸", "부탁 좀 드려도 될까요? 🥺", "항상 감사합니다 💖", "은혜 잊지 않겠습니다 ✨", "감동입니다 ㅠㅠ 👍", "선생님 덕분이에요 💐", "큰 힘이 되었습니다 💪", "최고예요 감사합니다! 🤩", "챙겨주셔서 감사해요 🎁", "복 받으실 거예요 🧧", "마음이 따뜻해지네요 🔥", "천사 같으세요 👼", "도움 주셔서 영광입니다 🌟", "잊지 않고 보답할게요 💌", "감사 또 감사합니다 🙏"]
             },
             {
-                title: "👏👏👏 격한 칭찬 / 축하 / 역시 최고!",
-                type: "sticker",
-                items: [
-                    { src: "https://media.tenor.com/384775T398QAAAAi/applause-minions.gif", label: "👏👏 대박!! 🎉" },
-                    { src: "https://media.tenor.com/G5T6X4T438QAAAAi/minions-thumbs.gif", label: "역시 최고👍👍" },
-                    { src: "https://media.tenor.com/pH3A3B438QAAAAi/pikachu-celebrate.gif", label: "축하드립니다!!" },
-                    { src: "https://media.tenor.com/G5T6A3T438QAAAAi/spongebob-celebrate.gif", label: "와아아아 폭죽🎆" },
-                    { src: "https://media.tenor.com/x0H6n8A438QAAAAi/celebration-minions.gif", label: "완벽합니다 💯" },
-                    { src: "https://media.tenor.com/gK2_A3T438QAAAAi/cat-thumbs-up.gif", label: "엄지 척! 👍" }
-                ]
+                title: "👍 최고 / 칭찬 / 감탄",
+                type: "text",
+                items: ["최고입니다! 👍", "역시 선생님! 폼 미쳤다 👏", "대박입니다 😲", "축하드립니다! 🎉", "우와아아 ദ്ദി ˉ͈̀꒳ˉ͈́ )✧", "센스 최고! 💯", "멋지십니다 😎", "존경합니다 🙇‍♂️", "퍼펙트! 🎯", "역시 에이스! ♠️", "눈부신 성과네요 ✨", "감탄이 절로 납니다 👏", "신의 한 수! ⚡", "대단한 열정입니다 🔥", "보고 배웁니다 🙏", "인기 만점이세요 🌟", "솜씨가 예술입니다 🎨", "금손이시네요! ✋", "이보다 완벽할 순 없다 🏆", "갓벽합니다 갓갓! 👑"]
             },
             {
-                title: "😰 죄송 / 당황 / 나의 실수 / 어떡하지",
-                type: "sticker",
-                items: [
-                    { src: "https://media.tenor.com/bK-j4G_T454AAAAi/mocha-sorry.gif", label: "죄송합니다 ㅠㅠ😭" },
-                    { src: "https://media.tenor.com/vHqB3T438QAAAAi/oops-pikachu.gif", label: "앗! 나의 실수💧" },
-                    { src: "https://media.tenor.com/M67_S4yB9FwAAAAi/spongebob-shock.gif", label: "큰일 났네요 😱" },
-                    { src: "https://media.tenor.com/38477A3438QAAAAi/cony-crying.gif", label: "엉엉 ㅠㅠ 미안해요" },
-                    { src: "https://media.tenor.com/x0H6n8A438QAAAAi/kawaii-panic.gif", label: "당황당황 (어쩔)" },
-                    { src: "https://media.tenor.com/7123T438QAAAAi/pepe-apology.gif", label: "제가 잘못했습니다" }
-                ]
+                title: "🏃 퇴근 / 저녁 인사",
+                type: "text",
+                items: ["수고하셨습니다! 퇴근~ 🏃‍♂️💨", "맛점하세요! 🍚", "주말 푹 쉬세요 🛋️", "드디어 금요일! 🎉", "칼퇴 기원 🙏", "저녁 맛있게 드세요 🍝", "퇴근 버튼 꾸욱 🔘", "내일 뵙겠습니다 👋", "불금 보내세요 🔥", "오늘도 고생하셨습니다 🌙", "즐거운 저녁 시간 되세요 🌆", "조심해서 들어가세요 🏠", "내일 또 뵈어요! 😊", "오늘의 업무 종료! 🔚", "퇴근 요정 등장 🧚‍♂️", "빛의 속도로 퇴근 ⚡", "가족들과 행복한 시간 👨‍👩‍👧‍👦", "푹 잠드세요 😴", "꿀잠 자는 밤 🍯", "수고한 나에게 박수를 👏"]
             },
             {
-                title: "🔥 응원 / 화이팅 / 조금만 더 힘내요!",
-                type: "sticker",
-                items: [
-                    { src: "https://media.tenor.com/vHqB3T438QAAAAi/fire-anime.gif", label: "🔥 화이팅!!!! 🔥" },
-                    { src: "https://media.tenor.com/x0H6n8A438QAAAAi/mocha-fighting.gif", label: "조금만 더 힘내요" },
-                    { src: "https://media.tenor.com/38477A3438QAAAAi/pikachu-fighting.gif", label: "할 수 있습니다 💪" },
-                    { src: "https://media.tenor.com/7123T438QAAAAi/spongebob-cheer.gif", label: "아자아자!! 격려" },
-                    { src: "https://media.tenor.com/M67y009O4y4AAAAi/cony-cheer.gif", label: "우리가 있잖아요🛡️" },
-                    { src: "https://media.tenor.com/pH3A3B438QAAAAi/gudetama-fighting.gif", label: "존버는 승리한다" }
-                ]
+                title: "💪 응원 / 위로",
+                type: "text",
+                items: ["조금만 더 힘내세요! 💪", "선생님 곁엔 제가 있습니다 🛡️", "다 잘 될 겁니다 🍀", "토닥토닥 (っ´ω`)ﾉ", "스트레스받지 마세요 🍵", "화이팅입니다! 🔥", "고생이 많으십니다 ㅠㅠ 💧", "단거 드시고 힘내세요 🍫", "제가 돕겠습니다 🤝", "할 수 있습니다! 🚀", "거의 다 왔어요! 🏁", "무한 지지합니다 🙌", "포기하지 마세요 ✨", "선생님은 최고니까요 👍", "오늘만 버티면 주말! 🏖️", "든든한 버팀목이 될게요 🌳", "기운 내세요 으쌰! ⚡", "따뜻한 차 한 잔 하세요 ☕", "어깨 펴세요 화이팅! 😎", "행운을 빕니다 ✨"]
             },
             {
-                title: "😥 수고하셨습니다 / 토닥토닥 / 힐링",
-                type: "sticker",
-                items: [
-                    { src: "https://media.tenor.com/x0H6n8A438QAAAAi/capoo-hug.gif", label: "토닥토닥 고생했어" },
-                    { src: "https://media.tenor.com/38477A3438QAAAAi/cony-tired.gif", label: "정말 수고 많았어요" },
-                    { src: "https://media.tenor.com/vHqB3T438QAAAAi/mocha-tired.gif", label: "휴우~ 고생 고생💧" },
-                    { src: "https://media.tenor.com/pH3A3B438QAAAAi/pikachu-heart.gif", label: "선생님을 응원해요" },
-                    { src: "https://media.tenor.com/M67y009O4y4AAAAi/molang-hug.gif", label: "격렬한 포옹🫂" },
-                    { src: "https://media.tenor.com/7123T438QAAAAi/pepe-tired.gif", label: "오늘 하루도 끝!" }
-                ]
+                title: "😱 사과 / 당황 / 난감",
+                type: "text",
+                items: ["죄송합니다 ㅠㅠ 🙇‍♂️", "앗 나의 실수 🤦‍♂️", "제가 놓쳤네요 😭", "이런... (동공지진) 👀", "머쓱타드 (^^;;)", "오마이갓 😱", "죄송하지만 한 번만 더 🥺", "큰일 났네요 🚨", "땀 뻘뻘 (;;;)", "아이고 🤦‍♀️", "면목이 없습니다 🙇‍♀️", "실례를 범했네요 💦", "깜빡했습니다 ㅠㅠ 🧠", "정신이 없었네요 🌪️", "너그럽게 이해 부탁드려요 🙏", "이를 어쩌면 좋죠 😿", "제 불찰입니다 🙇", "용서해 주세요 💖", "허걱! 😨", "당황스럽네요 😰"]
             },
             {
-                title: "😎 퇴근 / 칼퇴 / 불금 / 식사 / 점심",
-                type: "sticker",
-                items: [
-                    { src: "https://media.tenor.com/vHqB3T438QAAAAi/spongebob-running.gif", label: "칼퇴!!! 나 먼저🏃💨" },
-                    { src: "https://media.tenor.com/x0H6n8A438QAAAAi/molang-dancing.gif", label: "야호! 퇴근이다 🎉" },
-                    { src: "https://media.tenor.com/38477A3438QAAAAi/mocha-eating.gif", label: "맛점하세요! 🍚" },
-                    { src: "https://media.tenor.com/M67y009O4y4AAAAi/minions-friday.gif", label: "드디어 금요일!! 🔥" },
-                    { src: "https://media.tenor.com/pH3A3B438QAAAAi/capoo-eating.gif", label: "간식 드시고 해요🍰" },
-                    { src: "https://media.tenor.com/7123T438QAAAAi/yoda-vacation.gif", label: "즐거운 주말 보내세요" }
-                ]
+                title: "🤣 웃음 / 유머",
+                type: "text",
+                items: ["ㅋㅋㅋㅋㅋㅋㅋㅋㅋ 🎉", "너무 웃겨요 🤣", "빵 터졌습니다 💣", "하하하하하 😄", "깔깔깔 😆", "웃고 갑니다 🎈", "센스쟁이! 🤡", "재치 만점 💯", "광대 승천 중 ☺️", "배꼽 빠질 뻔 🤣", "웃음 지뢰밭 🧨", "진짜 웃기네요 👏", "덕분에 웃어요 😊", "웃음꽃 피었습니다 🌸", "크크크크 🤭", "박장대소! 🗣️", "너무 재밌으세요 🌟", "유머 감각 최고 🏆", "힐링 웃음 💖", "껄껄껄 👴"]
             },
             {
-                title: "🚨 애니메이션 배너 (긴급/알림/공지)",
-                type: "banner",
-                items: [
-                    { src: "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3NueTZ5YzhsZnIwd2Rva2pnbG1tNHFobnl6azEzeWZzOGpmaGtmaSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/G9Ofu7D8VfKUM/giphy.gif", label: "긴급! 필수 확인 🚨" },
-                    { src: "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExazl4azc0NmRtdGF2dzF4cXFwa2cwaWVodW1mbGRudnd0NWdtZjh3NyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/L548W8f8S90U0/giphy.gif", label: "화려한 공지사항 🔔" },
-                    { src: "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExdmQ1NTVmZThhMmY1NGZ4dzFmYndlNWpwaGRnd2lreXUzYmVldXFvYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/4M7bME458S47u/giphy.gif", label: "화이팅! 응원 배너 🔥" },
-                    { src: "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExeWRwZHVvNmdmNTdzOWVobWc0ZndpdjhtcGJkMWpjaW00NmllNWt3YiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3oKIP4X86CM0AWT2SI/giphy.gif", label: "수고하셨습니다 (꽃밭) 🌸" },
-                    { src: "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExOW8yeHN2czgwc3Ewdzdyb2Nwd2I0bjdtdWphcjEzaDZ5eXRma3EwYSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3oKIPa2TdagEge1uYK/giphy.gif", label: "감사 배너 (금가루) ✨" },
-                    { src: "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExeHphcnR0NWc1dGptcjczcTVzOWt5NXNxdGRzdm5pNG9mbzZ4bXRscyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3oKIPm358H3z6Jt1zW/giphy.gif", label: "경축! 축하 배너 🎉" }
-                ]
+                title: "💬 기타 리액션",
+                type: "text",
+                items: ["어머나! 😮", "실화인가요? 🤨", "말도 안 돼 🚫", "진짜요? 🧐", "그럴 수가... 🤭", "충격과 공포 😱", "오호라 💡", "그렇군요 📝", "역시나 🎯", "우와아... ✨", "대단해요 👏", "세상에나 🌏", "헐 대박 😲", "에헤이~ ✋", "이열~ 😎", "아하! 💡", "음... 🤔", "글쎄요 🤷‍♂️", "비밀입니다 🤫", "쉿! 🤐"]
             },
             {
-                title: "🤪 유머 / 짤방 / 기타 리액션",
-                type: "sticker",
+                title: "🎁 움직이는 짤방 (우클릭 복사)",
+                type: "image",
                 items: [
-                    { src: "https://media.tenor.com/vHqB3T438QAAAAi/cat-dance.gif", label: "신나는 냥이 댄스🕺" },
-                    { src: "https://media.tenor.com/x0H6n8A438QAAAAi/dog-shock.gif", label: "뜨끔! 👀 (동공지진)" },
-                    { src: "https://media.tenor.com/38477A3438QAAAAi/pikachu-eating.gif", label: "귀여운 먹방 냠냠" },
-                    { src: "https://media.tenor.com/M67y009O4y4AAAAi/minions-shock.gif", label: "우와아아아 (박수)" },
-                    { src: "https://media.tenor.com/pH3A3B438QAAAAi/spongebob-mock.gif", label: "뭐라구?? (황당)" },
-                    { src: "https://media.tenor.com/7123T438QAAAAi/pepe-dance.gif", label: "개구리 춤" }
+                    { src: "https://media.giphy.com/media/11sBLVxNs7v6WA/giphy.gif", label: "격한 박수 👏" },
+                    { src: "https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif", label: "최고 고양이 👍" },
+                    { src: "https://media.giphy.com/media/3o7TDepZQZ2Bhs1cNa/giphy.gif", label: "수고하셨습니다 🙇" },
+                    { src: "https://media.giphy.com/media/26ufcVAp3AiLjVZkc/giphy.gif", label: "폭풍 오열 😭" },
+                    { src: "https://media.giphy.com/media/l41YkxvU8c7J7Bba0/giphy.gif", label: "칼퇴 요정 🏃💨" },
+                    { src: "https://media.giphy.com/media/11ISwbgCxEzMyY/giphy.gif", label: "끄덕 끄덕 ⭕" },
+                    { src: "https://media.giphy.com/media/3o7TKMGpxV3LAsY796/giphy.gif", label: "사랑의 하트 ❤️" },
+                    { src: "https://media.giphy.com/media/3o6Zt62LdAlwiv2Kv6/giphy.gif", label: "웃음 폭발 😂" },
+                    { src: "https://media.giphy.com/media/l3vR8IAt21Az0gG52/giphy.gif", label: "댄스 타임 🕺" },
+                    { src: "https://media.giphy.com/media/l0HlIDueXmcWNTPO0/giphy.gif", label: "열공/열일 🔥" },
+                    { src: "https://media.giphy.com/media/jUwpNzg9McyrK/giphy.gif", label: "슬금슬금 (도망)" },
+                    { src: "https://media.giphy.com/media/W1hd3uXRIbddu/giphy.gif", label: "멘붕/패닉 😨" }
                 ]
             }
         ];
 
-        // =========================================================================
-        // ★ 렌더링 엔진 (건드릴 필요 없음!)
-        // ==========================================
+        // 렌더링 엔진
         const container = document.getElementById('reaction-container');
 
         reactionData.forEach(group => {
-            // 그룹 박스 생성
             const groupDiv = document.createElement('div');
-            groupDiv.className = "bg-white p-6 rounded-3xl shadow-lg border border-gray-100";
+            groupDiv.className = "bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-6";
             
-            // 그룹 제목
-            const titleHtml = `<h2 class="text-xl font-black text-gray-800 mb-5 pb-3 border-b-2 border-gray-100 flex items-center justify-between">
+            const titleHtml = `<h2 class="text-lg font-bold text-gray-700 mb-4 pb-2 border-b border-gray-100 flex items-center justify-between">
                 <span>${group.title}</span>
-                <span class="text-[11px] bg-red-100 text-red-600 px-3 py-1 rounded-full font-bold">우클릭 복사 전용</span>
+                ${group.type === 'text' ? '<span class="text-[11px] bg-blue-50 text-blue-500 px-2 py-1 rounded-full font-bold">클릭 복사</span>' : '<span class="text-[11px] bg-red-50 text-red-500 px-2 py-1 rounded-full font-bold">우클릭 복사</span>'}
             </h2>`;
             groupDiv.innerHTML = titleHtml;
 
-            // 아이템 컨테이너 (스티커 vs 배너 그리드 구분)
             const itemsDiv = document.createElement('div');
-            if (group.type === 'banner') {
-                itemsDiv.className = "banner-grid";
-            } else {
-                itemsDiv.className = "sticker-grid";
-            }
             
-            // 움직이는 그림 카드 생성
-            group.items.forEach(imgData => {
-                const card = document.createElement('div');
-                card.className = "gif-card no-print ${group.type === 'banner' ? 'banner-card' : ''}";
-                card.title = "마우스 우클릭 -> 이미지 복사를 누르세요!";
-                
-                card.innerHTML = `
-                    <img src="${imgData.src}" alt="${imgData.label}">
-                    <p class="gif-label">${imgData.label}</p>
-                `;
-                
-                // 클릭 시 사용자에게 경고 (클릭 복사가 아님을 알림)
-                card.onclick = function() {
-                    alert("🚨 잠깐!\n그냥 클릭하면 메신저에서 움직이지 않습니다.\n\n꼭 마우스 우클릭 -> '이미지 복사'를 해주세요!");
-                };
-                
-                itemsDiv.appendChild(card);
-            });
+            if (group.type === 'text') {
+                itemsDiv.className = "grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3";
+                group.items.forEach(text => {
+                    const btn = document.createElement('button');
+                    btn.className = "emoji-btn border border-gray-200 p-3 rounded-xl text-center text-[13px] text-gray-700 font-bold bg-gray-50 shadow-sm";
+                    btn.innerText = text;
+                    btn.onclick = () => copyText(text);
+                    itemsDiv.appendChild(btn);
+                });
+            } else if (group.type === 'image') {
+                itemsDiv.className = "grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4";
+                group.items.forEach(imgData => {
+                    const card = document.createElement('div');
+                    card.className = "gif-card border border-gray-200 rounded-xl p-2 bg-gray-50 cursor-pointer hover:border-blue-400 transition shadow-sm";
+                    card.title = "우클릭해서 이미지 복사";
+                    card.innerHTML = `
+                        <img src="${imgData.src}" alt="${imgData.label}">
+                        <p class="text-center text-[11px] font-bold text-gray-500 mt-2">${imgData.label}</p>
+                    `;
+                    itemsDiv.appendChild(card);
+                });
+            }
 
             groupDiv.appendChild(itemsDiv);
             container.appendChild(groupDiv);
         });
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(`'${text}' 복사 완료!`);
+            }).catch(err => {
+                alert('복사 실패! 수동으로 복사해주세요.');
+            });
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            toast.innerText = message;
+            toast.className = "show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 2000);
+        }
     </script>
 </body>
 </html>
