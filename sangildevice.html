@@ -85,7 +85,15 @@
                         <button onclick="filterByType('프린터')" class="bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-xs font-bold hover:bg-orange-200">📠 프린터/복사기</button>
                         <button onclick="filterByAging()" class="bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-bold hover:bg-red-200">⚠️ 교체대상</button>
                     </div>
-                    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="검색어 입력..." class="border border-gray-300 p-2 rounded-lg w-full md:w-64 focus:ring-2 focus:ring-blue-500 outline-none">
+                    <div class="flex flex-wrap justify-end gap-2 w-full no-print">
+                        <button onclick="openIpModal()" class="bg-teal-50 text-teal-600 px-3 py-2 rounded-lg text-[12px] font-bold hover:bg-teal-100 border border-teal-200 shadow-sm flex items-center gap-1 transition">
+                            🔍 빈 IP 찾기
+                        </button>
+                        <select id="groupFilter" onchange="filterByGroup(this.value)" class="border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-[12px] font-bold cursor-pointer shadow-sm text-gray-600 bg-white min-w-[120px]">
+                            <option value="전체">🏢 부서 전체</option>
+                            </select>
+                        <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="검색어 입력..." class="border border-gray-300 p-2 rounded-lg w-full md:w-48 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm text-sm">
+                    </div>
                 </div>
             </div>
             
@@ -179,6 +187,22 @@
             <div id="modalQrCode" class="flex justify-center mb-4"></div>
             <p id="modalSnText" class="font-mono text-blue-600 font-bold mb-6"></p>
             <button onclick="closeModal()" class="w-full bg-gray-200 py-2 rounded-lg hover:bg-gray-300 transition text-gray-700 font-bold font-sans">닫기</button>
+        </div>
+    </div>
+
+    <div id="ipModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 transition-opacity">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-gray-100 flex flex-col max-h-[80vh]">
+            <div class="bg-teal-600 p-5 text-white flex justify-between items-center shrink-0">
+                <h2 class="text-lg font-bold flex items-center gap-2">🔍 네트워크 대역별 빈 IP</h2>
+                <button onclick="closeIpModal()" class="text-white hover:text-teal-200 transition">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto no-scrollbar" id="ipResultArea"></div>
+            
+            <div class="bg-gray-50 p-4 text-center shrink-0 border-t border-gray-100">
+                <button onclick="closeIpModal()" class="w-full py-2 bg-gray-200 text-gray-700 rounded-lg font-bold hover:bg-gray-300 transition">닫기</button>
+            </div>
         </div>
     </div>
 
@@ -311,7 +335,90 @@
                 tbody.innerHTML += row;
             });
         }
+        // ==========================================
+        // ★ 추가됨: 부서 드롭다운 & IP 조회 로직
+        // ==========================================
 
+        // 1. 부서 목록을 추출해서 드롭다운(select)에 자동 추가하는 함수
+        function populateGroupDropdown() {
+            const select = document.getElementById('groupFilter');
+            // 중복 없는 부서 목록 추출 (빈 칸 제외)
+            const groups = [...new Set(assetData.map(item => (item.group || "").trim()))].filter(Boolean).sort();
+            
+            select.innerHTML = '<option value="전체">🏢 부서 전체</option>'; // 초기화
+            groups.forEach(group => {
+                select.innerHTML += `<option value="${group}">${group}</option>`;
+            });
+        }
+
+        // 데이터 로드 완료 후 드롭다운 목록 생성하도록 기존 loadData 마지막에 삽입
+        const originalUpdateDashboard = updateDashboard;
+        updateDashboard = function(data) {
+            originalUpdateDashboard(data);
+            populateGroupDropdown(); // 대시보드 업데이트될 때 부서 목록도 생성
+        }
+
+        // 2. 부서 필터링 함수
+        function filterByGroup(group) {
+            // 부서를 선택하면 검색창 내용 지우기
+            document.getElementById("searchInput").value = ""; 
+            
+            if (group === '전체') {
+                renderTable(assetData);
+            } else {
+                const filtered = assetData.filter(item => (item.group || "").trim() === group);
+                renderTable(filtered);
+            }
+        }
+
+        // 3. 남는 IP 찾기 핵심 알고리즘
+        function openIpModal() {
+            // IP 형태(000.000.000.000)를 띈 데이터만 수집
+            const ipList = assetData.map(item => (item.ip || "").trim()).filter(ip => ip.match(/^\d+\.\d+\.\d+\.\d+$/));
+            
+            const subnetMap = {};
+            // 대역별(예: 10.120.3)로 사용 중인 끝자리 숫자(예: 122) 모으기
+            ipList.forEach(ip => {
+                const parts = ip.split('.');
+                const last = parseInt(parts.pop());
+                const subnet = parts.join('.');
+                if (!subnetMap[subnet]) subnetMap[subnet] = [];
+                subnetMap[subnet].push(last);
+            });
+
+            let resultHtml = '';
+            for (const subnet in subnetMap) {
+                const used = new Set(subnetMap[subnet]);
+                const available = [];
+                // 2번부터 254번까지 빈 번호 탐색 (1번 공유기, 255번 브로드캐스트 제외)
+                for (let i = 2; i <= 254; i++) { 
+                    if (!used.has(i)) available.push(i);
+                }
+                
+                // 보기 좋게 앞쪽 15개만 렌더링 (너무 길어지는 것 방지)
+                const displayIps = available.slice(0, 15).map(num => `<span class="bg-gray-100 border border-gray-200 px-2 py-1 rounded text-[11px] font-mono text-gray-700 shadow-sm">${subnet}.<span class="font-bold text-teal-600">${num}</span></span>`).join(' ');
+                
+                resultHtml += `
+                    <div class="mb-5">
+                        <div class="text-[11px] font-bold text-teal-600 uppercase tracking-wider mb-2 border-b border-gray-100 pb-1">네트워크 대역: ${subnet}.*</div>
+                        <div class="flex flex-wrap gap-1.5">${displayIps} 
+                            ${available.length > 15 ? `<span class="text-[10px] text-gray-400 mt-1 ml-1 flex items-center">...외 ${available.length - 15}개 여유</span>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            if(resultHtml === '') resultHtml = '<div class="text-gray-400 text-center py-4">IP 형식을 가진 데이터가 없습니다.</div>';
+
+            document.getElementById('ipResultArea').innerHTML = resultHtml;
+            document.getElementById('ipModal').classList.remove('hidden');
+        }
+
+        // 4. IP 모달 닫기
+        function closeIpModal() {
+            document.getElementById('ipModal').classList.add('hidden');
+        }
+        
         // ★ 추가됨: 초고속 상세 팝업창 띄우기 함수
         function openAssetDetail(id) {
             // 이미 다운받은 assetData에서 해당 id를 가진 데이터를 찾습니다 (서버 요청 필요 없음)
