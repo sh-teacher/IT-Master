@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>리액션 대백과 PRO</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+    body {
+        background:#f7f6f3;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .emoji-btn {
+        transition: 0.15s;
+        cursor:pointer;
+    }
+
+    .emoji-btn:hover {
+        transform: scale(1.03);
+        background:#e8f5e9;
+    }
+
+    .gif-card {
+        transition: 0.15s;
+    }
+
+    .gif-card:hover {
+        transform: scale(1.03);
+    }
+
+    .gif-card img {
+        width:100%;
+        height:110px;
+        object-fit:contain;
+        background:white;
+        border-radius:10px;
+    }
+
+    #toast {
+        position:fixed;
+        bottom:30px;
+        left:50%;
+        transform:translateX(-50%);
+        background:#222;
+        color:white;
+        padding:10px 16px;
+        border-radius:999px;
+        opacity:0;
+        transition:0.3s;
+        font-weight:bold;
+    }
+
+    #toast.show {
+        opacity:1;
+        bottom:50px;
+    }
+</style>
+</head>
+
+<body class="p-6 md:p-10">
+
+<div class="max-w-6xl mx-auto">
+    <h1 class="text-3xl font-black mb-2">✨ 리액션 대백과 PRO (텍스트 + GIF 혼합)</h1>
+    <p class="text-gray-500 mb-6">절반은 문장 / 절반은 애니메이션 리액션 🎬</p>
+
+    <div id="container"></div>
+</div>
+
+<div id="toast">복사 완료!</div>
+
+<script>
+
+/* =========================
+   1. GIF 풀
+========================= */
+
+const gifPool = [
+    { src: "https://media.giphy.com/media/11sBLVxNs7v6WA/giphy.gif", label: "격한 박수" },
+    { src: "https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif", label: "최고 인정" },
+    { src: "https://media.giphy.com/media/26ufcVAp3AiLjVZkc/giphy.gif", label: "폭풍 오열" },
+    { src: "https://media.giphy.com/media/l41YkxvU8c7J7Bba0/giphy.gif", label: "퇴근 질주" },
+    { src: "https://media.giphy.com/media/3o6Zt62LdAlwiv2Kv6/giphy.gif", label: "웃음 폭발" },
+    { src: "https://media.giphy.com/media/jUwpNzg9McyrK/giphy.gif", label: "당황" },
+    { src: "https://media.giphy.com/media/W1hd3uXRIbddu/giphy.gif", label: "멘붕" },
+    { src: "https://media.giphy.com/media/l3vR8IAt21Az0gG52/giphy.gif", label: "댄스" }
+];
+
+
+/* =========================
+   2. 이모지 + 설명 데이터
+========================= */
+
+function createData() {
+    const emojis = [
+        { e:"😊", t:"좋은 반응" },
+        { e:"😂", t:"웃음" },
+        { e:"🔥", t:"대박" },
+        { e:"👍", t:"좋아요" },
+        { e:"👏", t:"칭찬" },
+        { e:"💯", t:"완벽" },
+        { e:"🙏", t:"감사" },
+        { e:"🫡", t:"확인" },
+        { e:"💪", t:"응원" },
+        { e:"✨", t:"빛남" }
+    ];
+
+    const bases = {
+        "☀️ 아침": ["좋은 아침", "화이팅", "출근 완료"],
+        "🫡 확인": ["알겠습니다", "처리 완료", "확인했습니다"],
+        "🙏 감사": ["감사합니다", "도움 감사", "고맙습니다"],
+        "🤣 웃음": ["ㅋㅋㅋㅋ", "웃김", "대박 웃김"],
+        "💪 응원": ["힘내세요", "화이팅", "할 수 있음"]
+    };
+
+    const result = [];
+
+    Object.entries(bases).forEach(([title, texts], index) => {
+
+        for (let i = 0; i < 100; i++) { // 총 500+ 그룹
+
+            const textItems = texts.map(t => {
+                const em = emojis[Math.floor(Math.random() * emojis.length)];
+                return `${em.e} ${t} (${em.t})`;
+            });
+
+            const gifItems = Array.from({ length: 3 }).map(() => {
+                return gifPool[Math.floor(Math.random() * gifPool.length)];
+            });
+
+            result.push({
+                title: `${title} ${i+1}`,
+                type: "mixed",
+                textItems,
+                gifItems
+            });
+        }
+    });
+
+    return result;
+}
+
+const data = createData();
+
+
+/* =========================
+   3. 렌더링
+========================= */
+
+const container = document.getElementById("container");
+
+function render() {
+    const frag = document.createDocumentFragment();
+
+    data.forEach(group => {
+
+        const wrap = document.createElement("div");
+        wrap.className = "bg-white p-5 rounded-2xl shadow mb-6 border";
+
+        wrap.innerHTML = `
+            <h2 class="font-bold text-lg mb-4 border-b pb-2 flex justify-between">
+                <span>${group.title}</span>
+                <span class="text-xs bg-blue-50 text-blue-500 px-2 py-1 rounded-full">
+                    텍스트 + GIF
+                </span>
+            </h2>
+        `;
+
+        const grid = document.createElement("div");
+        grid.className = "grid grid-cols-2 md:grid-cols-4 gap-3";
+
+        /* =====================
+           TEXT 영역 (50%)
+        ===================== */
+        const textBox = document.createElement("div");
+        textBox.className = "col-span-2 grid gap-2";
+
+        group.textItems.forEach(text => {
+            const btn = document.createElement("button");
+            btn.className = "emoji-btn p-3 bg-gray-50 border rounded-xl text-sm font-bold";
+            btn.innerText = text;
+            btn.onclick = () => copy(text);
+            textBox.appendChild(btn);
+        });
+
+        /* =====================
+           GIF 영역 (50%)
+        ===================== */
+        const gifBox = document.createElement("div");
+        gifBox.className = "col-span-2 grid grid-cols-3 gap-2";
+
+        group.gifItems.forEach(gif => {
+            const card = document.createElement("div");
+            card.className = "gif-card cursor-pointer text-center";
+
+            card.innerHTML = `
+                <img src="${gif.src}" />
+                <div class="text-[11px] font-bold text-gray-500 mt-1">
+                    ${gif.label}
+                </div>
+            `;
+
+            card.oncontextmenu = (e) => {
+                e.preventDefault();
+                copy(gif.label);
+            };
+
+            gifBox.appendChild(card);
+        });
+
+        grid.appendChild(textBox);
+        grid.appendChild(gifBox);
+
+        wrap.appendChild(grid);
+        frag.appendChild(wrap);
+    });
+
+    container.appendChild(frag);
+}
+
+
+/* =========================
+   4. 복사
+========================= */
+
+function copy(text) {
+    navigator.clipboard.writeText(text);
+    showToast(text);
+}
+
+
+/* =========================
+   5. 토스트
+========================= */
+
+function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.innerText = "복사됨: " + msg;
+    t.classList.add("show");
+
+    setTimeout(() => {
+        t.classList.remove("show");
+    }, 1200);
+}
+
+
+/* =========================
+   실행
+========================= */
+
+render();
+
+</script>
+
+</body>
+</html>
