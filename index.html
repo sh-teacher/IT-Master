@@ -736,10 +736,21 @@
                 const tmrwIcon = getIcon(wData.daily.weather_code[1]);
 
                 // 4. 선생님이 원하시는 한 줄 텍스트로 조립!
+                // 4. 선생님이 원하시는 2줄 텍스트로 조립! (가독성 UP)
                 const tempStr = temp > 0 ? `+${temp}` : temp;
                 const appTempStr = appTemp > 0 ? `+${appTemp}` : appTemp;
                 
-                const finalStr = `📍 광주 서구: ${icon} ${tempStr}°C (체감:${appTempStr}°C) | 습도:${hum}% | 바람:${windDir}${windSpd}km/h | 😷먼지: ${getDust(pm10)} | ⏳6시간뒤: ${h6Icon}${h6Temp}°C | 📅내일: ${tmrwIcon}${tmrwMin}°/${tmrwMax}°C`;
+                // 첫 번째 줄: 현재 날씨와 기본 정보
+                const line1 = `📍 광주 서구: ${icon} ${tempStr}°C (체감:${appTempStr}°C) &nbsp;|&nbsp; 습도:${hum}% &nbsp;|&nbsp; 바람:${windDir}${windSpd}km/h`;
+                
+                // 두 번째 줄: 미세먼지와 예보 정보
+                const line2 = `😷먼지: ${getDust(pm10)} &nbsp;|&nbsp; ⏳6시간뒤: ${h6Icon}${h6Temp}°C &nbsp;|&nbsp; 📅내일: ${tmrwIcon}${tmrwMin}°/${tmrwMax}°C`;
+                
+                // <div> 태그를 이용해 위아래 두 줄로 예쁘게 합치기
+                const finalStr = `
+                    <div style="margin-bottom: 4px; font-weight: 500;">${line1}</div>
+                    <div style="font-size: 12px; color: #666;">${line2}</div>
+                `;
 
                 // 기존 HTML 요소(a 태그)의 글씨를 덮어씌움
                 document.getElementById('weather-info').innerHTML = finalStr;
