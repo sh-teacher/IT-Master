@@ -2,35 +2,106 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>학생 명단 관리</title>
+    <title>학생 명단 관리 - Class Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         if (sessionStorage.getItem("isAllowed") !== "true") location.href = "index.html";
     </script>
 </head>
-<body class="bg-slate-50 p-10 font-sans">
-    <div class="max-w-4xl mx-auto bg-white p-10 rounded-3xl shadow-sm border border-slate-200">
+<body class="bg-slate-50 min-h-screen p-6 md:p-12">
+    <div class="max-w-4xl mx-auto bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
         <h1 class="text-3xl font-black mb-2 text-slate-800">👥 학생 명단 등록</h1>
-        <p class="text-slate-500 mb-8">엑셀이나 한글에서 명단을 복사해 붙여넣으세요.</p>
+        <p class="text-slate-500 mb-8 font-medium">과목을 선택하고 명단을 붙여넣으세요.</p>
 
         <div class="space-y-6">
             <div>
                 <label class="block text-sm font-bold text-slate-700 mb-2">1. 대상 과목 선택</label>
-                <select id="selectedSubject" class="w-full p-4 bg-slate-50 border rounded-2xl focus:outline-blue-500">
-                    <option value="">과목을 선택하세요 (먼저 setup에서 등록 필요)</option>
-                    </select>
+                <select id="selectedSubject" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-blue-500 focus:outline-none">
+                    <option value="">과목 로딩 중...</option>
+                </select>
             </div>
 
             <div>
-                <label class="block text-sm font-bold text-slate-700 mb-2">2. 명단 붙여넣기 (번호 성함 순)</label>
-                <textarea id="studentList" class="w-full h-64 p-4 bg-slate-50 border rounded-2xl font-mono text-sm" placeholder="예시:&#10;1 강호동&#10;2 유재석&#10;3 신동엽"></textarea>
+                <label class="block text-sm font-bold text-slate-700 mb-2">2. 명단 붙여넣기 (번호와 성함 사이는 한 칸 띄우기)</label>
+                <textarea id="studentList" class="w-full h-64 p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-mono text-sm focus:border-blue-500 focus:outline-none" 
+                          placeholder="예시:&#10;1 강호동&#10;2 유재석&#10;3 신동엽"></textarea>
+                <p class="text-xs text-slate-400 mt-2">※ 엑셀에서 번호와 이름 열을 복사해서 붙여넣으면 자동으로 인식됩니다.</p>
             </div>
 
-            <div class="flex gap-4">
-                <button onclick="location.href='setup.html'" class="flex-1 bg-slate-200 text-slate-700 py-4 rounded-2xl font-bold">이전으로</button>
-                <button onclick="alert('명단 저장 기능 구현 중입니다!')" class="flex-[2] bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg shadow-blue-100">학생 명단 저장하기</button>
+            <div class="flex gap-4 pt-4">
+                <button onclick="location.href='setup.html'" class="flex-1 bg-slate-100 text-slate-600 py-4 rounded-2xl font-bold hover:bg-slate-200 transition">이전으로</button>
+                <button onclick="saveStudents()" id="saveBtn" class="flex-[2] bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg shadow-blue-100 hover:bg-blue-700 transition transform active:scale-95">
+                    학생 명단 저장하기
+                </button>
             </div>
         </div>
     </div>
+
+    <script>
+        const API_URL = "선생님의_WEB_APP_URL_입력";
+
+        // 페이지 로드 시 과목 목록 가져오기
+        window.onload = async function() {
+            try {
+                const response = await fetch(`${API_URL}?type=GET_SUBJECTS`);
+                const subjects = await response.json();
+                const select = document.getElementById('selectedSubject');
+                
+                if (subjects.length === 0) {
+                    select.innerHTML = '<option value="">등록된 과목이 없습니다. setup에서 등록해주세요.</option>';
+                    return;
+                }
+
+                select.innerHTML = '<option value="">과목을 선택해주세요</option>';
+                subjects.forEach(sub => {
+                    const option = document.createElement('option');
+                    option.value = JSON.stringify(sub); // 과목명과 대상반 정보를 통째로 저장
+                    option.innerText = sub.fullName;
+                    select.appendChild(option);
+                });
+            } catch (e) {
+                alert("과목 목록을 불러오지 못했습니다.");
+            }
+        };
+
+        // 학생 명단 저장
+        async function saveStudents() {
+            const subjectVal = document.getElementById('selectedSubject').value;
+            const listText = document.getElementById('studentList').value;
+            const btn = document.getElementById('saveBtn');
+
+            if (!subjectVal || !listText) return alert("과목 선택과 명단 입력은 필수입니다.");
+
+            const subjectInfo = JSON.parse(subjectVal);
+            const students = listText.trim().split('\n').map(line => {
+                const parts = line.trim().split(/\s+/); // 공백(탭 포함)으로 분리
+                return { number: parts[0], name: parts[1] };
+            });
+
+            btn.disabled = true;
+            btn.innerText = "저장 중...";
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        type: "SAVE_STUDENTS",
+                        payload: {
+                            subject: subjectInfo.name,
+                            target: subjectInfo.target,
+                            students: students
+                        }
+                    })
+                });
+                alert("성공적으로 저장되었습니다! 이제 좌석 배치도로 이동합니다.");
+                // location.href = "seating.html"; // 다음 단계
+            } catch (e) {
+                alert("저장 실패");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "학생 명단 저장하기";
+            }
+        }
+    </script>
 </body>
 </html>
