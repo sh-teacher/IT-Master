@@ -12,6 +12,10 @@
         /* 드래그 앤 드롭을 위한 애니메이션 효과 */
         .student-card { cursor: grab; transition: transform 0.1s; }
         .student-card:active { cursor: grabbing; transform: scale(0.95); }
+        
+        /* 👇 이 줄이 드롭 에러를 막아주는 핵심입니다! (글씨가 마우스를 방해하지 못함) */
+        .student-card * { pointer-events: none; } 
+        
         .desk { min-height: 80px; transition: background-color 0.2s; }
         .desk.drag-over { background-color: #dbeafe; border-color: #3b82f6; }
     </style>
@@ -140,28 +144,28 @@
             }
         }
 
-        // --- 🖱️ 드래그 앤 드롭 코어 로직 ---
+        // --- 🖱️ 드래그 앤 드롭 코어 로직 (버그 수정판) ---
         let draggedElementId = null;
 
         function drag(ev) {
-            draggedElementId = ev.target.id;
-            ev.dataTransfer.setData("text", ev.target.id);
+            // ev.target 대신 ev.currentTarget을 써서 정확히 '카드'의 ID를 가져옵니다.
+            ev.dataTransfer.setData("text/plain", ev.currentTarget.id);
+            ev.currentTarget.style.opacity = "0.4"; // 드래그할 때 살짝 투명해지는 효과
         }
 
         function allowDrop(ev) {
-            ev.preventDefault(); // 드롭을 허용하려면 필수!
+            ev.preventDefault(); 
+            ev.dataTransfer.dropEffect = "move"; // 마우스 커서 모양 변경
         }
 
         function dragEnter(ev) {
             ev.preventDefault();
-            // 책상 위로 올라가면 파란색으로 색상 변경
             if(ev.currentTarget.classList.contains('desk')) {
                 ev.currentTarget.classList.add('drag-over');
             }
         }
 
         function dragLeave(ev) {
-            // 책상 밖으로 나가면 원래 색으로
             if(ev.currentTarget.classList.contains('desk')) {
                 ev.currentTarget.classList.remove('drag-over');
             }
@@ -169,20 +173,25 @@
 
         function drop(ev) {
             ev.preventDefault();
-            const data = ev.dataTransfer.getData("text");
-            const draggedEl = document.getElementById(data);
-            const dropZone = ev.currentTarget; // 마우스를 놓은 곳 (책상 or 대기열)
-
-            // 시각적 효과 제거
-            if(dropZone.classList.contains('desk')) {
-                dropZone.classList.remove('drag-over');
+            
+            // 파란색 배경 효과 제거
+            if(ev.currentTarget.classList.contains('desk')) {
+                ev.currentTarget.classList.remove('drag-over');
             }
+
+            const data = ev.dataTransfer.getData("text/plain");
+            const draggedEl = document.getElementById(data);
+            
+            if (!draggedEl) return; // 에러 방지
+            
+            draggedEl.style.opacity = "1"; // 드롭하면 투명도 원상 복구
+            const dropZone = ev.currentTarget; 
 
             // 1. 빈 책상에 놓는 경우
             if (dropZone.classList.contains('desk') && !dropZone.querySelector('.student-card')) {
                 dropZone.appendChild(draggedEl);
             } 
-            // 2. 이미 학생이 있는 책상에 놓는 경우 (서로 자리 바꾸기)
+            // 2. 이미 학생이 있는 책상에 놓는 경우 (서로 자리 바꾸기!)
             else if (dropZone.classList.contains('desk') && dropZone.querySelector('.student-card')) {
                 const existingStudent = dropZone.querySelector('.student-card');
                 const parentOfDragged = draggedEl.parentNode;
@@ -195,6 +204,13 @@
                 dropZone.appendChild(draggedEl);
             }
         }
+        
+        // 마우스를 놓쳤을 때 투명도 복구
+        document.addEventListener('dragend', function(ev) {
+            if (ev.target.classList && ev.target.classList.contains('student-card')) {
+                ev.target.style.opacity = "1";
+            }
+        });
     </script>
 </body>
 </html>
