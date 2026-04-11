@@ -7,10 +7,9 @@
     <script>if (sessionStorage.getItem("isAllowed") !== "true") location.href = "index.html";</script>
     
     <style>
-        /* 출석 상태별 색상 */
-        .status-present { border-left: 8px solid #3b82f6 !important; background-color: #eff6ff; } /* 출석: 파랑 */
-        .status-absent { border-left: 8px solid #ef4444 !important; background-color: #fef2f2; }  /* 결석: 빨강 */
-        .status-late { border-left: 8px solid #f59e0b !important; background-color: #fffbeb; }    /* 지각: 노랑 */
+        .status-present { border-left: 8px solid #3b82f6 !important; background-color: #eff6ff; } 
+        .status-absent { border-left: 8px solid #ef4444 !important; background-color: #fef2f2; }  
+        .status-late { border-left: 8px solid #f59e0b !important; background-color: #fffbeb; }    
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen p-6">
@@ -151,12 +150,11 @@
             card.id = `std-${index}`;
             card.dataset.grade = std.grade; card.dataset.class = std.class; card.dataset.number = std.number; card.dataset.name = std.name; card.dataset.status = "present"; 
             
-            // 포인터 이벤트 방지로 마우스 간섭 완벽 제거
             card.innerHTML = `<span class="text-xs text-blue-500 block mb-1 pointer-events-none">${std.class}반 ${std.number}번</span><span class="pointer-events-none">${std.name}</span>`;
             
-            // 드래그 이벤트 직접 할당 (크로스 브라우징 완벽 지원)
-            card.ondragstart = drag; 
-            card.ondragend = dragEnd;
+            // 👇 선생님이 칭찬하셨던 완벽 작동 버전으로 이벤트 연결 방식 복구!
+            card.addEventListener('dragstart', drag);
+            card.addEventListener('dragend', dragEnd);
             
             card.onclick = function() {
                 if (!this.parentNode.classList.contains('desk')) return;
@@ -218,11 +216,11 @@
                 const logicalIndex = isMirror ? (35 - i) : i;
                 desk.dataset.logicalIndex = logicalIndex;
 
-                // 드롭 이벤트 직접 할당
-                desk.ondrop = drop; 
-                desk.ondragover = allowDrop; 
-                desk.ondragenter = dragEnter; 
-                desk.ondragleave = dragLeave;
+                // 👇 선생님이 칭찬하셨던 완벽 작동 버전으로 이벤트 연결 방식 복구!
+                desk.addEventListener('drop', drop);
+                desk.addEventListener('dragover', allowDrop);
+                desk.addEventListener('dragenter', dragEnter);
+                desk.addEventListener('dragleave', dragLeave);
 
                 const seatNum = document.createElement('span');
                 seatNum.className = "absolute text-slate-200 font-bold text-2xl z-0 pointer-events-none";
@@ -233,68 +231,61 @@
             }
         }
 
-        // --- 🧲 강력 자석 드래그 앤 드롭 로직 (오류 완벽 수정판) ---
-        
-        function drag(ev) { 
-            ev.dataTransfer.effectAllowed = "move"; // 호환성: 이동 효과 명시
-            ev.dataTransfer.setData("text/plain", ev.currentTarget.id); // 표준 포맷 지정 (매우 중요)
-            setTimeout(() => { ev.currentTarget.style.opacity = "0.3"; }, 0); 
-        }
-        
-        function dragEnd(ev) { 
-            ev.currentTarget.style.opacity = "1"; 
-        }
-        
-        function allowDrop(ev) { 
-            ev.preventDefault(); 
-            ev.dataTransfer.dropEffect = "move"; // 마우스 커서 아이콘 변경 허용
-        }
-        
-        function dragEnter(ev) { 
-            ev.preventDefault(); 
-            const dropZone = ev.target.closest('.desk'); 
-            if(dropZone) dropZone.classList.add('bg-blue-100', 'border-blue-500'); 
-        }
-        
-        function dragLeave(ev) { 
-            const dropZone = ev.target.closest('.desk'); 
-            if(dropZone) dropZone.classList.remove('bg-blue-100', 'border-blue-500'); 
-        }
-        
-        function drop(ev) { 
-            ev.preventDefault(); 
-            const dropZone = ev.target.closest('.desk') || ev.target.closest('#waitingList'); 
-            if(!dropZone) return; 
-            
-            if(dropZone.classList.contains('desk')) {
-                dropZone.classList.remove('bg-blue-100', 'border-blue-500'); 
-            }
-            
-            // text/plain 형식과 호환성 text 형식을 모두 시도
-            const data = ev.dataTransfer.getData("text/plain") || ev.dataTransfer.getData("text"); 
-            const draggedEl = document.getElementById(data); 
-            
-            if (!draggedEl) return; 
-            draggedEl.style.opacity = "1"; 
-            
-            // 1. 책상에 놓기
-            if (dropZone.classList.contains('desk')) { 
-                const existingStudent = dropZone.querySelector('.student-card'); 
-                if (!existingStudent) {
-                    dropZone.appendChild(draggedEl); 
-                } else if (existingStudent !== draggedEl) { // 자리 바꾸기 (Swap)
-                    const originalParent = draggedEl.parentNode; 
-                    dropZone.appendChild(draggedEl); 
-                    originalParent.appendChild(existingStudent); 
-                } 
-            } 
-            // 2. 대기열로 돌려보내기
-            else if (dropZone.id === 'waitingList') {
-                dropZone.appendChild(draggedEl); 
-            } 
+        // --- 🧲 선생님이 검증하신 '자석 모드' 오리지널 코드 ---
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+            setTimeout(() => { ev.target.style.opacity = "0.3"; }, 0);
         }
 
-        // --- 저장 로직 ---
+        function dragEnd(ev) {
+            ev.target.style.opacity = "1";
+        }
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function dragEnter(ev) {
+            ev.preventDefault();
+            const dropZone = ev.target.closest('.desk');
+            if(dropZone) dropZone.classList.add('bg-blue-100', 'border-blue-500');
+        }
+
+        function dragLeave(ev) {
+            const dropZone = ev.target.closest('.desk');
+            if(dropZone) dropZone.classList.remove('bg-blue-100', 'border-blue-500');
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            const dropZone = ev.target.closest('.desk') || ev.target.closest('#waitingList');
+            if(!dropZone) return;
+
+            if(dropZone.classList.contains('desk')) {
+                dropZone.classList.remove('bg-blue-100', 'border-blue-500');
+            }
+
+            const data = ev.dataTransfer.getData("text");
+            const draggedEl = document.getElementById(data);
+
+            if (!draggedEl) return;
+            draggedEl.style.opacity = "1";
+
+            if (dropZone.classList.contains('desk')) {
+                const existingStudent = dropZone.querySelector('.student-card');
+                if (!existingStudent) {
+                    dropZone.appendChild(draggedEl);
+                } else if (existingStudent !== draggedEl) {
+                    const originalParent = draggedEl.parentNode;
+                    dropZone.appendChild(draggedEl);
+                    originalParent.appendChild(existingStudent);
+                }
+            } else if (dropZone.id === 'waitingList') {
+                dropZone.appendChild(draggedEl);
+            }
+        }
+
+        // --- 데이터 저장 로직 ---
         async function saveSeatingToServer() {
             const subject = document.getElementById('selectedSubject').value;
             if (!subject) return alert("과목을 선택해주세요.");
