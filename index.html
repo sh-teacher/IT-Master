@@ -234,24 +234,6 @@
         body.dark-mode .progress-header { color: #ccc; }
         body.dark-mode .progress-bar-bg { background: #333; }
         body.dark-mode .timeline-container { background: #252526; border-color: #444; }
-
-        /* =========================================
-           스마트 날씨 위젯 스타일
-           ========================================= */
-        .weather-summary {
-            background: #f0f4f8; padding: 6px 14px; border-radius: 20px; border: 1px solid #e2e8f0;
-            display: inline-flex; align-items: center; user-select: none;
-        }
-        .weather-summary:hover { background: #e2e8f0; }
-        
-        /* 다크모드 대응 */
-        body.dark-mode .weather-summary { background: #2d2d30; border-color: #444; }
-        body.dark-mode .weather-summary:hover { background: #3e3e42; }
-        body.dark-mode #w-temp, body.dark-mode #w-dust { color: #d4d4d4; }
-        body.dark-mode .weather-details { background: #252526; border-color: #444; }
-        body.dark-mode .weather-details .bg-gray-50 { background: #333; }
-        body.dark-mode .weather-details .bg-blue-50 { background: #1a2b3c; border-color: #2c3e50; }
-        body.dark-mode .weather-details .text-gray-700 { color: #d4d4d4; }
     </style>
 </head>
 <body>
@@ -289,33 +271,7 @@
         <div class="header-area">
             <div class="header-left">
                 <div class="page-title" contenteditable="true" id="main-title">👋 배성환 선생님! 화이팅~</div>
-                
-                <div class="weather-widget-container no-print relative inline-block mt-2">
-                    <div class="weather-summary flex items-center gap-2 cursor-pointer transition" onclick="toggleWeatherDetails()">
-                        <span id="w-icon" class="text-lg">⏳</span>
-                        <span id="w-temp" class="font-bold text-gray-700 text-[15px]">불러오는 중...</span>
-                        <span class="text-gray-300">|</span>
-                        <span id="w-dust" class="text-[13px] text-gray-600 font-medium">-</span>
-                        <span class="text-gray-400 text-[10px] ml-1">▼</span>
-                    </div>
-                    
-                    <div id="weather-details" class="weather-details hidden absolute left-0 top-full mt-2 bg-white rounded-xl shadow-lg border border-gray-100 p-4 w-72 z-50">
-                        <div class="grid grid-cols-3 gap-2">
-                            <div class="text-center flex flex-col items-center justify-center p-2 bg-gray-50 rounded-lg">
-                                <span class="text-[11px] text-gray-500 font-bold mb-1">3시간 뒤</span>
-                                <span id="w-3h" class="font-black text-gray-700 text-sm">-</span>
-                            </div>
-                            <div class="text-center flex flex-col items-center justify-center p-2 bg-gray-50 rounded-lg">
-                                <span class="text-[11px] text-gray-500 font-bold mb-1">6시간 뒤</span>
-                                <span id="w-6h" class="font-black text-gray-700 text-sm">-</span>
-                            </div>
-                            <div class="text-center flex flex-col items-center justify-center p-2 bg-blue-50 rounded-lg border border-blue-100">
-                                <span class="text-[11px] text-blue-500 font-bold mb-1">내일 예보</span>
-                                <span id="w-tmrw" class="font-black text-blue-700 text-sm">-</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <a href="https://weather.naver.com/today/05140000" target="_blank" id="weather-info" title="자세한 날씨 보기">🌤️ 날씨 불러오는 중...</a>
             </div>
             
             <div class="clock-wrapper">
@@ -729,88 +685,6 @@
         // 1초마다 진행률 갱신
         setInterval(updateClassProgress, 1000);
         updateClassProgress(); // 로딩 즉시 1회 실행
-
-        // ==========================================
-        // ★ 실시간 날씨 & 미세먼지 & 예보 동기화 로직
-        // ==========================================
-        async function updateWeatherWidget() {
-            try {
-                // 광주광역시 기준 위도/경도
-                const lat = 35.1595;
-                const lon = 126.8526;
-                
-                // 회원가입/API키 필요없는 Open-Meteo API 호출 (날씨 + 공기질 동시 요청)
-                const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=Asia%2FSeoul`;
-                const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10&timezone=Asia%2FSeoul`;
-
-                const [weatherRes, aqiRes] = await Promise.all([fetch(weatherUrl), fetch(aqiUrl)]);
-                const weatherData = await weatherRes.json();
-                const aqiData = await aqiRes.json();
-
-                // 1. 날씨 아이콘 이모지 변환기 (WMO 코드 기준)
-                const getWeatherIcon = (code) => {
-                    if ([0].includes(code)) return "☀️"; // 맑음
-                    if ([1, 2, 3].includes(code)) return "⛅"; // 구름
-                    if ([45, 48].includes(code)) return "🌫️"; // 안개
-                    if ([51, 53, 55, 61, 63, 65, 80, 81, 82].includes(code)) return "🌧️"; // 비
-                    if ([71, 73, 75, 85, 86].includes(code)) return "❄️"; // 눈
-                    if ([95, 96, 99].includes(code)) return "⛈️"; // 뇌우
-                    return "🌤️";
-                };
-
-                // 2. 미세먼지(PM10) 한국 기준 상태 변환기
-                const getDustStatus = (pm10) => {
-                    if (pm10 <= 30) return "<span style='color:#3b82f6; font-weight:900;'>🔵좋음</span>";
-                    if (pm10 <= 80) return "<span style='color:#10b981; font-weight:900;'>🟢보통</span>";
-                    if (pm10 <= 150) return "<span style='color:#f59e0b; font-weight:900;'>🟡나쁨</span>";
-                    return "<span style='color:#ef4444; font-weight:900;'>🔴최악</span>";
-                };
-
-                // 데이터 파싱
-                const currentTemp = Math.round(weatherData.current.temperature_2m);
-                const currentIcon = getWeatherIcon(weatherData.current.weather_code);
-                const currentPm10 = Math.round(aqiData.current.pm10 || 0);
-                
-                // 시간별 데이터에서 현재 시간 기준 +3, +6시간 인덱스 찾기
-                const currentHourStr = weatherData.current.time.slice(0, 14) + "00"; 
-                let idx = weatherData.hourly.time.findIndex(t => t.startsWith(currentHourStr));
-                if(idx === -1) idx = new Date().getHours(); 
-
-                const h3Temp = Math.round(weatherData.hourly.temperature_2m[idx + 3]);
-                const h3Icon = getWeatherIcon(weatherData.hourly.weather_code[idx + 3]);
-                
-                const h6Temp = Math.round(weatherData.hourly.temperature_2m[idx + 6]);
-                const h6Icon = getWeatherIcon(weatherData.hourly.weather_code[idx + 6]);
-
-                // 내일(index 1) 예보 데이터
-                const tmrwMin = Math.round(weatherData.daily.temperature_2m_min[1]);
-                const tmrwMax = Math.round(weatherData.daily.temperature_2m_max[1]);
-                const tmrwIcon = getWeatherIcon(weatherData.daily.weather_code[1]);
-
-                // 화면에 뿌려주기
-                document.getElementById('w-icon').innerText = currentIcon;
-                document.getElementById('w-temp').innerText = `${currentTemp}°C`;
-                document.getElementById('w-dust').innerHTML = `미세먼지: ${getDustStatus(currentPm10)}`;
-                
-                document.getElementById('w-3h').innerText = `${h3Icon} ${h3Temp}°C`;
-                document.getElementById('w-6h').innerText = `${h6Icon} ${h6Temp}°C`;
-                document.getElementById('w-tmrw').innerText = `${tmrwIcon} ${tmrwMin}°/${tmrwMax}°`;
-
-            } catch (error) {
-                console.error("날씨 연동 실패:", error);
-                document.getElementById('w-temp').innerText = "날씨 로딩 실패";
-                document.getElementById('w-dust').innerText = "";
-            }
-        }
-
-        // 클릭하면 3, 6, 내일 예보 창 토글(열기/닫기)
-        function toggleWeatherDetails() {
-            const details = document.getElementById('weather-details');
-            details.classList.toggle('hidden');
-        }
-
-        // 로딩 즉시 날씨 업데이트
-        updateWeatherWidget();
 
         /* ==========================================
            4. 초기 실행
