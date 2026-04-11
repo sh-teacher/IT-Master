@@ -200,9 +200,22 @@
            실시간 일과 진행률 바 & Wi-Fi 스타일
            ========================================= */
         .progress-wrapper {
-            background: #fff; border: 1px solid #eaeaea; border-radius: 8px;
-            padding: 15px 20px; margin-bottom: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            background: #fff; 
+            border: 1px solid #eaeaea; 
+            border-radius: 8px 8px 0 0; /* 위쪽만 둥글게 */
+            padding: 20px 20px 10px 20px; 
+            margin-bottom: 0; /* 아래 마진 제거 */
         }
+        
+        /* 타임라인 컨테이너와 자연스럽게 연결 */
+        .timeline-container {
+            border: 1px solid #eaeaea;
+            border-top: none; /* 위쪽 선 제거해서 합쳐 보이게 함 */
+            border-radius: 0 0 8px 8px; /* 아래쪽만 둥글게 */
+            padding: 15px !important;
+            background: #fff;
+        }
+
         .progress-header {
             display: flex; justify-content: space-between; align-items: flex-end;
             margin-bottom: 10px; font-size: 15px; font-weight: bold; color: #555;
@@ -220,6 +233,7 @@
         body.dark-mode .progress-wrapper { background: #252526; border-color: #444; }
         body.dark-mode .progress-header { color: #ccc; }
         body.dark-mode .progress-bar-bg { background: #333; }
+        body.dark-mode .timeline-container { background: #252526; border-color: #444; }
     </style>
 </head>
 <body>
