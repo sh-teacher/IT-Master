@@ -1,217 +1,160 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>쿨메신저 리액션 대백과 (1000개 확장판)</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-
-<style>
-    body {
-        background:#f7f6f3;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
-
-    .emoji-btn {
-        transition: all 0.15s;
-        cursor: pointer;
-    }
-
-    .emoji-btn:hover {
-        transform: scale(1.03);
-        background:#e6f4ea;
-        border-color:#34a853;
-    }
-
-    .emoji-btn:active {
-        transform: scale(0.97);
-    }
-
-    #toast {
-        visibility:hidden;
-        min-width:200px;
-        background:#333;
-        color:#fff;
-        text-align:center;
-        border-radius:999px;
-        padding:10px 16px;
-        position:fixed;
-        left:50%;
-        transform:translateX(-50%);
-        bottom:30px;
-        opacity:0;
-        transition:0.3s;
-        font-weight:bold;
-        z-index:50;
-    }
-
-    #toast.show {
-        visibility:visible;
-        opacity:1;
-        bottom:50px;
-    }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>쿨메신저 리액션 대백과</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #f7f6f3; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .emoji-btn { transition: all 0.2s; cursor: pointer; word-break: keep-all; }
+        .emoji-btn:hover { transform: scale(1.03); background-color: #e6f4ea; border-color: #34a853; color: #1e8e3e; }
+        .emoji-btn:active { transform: scale(0.97); }
+        .gif-card img { width: 100%; height: 110px; object-fit: contain; border-radius: 8px; background: #fff; }
+        
+        #toast {
+            visibility: hidden; min-width: 250px; background-color: #333; color: #fff;
+            text-align: center; border-radius: 30px; padding: 12px 20px; font-weight: bold;
+            position: fixed; z-index: 50; left: 50%; transform: translateX(-50%); bottom: 30px;
+            opacity: 0; transition: opacity 0.3s, bottom 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
+    </style>
 </head>
-
 <body class="p-6 md:p-10">
 
-<div class="max-w-6xl mx-auto">
-    <h1 class="text-3xl font-black mb-2">✨ 쿨메신저 리액션 대백과 (1000개 자동 생성)</h1>
-    <p class="text-gray-500 mb-6">클릭하면 자동 복사됩니다 🚀</p>
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-black text-gray-800 mb-2">✨ 쿨메신저 리액션 대백과</h1>
+        <p class="text-gray-500 mb-8 font-medium">클릭해서 복사하거나, 우클릭으로 이미지를 복사하여 메신저에 붙여넣으세요! (Ctrl+V)</p>
 
-    <div id="reaction-container"></div>
-</div>
+        <div id="reaction-container"></div>
+    </div>
 
-<div id="toast">복사 완료!</div>
+    <div id="toast">📋 클립보드에 복사되었습니다!</div>
 
-<script>
-/* =========================
-   1. 데이터 생성 엔진
-========================= */
-
-function createBigReactionPack() {
-    const emojis = [
-        "😊","😂","🤣","😍","😎","🔥","✨","💯","👍",
-        "👏","🙌","💪","🙏","☀️","🌸","🍀","🎉","⚡",
-        "💡","🎯","🚀","🕊️","☕","🍚","🎈","🫡","🤝"
-    ];
-
-    const bases = {
-        "☀️ 아침 인사": [
-            "좋은 아침입니다!",
-            "오늘도 화이팅!",
-            "상쾌한 하루 시작!",
-            "반갑습니다!",
-            "출근 완료!"
-        ],
-        "🫡 확인 / 응답": [
-            "네, 확인했습니다!",
-            "알겠습니다!",
-            "바로 처리하겠습니다!",
-            "접수 완료!",
-            "문제없습니다!"
-        ],
-        "🙏 감사": [
-            "정말 감사합니다!",
-            "큰 도움 되었습니다!",
-            "덕분입니다!",
-            "감동입니다!",
-            "고맙습니다!"
-        ],
-        "🤣 웃음": [
-            "ㅋㅋㅋㅋㅋㅋ",
-            "너무 웃겨요",
-            "빵 터짐",
-            "진짜 재밌네요",
-            "웃고 갑니다"
-        ],
-        "💪 응원": [
-            "힘내세요!",
-            "할 수 있습니다!",
-            "조금만 더!",
-            "응원합니다!",
-            "화이팅!"
-        ]
-    };
-
-    const result = [];
-
-    Object.entries(bases).forEach(([title, texts]) => {
-        for (let i = 0; i < 200; i++) { // 5 × 200 = 1000+
-            const items = texts.map(t => {
-                const emoji = emojis[Math.floor(Math.random() * emojis.length)];
-                return `${t} ${emoji}`;
-            });
-
-            result.push({
-                title: `${title} ${i + 1}`,
+    <script>
+        const reactionData = [
+            {
+                title: "☀️ 아침 인사 (출근)",
                 type: "text",
-                items
-            });
-        }
-    });
+                items: ["좋은 아침입니다! ☀️", "오늘도 화이팅! (๑•̀ㅂ•́)و", "반갑습니다 선생님! 🙇‍♂️", "출근 완료! 🫡", "안녕하세요~ ٩(๑❛ᴗ❛๑)۶", "상쾌한 아침입니다 🌿", "오늘 하루도 잘 부탁드립니다 🙏", "굿모닝! ☕", "활기찬 하루 되세요! ✨", "오늘도 평화로운 학교 🕊️", "일찍 오셨네요! 👍", "좋은 하루의 시작입니다 🌸", "반가운 아침입니다 😊", "햇살이 좋네요 ☀️", "오늘도 무사히! 🍀", "반갑게 인사드려요 👋", "미소 가득한 하루 되세요 😁", "힘차게 출발! 🚀", "활짝 웃는 아침 🌻", "기분 좋은 시작! 🎈"]
+            },
+            {
+                title: "🫡 네 / 확인 / 알겠습니다",
+                type: "text",
+                items: ["네, 확인했습니다! ⭕", "알겠습니다 (끄덕) 🫡", "넵! 처리하겠습니다 🏃‍♂️", "확인 완료했습니다 ✔️", "완전 동의합니다 💯", "맞습니다! 🙆‍♂️", "바로 진행하겠습니다 🚀", "접수 완료! 📝", "당연하죠! (´▽`ʃ♡ƪ)", "넵! ദ്ദി(⩌ᴗ⩌ )", "오케이입니다! 👌", "그대로 하겠습니다 📋", "이해했습니다 💡", "명령 받들겠습니다(?) 🫡", "좋은 생각입니다 ✨", "적극 찬성! 👏", "말씀하신 대로 할게요 🤝", "이미 확인 중입니다 🧐", "그럼요, 문제없죠! ✅", "넵, 알겠습니다! 😊"]
+            },
+            {
+                title: "🙏 감사 / 고마움",
+                type: "text",
+                items: ["정말 감사합니다! 🙇‍♂️", "도와주셔서 감사합니다 😭", "압도적 감사! ( ˃̣̣̥᷄⌓˂̣̣̥᷅ )", "수고 많으셨습니다 👏", "덕분에 살았습니다 😇", "바쁘신데 감사합니다 🌸", "부탁 좀 드려도 될까요? 🥺", "항상 감사합니다 💖", "은혜 잊지 않겠습니다 ✨", "감동입니다 ㅠㅠ 👍", "선생님 덕분이에요 💐", "큰 힘이 되었습니다 💪", "최고예요 감사합니다! 🤩", "챙겨주셔서 감사해요 🎁", "복 받으실 거예요 🧧", "마음이 따뜻해지네요 🔥", "천사 같으세요 👼", "도움 주셔서 영광입니다 🌟", "잊지 않고 보답할게요 💌", "감사 또 감사합니다 🙏"]
+            },
+            {
+                title: "👍 최고 / 칭찬 / 감탄",
+                type: "text",
+                items: ["최고입니다! 👍", "역시 선생님! 폼 미쳤다 👏", "대박입니다 😲", "축하드립니다! 🎉", "우와아아 ദ്ദി ˉ͈̀꒳ˉ͈́ )✧", "센스 최고! 💯", "멋지십니다 😎", "존경합니다 🙇‍♂️", "퍼펙트! 🎯", "역시 에이스! ♠️", "눈부신 성과네요 ✨", "감탄이 절로 납니다 👏", "신의 한 수! ⚡", "대단한 열정입니다 🔥", "보고 배웁니다 🙏", "인기 만점이세요 🌟", "솜씨가 예술입니다 🎨", "금손이시네요! ✋", "이보다 완벽할 순 없다 🏆", "갓벽합니다 갓갓! 👑"]
+            },
+            {
+                title: "🏃 퇴근 / 저녁 인사",
+                type: "text",
+                items: ["수고하셨습니다! 퇴근~ 🏃‍♂️💨", "맛점하세요! 🍚", "주말 푹 쉬세요 🛋️", "드디어 금요일! 🎉", "칼퇴 기원 🙏", "저녁 맛있게 드세요 🍝", "퇴근 버튼 꾸욱 🔘", "내일 뵙겠습니다 👋", "불금 보내세요 🔥", "오늘도 고생하셨습니다 🌙", "즐거운 저녁 시간 되세요 🌆", "조심해서 들어가세요 🏠", "내일 또 뵈어요! 😊", "오늘의 업무 종료! 🔚", "퇴근 요정 등장 🧚‍♂️", "빛의 속도로 퇴근 ⚡", "가족들과 행복한 시간 👨‍👩‍👧‍👦", "푹 잠드세요 😴", "꿀잠 자는 밤 🍯", "수고한 나에게 박수를 👏"]
+            },
+            {
+                title: "💪 응원 / 위로",
+                type: "text",
+                items: ["조금만 더 힘내세요! 💪", "선생님 곁엔 제가 있습니다 🛡️", "다 잘 될 겁니다 🍀", "토닥토닥 (っ´ω`)ﾉ", "스트레스받지 마세요 🍵", "화이팅입니다! 🔥", "고생이 많으십니다 ㅠㅠ 💧", "단거 드시고 힘내세요 🍫", "제가 돕겠습니다 🤝", "할 수 있습니다! 🚀", "거의 다 왔어요! 🏁", "무한 지지합니다 🙌", "포기하지 마세요 ✨", "선생님은 최고니까요 👍", "오늘만 버티면 주말! 🏖️", "든든한 버팀목이 될게요 🌳", "기운 내세요 으쌰! ⚡", "따뜻한 차 한 잔 하세요 ☕", "어깨 펴세요 화이팅! 😎", "행운을 빕니다 ✨"]
+            },
+            {
+                title: "😱 사과 / 당황 / 난감",
+                type: "text",
+                items: ["죄송합니다 ㅠㅠ 🙇‍♂️", "앗 나의 실수 🤦‍♂️", "제가 놓쳤네요 😭", "이런... (동공지진) 👀", "머쓱타드 (^^;;)", "오마이갓 😱", "죄송하지만 한 번만 더 🥺", "큰일 났네요 🚨", "땀 뻘뻘 (;;;)", "아이고 🤦‍♀️", "면목이 없습니다 🙇‍♀️", "실례를 범했네요 💦", "깜빡했습니다 ㅠㅠ 🧠", "정신이 없었네요 🌪️", "너그럽게 이해 부탁드려요 🙏", "이를 어쩌면 좋죠 😿", "제 불찰입니다 🙇", "용서해 주세요 💖", "허걱! 😨", "당황스럽네요 😰"]
+            },
+            {
+                title: "🤣 웃음 / 유머",
+                type: "text",
+                items: ["ㅋㅋㅋㅋㅋㅋㅋㅋㅋ 🎉", "너무 웃겨요 🤣", "빵 터졌습니다 💣", "하하하하하 😄", "깔깔깔 😆", "웃고 갑니다 🎈", "센스쟁이! 🤡", "재치 만점 💯", "광대 승천 중 ☺️", "배꼽 빠질 뻔 🤣", "웃음 지뢰밭 🧨", "진짜 웃기네요 👏", "덕분에 웃어요 😊", "웃음꽃 피었습니다 🌸", "크크크크 🤭", "박장대소! 🗣️", "너무 재밌으세요 🌟", "유머 감각 최고 🏆", "힐링 웃음 💖", "껄껄껄 👴"]
+            },
+            {
+                title: "💬 기타 리액션",
+                type: "text",
+                items: ["어머나! 😮", "실화인가요? 🤨", "말도 안 돼 🚫", "진짜요? 🧐", "그럴 수가... 🤭", "충격과 공포 😱", "오호라 💡", "그렇군요 📝", "역시나 🎯", "우와아... ✨", "대단해요 👏", "세상에나 🌏", "헐 대박 😲", "에헤이~ ✋", "이열~ 😎", "아하! 💡", "음... 🤔", "글쎄요 🤷‍♂️", "비밀입니다 🤫", "쉿! 🤐"]
+            },
+            {
+                title: "🎁 움직이는 짤방 (우클릭 복사)",
+                type: "image",
+                items: [
+                    { src: "https://media.giphy.com/media/11sBLVxNs7v6WA/giphy.gif", label: "격한 박수 👏" },
+                    { src: "https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif", label: "최고 고양이 👍" },
+                    { src: "https://media.giphy.com/media/3o7TDepZQZ2Bhs1cNa/giphy.gif", label: "수고하셨습니다 🙇" },
+                    { src: "https://media.giphy.com/media/26ufcVAp3AiLjVZkc/giphy.gif", label: "폭풍 오열 😭" },
+                    { src: "https://media.giphy.com/media/l41YkxvU8c7J7Bba0/giphy.gif", label: "칼퇴 요정 🏃💨" },
+                    { src: "https://media.giphy.com/media/11ISwbgCxEzMyY/giphy.gif", label: "끄덕 끄덕 ⭕" },
+                    { src: "https://media.giphy.com/media/3o7TKMGpxV3LAsY796/giphy.gif", label: "사랑의 하트 ❤️" },
+                    { src: "https://media.giphy.com/media/3o6Zt62LdAlwiv2Kv6/giphy.gif", label: "웃음 폭발 😂" },
+                    { src: "https://media.giphy.com/media/l3vR8IAt21Az0gG52/giphy.gif", label: "댄스 타임 🕺" },
+                    { src: "https://media.giphy.com/media/l0HlIDueXmcWNTPO0/giphy.gif", label: "열공/열일 🔥" },
+                    { src: "https://media.giphy.com/media/jUwpNzg9McyrK/giphy.gif", label: "슬금슬금 (도망)" },
+                    { src: "https://media.giphy.com/media/W1hd3uXRIbddu/giphy.gif", label: "멘붕/패닉 😨" }
+                ]
+            }
+        ];
 
-    return result;
-}
+        // 렌더링 엔진
+        const container = document.getElementById('reaction-container');
 
-const reactionData = createBigReactionPack();
-
-
-/* =========================
-   2. 렌더링 (고속 버전)
-========================= */
-
-const container = document.getElementById("reaction-container");
-
-function render() {
-    const fragment = document.createDocumentFragment();
-
-    reactionData.forEach(group => {
-        const wrap = document.createElement("div");
-        wrap.className = "bg-white p-5 rounded-2xl border shadow-sm mb-5";
-
-        wrap.innerHTML = `
-            <h2 class="text-lg font-bold mb-3 border-b pb-2 flex justify-between">
+        reactionData.forEach(group => {
+            const groupDiv = document.createElement('div');
+            groupDiv.className = "bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-6";
+            
+            const titleHtml = `<h2 class="text-lg font-bold text-gray-700 mb-4 pb-2 border-b border-gray-100 flex items-center justify-between">
                 <span>${group.title}</span>
-                <span class="text-[11px] bg-blue-50 text-blue-500 px-2 py-1 rounded-full">
-                    클릭 복사
-                </span>
-            </h2>
-        `;
+                ${group.type === 'text' ? '<span class="text-[11px] bg-blue-50 text-blue-500 px-2 py-1 rounded-full font-bold">클릭 복사</span>' : '<span class="text-[11px] bg-red-50 text-red-500 px-2 py-1 rounded-full font-bold">우클릭 복사</span>'}
+            </h2>`;
+            groupDiv.innerHTML = titleHtml;
 
-        const grid = document.createElement("div");
-        grid.className = "grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2";
+            const itemsDiv = document.createElement('div');
+            
+            if (group.type === 'text') {
+                itemsDiv.className = "grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3";
+                group.items.forEach(text => {
+                    const btn = document.createElement('button');
+                    btn.className = "emoji-btn border border-gray-200 p-3 rounded-xl text-center text-[13px] text-gray-700 font-bold bg-gray-50 shadow-sm";
+                    btn.innerText = text;
+                    btn.onclick = () => copyText(text);
+                    itemsDiv.appendChild(btn);
+                });
+            } else if (group.type === 'image') {
+                itemsDiv.className = "grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4";
+                group.items.forEach(imgData => {
+                    const card = document.createElement('div');
+                    card.className = "gif-card border border-gray-200 rounded-xl p-2 bg-gray-50 cursor-pointer hover:border-blue-400 transition shadow-sm";
+                    card.title = "우클릭해서 이미지 복사";
+                    card.innerHTML = `
+                        <img src="${imgData.src}" alt="${imgData.label}">
+                        <p class="text-center text-[11px] font-bold text-gray-500 mt-2">${imgData.label}</p>
+                    `;
+                    itemsDiv.appendChild(card);
+                });
+            }
 
-        group.items.forEach(text => {
-            const btn = document.createElement("button");
-            btn.className = "emoji-btn p-3 bg-gray-50 border rounded-xl text-[13px] font-bold";
-            btn.innerText = text;
-            btn.onclick = () => copyText(text);
-            grid.appendChild(btn);
+            groupDiv.appendChild(itemsDiv);
+            container.appendChild(groupDiv);
         });
 
-        wrap.appendChild(grid);
-        fragment.appendChild(wrap);
-    });
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(`'${text}' 복사 완료!`);
+            }).catch(err => {
+                alert('복사 실패! 수동으로 복사해주세요.');
+            });
+        }
 
-    container.appendChild(fragment);
-}
-
-
-/* =========================
-   3. 복사 기능
-========================= */
-
-function copyText(text) {
-    navigator.clipboard.writeText(text).then(() => {
-        showToast("복사됨: " + text);
-    });
-}
-
-
-/* =========================
-   4. 토스트
-========================= */
-
-function showToast(msg) {
-    const toast = document.getElementById("toast");
-    toast.innerText = msg;
-    toast.classList.add("show");
-
-    setTimeout(() => {
-        toast.classList.remove("show");
-    }, 1200);
-}
-
-
-/* =========================
-   실행
-========================= */
-
-render();
-
-</script>
-
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            toast.innerText = message;
+            toast.className = "show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 2000);
+        }
+    </script>
 </body>
 </html>
