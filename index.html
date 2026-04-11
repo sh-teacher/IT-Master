@@ -234,9 +234,7 @@
         body.dark-mode .progress-header { color: #ccc; }
         body.dark-mode .progress-bar-bg { background: #333; }
         body.dark-mode .timeline-container { background: #252526; border-color: #444; }
-        .hidden { display: none !important; }
-        .cursor-pointer { cursor: pointer; }
-
+        
     </style>
 </head>
 <body>
@@ -331,11 +329,11 @@
         <div class="section">
             <div class="section-title cursor-pointer" onclick="toggleCalendar()">
                 <span>📅 전체 스케줄 (구글 캘린더)</span>
-                <button id="calendarToggleIcon" style="background:none; border:none; color:#999; transition: transform 0.3s; transform: rotate(180deg);">
+                <button id="calendarToggleIcon" style="background:none; border:none; color:#999; transition: transform 0.3s; transform: rotate(180deg); cursor: pointer;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
                 </button>
             </div>
-            <div id="calendarContainer" class="calendar-container hidden">
+            <div id="calendarContainer" class="calendar-container" style="display: none;">
                 <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=Asia%2FSeoul&showPrint=0&src=Y29taHdhbkBnbWFpbC5jb20&src=YjAxOWI3MWE3ZjEzYjRlZjQ1MmU0ZGU5ZmE1MzdmNDdhNzYyZTVjMDNjN2Y1YmQzMjBkNzU5YzdjNTZjYzgxY0Bncm91cC5jYWxlbmRhci5nb29nbGUuY29t&src=ZmFtaWx5MDk0NTQ4MTA1NDc1ODg4OTQ1MjRAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ&color=%237986cb&color=%237cb342&color=%23e67c73" style="border-width:0" width="100%" height="100%" frameborder="0" scrolling="no"></iframe>
             </div>
         </div>
@@ -771,6 +769,23 @@
 
         // 로딩 시 최초 1회 실행
         fetchWeatherString();
+
+        // ==========================================
+        // ★ 구글 캘린더 접기/펴기 무적 토글 함수
+        // ==========================================
+        function toggleCalendar() {
+            const container = document.getElementById('calendarContainer');
+            const icon = document.getElementById('calendarToggleIcon');
+            
+            // display 상태를 직접 체크해서 열고 닫음
+            if (container.style.display === 'none') {
+                container.style.display = 'block'; // 펼치기
+                icon.style.transform = 'rotate(0deg)'; // 화살표 위로
+            } else {
+                container.style.display = 'none'; // 접기
+                icon.style.transform = 'rotate(180deg)'; // 화살표 아래로
+            }
+        }
 
         /* ==========================================
            4. 초기 실행
