@@ -54,16 +54,20 @@
         /* 메인 콘텐츠 영역 */
         .main-content { flex: 1; padding: 40px 60px; max-width: 1000px; margin: 0 auto; box-sizing: border-box; width: 100%;}
         
-        /* 상단 시계 & 날씨 영역 */
-        /* 상단 시계 영역 */
-        .header-area { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; }
-        .page-title { font-size: 36px; font-weight: 700; outline: none; margin: 0; }
+        /* =========================================
+           상단 시계 & 날씨 영역 (PC 기준)
+           ========================================= */
+        .header-area { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; width: 100%; }
+        .header-left { display: flex; flex-direction: column; align-items: flex-start; }
+        .page-title { font-size: 34px; font-weight: 700; outline: none; margin: 0; }
+        
+        /* 시계와 달 버튼을 묶는 래퍼 */
+        .clock-wrapper { display: flex; align-items: center; gap: 20px; }
         .clock-container { text-align: right; }
         .date-text { font-size: 14px; color: #787774; margin-bottom: 5px; }
-        .time-text { font-size: 28px; font-weight: 700; color: #2eaadc; font-variant-numeric: tabular-nums; }
+        .time-text { font-size: 28px; font-weight: 700; color: #2eaadc; font-variant-numeric: tabular-nums; line-height: 1; }
 
         /* 실시간 날씨 & 동기화 운세 스타일 */
-        /* 실시간 날씨 버튼 스타일 (클릭 효과 추가) */
         #weather-info { font-size: 13px; color: #555; margin-top: 10px; background: #f0f4f8; padding: 6px 12px; border-radius: 20px; display: inline-block; text-decoration: none; transition: background 0.2s; cursor: pointer; border: 1px solid #e2e8f0;}
         #weather-info:hover { background: #e2e8f0; }
         .horoscope-section { margin-bottom: 40px; }
@@ -145,7 +149,7 @@
         
         body.dark-mode .timetable th { background-color: #252526; border-color: #444; color: #ccc; }
         body.dark-mode .timetable td { border-color: #444; }
-        body.dark-mode .timetable td[style*="background-color"] { filter: brightness(0.85); color: #000; } /* 파스텔톤 시간표 눈부심 방지 */
+        body.dark-mode .timetable td[style*="background-color"] { filter: brightness(0.85); color: #000; }
         
         body.dark-mode .todo-input { background: #252526; color: #fff; border-color: #444; }
         body.dark-mode .todo-item { border-bottom-color: #333; }
@@ -153,7 +157,7 @@
         body.dark-mode .post-it { background-color: #3d3b24; color: #e0e0e0; box-shadow: none; border: 1px solid #444; }
         body.dark-mode .calendar-container { border-color: #444; }
         
-        /* 💡 마법의 코드: 구글 캘린더 색상 반전 (다크모드화) */
+        /* 마법의 코드: 구글 캘린더 색상 반전 (다크모드화) */
         body.dark-mode iframe { filter: invert(0.85) hue-rotate(180deg); }
 
         /* 다크모드 토글 버튼 스타일 */
@@ -162,34 +166,29 @@
             width: 42px; height: 42px; font-size: 20px; cursor: pointer;
             display: flex; justify-content: center; align-items: center;
             transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            margin-bottom: 10px;
         }
         .theme-toggle-btn:hover { background-color: #f0f0f0; transform: scale(1.05); }
         body.dark-mode .theme-toggle-btn { background-color: #2d2d30; border-color: #444; }
         body.dark-mode .theme-toggle-btn:hover { background-color: #3e3e42; }
 
-        /* ★ 모바일용 시계 & 버튼 레이아웃 수정 (양끝 정렬) */
-        .clock-wrapper { align-items: center; justify-content: space-between; width: 100%; }
-        .clock-container { text-align: right; }
-        .theme-toggle-btn { margin-bottom: 0; }
-
         /* =========================================================================
-           📱 모바일 반응형 미디어 쿼리
+           📱 모바일 반응형 미디어 쿼리 (가장 아래에 위치해야 함)
            ========================================================================= */
         @media screen and (max-width: 768px) {
             body { flex-direction: column; }
-            .main-content { order: 1; padding: 20px; }
+            .main-content { order: 1; padding: 20px; width: 100%; box-sizing: border-box; }
             .sidebar { 
                 order: 2; width: 100%; border-right: none; 
-                border-top: 2px dashed #e0e0e0; padding: 20px; margin-top: 20px;
+                border-top: 2px dashed #e0e0e0; padding: 20px; margin-top: 20px; box-sizing: border-box;
             }
-            .header-area { flex-direction: column; align-items: flex-start; gap: 15px; margin-bottom: 25px; }
-            .page-title { font-size: 24px; margin-top: 0;}
             
-            /* ★ 모바일용 시계 & 버튼 레이아웃 수정 */
-            .clock-wrapper { align-items: center; justify-content: flex-start; gap: 15px; width: 100%; }
-            .clock-container { text-align: left; }
-            .theme-toggle-btn { margin-bottom: 0; }
+            /* 모바일 헤더: 위아래로 분리 */
+            .header-area { flex-direction: column; align-items: flex-start; gap: 20px; margin-bottom: 25px; }
+            .page-title { font-size: 24px; margin-top: 0; }
+            
+            /* 모바일 시계 & 버튼: 달 버튼은 왼쪽, 시계는 오른쪽 끝으로 배치 */
+            .clock-wrapper { width: 100%; justify-content: space-between; }
+            .clock-container { text-align: right; }
             
             .grid-row { grid-template-columns: 1fr; gap: 30px; }
             .timetable { min-width: 100%; font-size: 12px; }
@@ -231,7 +230,7 @@
 
     <div class="main-content">
         <div class="header-area">
-            <div>
+            <div class="header-left">
                 <div class="page-title" contenteditable="true" id="main-title">👋 배성환 선생님! 화이팅~</div>
                 <a href="https://weather.naver.com/today/05140000" target="_blank" id="weather-info" title="자세한 날씨 보기">🌤️ 날씨 불러오는 중...</a>
             </div>
