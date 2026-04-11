@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메신저 리액션 창고</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #f7f6f3; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .emoji-btn { transition: all 0.2s; cursor: pointer; }
+        .emoji-btn:hover { transform: scale(1.05); background-color: #e6f4ea; border-color: #34a853; }
+        .emoji-btn:active { transform: scale(0.95); }
+        .gif-card img { width: 100%; height: 120px; object-fit: cover; border-radius: 8px; }
+        
+        /* 복사 완료 알림 (토스트 메시지) */
+        #toast {
+            visibility: hidden; min-width: 250px; background-color: #333; color: #fff;
+            text-align: center; border-radius: 30px; padding: 12px 20px; font-weight: bold;
+            position: fixed; z-index: 50; left: 50%; transform: translateX(-50%); bottom: 30px;
+            opacity: 0; transition: opacity 0.3s, bottom 0.3s;
+        }
+        #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
+    </style>
+</head>
+<body class="p-6 md:p-10">
+
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-black text-gray-800 mb-2">✨ 쿨메신저 리액션 창고</h1>
+        <p class="text-gray-500 mb-8 font-medium">클릭해서 복사하거나, 우클릭으로 이미지를 복사하여 메신저에 붙여넣으세요! (Ctrl+V)</p>
+
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-8">
+            <h2 class="text-lg font-bold text-gray-700 mb-4 flex items-center gap-2">
+                <span>💬 텍스트 이모티콘 (클릭 시 자동 복사)</span>
+            </h2>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <button onclick="copyText('(๑•̀ㅂ•́)و✧ 화이팅!')" class="emoji-btn border border-gray-200 p-3 rounded-xl text-center text-gray-700 font-bold bg-gray-50">(๑•̀ㅂ•́)و✧ 화이팅!</button>
+                <button onclick="copyText('٩(๑❛ᴗ❛๑)۶ 최고예요!')" class="emoji-btn border border-gray-200 p-3 rounded-xl text-center text-gray-700 font-bold bg-gray-50">٩(๑❛ᴗ❛๑)۶ 최고!</button>
+                <button onclick="copyText('(감동) ಢ‸ಢ')" class="emoji-btn border border-gray-200 p-3 rounded-xl text-center text-gray-700 font-bold bg-gray-50">ಢ‸ಢ (감동)</button>
+                <button onclick="copyText('🙇‍♂️ 감사합니다!')" class="emoji-btn border border-gray-200 p-3 rounded-xl text-center text-gray-700 font-bold bg-gray-50">🙇‍♂️ 감사합니다!</button>
+                
+                <button onclick="copyText('(수고하셨습니다 👏)')" class="emoji-btn border border-gray-200 p-3 rounded-xl text-center text-gray-700 font-bold bg-gray-50">👏 수고하셨습니다</button>
+                <button onclick="copyText('ദ്ദി(⩌ᴗ⩌ ) 굿입니다')" class="emoji-btn border border-gray-200 p-3 rounded-xl text-center text-gray-700 font-bold bg-gray-50">ദ്ദി(⩌ᴗ⩌ ) 굿!</button>
+                <button onclick="copyText('┌(・。・)┘♪ 퇴근!')" class="emoji-btn border border-gray-200 p-3 rounded-xl text-center text-gray-700 font-bold bg-gray-50">┌(・。・)┘♪ 퇴근!</button>
+                <button onclick="copyText('(눈물) ( ˃̣̣̥᷄⌓˂̣̣̥᷅ )')" class="emoji-btn border border-gray-200 p-3 rounded-xl text-center text-gray-700 font-bold bg-gray-50">( ˃̣̣̥᷄⌓˂̣̣̥᷅ ) (오열)</button>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+            <div class="flex justify-between items-end mb-4">
+                <h2 class="text-lg font-bold text-gray-700 flex items-center gap-2">
+                    <span>🎁 애니메이션 배너 / 짤방</span>
+                </h2>
+                <span class="text-xs text-red-500 font-bold bg-red-50 px-2 py-1 rounded">※ 우클릭 ➔ '이미지 복사' 후 메신저에 붙여넣기</span>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="gif-card border border-gray-200 rounded-xl p-2 bg-gray-50 cursor-pointer hover:border-blue-400 transition" title="우클릭해서 이미지 복사">
+                    <img src="https://media.giphy.com/media/11sBLVxNs7v6WA/giphy.gif" alt="박수">
+                    <p class="text-center text-xs font-bold text-gray-500 mt-2">격한 박수 👏</p>
+                </div>
+                <div class="gif-card border border-gray-200 rounded-xl p-2 bg-gray-50 cursor-pointer hover:border-blue-400 transition" title="우클릭해서 이미지 복사">
+                    <img src="https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif" alt="최고 고양이">
+                    <p class="text-center text-xs font-bold text-gray-500 mt-2">최고 고양이 👍</p>
+                </div>
+                <div class="gif-card border border-gray-200 rounded-xl p-2 bg-gray-50 cursor-pointer hover:border-blue-400 transition" title="우클릭해서 이미지 복사">
+                    <img src="https://media.giphy.com/media/3o7TDepZQZ2Bhs1cNa/giphy.gif" alt="수고하셨습니다">
+                    <p class="text-center text-xs font-bold text-gray-500 mt-2">수고하셨습니다 🙇</p>
+                </div>
+                <div class="gif-card border border-gray-200 rounded-xl p-2 bg-gray-50 cursor-pointer hover:border-blue-400 transition" title="우클릭해서 이미지 복사">
+                    <img src="https://media.giphy.com/media/26ufcVAp3AiLjVZkc/giphy.gif" alt="오열">
+                    <p class="text-center text-xs font-bold text-gray-500 mt-2">폭풍 오열 😭</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast">📋 클립보드에 복사되었습니다!</div>
+
+    <script>
+        function copyText(text) {
+            // 텍스트 클립보드 복사 로직
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(`'${text}' 복사 완료! 메신저에 Ctrl+V 하세요.`);
+            }).catch(err => {
+                alert('복사 실패! 수동으로 복사해주세요.');
+            });
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            toast.innerText = message;
+            toast.className = "show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 2500);
+        }
+    </script>
+</body>
+</html>
