@@ -7,12 +7,12 @@
     <script>if (sessionStorage.getItem("isAllowed") !== "true") location.href = "index.html";</script>
     
     <style>
-        /* 마우스 꼬임 현상을 원천 차단하는 가장 확실한 CSS */
-        .student-card { cursor: grab; }
-        .student-card:active { cursor: grabbing; }
+        /* 드래그 시 마우스 꼬임 완벽 방지 */
+        .student-card { cursor: grab; transition: transform 0.1s; }
+        .student-card:active { cursor: grabbing; transform: scale(0.95); }
         .student-card * { pointer-events: none; } 
         
-        /* 출석 상태 배경색 */
+        /* 출석 상태별 색상 */
         .status-present { border-left: 8px solid #3b82f6 !important; background-color: #eff6ff; } 
         .status-absent { border-left: 8px solid #ef4444 !important; background-color: #fef2f2; }  
         .status-late { border-left: 8px solid #f59e0b !important; background-color: #fffbeb; }    
@@ -36,7 +36,7 @@
             </div>
         </div>
         
-        <div class="mb-6">
+        <div class="mb-4">
             <select id="selectedSubject" onchange="loadStudents()" class="w-full p-3 bg-slate-100 border-2 border-slate-200 rounded-xl font-bold text-slate-700 focus:border-blue-500 focus:outline-none">
                 <option value="">과목을 로딩 중입니다...</option>
             </select>
@@ -44,9 +44,10 @@
 
         <div class="flex gap-8 flex-1 overflow-hidden">
             <div class="w-1/4 bg-slate-100 rounded-2xl p-4 flex flex-col h-full border border-slate-200">
-                <h2 class="text-lg font-bold text-slate-700 mb-4 text-center">학생 대기열</h2>
-                <div id="waitingList" class="flex-1 overflow-y-auto space-y-2 p-2 min-h-[500px]" 
-                     ondrop="drop(event)" ondragover="allowDrop(event)">
+                <h2 class="text-lg font-bold text-slate-700 mb-1 text-center">학생 대기열</h2>
+                <p class="text-xs text-slate-500 text-center mb-4">💡 카드를 <strong>더블클릭</strong>하면 출석 변경</p>
+                
+                <div id="waitingList" class="flex-1 overflow-y-auto space-y-2 p-2 min-h-[500px]">
                     <p class="text-slate-400 text-center text-sm mt-10" id="emptyMsg">과목을 선택해주세요</p>
                 </div>
             </div>
@@ -65,7 +66,7 @@
     </div>
 
     <script>
-        // ★ 선생님의 앱스 스크립트 URL! ★
+        // ★ 선생님의 앱스 스크립트 URL로 꼭 변경해주세요! ★
         const API_URL = "https://script.google.com/macros/s/AKfycbxUgpimLYy_9K_vZjbxJYtImA4fcz3ZZxfXPvy9WlYXLv1dY-yBA6yrtHeybyAo1v_Vpg/exec";
 
         let isMirror = false; 
@@ -74,6 +75,14 @@
 
         window.onload = async function() {
             createDesks(); 
+            
+            // 대기열에도 드래그 이벤트를 자바스크립트로 튼튼하게 연결!
+            const wList = document.getElementById('waitingList');
+            wList.addEventListener('drop', drop);
+            wList.addEventListener('dragover', allowDrop);
+            wList.addEventListener('dragenter', dragEnter);
+            wList.addEventListener('dragleave', dragLeave);
+
             try {
                 const response = await fetch(`${API_URL}?type=GET_SUBJECTS`);
                 const subjects = await response.json();
@@ -149,7 +158,6 @@
             });
         }
 
-        // 1. 학생 카드 생성 로직 (가장 안정적인 방식)
         function createStudentCard(std, index) {
             const card = document.createElement('div');
             card.className = "student-card p-3 rounded-lg shadow-sm border border-slate-200 text-center font-bold text-slate-700 hover:shadow-md mb-2 status-present";
@@ -157,23 +165,22 @@
             card.id = `std-${index}`;
             card.dataset.grade = std.grade; card.dataset.class = std.class; card.dataset.number = std.number; card.dataset.name = std.name; card.dataset.status = "present"; 
             
-            card.innerHTML = `<span class="text-xs text-blue-500 block mb-1">${std.class}반 ${std.number}번</span><span>${std.name}</span>`;
+            card.innerHTML = `<span class="text-xs text-blue-500 block mb-1 pointer-events-none">${std.class}반 ${std.number}번</span><span class="pointer-events-none">${std.name}</span>`;
             
-            // 이벤트 유실을 막기 위해 속성(Attribute)에 직접 주입!
-            card.setAttribute('ondragstart', 'drag(event)');
-            card.setAttribute('ondragend', 'dragEnd(event)');
-            card.setAttribute('onclick', 'toggleStatus(this)');
+            // 드래그 이벤트
+            card.addEventListener('dragstart', drag);
+            card.addEventListener('dragend', dragEnd);
             
-            return card;
-        }
+            // 👇 핵심: 출석 체크를 더블 클릭(dblclick)으로 변경! 👇
+            card.addEventListener('dblclick', function() {
+                if (!this.parentNode.classList.contains('desk')) return;
+                this.classList.remove('status-present', 'status-absent', 'status-late');
+                if (this.dataset.status === "present") { this.dataset.status = "absent"; this.classList.add('status-absent'); } 
+                else if (this.dataset.status === "absent") { this.dataset.status = "late"; this.classList.add('status-late'); } 
+                else { this.dataset.status = "present"; this.classList.add('status-present'); }
+            });
 
-        // 출석 상태 토글 함수
-        function toggleStatus(el) {
-            if (!el.parentNode.classList.contains('desk')) return;
-            el.classList.remove('status-present', 'status-absent', 'status-late');
-            if (el.dataset.status === "present") { el.dataset.status = "absent"; el.classList.add('status-absent'); } 
-            else if (el.dataset.status === "absent") { el.dataset.status = "late"; el.classList.add('status-late'); } 
-            else { el.dataset.status = "present"; el.classList.add('status-present'); }
+            return card;
         }
 
         function updateLocalSeatingState() {
@@ -193,7 +200,7 @@
         }
 
         function toggleMirror() {
-            if (rawStudents.length === 0) return alert("과목을 먼저 선택하여 명단을 불러와주세요.");
+            if (rawStudents.length === 0) return alert("과목을 먼저 선택해주세요.");
             updateLocalSeatingState(); 
             isMirror = !isMirror; 
 
@@ -209,11 +216,11 @@
                 chalkboard.classList.remove('mt-6', 'mb-0', 'bg-slate-700');
                 chalkboard.classList.add('mb-6', 'bg-emerald-800');
             }
+
             createDesks(); 
             renderClassroomView(); 
         }
 
-        // 2. 책상 생성 로직 (가장 안정적인 방식)
         function createDesks() {
             const grid = document.getElementById('classroomGrid');
             grid.innerHTML = ''; 
@@ -225,11 +232,11 @@
                 const logicalIndex = isMirror ? (35 - i) : i;
                 desk.dataset.logicalIndex = logicalIndex;
 
-                // 이벤트 유실을 막기 위해 속성(Attribute)에 직접 주입!
-                desk.setAttribute('ondrop', 'drop(event)');
-                desk.setAttribute('ondragover', 'allowDrop(event)');
-                desk.setAttribute('ondragenter', 'dragEnter(event)');
-                desk.setAttribute('ondragleave', 'dragLeave(event)');
+                // 이벤트 튼튼하게 연결
+                desk.addEventListener('drop', drop);
+                desk.addEventListener('dragover', allowDrop);
+                desk.addEventListener('dragenter', dragEnter);
+                desk.addEventListener('dragleave', dragLeave);
 
                 const seatNum = document.createElement('span');
                 seatNum.className = "absolute text-slate-200 font-bold text-2xl z-0 pointer-events-none";
@@ -240,7 +247,7 @@
             }
         }
 
-        // --- 🧲 오리지널 드래그 앤 드롭 코어 로직 ---
+        // --- 🧲 선생님이 "완벽하다"고 하셨던 오리지널 자석 로직 ---
         function drag(ev) {
             ev.dataTransfer.setData("text", ev.target.id);
             setTimeout(() => { ev.target.style.opacity = "0.4"; }, 0);
@@ -285,6 +292,7 @@
                 if (!existingStudent) {
                     dropZone.appendChild(draggedEl);
                 } else if (existingStudent !== draggedEl) {
+                    // 서로 자리 바꾸기
                     const originalParent = draggedEl.parentNode;
                     dropZone.appendChild(draggedEl);
                     originalParent.appendChild(existingStudent);
@@ -294,7 +302,7 @@
             }
         }
 
-        // --- 저장 로직 ---
+        // --- 데이터 저장 로직 ---
         async function saveSeatingToServer() {
             const subject = document.getElementById('selectedSubject').value;
             if (!subject) return alert("과목을 선택해주세요.");
