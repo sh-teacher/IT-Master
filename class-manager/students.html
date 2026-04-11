@@ -72,11 +72,25 @@
 
             if (!subjectVal || !listText) return alert("과목 선택과 명단 입력은 필수입니다.");
 
-            const subjectInfo = JSON.parse(subjectVal);
-            const students = listText.trim().split('\n').map(line => {
-                const parts = line.trim().split(/\s+/); // 공백(탭 포함)으로 분리
-                return { number: parts[0], name: parts[1] };
-            });
+            const subjectInfo = JSON.parse(subjectVal); // setup에서 등록한 {name, target} 정보
+            
+            // 명단 분석 로직
+            const lines = listText.trim().split('\n');
+            const studentData = lines.map(line => {
+                // 공백이나 탭으로 구분된 데이터를 배열로 만듦
+                const parts = line.trim().split(/\s+/); 
+                
+                // 만약 엑셀에서 [번호, 이름] 두 칼럼만 복사했을 경우
+                if (parts.length >= 2) {
+                    return {
+                        number: parts[0], // 첫 번째 요소를 번호로
+                        name: parts[1]    // 두 번째 요소를 이름으로
+                    };
+                }
+                return null;
+            }).filter(std => std !== null);
+
+            if (studentData.length === 0) return alert("명단 형식이 올바르지 않습니다. '번호 이름' 형식인지 확인해주세요.");
 
             btn.disabled = true;
             btn.innerText = "저장 중...";
@@ -88,15 +102,16 @@
                         type: "SAVE_STUDENTS",
                         payload: {
                             subject: subjectInfo.name,
-                            target: subjectInfo.target,
-                            students: students
+                            target: subjectInfo.target, // setup에서 넣은 '2-2' 같은 값
+                            students: studentData
                         }
                     })
                 });
-                alert("성공적으로 저장되었습니다! 이제 좌석 배치도로 이동합니다.");
-                // location.href = "seating.html"; // 다음 단계
+                alert(`${studentData.length}명의 명단이 저장되었습니다!`);
+                // 성공 후 입력창 비우기
+                document.getElementById('studentList').value = "";
             } catch (e) {
-                alert("저장 실패");
+                alert("저장 실패: " + e.message);
             } finally {
                 btn.disabled = false;
                 btn.innerText = "학생 명단 저장하기";
