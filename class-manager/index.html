@@ -5,14 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Class Manager - 교과관리시스템</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        // 간단한 로그인 체크 (필요 없으시면 지우셔도 됩니다)
-        if (sessionStorage.getItem("isAllowed") !== "true") {
-            // location.href = "login.html"; // 로그인 페이지가 따로 있다면 연결
-        }
-    </script>
 </head>
-<body class="bg-slate-100 flex h-screen overflow-hidden text-slate-800">
+<body class="bg-slate-100 flex h-screen overflow-hidden text-slate-800 relative">
+
+    <div id="loginOverlay" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center">
+        <div class="bg-white p-10 rounded-3xl shadow-2xl w-96 flex flex-col items-center">
+            <div class="text-5xl mb-4">🏫</div>
+            <h2 class="text-2xl font-black text-slate-800 mb-2">Class Manager</h2>
+            <p class="text-sm text-slate-500 mb-8">관리자 비밀번호를 입력해주세요</p>
+            
+            <input type="password" id="adminPw" placeholder="비밀번호" 
+                   class="w-full p-4 bg-slate-50 border-2 border-slate-200 rounded-xl mb-4 text-center font-bold text-lg focus:border-blue-500 focus:outline-none"
+                   onkeypress="if(event.key==='Enter') checkLogin()">
+            
+            <button onclick="checkLogin()" id="loginBtn" 
+                    class="w-full bg-blue-600 text-white px-6 py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition shadow-md">
+                시스템 접속
+            </button>
+        </div>
+    </div>
 
     <aside class="w-72 bg-slate-900 text-slate-300 flex flex-col h-full shadow-2xl z-20">
         <div class="p-6 border-b border-slate-700">
@@ -37,12 +48,12 @@
             </div>
             
             <div id="dynamicMenu" class="space-y-1">
-                <p class="px-4 text-sm text-slate-500 animate-pulse">과목을 불러오는 중...</p>
-            </div>
+                </div>
         </nav>
 
-        <div class="p-4 border-t border-slate-700 text-sm text-slate-500">
-            <p>ⓒ 2026 선생님의 교과관리</p>
+        <div class="p-4 border-t border-slate-700 text-sm text-slate-500 flex justify-between items-center">
+            <p>ⓒ 2026 Class Manager</p>
+            <button onclick="logout()" class="hover:text-white transition">로그아웃</button>
         </div>
     </aside>
 
@@ -62,27 +73,79 @@
     </main>
 
     <script>
-        // ★ 선생님의 앱스 스크립트 URL로 꼭 변경해주세요!
+        // ★ 선생님의 앱스 스크립트 URL로 꼭 변경해주세요! ★
         const API_URL = "https://script.google.com/macros/s/AKfycbxUgpimLYy_9K_vZjbxJYtImA4fcz3ZZxfXPvy9WlYXLv1dY-yBA6yrtHeybyAo1v_Vpg/exec";
 
-        // 1. 실시간 시계 작동 함수
+        // --- 1. 로그인 로직 ---
+        window.addEventListener('DOMContentLoaded', () => {
+            // 이미 로그인 상태인지 확인
+            if (sessionStorage.getItem("isAllowed") === "true") {
+                document.getElementById('loginOverlay').style.display = 'none'; // 로그인 창 숨김
+                initializeApp(); // 시스템 시작
+            }
+        });
+
+        async function checkLogin() {
+            const pw = document.getElementById('adminPw').value;
+            const btn = document.getElementById('loginBtn');
+            if(!pw) return alert("비밀번호를 입력하세요!");
+
+            btn.innerText = "확인 중...";
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ type: "CHECK_PW", payload: { password: pw } })
+                });
+                const data = await response.json();
+                
+                if(data.success) {
+                    sessionStorage.setItem("isAllowed", "true"); // 인증 완료 도장 찍기
+                    document.getElementById('loginOverlay').style.display = 'none'; // 창 닫기
+                    initializeApp(); // 시스템 시작
+                } else {
+                    alert("비밀번호가 틀렸습니다.");
+                    document.getElementById('adminPw').value = "";
+                }
+            } catch(e) {
+                alert("서버와 통신할 수 없습니다.");
+            } finally {
+                btn.innerText = "시스템 접속";
+                btn.disabled = false;
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem("isAllowed"); // 도장 지우기
+            location.reload(); // 새로고침해서 다시 로그인 창 띄우기
+        }
+
+        // --- 2. 시스템 초기화 로직 (로그인 성공 후 실행) ---
+        function initializeApp() {
+            loadSubjectsMenu();
+            checkScheduleAndAutoLoad();
+            
+            // 시계 작동
+            setInterval(updateClock, 1000);
+            updateClock();
+        }
+
+        // --- 3. 메뉴 및 시간표 로직 ---
         function updateClock() {
             const now = new Date();
             const timeString = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
             const dateString = now.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', weekday: 'short' });
             document.getElementById('realTimeClock').innerText = `${dateString} ${timeString}`;
         }
-        setInterval(updateClock, 1000);
-        updateClock();
 
-        // 2. 서버에서 과목 목록을 가져와서 사이드바에 메뉴 만들기
         async function loadSubjectsMenu() {
             try {
                 const response = await fetch(`${API_URL}?type=GET_SUBJECTS`);
                 const subjects = await response.json();
                 const menuContainer = document.getElementById('dynamicMenu');
                 
-                menuContainer.innerHTML = ''; // 로딩 텍스트 지우기
+                menuContainer.innerHTML = ''; 
 
                 if (subjects.length === 0) {
                     menuContainer.innerHTML = '<p class="px-4 text-sm text-slate-500">등록된 과목이 없습니다.</p>';
@@ -90,18 +153,15 @@
                 }
 
                 subjects.forEach(sub => {
-                    // 각 과목별 폴더(그룹) 만들기
                     const groupDiv = document.createElement('div');
                     groupDiv.className = "mb-2";
-                    
-                    // 과목명 타이틀
                     groupDiv.innerHTML = `
                         <div class="px-4 py-2 text-slate-300 font-bold flex items-center gap-2">
                             <span class="w-2 h-2 rounded-full bg-blue-400"></span>
                             ${sub.fullName}
                         </div>
                         <div class="pl-8 pr-4 space-y-1 mt-1">
-                            <a href="seating.html?subject=${encodeURIComponent(sub.fullName)}" target="mainFrame" class="block py-2 px-3 text-sm rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition">
+                            <a href="seating.html?subject=${encodeURIComponent(sub.fullName)}" target="mainFrame" class="menu-link block py-2 px-3 text-sm rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition">
                                 🪑 좌석 및 출석부
                             </a>
                             <a href="#" class="block py-2 px-3 text-sm rounded-lg text-slate-500 hover:bg-slate-800 transition cursor-not-allowed">
@@ -111,28 +171,42 @@
                     `;
                     menuContainer.appendChild(groupDiv);
                 });
+
+                // 메뉴 클릭 시 활성화 효과
+                const links = document.querySelectorAll('nav a:not(.cursor-not-allowed)');
+                links.forEach(link => {
+                    link.addEventListener('click', function() {
+                        links.forEach(l => l.classList.remove('bg-slate-800', 'text-white'));
+                        this.classList.add('bg-slate-800', 'text-white');
+                        document.getElementById('headerTitle').innerText = this.innerText.replace(/[^가-힣a-zA-Z\s]/g, '').trim();
+                    });
+                });
+
             } catch (e) {
                 document.getElementById('dynamicMenu').innerHTML = '<p class="px-4 text-sm text-red-400">메뉴 로드 실패</p>';
             }
         }
 
-        // 페이지 로딩 시 메뉴 그리기
-        window.onload = loadSubjectsMenu;
+        async function checkScheduleAndAutoLoad() {
+            try {
+                const response = await fetch(`${API_URL}?type=GET_SCHEDULE`);
+                const schedule = await response.json();
+                const now = new Date();
+                const days = ['일','월','화','수','목','금','토'];
+                const currentDay = days[now.getDay()];
+                const currentTime = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
 
-        // 3. 메뉴 클릭 시 활성화 효과 및 상단 타이틀 변경 로직
-        const links = document.querySelectorAll('nav a');
-        links.forEach(link => {
-            link.addEventListener('click', function() {
-                // 클릭한 메뉴만 배경색 활성화 (준비중 메뉴 제외)
-                if(this.classList.contains('cursor-not-allowed')) return;
-                
-                links.forEach(l => l.classList.remove('bg-slate-800', 'text-white'));
-                this.classList.add('bg-slate-800', 'text-white');
-                
-                // 오른쪽 위 헤더 타이틀 변경
-                document.getElementById('headerTitle').innerText = this.innerText.replace(/[^가-힣a-zA-Z\s]/g, '').trim();
-            });
-        });
+                const currentClass = schedule.find(s => 
+                    s.day === currentDay && currentTime >= s.start && currentTime <= s.end
+                );
+
+                if (currentClass) {
+                    const frame = document.getElementById('mainFrame');
+                    frame.src = `seating.html?subject=${encodeURIComponent(currentClass.subject)}`;
+                    document.getElementById('headerTitle').innerText = "현재 수업: " + currentClass.subject;
+                }
+            } catch (e) { console.log("시간표 없음"); }
+        }
     </script>
 </body>
 </html>
