@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Class Manager - 교과관리시스템</title>
+    <title>SH 교과관리시스템</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-100 flex h-screen overflow-hidden text-slate-800 relative">
@@ -11,7 +11,7 @@
     <div id="loginOverlay" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center">
         <div class="bg-white p-10 rounded-3xl shadow-2xl w-96 flex flex-col items-center">
             <div class="text-5xl mb-4">🏫</div>
-            <h2 class="text-2xl font-black text-slate-800 mb-2">Class Manager</h2>
+            <h2 class="text-2xl font-black text-slate-800 mb-2">SH 교과관리시스템</h2>
             <p class="text-sm text-slate-500 mb-8">관리자 비밀번호를 입력해주세요</p>
             
             <input type="password" id="adminPw" placeholder="비밀번호" 
@@ -20,7 +20,7 @@
             
             <button onclick="checkLogin()" id="loginBtn" 
                     class="w-full bg-blue-600 text-white px-6 py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition shadow-md">
-                시스템 접속
+                접속하기
             </button>
         </div>
     </div>
@@ -52,7 +52,7 @@
         </nav>
 
         <div class="p-4 border-t border-slate-700 text-sm text-slate-500 flex justify-between items-center">
-            <p>ⓒ 2026 Class Manager</p>
+            <p>ⓒ 2026 SH 교과관리시스템</p>
             <button onclick="logout()" class="hover:text-white transition">로그아웃</button>
         </div>
     </aside>
