@@ -676,7 +676,7 @@
         updateClassProgress(); // 로딩 즉시 1회 실행
 
         // ==========================================
-        // ★ 실시간 날씨 텍스트 업데이트 (기존 포맷 유지 + 추가 정보)
+        // ★ 실시간 날씨 & 미세먼지 (초심플 모드)
         // ==========================================
         async function fetchWeatherString() {
             try {
@@ -684,15 +684,15 @@
                 const lat = 35.1595;
                 const lon = 126.8526;
                 
-                // 날씨와 미세먼지 API 호출
-                const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=Asia%2FSeoul`;
+                // 날씨(현재 기온, 체감 온도만)와 미세먼지 API 호출
+                const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,weather_code&timezone=Asia%2FSeoul`;
                 const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10&timezone=Asia%2FSeoul`;
 
                 const [wRes, aRes] = await Promise.all([fetch(weatherUrl), fetch(aqiUrl)]);
                 const wData = await wRes.json();
                 const aData = await aRes.json();
 
-                // 아이콘, 바람 방향, 미세먼지 변환 도우미 함수
+                // 날씨 아이콘
                 const getIcon = (c) => {
                     if ([0].includes(c)) return "☀️";
                     if ([1, 2, 3].includes(c)) return "⛅";
@@ -702,66 +702,54 @@
                     if ([95, 96, 99].includes(c)) return "⛈️";
                     return "🌤️";
                 };
-                const getWindDir = (deg) => {
-                    const arrows = ["↓","↙","←","↖","↑","↗","→","↘"];
-                    return arrows[Math.round(deg / 45) % 8];
-                };
-                const getDust = (pm) => {
-                    if(pm <= 30) return "🔵좋음";
-                    if(pm <= 80) return "🟢보통";
-                    if(pm <= 150) return "🟡나쁨";
-                    return "🔴최악";
+
+                // 현재 화면이 다크모드인지 확인
+                const isDark = document.body.classList.contains('dark-mode');
+
+                // 미세먼지 상태 및 다크모드 전용 색상 적용
+                const getDustInfo = (pm) => {
+                    if(pm <= 30) return { txt: "🔵좋음", color: isDark ? "#60a5fa" : "#3b82f6" }; // 다크모드일 땐 더 밝은 파랑
+                    if(pm <= 80) return { txt: "🟢보통", color: isDark ? "#34d399" : "#10b981" }; // 더 밝은 초록
+                    if(pm <= 150) return { txt: "🟡나쁨", color: isDark ? "#fbbf24" : "#f59e0b" }; // 더 밝은 노랑
+                    return { txt: "🔴최악", color: isDark ? "#f87171" : "#ef4444" }; // 더 밝은 빨강
                 };
 
-                // 1. 현재 날씨 세팅
                 const cur = wData.current;
                 const temp = Math.round(cur.temperature_2m);
                 const appTemp = Math.round(cur.apparent_temperature);
-                const hum = cur.relative_humidity_2m;
-                const windSpd = Math.round(cur.wind_speed_10m);
-                const windDir = getWindDir(cur.wind_direction_10m);
                 const icon = getIcon(cur.weather_code);
                 const pm10 = Math.round(aData.current.pm10 || 0);
+                const dust = getDustInfo(pm10);
 
-                // 2. 6시간 뒤 예보 세팅
-                const currentHourStr = cur.time.slice(0, 14) + "00"; 
-                let idx = wData.hourly.time.findIndex(t => t.startsWith(currentHourStr));
-                if(idx === -1) idx = new Date().getHours();
-                const h6Temp = Math.round(wData.hourly.temperature_2m[idx + 6]);
-                const h6Icon = getIcon(wData.hourly.weather_code[idx + 6]);
-
-                // 3. 내일 예보 세팅
-                const tmrwMin = Math.round(wData.daily.temperature_2m_min[1]);
-                const tmrwMax = Math.round(wData.daily.temperature_2m_max[1]);
-                const tmrwIcon = getIcon(wData.daily.weather_code[1]);
-
-                // 4. 선생님이 원하시는 한 줄 텍스트로 조립!
-                // 4. 선생님이 원하시는 2줄 텍스트로 조립! (가독성 UP)
                 const tempStr = temp > 0 ? `+${temp}` : temp;
                 const appTempStr = appTemp > 0 ? `+${appTemp}` : appTemp;
-                
-                // 첫 번째 줄: 현재 날씨와 기본 정보
-                const line1 = `📍 광주 서구: ${icon} ${tempStr}°C (체감:${appTempStr}°C) &nbsp;|&nbsp; 습도:${hum}% &nbsp;|&nbsp; 바람:${windDir}${windSpd}km/h`;
-                
-                // 두 번째 줄: 미세먼지와 예보 정보
-                const line2 = `😷먼지: ${getDust(pm10)} &nbsp;|&nbsp; ⏳6시간뒤: ${h6Icon}${h6Temp}°C &nbsp;|&nbsp; 📅내일: ${tmrwIcon}${tmrwMin}°/${tmrwMax}°C`;
-                
-                // <div> 태그를 이용해 위아래 두 줄로 예쁘게 합치기
+
+                // 기본 글자색 (다크모드: 밝은 회색, 일반: 짙은 회색)
+                const labelColor = isDark ? "#e0e0e0" : "#555";
+
+                // 한 줄로 예쁘게 조립
                 const finalStr = `
-                    <div style="margin-bottom: 4px; font-weight: 500;">${line1}</div>
-                    <div style="font-size: 12px; color: #666;">${line2}</div>
+                    <span style="color: ${labelColor};">📍 광주 서구: ${icon} ${tempStr}°C (체감:${appTempStr}°C)</span>
+                    <span style="color: ${labelColor}; margin: 0 8px; opacity: 0.4;">|</span>
+                    <span style="color: ${labelColor};">😷먼지: </span>
+                    <span style="color: ${dust.color}; font-weight: 800;">${dust.txt}</span>
+                    <span style="color: ${labelColor}; font-size: 11px; opacity: 0.7; margin-left: 2px;">(${pm10})</span>
                 `;
 
-                // 기존 HTML 요소(a 태그)의 글씨를 덮어씌움
                 document.getElementById('weather-info').innerHTML = finalStr;
 
             } catch (error) {
-                console.error("날씨 불러오기 실패:", error);
-                document.getElementById('weather-info').innerText = "📍 광주 서구: 날씨 정보를 불러오지 못했습니다.";
+                console.error("날씨 로드 실패:", error);
+                document.getElementById('weather-info').innerText = "📍 광주 서구: 날씨 정보 로드 실패";
             }
         }
 
-        // 스크립트가 로딩되면 즉시 날씨 함수 실행!
+        // 다크모드(달 모양) 버튼 누를 때 글자색 즉시 새로고침
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            setTimeout(fetchWeatherString, 50); 
+        });
+
+        // 로딩 시 최초 1회 실행
         fetchWeatherString();
 
         /* ==========================================
