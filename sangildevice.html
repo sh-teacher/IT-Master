@@ -288,6 +288,27 @@
             renderModelChart(sortedGroups);
             renderYearChart(ageData);
             
+            // ★ 복잡하게 덮어쓰지 않고 여기서 바로 실행하도록 수정했습니다!
+            renderPivotTable(data); 
+            populateGroupDropdown(); 
+        }
+
+            document.getElementById('statTotal').innerText = data.length;
+            document.getElementById('statLaptop').innerText = counts.노트북;
+            document.getElementById('statDesktop').innerText = counts.데스크톱;
+            document.getElementById('statTablet').innerText = counts.태블릿;
+            document.getElementById('statPrinter').innerText = counts.프린터;
+
+            const sortedGroups = Object.entries(groupData).sort((a,b) => b[1] - a[1]).slice(0, 10);
+            renderModelChart(sortedGroups);
+            renderYearChart(ageData);
+            
+            // 기존 updateDashboard 함수를 찾아서 이 줄을 추가합니다.
+            const originalUpdateDashboard2 = updateDashboard;
+            updateDashboard = function(data) {
+                originalUpdateDashboard2(data);
+                renderPivotTable(data); // 피벗 테이블 렌더링 실행!
+            }
         }
 
         function renderModelChart(items) {
@@ -366,13 +387,6 @@
             groups.forEach(group => {
                 select.innerHTML += `<option value="${group}">${group}</option>`;
             });
-        }
-
-        // 데이터 로드 완료 후 드롭다운 목록 생성하도록 기존 loadData 마지막에 삽입
-        const originalUpdateDashboard = updateDashboard;
-        updateDashboard = function(data) {
-            originalUpdateDashboard(data);
-            populateGroupDropdown(); // 대시보드 업데이트될 때 부서 목록도 생성
         }
 
         // 2. 부서 필터링 함수
