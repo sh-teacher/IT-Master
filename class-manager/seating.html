@@ -7,9 +7,9 @@
     <script>if (sessionStorage.getItem("isAllowed") !== "true") location.href = "index.html";</script>
     
     <style>
-        /* 드래그 시 마우스 꼬임 완벽 방지 */
-        .student-card { cursor: grab; transition: transform 0.1s; }
-        .student-card:active { cursor: grabbing; transform: scale(0.95); }
+        /* 드래그 및 더블클릭 시 텍스트 파랗게 선택되는 현상 완벽 방지 */
+        .student-card { cursor: grab; user-select: none; }
+        .student-card:active { cursor: grabbing; }
         .student-card * { pointer-events: none; } 
         
         /* 출석 상태별 색상 */
@@ -24,7 +24,7 @@
         <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
             <h1 class="text-3xl font-black text-slate-800">🪑 좌석 배치 및 출석부</h1>
             <div class="flex gap-2">
-                <button onclick="toggleMirror()" class="bg-amber-100 text-amber-700 px-6 py-3 rounded-xl font-bold hover:bg-amber-200 transition">
+                <button onclick="toggleMirror()" class="bg-amber-100 text-amber-700 px-6 py-3 rounded-xl font-bold hover:bg-amber-200 transition shadow-sm">
                     🔄 교사 시선 전환
                 </button>
                 <button onclick="saveAttendance()" class="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-emerald-700 transition shadow-md">
@@ -43,10 +43,9 @@
         </div>
 
         <div class="flex gap-8 flex-1 overflow-hidden">
-            <div class="w-1/4 bg-slate-100 rounded-2xl p-4 flex flex-col h-full border border-slate-200">
+            <div class="w-1/4 bg-slate-100 rounded-2xl p-4 flex flex-col h-full border border-slate-200 relative">
                 <h2 class="text-lg font-bold text-slate-700 mb-1 text-center">학생 대기열</h2>
-                <p class="text-xs text-slate-500 text-center mb-4">💡 카드를 <strong>더블클릭</strong>하면 출석 변경</p>
-                
+                <p class="text-xs text-slate-500 text-center mb-4">💡 자리에 놓고 <strong>더블클릭</strong>하면 출석 변경</p>
                 <div id="waitingList" class="flex-1 overflow-y-auto space-y-2 p-2 min-h-[500px]">
                     <p class="text-slate-400 text-center text-sm mt-10" id="emptyMsg">과목을 선택해주세요</p>
                 </div>
@@ -56,7 +55,6 @@
                 <div id="chalkboard" class="bg-emerald-800 text-white text-center py-3 rounded-xl font-black text-xl mb-6 shadow-inner transition-colors duration-300">
                     칠 판 (교탁)
                 </div>
-
                 <div class="flex-1 overflow-y-auto min-h-0">
                     <div class="grid grid-cols-6 gap-4 p-2" id="classroomGrid">
                         </div>
@@ -66,7 +64,7 @@
     </div>
 
     <script>
-        // ★ 선생님의 앱스 스크립트 URL로 꼭 변경해주세요! ★
+        // ★ 앱스 스크립트 URL ★
         const API_URL = "https://script.google.com/macros/s/AKfycbxUgpimLYy_9K_vZjbxJYtImA4fcz3ZZxfXPvy9WlYXLv1dY-yBA6yrtHeybyAo1v_Vpg/exec";
 
         let isMirror = false; 
@@ -75,14 +73,6 @@
 
         window.onload = async function() {
             createDesks(); 
-            
-            // 대기열에도 드래그 이벤트를 자바스크립트로 튼튼하게 연결!
-            const wList = document.getElementById('waitingList');
-            wList.addEventListener('drop', drop);
-            wList.addEventListener('dragover', allowDrop);
-            wList.addEventListener('dragenter', dragEnter);
-            wList.addEventListener('dragleave', dragLeave);
-
             try {
                 const response = await fetch(`${API_URL}?type=GET_SUBJECTS`);
                 const subjects = await response.json();
@@ -158,28 +148,15 @@
             });
         }
 
+        // 1. 학생 카드 뼈대만 생성 (이벤트는 문서 전체에서 감지)
         function createStudentCard(std, index) {
             const card = document.createElement('div');
-            card.className = "student-card p-3 rounded-lg shadow-sm border border-slate-200 text-center font-bold text-slate-700 hover:shadow-md mb-2 status-present";
+            card.className = "student-card w-full p-3 rounded-lg shadow-sm border border-slate-200 text-center font-bold text-slate-700 hover:shadow-md mb-2 bg-white relative z-10 status-present";
             card.draggable = true;
             card.id = `std-${index}`;
             card.dataset.grade = std.grade; card.dataset.class = std.class; card.dataset.number = std.number; card.dataset.name = std.name; card.dataset.status = "present"; 
             
             card.innerHTML = `<span class="text-xs text-blue-500 block mb-1 pointer-events-none">${std.class}반 ${std.number}번</span><span class="pointer-events-none">${std.name}</span>`;
-            
-            // 드래그 이벤트
-            card.addEventListener('dragstart', drag);
-            card.addEventListener('dragend', dragEnd);
-            
-            // 👇 핵심: 출석 체크를 더블 클릭(dblclick)으로 변경! 👇
-            card.addEventListener('dblclick', function() {
-                if (!this.parentNode.classList.contains('desk')) return;
-                this.classList.remove('status-present', 'status-absent', 'status-late');
-                if (this.dataset.status === "present") { this.dataset.status = "absent"; this.classList.add('status-absent'); } 
-                else if (this.dataset.status === "absent") { this.dataset.status = "late"; this.classList.add('status-late'); } 
-                else { this.dataset.status = "present"; this.classList.add('status-present'); }
-            });
-
             return card;
         }
 
@@ -221,6 +198,7 @@
             renderClassroomView(); 
         }
 
+        // 2. 책상 뼈대만 생성 (이벤트는 문서 전체에서 감지)
         function createDesks() {
             const grid = document.getElementById('classroomGrid');
             grid.innerHTML = ''; 
@@ -232,12 +210,6 @@
                 const logicalIndex = isMirror ? (35 - i) : i;
                 desk.dataset.logicalIndex = logicalIndex;
 
-                // 이벤트 튼튼하게 연결
-                desk.addEventListener('drop', drop);
-                desk.addEventListener('dragover', allowDrop);
-                desk.addEventListener('dragenter', dragEnter);
-                desk.addEventListener('dragleave', dragLeave);
-
                 const seatNum = document.createElement('span');
                 seatNum.className = "absolute text-slate-200 font-bold text-2xl z-0 pointer-events-none";
                 seatNum.innerText = logicalIndex + 1; 
@@ -247,62 +219,110 @@
             }
         }
 
-        // --- 🧲 선생님이 "완벽하다"고 하셨던 오리지널 자석 로직 ---
-        function drag(ev) {
-            ev.dataTransfer.setData("text", ev.target.id);
-            setTimeout(() => { ev.target.style.opacity = "0.4"; }, 0);
-        }
+        // =========================================================================
+        // 🧲 [초강력 핵심] Document 전체에 자석판을 깔아버리는 절대 불사 로직
+        // =========================================================================
+        let draggedItem = null;
 
-        function dragEnd(ev) {
-            ev.target.style.opacity = "1";
-        }
-
-        function allowDrop(ev) {
-            ev.preventDefault();
-        }
-
-        function dragEnter(ev) {
-            ev.preventDefault();
-            const dropZone = ev.target.closest('.desk');
-            if(dropZone) dropZone.classList.add('bg-blue-100', 'border-blue-500');
-        }
-
-        function dragLeave(ev) {
-            const dropZone = ev.target.closest('.desk');
-            if(dropZone) dropZone.classList.remove('bg-blue-100', 'border-blue-500');
-        }
-
-        function drop(ev) {
-            ev.preventDefault();
-            const dropZone = ev.target.closest('.desk') || ev.target.closest('#waitingList');
-            if(!dropZone) return;
-
-            if(dropZone.classList.contains('desk')) {
-                dropZone.classList.remove('bg-blue-100', 'border-blue-500');
+        document.addEventListener('dragstart', function(ev) {
+            const card = ev.target.closest('.student-card');
+            if (card) {
+                draggedItem = card;
+                ev.dataTransfer.effectAllowed = 'move';
+                ev.dataTransfer.setData('text/plain', card.id);
+                setTimeout(() => { card.style.opacity = '0.4'; }, 0);
             }
+        });
 
-            const data = ev.dataTransfer.getData("text");
-            const draggedEl = document.getElementById(data);
+        document.addEventListener('dragend', function(ev) {
+            if (draggedItem) draggedItem.style.opacity = '1';
+            draggedItem = null;
+        });
+
+        // 웹페이지 어디서든 드래그를 허용해서 브라우저가 길을 막는 것을 원천 차단
+        document.addEventListener('dragover', function(ev) {
+            ev.preventDefault(); 
+        });
+
+        document.addEventListener('dragenter', function(ev) {
+            ev.preventDefault();
+            const desk = ev.target.closest('.desk');
+            if (desk) {
+                desk.style.backgroundColor = '#dbeafe'; 
+                desk.style.borderColor = '#3b82f6';     
+            }
+        });
+
+        document.addEventListener('dragleave', function(ev) {
+            const desk = ev.target.closest('.desk');
+            // 마우스가 진짜 책상 밖으로 나갔을 때만 파란색 하이라이트 지우기
+            if (desk && (!ev.relatedTarget || !desk.contains(ev.relatedTarget))) {
+                desk.style.backgroundColor = '';
+                desk.style.borderColor = '';
+            }
+        });
+
+        document.addEventListener('drop', function(ev) {
+            ev.preventDefault();
             
-            if (!draggedEl) return;
-            draggedEl.style.opacity = "1";
+            // 어디에 놓든 모든 책상의 파란색 하이라이트는 싹 지움
+            document.querySelectorAll('.desk').forEach(d => {
+                d.style.backgroundColor = '';
+                d.style.borderColor = '';
+            });
 
+            if (!draggedItem) return;
+
+            const dropZone = ev.target.closest('.desk') || ev.target.closest('#waitingList');
+            if (!dropZone) return;
+
+            // 1. 책상에 내려놓은 경우
             if (dropZone.classList.contains('desk')) {
-                const existingStudent = dropZone.querySelector('.student-card');
-                if (!existingStudent) {
-                    dropZone.appendChild(draggedEl);
-                } else if (existingStudent !== draggedEl) {
-                    // 서로 자리 바꾸기
-                    const originalParent = draggedEl.parentNode;
-                    dropZone.appendChild(draggedEl);
-                    originalParent.appendChild(existingStudent);
+                const existingCard = dropZone.querySelector('.student-card');
+                if (existingCard && existingCard !== draggedItem) {
+                    // 서로 자리 바꾸기 (Swap)
+                    const originalParent = draggedItem.parentNode;
+                    dropZone.appendChild(draggedItem);
+                    originalParent.appendChild(existingCard);
+                } else if (!existingCard) {
+                    // 빈자리에 쏙 들어가기
+                    dropZone.appendChild(draggedItem);
                 }
-            } else if (dropZone.id === 'waitingList') {
-                dropZone.appendChild(draggedEl);
+            } 
+            // 2. 대기열에 다시 돌려보낸 경우
+            else if (dropZone.id === 'waitingList') {
+                dropZone.appendChild(draggedItem);
             }
-        }
 
-        // --- 데이터 저장 로직 ---
+            draggedItem.style.opacity = '1';
+            draggedItem = null;
+        });
+
+        // =========================================================================
+        // ✅ 출석 체크 로직 (더블클릭 감지)
+        // =========================================================================
+        document.addEventListener('dblclick', function(ev) {
+            const card = ev.target.closest('.student-card');
+            // 책상에 앉아있는 상태에서만 출석 체크 허용
+            if (card && card.parentNode.classList.contains('desk')) {
+                // 글씨 파랗게 드래그 되는 현상 방지
+                window.getSelection().removeAllRanges();
+                
+                card.classList.remove('status-present', 'status-absent', 'status-late');
+                if (card.dataset.status === "present") { 
+                    card.dataset.status = "absent"; 
+                    card.classList.add('status-absent'); 
+                } else if (card.dataset.status === "absent") { 
+                    card.dataset.status = "late"; 
+                    card.classList.add('status-late'); 
+                } else { 
+                    card.dataset.status = "present"; 
+                    card.classList.add('status-present'); 
+                }
+            }
+        });
+
+        // --- 저장 로직 ---
         async function saveSeatingToServer() {
             const subject = document.getElementById('selectedSubject').value;
             if (!subject) return alert("과목을 선택해주세요.");
