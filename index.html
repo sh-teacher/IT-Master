@@ -122,6 +122,51 @@
         .calendar-container { width: 100%; height: 800px; border-radius: 4px; overflow: hidden; border: 1px solid #eaeaea; }
         iframe { width: 100%; height: 100%; border: 0; }
 
+        /* =========================================================================
+           🌙 다크 모드 전용 스타일
+           ========================================================================= */
+        body.dark-mode { background-color: #1e1e1e; color: #d4d4d4; }
+        body.dark-mode .sidebar { background-color: #252526; border-right-color: #333; }
+        body.dark-mode .sidebar h3 { color: #888; }
+        body.dark-mode .bookmark-list a { color: #d4d4d4; }
+        body.dark-mode .bookmark-list a:hover { background-color: #333; }
+        body.dark-mode .d-day-widget { background: #252526; border-color: #333; }
+        body.dark-mode .d-day-item { border-bottom-color: #444; }
+        body.dark-mode .page-title { color: #fff; }
+        body.dark-mode #weather-info { background: #2d2d30; color: #ccc; border-color: #444; }
+        body.dark-mode #weather-info:hover { background: #3e3e42; }
+        body.dark-mode .section-title { border-bottom-color: #444; color: #e0e0e0; }
+        body.dark-mode .horoscope-box { background-color: #2d2d30; border-color: #444; color: #e8a359; }
+        
+        body.dark-mode .timeline-box { background: #252526; border-color: #444; color: #ccc; }
+        body.dark-mode .timeline-box.past { background: #1a1a1a; opacity: 0.5; }
+        body.dark-mode .timeline-box.active { background: #1e3a29; border-color: #34a853; }
+        body.dark-mode .tb-subject { color: #fff; }
+        
+        body.dark-mode .timetable th { background-color: #252526; border-color: #444; color: #ccc; }
+        body.dark-mode .timetable td { border-color: #444; }
+        body.dark-mode .timetable td[style*="background-color"] { filter: brightness(0.85); color: #000; } /* 파스텔톤 시간표 눈부심 방지 */
+        
+        body.dark-mode .todo-input { background: #252526; color: #fff; border-color: #444; }
+        body.dark-mode .todo-item { border-bottom-color: #333; }
+        body.dark-mode .todo-item label { color: #d4d4d4; }
+        body.dark-mode .post-it { background-color: #3d3b24; color: #e0e0e0; box-shadow: none; border: 1px solid #444; }
+        body.dark-mode .calendar-container { border-color: #444; }
+        
+        /* 💡 마법의 코드: 구글 캘린더 색상 반전 (다크모드화) */
+        body.dark-mode iframe { filter: invert(0.85) hue-rotate(180deg); }
+
+        /* 다크모드 토글 버튼 스타일 */
+        .theme-toggle-btn {
+            background: #fff; border: 1px solid #e0e0e0; border-radius: 50%;
+            width: 42px; height: 42px; font-size: 20px; cursor: pointer;
+            display: flex; justify-content: center; align-items: center;
+            transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 10px;
+        }
+        .theme-toggle-btn:hover { background-color: #f0f0f0; transform: scale(1.05); }
+        body.dark-mode .theme-toggle-btn { background-color: #2d2d30; border-color: #444; }
+        body.dark-mode .theme-toggle-btn:hover { background-color: #3e3e42; }
 
         /* =========================================================================
            📱 모바일 반응형 미디어 쿼리
@@ -180,9 +225,13 @@
                 <div class="page-title" contenteditable="true" id="main-title">👋 배성환 선생님! 화이팅~</div>
                 <a href="https://weather.naver.com/today/05140000" target="_blank" id="weather-info" title="자세한 날씨 보기">🌤️ 날씨 불러오는 중...</a>
             </div>
-            <div class="clock-container">
-                <div class="date-text" id="current-date">0000년 00월 00일 0요일</div>
-                <div class="time-text" id="current-time">00:00:00</div>
+            
+            <div style="display: flex; gap: 25px; align-items: flex-end;">
+                <button id="themeToggle" class="theme-toggle-btn" title="다크 모드 전환">🌙</button>
+                <div class="clock-container">
+                    <div class="date-text" id="current-date">0000년 00월 00일 0요일</div>
+                    <div class="time-text" id="current-time">00:00:00</div>
+                </div>
             </div>
         </div>
 
@@ -472,6 +521,30 @@
                 document.getElementById('weather-info').innerText = "날씨 정보 로드 실패";
             }
         }
+
+        /* ==========================================
+           🌙 다크 모드 스위치 로직
+           ========================================== */
+        const themeToggleBtn = document.getElementById('themeToggle');
+        
+        // 브라우저에 저장된 테마 불러오기 (새로고침해도 유지됨)
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggleBtn.innerText = '☀️';
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            
+            if (document.body.classList.contains('dark-mode')) {
+                localStorage.setItem('theme', 'dark');
+                themeToggleBtn.innerText = '☀️';
+            } else {
+                localStorage.setItem('theme', 'light');
+                themeToggleBtn.innerText = '🌙';
+            }
+        });
+        
         /* ==========================================
            4. 초기 실행
            ========================================== */
