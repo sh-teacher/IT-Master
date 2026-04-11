@@ -18,7 +18,7 @@
 
         /* 왼쪽 사이드바 (즐겨찾기, D-Day) */
         .sidebar {
-            width: 260px;
+            width: 320px;
             background-color: #f7f6f3;
             padding: 20px;
             border-right: 1px solid #e0e0e0;
@@ -47,6 +47,7 @@
         .d-day-item {
             display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px;
             padding-bottom: 8px; border-bottom: 1px dashed #eee;
+            word-break: keep-all; /* 👈 추가: 글씨가 어절(단어) 단위로만 예쁘게 떨어지도록 보호 */
         }
         .d-day-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
         .d-day-item strong { color: #eb5757; }
