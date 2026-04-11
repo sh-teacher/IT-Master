@@ -168,9 +168,10 @@
         body.dark-mode .theme-toggle-btn { background-color: #2d2d30; border-color: #444; }
         body.dark-mode .theme-toggle-btn:hover { background-color: #3e3e42; }
 
-        /* 데스크톱용 시계 & 다크모드 버튼 정렬 */
-        .clock-wrapper { display: flex; gap: 20px; align-items: flex-end; }
-        .theme-toggle-btn { margin-bottom: 5px; } /* 시계 텍스트와 높이 맞춤 */
+        /* ★ 모바일용 시계 & 버튼 레이아웃 수정 (양끝 정렬) */
+        .clock-wrapper { align-items: center; justify-content: space-between; width: 100%; }
+        .clock-container { text-align: right; }
+        .theme-toggle-btn { margin-bottom: 0; }
 
         /* =========================================================================
            📱 모바일 반응형 미디어 쿼리
