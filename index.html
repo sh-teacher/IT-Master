@@ -271,7 +271,33 @@
         <div class="header-area">
             <div class="header-left">
                 <div class="page-title" contenteditable="true" id="main-title">👋 배성환 선생님! 화이팅~</div>
-                <a href="https://weather.naver.com/today/05140000" target="_blank" id="weather-info" title="자세한 날씨 보기">🌤️ 날씨 불러오는 중...</a>
+                
+                <div class="weather-widget-container no-print relative inline-block mt-2">
+                    <div class="weather-summary flex items-center gap-2 cursor-pointer transition" onclick="toggleWeatherDetails()">
+                        <span id="w-icon" class="text-lg">⏳</span>
+                        <span id="w-temp" class="font-bold text-gray-700 text-[15px]">불러오는 중...</span>
+                        <span class="text-gray-300">|</span>
+                        <span id="w-dust" class="text-[13px] text-gray-600 font-medium">-</span>
+                        <span class="text-gray-400 text-[10px] ml-1">▼</span>
+                    </div>
+                    
+                    <div id="weather-details" class="weather-details hidden absolute left-0 top-full mt-2 bg-white rounded-xl shadow-lg border border-gray-100 p-4 w-72 z-50">
+                        <div class="grid grid-cols-3 gap-2">
+                            <div class="text-center flex flex-col items-center justify-center p-2 bg-gray-50 rounded-lg">
+                                <span class="text-[11px] text-gray-500 font-bold mb-1">3시간 뒤</span>
+                                <span id="w-3h" class="font-black text-gray-700 text-sm">-</span>
+                            </div>
+                            <div class="text-center flex flex-col items-center justify-center p-2 bg-gray-50 rounded-lg">
+                                <span class="text-[11px] text-gray-500 font-bold mb-1">6시간 뒤</span>
+                                <span id="w-6h" class="font-black text-gray-700 text-sm">-</span>
+                            </div>
+                            <div class="text-center flex flex-col items-center justify-center p-2 bg-blue-50 rounded-lg border border-blue-100">
+                                <span class="text-[11px] text-blue-500 font-bold mb-1">내일 예보</span>
+                                <span id="w-tmrw" class="font-black text-blue-700 text-sm">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <div class="clock-wrapper">
