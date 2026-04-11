@@ -68,7 +68,23 @@
                 <div class="chart-container"><canvas id="yearChart"></canvas></div>
             </div>
         </div>
-
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8 overflow-x-auto">
+            <h4 class="text-sm font-bold text-gray-500 mb-4">📊 부서별 세부 보유 현황</h4>
+            <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                    <tr class="bg-gray-50 text-gray-500 text-[11px] font-bold tracking-widest border-y border-gray-200">
+                        <th class="p-3">부서명</th>
+                        <th class="p-3 text-center">노트북</th>
+                        <th class="p-3 text-center">데스크톱</th>
+                        <th class="p-3 text-center">태블릿</th>
+                        <th class="p-3 text-center">프린터류</th>
+                        <th class="p-3 text-center text-blue-600">총합계</th>
+                    </tr>
+                </thead>
+                <tbody id="pivotTableBody" class="text-gray-700">
+                    </tbody>
+            </table>
+        </div>
         <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
             <div class="flex flex-col md:flex-row justify-between items-start mb-6 gap-4">
                 <div class="flex flex-col">
@@ -271,6 +287,13 @@
             const sortedGroups = Object.entries(groupData).sort((a,b) => b[1] - a[1]).slice(0, 10);
             renderModelChart(sortedGroups);
             renderYearChart(ageData);
+            
+            // 기존 updateDashboard 함수를 찾아서 이 줄을 추가합니다.
+            const originalUpdateDashboard2 = updateDashboard;
+            updateDashboard = function(data) {
+                originalUpdateDashboard2(data);
+                renderPivotTable(data); // 피벗 테이블 렌더링 실행!
+            }
         }
 
         function renderModelChart(items) {
@@ -372,43 +395,35 @@
         }
 
         // 3. 남는 IP 찾기 핵심 알고리즘
+        // 3. 남는 IP 찾기 (10.120.3.X 전용)
         function openIpModal() {
-            // IP 형태(000.000.000.000)를 띈 데이터만 수집
-            const ipList = assetData.map(item => (item.ip || "").trim()).filter(ip => ip.match(/^\d+\.\d+\.\d+\.\d+$/));
+            const targetSubnet = "10.120.3"; // ★ 타겟 대역 고정
             
-            const subnetMap = {};
-            // 대역별(예: 10.120.3)로 사용 중인 끝자리 숫자(예: 122) 모으기
-            ipList.forEach(ip => {
-                const parts = ip.split('.');
-                const last = parseInt(parts.pop());
-                const subnet = parts.join('.');
-                if (!subnetMap[subnet]) subnetMap[subnet] = [];
-                subnetMap[subnet].push(last);
+            // 10.120.3. 으로 시작하는 IP만 수집해서 끝자리 숫자만 추출
+            const usedIps = new Set();
+            assetData.forEach(item => {
+                const ip = (item.ip || "").trim();
+                if (ip.startsWith(targetSubnet + ".")) {
+                    const lastNum = parseInt(ip.split('.').pop());
+                    if (!isNaN(lastNum)) usedIps.add(lastNum);
+                }
             });
 
-            let resultHtml = '';
-            for (const subnet in subnetMap) {
-                const used = new Set(subnetMap[subnet]);
-                const available = [];
-                // 2번부터 254번까지 빈 번호 탐색 (1번 공유기, 255번 브로드캐스트 제외)
-                for (let i = 2; i <= 254; i++) { 
-                    if (!used.has(i)) available.push(i);
-                }
-                
-                // 보기 좋게 앞쪽 15개만 렌더링 (너무 길어지는 것 방지)
-                const displayIps = available.slice(0, 15).map(num => `<span class="bg-gray-100 border border-gray-200 px-2 py-1 rounded text-[11px] font-mono text-gray-700 shadow-sm">${subnet}.<span class="font-bold text-teal-600">${num}</span></span>`).join(' ');
-                
-                resultHtml += `
-                    <div class="mb-5">
-                        <div class="text-[11px] font-bold text-teal-600 uppercase tracking-wider mb-2 border-b border-gray-100 pb-1">네트워크 대역: ${subnet}.*</div>
-                        <div class="flex flex-wrap gap-1.5">${displayIps} 
-                            ${available.length > 15 ? `<span class="text-[10px] text-gray-400 mt-1 ml-1 flex items-center">...외 ${available.length - 15}개 여유</span>` : ''}
-                        </div>
-                    </div>
-                `;
+            // 2부터 254까지 빈 번호 찾기
+            const available = [];
+            for (let i = 2; i <= 254; i++) { 
+                if (!usedIps.has(i)) available.push(i);
             }
-
-            if(resultHtml === '') resultHtml = '<div class="text-gray-400 text-center py-4">IP 형식을 가진 데이터가 없습니다.</div>';
+            
+            // 보기 좋게 렌더링
+            const displayIps = available.map(num => `<span class="bg-gray-100 border border-gray-200 px-2 py-1 rounded text-[12px] font-mono text-gray-700 shadow-sm inline-block"><span class="text-gray-400">${targetSubnet}.</span><span class="font-black text-teal-600 text-sm">${num}</span></span>`).join('');
+            
+            let resultHtml = `
+                <div class="mb-2">
+                    <div class="text-[12px] font-bold text-teal-600 uppercase tracking-wider mb-3 border-b border-gray-100 pb-2">사용 가능한 IP 목록 (총 ${available.length}개)</div>
+                    <div class="flex flex-wrap gap-2">${displayIps}</div>
+                </div>
+            `;
 
             document.getElementById('ipResultArea').innerHTML = resultHtml;
             document.getElementById('ipModal').classList.remove('hidden');
@@ -501,6 +516,45 @@
                 return (currentYear - buyYear) >= 5;
             });
             renderTable(filtered);
+        }
+        // ★ 부서별 피벗 테이블 그리기 함수
+        function renderPivotTable(data) {
+            const pivot = {};
+            
+            // 데이터 집계
+            data.forEach(item => {
+                const group = (item.group || "미지정").trim();
+                const type = (item.type || "").trim();
+                
+                if (!pivot[group]) pivot[group] = { 노트북: 0, 데스크톱: 0, 태블릿: 0, 프린터: 0, 총합: 0 };
+                
+                if (type.includes('노트북')) pivot[group].노트북++;
+                else if (type.includes('데스크톱')) pivot[group].데스크톱++;
+                else if (type.includes('태블릿')) pivot[group].태블릿++;
+                else if (type.includes('프린터') || type.includes('복사기') || type.includes('복합기')) pivot[group].프린터++;
+                
+                pivot[group].총합++;
+            });
+
+            // 총합 기준으로 내림차순 정렬
+            const sortedGroups = Object.keys(pivot).sort((a, b) => pivot[b].총합 - pivot[a].총합);
+            
+            const tbody = document.getElementById('pivotTableBody');
+            tbody.innerHTML = '';
+            
+            sortedGroups.forEach(group => {
+                const stats = pivot[group];
+                tbody.innerHTML += `
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="p-3 font-bold text-gray-800 text-xs">${group}</td>
+                        <td class="p-3 text-center text-xs">${stats.노트북 || '-'}</td>
+                        <td class="p-3 text-center text-xs">${stats.데스크톱 || '-'}</td>
+                        <td class="p-3 text-center text-xs">${stats.태블릿 || '-'}</td>
+                        <td class="p-3 text-center text-xs">${stats.프린터 || '-'}</td>
+                        <td class="p-3 text-center font-black text-blue-600 text-xs bg-blue-50/30">${stats.총합}</td>
+                    </tr>
+                `;
+            });
         }
 
         function closeModal() { document.getElementById('qrModal').classList.add('hidden'); }
