@@ -72,25 +72,27 @@
 
             if (!subjectVal || !listText) return alert("과목 선택과 명단 입력은 필수입니다.");
 
-            const subjectInfo = JSON.parse(subjectVal); // setup에서 등록한 {name, target} 정보
-            
-            // 명단 분석 로직
+            const subjectInfo = JSON.parse(subjectVal); 
             const lines = listText.trim().split('\n');
+            
             const studentData = lines.map(line => {
-                // 공백이나 탭으로 구분된 데이터를 배열로 만듦
                 const parts = line.trim().split(/\s+/); 
                 
-                // 만약 엑셀에서 [번호, 이름] 두 칼럼만 복사했을 경우
-                if (parts.length >= 2) {
+                // 학년, 반, 번호, 이름 4가지가 모두 있는 경우만 추출
+                if (parts.length >= 4) {
                     return {
-                        number: parts[0], // 첫 번째 요소를 번호로
-                        name: parts[1]    // 두 번째 요소를 이름으로
+                        grade: parts[0],  // 학년
+                        class: parts[1],  // 반
+                        number: parts[2], // 번호
+                        name: parts[3]    // 이름
                     };
-                }
-                return null;
+                } 
+                return null; 
             }).filter(std => std !== null);
 
-            if (studentData.length === 0) return alert("명단 형식이 올바르지 않습니다. '번호 이름' 형식인지 확인해주세요.");
+            if (studentData.length === 0) {
+                return alert("형식이 맞지 않습니다.\n'학년 반 번호 이름' 순서로 입력해주세요.\n예: 2 6 12 강백호");
+            }
 
             btn.disabled = true;
             btn.innerText = "저장 중...";
@@ -101,14 +103,12 @@
                     body: JSON.stringify({
                         type: "SAVE_STUDENTS",
                         payload: {
-                            subject: subjectInfo.name,
-                            target: subjectInfo.target, // setup에서 넣은 '2-2' 같은 값
+                            subject: subjectInfo.fullName, // 과목명(대상반) 전체 이름 사용
                             students: studentData
                         }
                     })
                 });
-                alert(`${studentData.length}명의 명단이 저장되었습니다!`);
-                // 성공 후 입력창 비우기
+                alert(`성공! ${studentData.length}명의 명단이 저장되었습니다.`);
                 document.getElementById('studentList').value = "";
             } catch (e) {
                 alert("저장 실패: " + e.message);
