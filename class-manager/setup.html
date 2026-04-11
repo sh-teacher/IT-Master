@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>시스템 설정 - Class Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // [보안] 로그인 여부 확인 (세션 체크)
+        if (sessionStorage.getItem("isAllowed") !== "true") {
+            alert("인증이 필요합니다.");
+            location.href = "index.html";
+        }
+    </script>
+</head>
+<body class="bg-slate-50 min-h-screen p-6 md:p-12">
+    <div class="max-w-4xl mx-auto">
+        <header class="mb-10 flex justify-between items-end">
+            <div>
+                <h1 class="text-3xl font-black text-slate-800">⚙️ 시스템 환경 설정</h1>
+                <p class="text-slate-500 font-medium">학년도, 학기 및 담당 과목을 관리합니다.</p>
+            </div>
+            <button onclick="location.href='index.html'" class="text-sm text-slate-400 underline">로그아웃</button>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            <div class="space-y-6">
+                <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-lg font-bold mb-4 flex items-center gap-2">📅 학기 정보</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">학년도</label>
+                            <input type="number" id="year" class="w-full p-3 bg-slate-50 border rounded-xl focus:outline-blue-500" value="2026">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 mb-1">학기</label>
+                            <select id="semester" class="w-full p-3 bg-slate-50 border rounded-xl focus:outline-blue-500">
+                                <option value="1">1학기</option>
+                                <option value="2">2학기</option>
+                            </select>
+                        </div>
+                        <button onclick="saveConfig()" id="btnConfig" class="w-full bg-slate-800 text-white p-3 rounded-xl font-bold hover:bg-black transition">학기 정보 저장</button>
+                    </div>
+                </section>
+            </div>
+
+            <div class="md:col-span-2 space-y-6">
+                <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-lg font-bold mb-4 flex items-center gap-2">📚 담당 과목 등록</h2>
+                    <div class="flex gap-2 mb-6">
+                        <input type="text" id="subjectName" class="flex-1 p-3 bg-slate-50 border rounded-xl focus:outline-green-500" placeholder="과목명 (예: 정보A)">
+                        <input type="text" id="targetClass" class="w-32 p-3 bg-slate-50 border rounded-xl focus:outline-green-500" placeholder="대상반 (2-1)">
+                        <button onclick="addSubject()" id="btnSubject" class="bg-green-600 text-white px-6 rounded-xl font-bold hover:bg-green-700 transition">추가</button>
+                    </div>
+
+                    <div class="overflow-hidden rounded-xl border border-slate-100">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-slate-50">
+                                <tr>
+                                    <th class="p-3 text-sm font-bold text-slate-500">과목명</th>
+                                    <th class="p-3 text-sm font-bold text-slate-500">대상반</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subjectTableBody" class="divide-y divide-slate-100">
+                                </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <div class="flex justify-end">
+                    <button onclick="location.href='students.html'" class="bg-blue-600 text-white px-8 py-4 rounded-2xl font-black shadow-lg shadow-blue-200 hover:bg-blue-700 transition transform active:scale-95">
+                        학생 명단 등록하러 가기 ➡️
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 🔗 선생님의 Apps Script 웹 앱 URL을 반드시 입력하세요!
+        const API_URL = "https://script.google.com/macros/s/AKfycbxUgpimLYy_9K_vZjbxJYtImA4fcz3ZZxfXPvy9WlYXLv1dY-yBA6yrtHeybyAo1v_Vpg/exec";
+
+        // 1. 학기 정보 저장
+        async function saveConfig() {
+            const btn = document.getElementById('btnConfig');
+            const payload = {
+                year: document.getElementById('year').value,
+                semester: document.getElementById('semester').value
+            };
+
+            btn.disabled = true;
+            btn.innerText = "저장 중...";
+
+            try {
+                await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ type: "SAVE_CONFIG", payload: payload })
+                });
+                alert("학년도와 학기가 구글 시트에 저장되었습니다!");
+            } catch (e) {
+                alert("저장 실패: " + e.message);
+            } finally {
+                btn.disabled = false;

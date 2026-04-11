@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>학생 명단 관리</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        if (sessionStorage.getItem("isAllowed") !== "true") location.href = "index.html";
+    </script>
+</head>
+<body class="bg-slate-50 p-10 font-sans">
+    <div class="max-w-4xl mx-auto bg-white p-10 rounded-3xl shadow-sm border border-slate-200">
+        <h1 class="text-3xl font-black mb-2 text-slate-800">👥 학생 명단 등록</h1>
+        <p class="text-slate-500 mb-8">엑셀이나 한글에서 명단을 복사해 붙여넣으세요.</p>
+
+        <div class="space-y-6">
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">1. 대상 과목 선택</label>
+                <select id="selectedSubject" class="w-full p-4 bg-slate-50 border rounded-2xl focus:outline-blue-500">
+                    <option value="">과목을 선택하세요 (먼저 setup에서 등록 필요)</option>
+                    </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2">2. 명단 붙여넣기 (번호 성함 순)</label>
+                <textarea id="studentList" class="w-full h-64 p-4 bg-slate-50 border rounded-2xl font-mono text-sm" placeholder="예시:&#10;1 강호동&#10;2 유재석&#10;3 신동엽"></textarea>
+            </div>
+
+            <div class="flex gap-4">
+                <button onclick="location.href='setup.html'" class="flex-1 bg-slate-200 text-slate-700 py-4 rounded-2xl font-bold">이전으로</button>
+                <button onclick="alert('명단 저장 기능 구현 중입니다!')" class="flex-[2] bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg shadow-blue-100">학생 명단 저장하기</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
