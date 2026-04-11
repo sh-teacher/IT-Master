@@ -34,9 +34,9 @@
         <div class="flex gap-8">
             <div class="w-1/4 bg-slate-100 rounded-2xl p-4 flex flex-col">
                 <h2 class="text-lg font-bold text-slate-700 mb-4 text-center">학생 대기열</h2>
-                <div id="waitingList" class="flex-1 overflow-y-auto space-y-2 p-2 min-h-[500px]" 
+                <div id="waitingList" class="flex-1 overflow-y-auto grid grid-cols-2 gap-2 auto-rows-[65px] content-start p-2 min-h-[500px]" 
                      ondrop="drop(event)" ondragover="allowDrop(event)">
-                    <p class="text-slate-400 text-center text-sm mt-10" id="emptyMsg">과목을 선택해주세요</p>
+                    <div class="col-span-2 text-slate-400 text-center text-sm mt-10" id="emptyMsg">과목을 선택해주세요</div>
                 </div>
             </div>
 
@@ -96,7 +96,7 @@
             const waitingList = document.getElementById('waitingList');
             if (!subject) return;
 
-            waitingList.innerHTML = "<p class='text-center text-slate-500 mt-10'>학생과 좌석 데이터를 불러오는 중...</p>";
+            waitingList.innerHTML = "<div class='col-span-2 text-center text-slate-500 mt-10'>학생과 좌석 데이터를 불러오는 중...</div>";
 
             const desks = document.querySelectorAll('.desk');
             desks.forEach(desk => {
@@ -116,14 +116,13 @@
                 waitingList.innerHTML = ""; 
                 
                 if (students.length === 0) {
-                    waitingList.innerHTML = "<p class='text-center text-red-400 mt-10 font-bold'>저장된 학생이 없습니다!</p>";
+                    waitingList.innerHTML = "<div class='col-span-2 text-center text-red-400 mt-10 font-bold'>저장된 학생이 없습니다!</div>";
                     return;
                 }
 
                 students.forEach((std, index) => {
                     const card = document.createElement('div');
-                    // 자석처럼 딱 맞게 들어가도록 크기(w-full h-full)와 패딩 조절
-                    card.className = "student-card w-full h-full flex flex-col items-center justify-center bg-white p-1 rounded-lg shadow-sm border border-slate-200 text-center font-bold text-slate-700 hover:shadow-md mb-2 cursor-grab active:cursor-grabbing relative z-10";
+                    card.className = "student-card w-full h-full flex flex-col items-center justify-center bg-white p-1 rounded-lg shadow-sm border border-slate-200 text-center font-bold text-slate-700 hover:shadow-md cursor-grab active:cursor-grabbing relative z-10";
                     card.draggable = true;
                     card.id = `std-${index}`;
                     
@@ -132,7 +131,6 @@
                     card.dataset.number = std.number;
                     card.dataset.name = std.name;
                     
-                    // pointer-events-none 속성으로 내부 텍스트가 드래그를 방해하지 않게 차단
                     card.innerHTML = `
                         <span class="text-[11px] text-blue-500 block mb-0.5 pointer-events-none">${std.class}반 ${std.number}번</span>
                         <span class="pointer-events-none text-sm">${std.name}</span>
@@ -165,7 +163,6 @@
             const desks = document.querySelectorAll('.desk');
             const seatingData = [];
 
-            // 반전 모드와 상관없이 항상 HTML의 원래 순서(0~35)대로 안전하게 저장됩니다.
             desks.forEach((desk) => {
                 const index = parseInt(desk.dataset.seatIndex);
                 const card = desk.querySelector('.student-card');
@@ -206,10 +203,9 @@
             grid.innerHTML = '';
             for(let i=0; i<36; i++) {
                 const desk = document.createElement('div');
-                // 카드가 딱 붙도록 p-1.5 로 여백 최소화
-                desk.className = "desk border-2 border-dashed border-slate-300 rounded-xl flex items-center justify-center p-1.5 bg-slate-50 relative transition-all duration-200 min-h-[85px]";
+                // 🔥 높이를 h-[90px]로 단단하게 고정하여 자석처럼 딱 맞물리게 설정
+                desk.className = "desk border-2 border-dashed border-slate-300 rounded-xl flex items-center justify-center p-1.5 bg-slate-50 relative transition-all duration-200 h-[90px]";
                 
-                // 고유 인덱스 부여 (데이터 꼬임 방지 핵심)
                 desk.dataset.seatIndex = i;
                 desk.style.order = i;
                 
@@ -218,7 +214,6 @@
                 desk.addEventListener('dragenter', dragEnter);
                 desk.addEventListener('dragleave', dragLeave);
 
-                // 좌상단에 좌석 번호 고정 (글씨 굵고 진하게)
                 const seatNum = document.createElement('span');
                 seatNum.className = "absolute top-1 left-2 text-slate-400 font-bold text-sm z-0 pointer-events-none";
                 seatNum.innerText = i + 1;
@@ -227,7 +222,6 @@
             }
         }
 
-        // --- 시점 반전 로직 ---
         function toggleLeftRight() {
             isLeftRightFlipped = !isLeftRightFlipped;
             applyFlip();
@@ -245,7 +239,6 @@
                 let row = Math.floor(index / 6);
                 let col = index % 6;
                 
-                // 시각적 순서(order)만 변경
                 if (isFrontBackFlipped) row = 5 - row;
                 if (isLeftRightFlipped) col = 5 - col;
                 
@@ -253,7 +246,6 @@
             });
             
             const container = document.getElementById('classroomContainer');
-            // 칠판 위치 반전
             if (isFrontBackFlipped) {
                 container.classList.remove('flex-col');
                 container.classList.add('flex-col-reverse');
@@ -263,21 +255,46 @@
             }
         }
 
-        // --- 드래그 앤 드롭 로직 ---
+        // --- 🔥 드래그 앤 드롭 완벽 수정 로직 ---
         function drag(ev) {
             ev.dataTransfer.setData("text", ev.target.id);
-            setTimeout(() => { ev.target.style.opacity = "0.4"; }, 0);
+            setTimeout(() => { 
+                ev.target.style.opacity = "0.4"; 
+                // ✨ 마법의 코드: 드래그 중인 카드가 마우스를 통과하게 만들어 드롭존을 막지 않게 함
+                ev.target.classList.add('pointer-events-none'); 
+            }, 0);
         }
-        function dragEnd(ev) { ev.target.style.opacity = "1"; }
-        function allowDrop(ev) { ev.preventDefault(); }
+        
+        function dragEnd(ev) { 
+            ev.target.style.opacity = "1"; 
+            ev.target.classList.remove('pointer-events-none'); // 드롭 완료 시 원상복구
+            
+            // 모든 책상의 파란색 드롭 피드백 초기화
+            document.querySelectorAll('.desk').forEach(d => {
+                d.classList.remove('border-blue-500', 'bg-blue-50');
+                d.classList.add('border-slate-300', 'bg-slate-50');
+            });
+        }
+        
+        function allowDrop(ev) { 
+            ev.preventDefault(); 
+        }
+        
         function dragEnter(ev) {
             ev.preventDefault();
             const dropZone = ev.target.closest('.desk');
-            if(dropZone) dropZone.classList.add('bg-blue-100', 'border-blue-400');
+            if(dropZone) {
+                dropZone.classList.add('border-blue-500', 'bg-blue-50');
+                dropZone.classList.remove('border-slate-300', 'bg-slate-50');
+            }
         }
+        
         function dragLeave(ev) {
             const dropZone = ev.target.closest('.desk');
-            if(dropZone) dropZone.classList.remove('bg-blue-100', 'border-blue-400');
+            if(dropZone) {
+                dropZone.classList.remove('border-blue-500', 'bg-blue-50');
+                dropZone.classList.add('border-slate-300', 'bg-slate-50');
+            }
         }
         
         function drop(ev) {
@@ -286,23 +303,23 @@
             if(!dropZone) return;
             
             if(dropZone.classList.contains('desk')) {
-                dropZone.classList.remove('bg-blue-100', 'border-blue-400');
+                dropZone.classList.remove('border-blue-500', 'bg-blue-50');
+                dropZone.classList.add('border-slate-300', 'bg-slate-50');
             }
 
             const data = ev.dataTransfer.getData("text");
             const draggedEl = document.getElementById(data);
             if (!draggedEl) return;
-            draggedEl.style.opacity = "1";
 
             if (dropZone.classList.contains('desk')) {
                 const existingStudent = dropZone.querySelector('.student-card');
                 
-                // 제자리에 놓은 경우 무시
                 if (existingStudent === draggedEl) return;
 
-                // 스왑(교체) 로직 완벽 적용
+                const originalParent = draggedEl.parentNode;
+                
+                // 이미 자리에 학생이 있으면 스왑(교체), 없으면 그냥 앉힘
                 if (existingStudent) {
-                    const originalParent = draggedEl.parentNode;
                     dropZone.appendChild(draggedEl);
                     originalParent.appendChild(existingStudent);
                 } else {
