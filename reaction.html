@@ -3,158 +3,856 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>쿨메신저 리액션 대백과</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>소통 치트키 — 이모티콘 & 짤</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Gaegu:wght@700&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #f7f6f3; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        .emoji-btn { transition: all 0.2s; cursor: pointer; word-break: keep-all; }
-        .emoji-btn:hover { transform: scale(1.03); background-color: #e6f4ea; border-color: #34a853; color: #1e8e3e; }
-        .emoji-btn:active { transform: scale(0.97); }
-        .gif-card img { width: 100%; height: 110px; object-fit: contain; border-radius: 8px; background: #fff; }
-        
+        :root {
+            --bg: #fef9f0;
+            --card: #ffffff;
+            --border: #e8e0d0;
+            --text: #2d2417;
+            --sub: #8a7a66;
+            --accent1: #ff6b35;
+            --accent2: #ffd23f;
+            --accent3: #06d6a0;
+            --accent4: #118ab2;
+            --accent5: #ef476f;
+            --accent6: #8338ec;
+            --shadow: 0 2px 12px rgba(45,36,23,0.07);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg);
+            font-family: 'Noto Sans KR', sans-serif;
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ── Header ── */
+        .site-header {
+            background: linear-gradient(135deg, #fff8ee 0%, #fff0d8 100%);
+            border-bottom: 2px solid var(--border);
+            padding: 32px 24px 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .site-header::before {
+            content: "✨💬🎉😎🙏🔥💯🎊😊👍";
+            position: absolute;
+            top: 8px; left: 0; right: 0;
+            font-size: 20px;
+            letter-spacing: 10px;
+            opacity: 0.15;
+            animation: scrollTicker 20s linear infinite;
+            white-space: nowrap;
+        }
+        @keyframes scrollTicker {
+            from { transform: translateX(0); }
+            to   { transform: translateX(-50%); }
+        }
+        .site-header h1 {
+            font-family: 'Gaegu', cursive;
+            font-size: clamp(28px, 5vw, 48px);
+            color: var(--text);
+            position: relative;
+        }
+        .site-header h1 span {
+            background: linear-gradient(90deg, var(--accent1), var(--accent5), var(--accent6));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .site-header p {
+            margin-top: 8px;
+            font-size: 13px;
+            color: var(--sub);
+            position: relative;
+        }
+
+        /* ── Search ── */
+        .search-bar {
+            max-width: 480px;
+            margin: 20px auto 0;
+            position: relative;
+        }
+        .search-bar input {
+            width: 100%;
+            padding: 12px 20px 12px 44px;
+            border: 2px solid var(--border);
+            border-radius: 50px;
+            font-size: 14px;
+            font-family: 'Noto Sans KR', sans-serif;
+            background: white;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .search-bar input:focus { border-color: var(--accent1); }
+        .search-bar::before {
+            content: "🔍";
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+        }
+
+        /* ── Layout ── */
+        .main-wrap { max-width: 1400px; margin: 0 auto; padding: 32px 20px 60px; }
+
+        /* ── Section Title ── */
+        .section-title {
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--text);
+            margin-bottom: 14px;
+            padding: 10px 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+        .badge-click { background: #e8f4ff; color: var(--accent4); }
+        .badge-anim  { background: #fff0f5; color: var(--accent5); }
+
+        /* ── Card ── */
+        .group-card {
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        /* ── Emoji Buttons ── */
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 8px;
+        }
+        .emoji-btn {
+            border: 1.5px solid var(--border);
+            padding: 10px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-family: 'Noto Sans KR', sans-serif;
+            font-weight: 700;
+            color: var(--text);
+            background: #fafaf8;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.18s;
+            line-height: 1.4;
+            word-break: keep-all;
+        }
+        .emoji-btn:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+            border-color: var(--accent1);
+            background: #fff8f5;
+            color: var(--accent1);
+        }
+        .emoji-btn:active { transform: scale(0.96); }
+
+        /* ── Animation Banners ── */
+        .anim-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .anim-card {
+            border: 1.5px solid var(--border);
+            border-radius: 16px;
+            padding: 14px 10px 10px;
+            background: #fafaf8;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .anim-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+            border-color: var(--accent5);
+        }
+        .anim-card .anim-stage {
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            position: relative;
+        }
+        .anim-card .anim-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--sub);
+            margin-top: 8px;
+        }
+        .copied-badge {
+            position: absolute;
+            top: 6px; right: 6px;
+            background: var(--accent3);
+            color: white;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 20px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .anim-card.just-copied .copied-badge { opacity: 1; }
+
+        /* ── Animations ── */
+        @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+        @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        @keyframes shake { 0%,100%{transform:rotate(0)} 20%,60%{transform:rotate(-12deg)} 40%,80%{transform:rotate(12deg)} }
+        @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.25)} }
+        @keyframes wave { 0%{transform:rotate(0deg)} 20%{transform:rotate(-20deg)} 40%{transform:rotate(20deg)} 60%{transform:rotate(-10deg)} 80%{transform:rotate(10deg)} 100%{transform:rotate(0deg)} }
+        @keyframes float { 0%,100%{transform:translateY(0) rotate(0)} 33%{transform:translateY(-8px) rotate(-5deg)} 66%{transform:translateY(-4px) rotate(5deg)} }
+        @keyframes flip { 0%,100%{transform:scaleX(1)} 50%{transform:scaleX(-1)} }
+        @keyframes wiggle { 0%,100%{transform:rotate(0)} 25%{transform:rotate(-15deg) scale(1.1)} 75%{transform:rotate(15deg) scale(1.1)} }
+        @keyframes jello { 0%,100%{transform:skew(0deg)} 30%{transform:skewX(-10deg) skewY(-3deg)} 60%{transform:skewX(6deg) skewY(2deg)} }
+        @keyframes rubberband { 0%,100%{transform:scale(1,1)} 30%{transform:scale(1.25,0.75)} 60%{transform:scale(0.8,1.25)} 80%{transform:scale(1.1,0.9)} }
+        @keyframes tada { 0%{transform:scale(1)} 10%{transform:scale(0.9)rotate(-3deg)} 20%{transform:scale(0.9)rotate(-3deg)} 30%{transform:scale(1.1)rotate(3deg)} 50%{transform:scale(1.1)rotate(3deg)} 70%{transform:scale(1.1)rotate(3deg)} 90%{transform:scale(1.1)rotate(-3deg)} 100%{transform:scale(1)rotate(0)} }
+        @keyframes heartbeat { 0%,100%{transform:scale(1)} 14%{transform:scale(1.3)} 28%{transform:scale(1)} 42%{transform:scale(1.3)} 70%{transform:scale(1)} }
+        @keyframes slideUp { 0%{transform:translateY(20px);opacity:0} 100%{transform:translateY(0);opacity:1} }
+        @keyframes swing { 0%,100%{transform:rotate(0)} 25%{transform:rotate(20deg)} 75%{transform:rotate(-20deg)} }
+        @keyframes zoom { 0%,100%{transform:scale(1)} 50%{transform:scale(1.5)} }
+        @keyframes run { 0%{transform:translateX(-20px)} 100%{transform:translateX(20px)} }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.1} }
+        @keyframes rain { 0%{transform:translateY(-20px);opacity:0} 70%{opacity:1} 100%{transform:translateY(20px);opacity:0} }
+        @keyframes celebrate { 0%{transform:scale(1) rotate(0)} 25%{transform:scale(1.2) rotate(-10deg)} 50%{transform:scale(0.9) rotate(10deg)} 75%{transform:scale(1.15) rotate(-5deg)} 100%{transform:scale(1) rotate(0)} }
+        @keyframes nod { 0%,100%{transform:rotate(0)} 30%{transform:rotate(15deg)} 60%{transform:rotate(-5deg)} }
+        @keyframes dash { 0%{transform:translateX(0)} 50%{transform:translateX(18px)} 100%{transform:translateX(0)} }
+        @keyframes sparkle { 0%,100%{opacity:0;transform:scale(0)} 50%{opacity:1;transform:scale(1)} }
+
+        /* ── 감사/축하/감탄 전용 ── */
+        @keyframes bow       { 0%,100%{transform:rotate(0) translateY(0)} 40%{transform:rotate(25deg) translateY(6px)} 70%{transform:rotate(15deg) translateY(3px)} }
+        @keyframes clap      { 0%,100%{transform:scale(1) rotate(0)} 25%{transform:scale(1.35) rotate(-10deg)} 50%{transform:scale(1) rotate(0)} 75%{transform:scale(1.35) rotate(10deg)} }
+        @keyframes crown     { 0%,60%,100%{transform:translateY(0) scale(1)} 30%{transform:translateY(-16px) scale(1.25)} }
+        @keyframes firework  { 0%{transform:scale(0.5) rotate(0deg);opacity:0.6} 50%{transform:scale(1.4) rotate(180deg);opacity:1} 100%{transform:scale(1) rotate(360deg);opacity:0.7} }
+        @keyframes starPop   { 0%,100%{transform:scale(1) rotate(0)} 20%{transform:scale(0.7) rotate(-15deg)} 50%{transform:scale(1.5) rotate(10deg)} 80%{transform:scale(1.1) rotate(-5deg)} }
+        @keyframes rainbow   { 0%{filter:hue-rotate(0deg) saturate(1)} 50%{filter:hue-rotate(180deg) saturate(2)} 100%{filter:hue-rotate(360deg) saturate(1)} }
+        @keyframes trophySpin{ 0%{transform:rotate(-8deg) scale(1)} 25%{transform:rotate(0deg) scale(1.2)} 50%{transform:rotate(8deg) scale(1)} 75%{transform:rotate(0deg) scale(1.2)} 100%{transform:rotate(-8deg) scale(1)} }
+        @keyframes confetti  { 0%,100%{transform:translateY(0) rotate(0) scale(1)} 33%{transform:translateY(-12px) rotate(120deg) scale(1.2)} 66%{transform:translateY(-6px) rotate(240deg) scale(0.9)} }
+        @keyframes glitter   { 0%,100%{opacity:1;transform:scale(1)} 33%{opacity:0.3;transform:scale(1.4) rotate(20deg)} 66%{opacity:0.8;transform:scale(0.8) rotate(-10deg)} }
+        @keyframes angelic   { 0%,100%{transform:translateY(0);filter:brightness(1)} 50%{transform:translateY(-10px);filter:brightness(1.5) drop-shadow(0 0 8px gold)} }
+        @keyframes medalSwing{ 0%,100%{transform:rotate(-12deg)} 50%{transform:rotate(12deg)} }
+        @keyframes lovePop   { 0%,100%{transform:scale(1)} 15%{transform:scale(1.4)} 30%{transform:scale(0.9)} 45%{transform:scale(1.3)} 60%{transform:scale(1)} }
+        @keyframes riseUp    { 0%{transform:translateY(14px);opacity:0} 40%{transform:translateY(-4px);opacity:1} 70%{transform:translateY(2px)} 100%{transform:translateY(0)} }
+        @keyframes diamondSpin{0%{transform:rotate(0) scale(1)} 50%{transform:rotate(180deg) scale(1.3)} 100%{transform:rotate(360deg) scale(1)} }
+        @keyframes burstOut  { 0%,100%{transform:scale(1)} 40%{transform:scale(1.5)} 60%{transform:scale(0.85)} 80%{transform:scale(1.2)} }
+
+        /* 복합 배너 카드 (감사/축하 전용 스타일) */
+        .anim-card.theme-thanks  { background: linear-gradient(135deg,#fff8f0,#fff0f8); border-color: #ffcce0; }
+        .anim-card.theme-cheer   { background: linear-gradient(135deg,#f0fff8,#f0f8ff); border-color: #b0e8ff; }
+        .anim-card.theme-wow     { background: linear-gradient(135deg,#fffbf0,#fff8e0); border-color: #ffe08a; }
+        .anim-card.theme-thanks:hover { border-color: var(--accent5); box-shadow: 0 6px 20px rgba(239,71,111,0.15); }
+        .anim-card.theme-cheer:hover  { border-color: var(--accent4); box-shadow: 0 6px 20px rgba(17,138,178,0.15); }
+        .anim-card.theme-wow:hover    { border-color: var(--accent1); box-shadow: 0 6px 20px rgba(255,107,53,0.18); }
+
+        .anim-card .particle {
+            position: absolute;
+            font-size: 14px;
+            animation: confetti 1.4s ease-in-out infinite;
+            pointer-events: none;
+        }
+        .anim-section-label {
+            font-size: 13px;
+            font-weight: 900;
+            color: var(--sub);
+            letter-spacing: 0.04em;
+            padding: 6px 0 10px 2px;
+            margin-top: 4px;
+        }
+
+        /* ── Toast ── */
         #toast {
-            visibility: hidden; min-width: 250px; background-color: #333; color: #fff;
-            text-align: center; border-radius: 30px; padding: 12px 20px; font-weight: bold;
-            position: fixed; z-index: 50; left: 50%; transform: translateX(-50%); bottom: 30px;
-            opacity: 0; transition: opacity 0.3s, bottom 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            visibility: hidden;
+            min-width: 240px;
+            background: var(--text);
+            color: #fff;
+            text-align: center;
+            border-radius: 40px;
+            padding: 13px 22px;
+            font-weight: 700;
+            font-size: 13px;
+            position: fixed;
+            z-index: 999;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 30px;
+            opacity: 0;
+            transition: opacity 0.3s, bottom 0.3s;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
         #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
+
+        /* ── Tabs ── */
+        .tab-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        .tab-btn {
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: 1.5px solid var(--border);
+            background: white;
+            font-size: 12px;
+            font-family: 'Noto Sans KR', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.18s;
+            color: var(--sub);
+        }
+        .tab-btn:hover, .tab-btn.active {
+            background: var(--text);
+            color: white;
+            border-color: var(--text);
+        }
+
+        .hidden-group { display: none; }
+
+        /* ── Color accents per group ── */
+        .group-card:nth-child(1) .section-title { background: #fff3ee; }
+        .group-card:nth-child(2) .section-title { background: #f0fff8; }
+        .group-card:nth-child(3) .section-title { background: #fff8f0; }
+        .group-card:nth-child(4) .section-title { background: #f0f8ff; }
+        .group-card:nth-child(5) .section-title { background: #fff0f5; }
+        .group-card:nth-child(6) .section-title { background: #f5f0ff; }
+        .group-card:nth-child(7) .section-title { background: #f0fff8; }
+        .group-card:nth-child(8) .section-title { background: #fffbf0; }
+        .group-card:nth-child(9) .section-title { background: #fff0ee; }
+        .group-card:nth-child(10) .section-title { background: #f0f5ff; }
+        .group-card:nth-child(11) .section-title { background: #fff5f0; }
+        .group-card:nth-child(12) .section-title { background: #f5fff0; }
+        .group-card:nth-child(13) .section-title { background: #fff0fb; }
+        .group-card:nth-child(14) .section-title { background: #f0fbff; }
+        .group-card:nth-child(15) .section-title { background: #fdfff0; }
+        .group-card:nth-child(16) .section-title { background: #fff3ee; }
+        .group-card:nth-child(17) .section-title { background: #eefff8; }
+        .group-card:nth-child(18) .section-title { background: #fff8ee; }
+        .group-card:nth-child(19) .section-title { background: #eef5ff; }
+        .group-card:nth-child(20) .section-title { background: #ffeefc; }
+
+        @media (max-width: 600px) {
+            .emoji-grid { grid-template-columns: repeat(2, 1fr); }
+            .anim-grid  { grid-template-columns: repeat(2, 1fr); }
+        }
     </style>
 </head>
-<body class="p-6 md:p-10">
+<body>
 
-    <div class="max-w-6xl mx-auto">
-        <h1 class="text-3xl font-black text-gray-800 mb-2">✨ 쿨메신저 리액션 대백과</h1>
-        <p class="text-gray-500 mb-8 font-medium">클릭해서 복사하거나, 우클릭으로 이미지를 복사하여 메신저에 붙여넣으세요! (Ctrl+V)</p>
-
-        <div id="reaction-container"></div>
+<header class="site-header">
+    <h1>✨ 소통 치트키 — <span>이모티콘 & 짤</span></h1>
+    <p>클릭하면 바로 복사! 메신저에 Ctrl+V로 붙여넣으세요 😎</p>
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="찾고 싶은 리액션 검색..." autocomplete="off">
     </div>
+</header>
 
-    <div id="toast">📋 클립보드에 복사되었습니다!</div>
+<div class="main-wrap">
+    <div class="tab-bar" id="tabBar"></div>
+    <div id="reaction-container"></div>
+</div>
 
-    <script>
-        const reactionData = [
-            {
-                title: "☀️ 아침 인사 (출근)",
-                type: "text",
-                items: ["좋은 아침입니다! ☀️", "오늘도 화이팅! (๑•̀ㅂ•́)و", "반갑습니다 선생님! 🙇‍♂️", "출근 완료! 🫡", "안녕하세요~ ٩(๑❛ᴗ❛๑)۶", "상쾌한 아침입니다 🌿", "오늘 하루도 잘 부탁드립니다 🙏", "굿모닝! ☕", "활기찬 하루 되세요! ✨", "오늘도 평화로운 학교 🕊️", "일찍 오셨네요! 👍", "좋은 하루의 시작입니다 🌸", "반가운 아침입니다 😊", "햇살이 좋네요 ☀️", "오늘도 무사히! 🍀", "반갑게 인사드려요 👋", "미소 가득한 하루 되세요 😁", "힘차게 출발! 🚀", "활짝 웃는 아침 🌻", "기분 좋은 시작! 🎈"]
-            },
-            {
-                title: "🫡 네 / 확인 / 알겠습니다",
-                type: "text",
-                items: ["네, 확인했습니다! ⭕", "알겠습니다 (끄덕) 🫡", "넵! 처리하겠습니다 🏃‍♂️", "확인 완료했습니다 ✔️", "완전 동의합니다 💯", "맞습니다! 🙆‍♂️", "바로 진행하겠습니다 🚀", "접수 완료! 📝", "당연하죠! (´▽`ʃ♡ƪ)", "넵! ദ്ദി(⩌ᴗ⩌ )", "오케이입니다! 👌", "그대로 하겠습니다 📋", "이해했습니다 💡", "명령 받들겠습니다(?) 🫡", "좋은 생각입니다 ✨", "적극 찬성! 👏", "말씀하신 대로 할게요 🤝", "이미 확인 중입니다 🧐", "그럼요, 문제없죠! ✅", "넵, 알겠습니다! 😊"]
-            },
-            {
-                title: "🙏 감사 / 고마움",
-                type: "text",
-                items: ["정말 감사합니다! 🙇‍♂️", "도와주셔서 감사합니다 😭", "압도적 감사! ( ˃̣̣̥᷄⌓˂̣̣̥᷅ )", "수고 많으셨습니다 👏", "덕분에 살았습니다 😇", "바쁘신데 감사합니다 🌸", "부탁 좀 드려도 될까요? 🥺", "항상 감사합니다 💖", "은혜 잊지 않겠습니다 ✨", "감동입니다 ㅠㅠ 👍", "선생님 덕분이에요 💐", "큰 힘이 되었습니다 💪", "최고예요 감사합니다! 🤩", "챙겨주셔서 감사해요 🎁", "복 받으실 거예요 🧧", "마음이 따뜻해지네요 🔥", "천사 같으세요 👼", "도움 주셔서 영광입니다 🌟", "잊지 않고 보답할게요 💌", "감사 또 감사합니다 🙏"]
-            },
-            {
-                title: "👍 최고 / 칭찬 / 감탄",
-                type: "text",
-                items: ["최고입니다! 👍", "역시 선생님! 폼 미쳤다 👏", "대박입니다 😲", "축하드립니다! 🎉", "우와아아 ദ്ദി ˉ͈̀꒳ˉ͈́ )✧", "센스 최고! 💯", "멋지십니다 😎", "존경합니다 🙇‍♂️", "퍼펙트! 🎯", "역시 에이스! ♠️", "눈부신 성과네요 ✨", "감탄이 절로 납니다 👏", "신의 한 수! ⚡", "대단한 열정입니다 🔥", "보고 배웁니다 🙏", "인기 만점이세요 🌟", "솜씨가 예술입니다 🎨", "금손이시네요! ✋", "이보다 완벽할 순 없다 🏆", "갓벽합니다 갓갓! 👑"]
-            },
-            {
-                title: "🏃 퇴근 / 저녁 인사",
-                type: "text",
-                items: ["수고하셨습니다! 퇴근~ 🏃‍♂️💨", "맛점하세요! 🍚", "주말 푹 쉬세요 🛋️", "드디어 금요일! 🎉", "칼퇴 기원 🙏", "저녁 맛있게 드세요 🍝", "퇴근 버튼 꾸욱 🔘", "내일 뵙겠습니다 👋", "불금 보내세요 🔥", "오늘도 고생하셨습니다 🌙", "즐거운 저녁 시간 되세요 🌆", "조심해서 들어가세요 🏠", "내일 또 뵈어요! 😊", "오늘의 업무 종료! 🔚", "퇴근 요정 등장 🧚‍♂️", "빛의 속도로 퇴근 ⚡", "가족들과 행복한 시간 👨‍👩‍👧‍👦", "푹 잠드세요 😴", "꿀잠 자는 밤 🍯", "수고한 나에게 박수를 👏"]
-            },
-            {
-                title: "💪 응원 / 위로",
-                type: "text",
-                items: ["조금만 더 힘내세요! 💪", "선생님 곁엔 제가 있습니다 🛡️", "다 잘 될 겁니다 🍀", "토닥토닥 (っ´ω`)ﾉ", "스트레스받지 마세요 🍵", "화이팅입니다! 🔥", "고생이 많으십니다 ㅠㅠ 💧", "단거 드시고 힘내세요 🍫", "제가 돕겠습니다 🤝", "할 수 있습니다! 🚀", "거의 다 왔어요! 🏁", "무한 지지합니다 🙌", "포기하지 마세요 ✨", "선생님은 최고니까요 👍", "오늘만 버티면 주말! 🏖️", "든든한 버팀목이 될게요 🌳", "기운 내세요 으쌰! ⚡", "따뜻한 차 한 잔 하세요 ☕", "어깨 펴세요 화이팅! 😎", "행운을 빕니다 ✨"]
-            },
-            {
-                title: "😱 사과 / 당황 / 난감",
-                type: "text",
-                items: ["죄송합니다 ㅠㅠ 🙇‍♂️", "앗 나의 실수 🤦‍♂️", "제가 놓쳤네요 😭", "이런... (동공지진) 👀", "머쓱타드 (^^;;)", "오마이갓 😱", "죄송하지만 한 번만 더 🥺", "큰일 났네요 🚨", "땀 뻘뻘 (;;;)", "아이고 🤦‍♀️", "면목이 없습니다 🙇‍♀️", "실례를 범했네요 💦", "깜빡했습니다 ㅠㅠ 🧠", "정신이 없었네요 🌪️", "너그럽게 이해 부탁드려요 🙏", "이를 어쩌면 좋죠 😿", "제 불찰입니다 🙇", "용서해 주세요 💖", "허걱! 😨", "당황스럽네요 😰"]
-            },
-            {
-                title: "🤣 웃음 / 유머",
-                type: "text",
-                items: ["ㅋㅋㅋㅋㅋㅋㅋㅋㅋ 🎉", "너무 웃겨요 🤣", "빵 터졌습니다 💣", "하하하하하 😄", "깔깔깔 😆", "웃고 갑니다 🎈", "센스쟁이! 🤡", "재치 만점 💯", "광대 승천 중 ☺️", "배꼽 빠질 뻔 🤣", "웃음 지뢰밭 🧨", "진짜 웃기네요 👏", "덕분에 웃어요 😊", "웃음꽃 피었습니다 🌸", "크크크크 🤭", "박장대소! 🗣️", "너무 재밌으세요 🌟", "유머 감각 최고 🏆", "힐링 웃음 💖", "껄껄껄 👴"]
-            },
-            {
-                title: "💬 기타 리액션",
-                type: "text",
-                items: ["어머나! 😮", "실화인가요? 🤨", "말도 안 돼 🚫", "진짜요? 🧐", "그럴 수가... 🤭", "충격과 공포 😱", "오호라 💡", "그렇군요 📝", "역시나 🎯", "우와아... ✨", "대단해요 👏", "세상에나 🌏", "헐 대박 😲", "에헤이~ ✋", "이열~ 😎", "아하! 💡", "음... 🤔", "글쎄요 🤷‍♂️", "비밀입니다 🤫", "쉿! 🤐"]
-            },
-            {
-                title: "🎁 움직이는 짤방 (우클릭 복사)",
-                type: "image",
-                items: [
-                    { src: "https://media.giphy.com/media/11sBLVxNs7v6WA/giphy.gif", label: "격한 박수 👏" },
-                    { src: "https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif", label: "최고 고양이 👍" },
-                    { src: "https://media.giphy.com/media/3o7TDepZQZ2Bhs1cNa/giphy.gif", label: "수고하셨습니다 🙇" },
-                    { src: "https://media.giphy.com/media/26ufcVAp3AiLjVZkc/giphy.gif", label: "폭풍 오열 😭" },
-                    { src: "https://media.giphy.com/media/l41YkxvU8c7J7Bba0/giphy.gif", label: "칼퇴 요정 🏃💨" },
-                    { src: "https://media.giphy.com/media/11ISwbgCxEzMyY/giphy.gif", label: "끄덕 끄덕 ⭕" },
-                    { src: "https://media.giphy.com/media/3o7TKMGpxV3LAsY796/giphy.gif", label: "사랑의 하트 ❤️" },
-                    { src: "https://media.giphy.com/media/3o6Zt62LdAlwiv2Kv6/giphy.gif", label: "웃음 폭발 😂" },
-                    { src: "https://media.giphy.com/media/l3vR8IAt21Az0gG52/giphy.gif", label: "댄스 타임 🕺" },
-                    { src: "https://media.giphy.com/media/l0HlIDueXmcWNTPO0/giphy.gif", label: "열공/열일 🔥" },
-                    { src: "https://media.giphy.com/media/jUwpNzg9McyrK/giphy.gif", label: "슬금슬금 (도망)" },
-                    { src: "https://media.giphy.com/media/W1hd3uXRIbddu/giphy.gif", label: "멘붕/패닉 😨" }
-                ]
-            }
-        ];
+<div id="toast">📋 복사 완료!</div>
 
-        // 렌더링 엔진
-        const container = document.getElementById('reaction-container');
+<script>
+const reactionData = [
+    {
+        id: "morning",
+        title: "☀️ 아침 인사 (출근)",
+        type: "text",
+        items: [
+            "좋은 아침입니다! ☀️","오늘도 화이팅! (๑•̀ㅂ•́)و","반갑습니다 선생님! 🙇‍♂️","출근 완료! 🫡","안녕하세요~ ٩(๑❛ᴗ❛๑)۶",
+            "상쾌한 아침입니다 🌿","오늘 하루도 잘 부탁드립니다 🙏","굿모닝! ☕","활기찬 하루 되세요! ✨","오늘도 평화로운 학교 🕊️",
+            "일찍 오셨네요! 👍","좋은 하루의 시작입니다 🌸","반가운 아침입니다 😊","햇살이 좋네요 ☀️","오늘도 무사히! 🍀",
+            "반갑게 인사드려요 👋","미소 가득한 하루 되세요 😁","힘차게 출발! 🚀","활짝 웃는 아침 🌻","기분 좋은 시작! 🎈",
+            "안녕히 주무셨나요? 🌙","맑은 하늘처럼 상쾌한 아침 🌤️","오늘도 건강하게! 💪","좋은 소식 가득한 하루 📰","이슬처럼 맑은 아침 이에요 💧",
+            "아침부터 에너지 충전 완료 ⚡","오늘은 또 어떤 좋은 일이? 🎁","선생님 보고 싶었어요 😊","밝은 하루 출발합니다 🌈","아름다운 아침입니다 🌺"
+        ]
+    },
+    {
+        id: "confirm",
+        title: "🫡 네 / 확인 / 알겠습니다",
+        type: "text",
+        items: [
+            "네, 확인했습니다! ⭕","알겠습니다 (끄덕) 🫡","넵! 처리하겠습니다 🏃‍♂️","확인 완료했습니다 ✔️","완전 동의합니다 💯",
+            "맞습니다! 🙆‍♂️","바로 진행하겠습니다 🚀","접수 완료! 📝","당연하죠! (´▽`ʃ♡ƪ)","넵! ദ്ദി(⩌ᴗ⩌ )",
+            "오케이입니다! 👌","그대로 하겠습니다 📋","이해했습니다 💡","명령 받들겠습니다(?) 🫡","좋은 생각입니다 ✨",
+            "적극 찬성! 👏","말씀하신 대로 할게요 🤝","이미 확인 중입니다 🧐","그럼요, 문제없죠! ✅","넵, 알겠습니다! 😊",
+            "즉시 조치하겠습니다 🏃","확실합니다! 💪","100% 동의해요 💯","받았습니다 📬","바로 처리 들어갑니다 ⚙️",
+            "YES! 전적으로 동의 🎯","맡겨만 주세요 🤜","흔쾌히 따르겠습니다 🙇","지금 바로 움직입니다 🏃‍♀️","완료 보고 드리겠습니다 📊"
+        ]
+    },
+    {
+        id: "thanks",
+        title: "🙏 감사 / 고마움",
+        type: "text",
+        items: [
+            "정말 감사합니다! 🙇‍♂️","도와주셔서 감사합니다 😭","압도적 감사! ( ˃̣̣̥᷄⌓˂̣̣̥᷅ )","수고 많으셨습니다 👏","덕분에 살았습니다 😇",
+            "바쁘신데 감사합니다 🌸","부탁 좀 드려도 될까요? 🥺","항상 감사합니다 💖","은혜 잊지 않겠습니다 ✨","감동입니다 ㅠㅠ 👍",
+            "선생님 덕분이에요 💐","큰 힘이 되었습니다 💪","최고예요 감사합니다! 🤩","챙겨주셔서 감사해요 🎁","복 받으실 거예요 🧧",
+            "마음이 따뜻해지네요 🔥","천사 같으세요 👼","도움 주셔서 영광입니다 🌟","잊지 않고 보답할게요 💌","감사 또 감사합니다 🙏",
+            "진심으로 고맙습니다 💗","덕분에 큰 도움이 됐어요 🌈","정말이지 최고입니다 🏆","감사함이 넘칩니다 🌊","당신이 최고예요! 👑",
+            "이렇게 도와주시다니 😢","감격스럽습니다 🥹","진심 어린 감사를 드려요 🤲","은혜를 갚고 싶습니다 💫","정말 잘 됐습니다, 감사해요 😊"
+        ]
+    },
+    {
+        id: "praise",
+        title: "👍 최고 / 칭찬 / 감탄",
+        type: "text",
+        items: [
+            "최고입니다! 👍","역시 선생님! 폼 미쳤다 👏","대박입니다 😲","축하드립니다! 🎉","우와아아 ദ്ദി ˉ͈̀꒳ˉ͈́ )✧",
+            "센스 최고! 💯","멋지십니다 😎","존경합니다 🙇‍♂️","퍼펙트! 🎯","역시 에이스! ♠️",
+            "눈부신 성과네요 ✨","감탄이 절로 납니다 👏","신의 한 수! ⚡","대단한 열정입니다 🔥","보고 배웁니다 🙏",
+            "인기 만점이세요 🌟","솜씨가 예술입니다 🎨","금손이시네요! ✋","이보다 완벽할 순 없다 🏆","갓벽합니다 갓갓! 👑",
+            "선생님은 레전드세요 🦁","이게 바로 프로! 🎖️","경이롭습니다 🌌","진짜 잘하신다 💥","따라가고 싶습니다 🏃",
+            "이 분야 최강자! 🥇","압도적 실력이에요 😮","너무너무 멋져요 🥰","역대급 퍼포먼스 🎺","빛나십니다 ✨"
+        ]
+    },
+    {
+        id: "evening",
+        title: "🏃 퇴근 / 저녁 인사",
+        type: "text",
+        items: [
+            "수고하셨습니다! 퇴근~ 🏃‍♂️💨","맛점하세요! 🍚","주말 푹 쉬세요 🛋️","드디어 금요일! 🎉","칼퇴 기원 🙏",
+            "저녁 맛있게 드세요 🍝","퇴근 버튼 꾸욱 🔘","내일 뵙겠습니다 👋","불금 보내세요 🔥","오늘도 고생하셨습니다 🌙",
+            "즐거운 저녁 시간 되세요 🌆","조심해서 들어가세요 🏠","내일 또 뵈어요! 😊","오늘의 업무 종료! 🔚","퇴근 요정 등장 🧚‍♂️",
+            "빛의 속도로 퇴근 ⚡","가족들과 행복한 시간 👨‍👩‍👧‍👦","푹 잠드세요 😴","꿀잠 자는 밤 🍯","수고한 나에게 박수를 👏",
+            "오늘도 최선을 다하셨어요 🌟","저녁 바람 시원하게 🌬️","맛있는 저녁 드시고 힘내요 🍖","피곤하셨죠, 쉬세요 🛏️","좋은 꿈 꾸세요 🌙",
+            "내일 더 밝게 뵙겠습니다 🌅","저녁도 행복하게! 🌠","귀가 잘 하세요 🚗","오늘 하루도 대단하셨어요 💪","내일도 파이팅! 👊"
+        ]
+    },
+    {
+        id: "cheer",
+        title: "💪 응원 / 위로",
+        type: "text",
+        items: [
+            "조금만 더 힘내세요! 💪","선생님 곁엔 제가 있습니다 🛡️","다 잘 될 겁니다 🍀","토닥토닥 (っ´ω`)ﾉ","스트레스받지 마세요 🍵",
+            "화이팅입니다! 🔥","고생이 많으십니다 ㅠㅠ 💧","단거 드시고 힘내세요 🍫","제가 돕겠습니다 🤝","할 수 있습니다! 🚀",
+            "거의 다 왔어요! 🏁","무한 지지합니다 🙌","포기하지 마세요 ✨","선생님은 최고니까요 👍","오늘만 버티면 주말! 🏖️",
+            "든든한 버팀목이 될게요 🌳","기운 내세요 으쌰! ⚡","따뜻한 차 한 잔 하세요 ☕","어깨 펴세요 화이팅! 😎","행운을 빕니다 ✨",
+            "어려울수록 빛나는 분이에요 🌟","잠깐 쉬었다 가세요 🧘","같이 이겨냅시다 🤜🤛","당신을 응원합니다 📣","힘든 만큼 성장이에요 🌱",
+            "내가 있잖아요! 🤗","당신은 할 수 있어요 🎯","지금 이 순간도 대단해요 🏆","포기는 배추 셀 때만! 🥬","오늘도 내일도 응원해요 🌈"
+        ]
+    },
+    {
+        id: "sorry",
+        title: "😱 사과 / 당황 / 난감",
+        type: "text",
+        items: [
+            "죄송합니다 ㅠㅠ 🙇‍♂️","앗 나의 실수 🤦‍♂️","제가 놓쳤네요 😭","이런... (동공지진) 👀","머쓱타드 (^^;;)",
+            "오마이갓 😱","죄송하지만 한 번만 더 🥺","큰일 났네요 🚨","땀 뻘뻘 (;;;)","아이고 🤦‍♀️",
+            "면목이 없습니다 🙇‍♀️","실례를 범했네요 💦","깜빡했습니다 ㅠㅠ 🧠","정신이 없었네요 🌪️","너그럽게 이해 부탁드려요 🙏",
+            "이를 어쩌면 좋죠 😿","제 불찰입니다 🙇","용서해 주세요 💖","허걱! 😨","당황스럽네요 😰",
+            "실수투성이 저를 봐주세요 😅","한 번만 봐주세요 🥹","제가 잘못했습니다 🤢","심심한 사과를 드립니다 💧","다신 이런 일 없을게요 🙅",
+            "황당하죠? 저도요... 😶","두 눈을 의심했습니다 👁️","이럴 수가... 😦","죄송함이 가득합니다 😔","믿어주세요 한 번만! 🤞"
+        ]
+    },
+    {
+        id: "laugh",
+        title: "🤣 웃음 / 유머",
+        type: "text",
+        items: [
+            "ㅋㅋㅋㅋㅋㅋㅋㅋㅋ 🎉","너무 웃겨요 🤣","빵 터졌습니다 💣","하하하하하 😄","깔깔깔 😆",
+            "웃고 갑니다 🎈","센스쟁이! 🤡","재치 만점 💯","광대 승천 중 ☺️","배꼽 빠질 뻔 🤣",
+            "웃음 지뢰밭 🧨","진짜 웃기네요 👏","덕분에 웃어요 😊","웃음꽃 피었습니다 🌸","크크크크 🤭",
+            "박장대소! 🗣️","너무 재밌으세요 🌟","유머 감각 최고 🏆","힐링 웃음 💖","껄껄껄 👴",
+            "폭소 주의보 발령 🚨","웃음이 멈추질 않아요 😂","어떻게 이런 생각을 🧠","천재적 유머 🎓","웃다가 눈물날 뻔 😢",
+            "아 진짜 ㅋㅋ 🙈","웃음 바이러스 감염됨 🦠","정말 웃기시네요! 🎭","최고의 개그 타이밍 ⏱️","웃음 담당 공식 임명 😂"
+        ]
+    },
+    {
+        id: "curious",
+        title: "🤔 궁금 / 질문 / 요청",
+        type: "text",
+        items: [
+            "혹시 괜찮으시면... 🥺","잠깐만요, 질문 있어요! ✋","이 부분이 궁금합니다 🧐","도움 요청드립니다 🆘","가능할까요? 🙏",
+            "실례지만 여쭤봐도 될까요? 👀","살짝 물어볼게요 😊","잠깐 제 말씀 들어주세요 📢","확인 부탁드립니다 🔍","이건 어떻게 하나요? 💡",
+            "의견 부탁드려요 📝","언제 가능하신가요? 📅","검토 부탁드립니다 👁️","부탁이 있습니다 🙇","어떻게 생각하세요? 💭",
+            "잠깐 시간 되세요? ⏰","도움의 손길 요청 🤲","정보 좀 주실 수 있나요? 📚","한 가지만 여쭤봐도 될까요? 1️⃣","혹시 알고 계신가요? 🤷"
+        ]
+    },
+    {
+        id: "busy",
+        title: "⚙️ 바쁨 / 진행 중 / 잠시만요",
+        type: "text",
+        items: [
+            "잠깐만요! ⏳","지금 처리 중입니다 ⚙️","조금만 기다려 주세요 🕐","열심히 진행 중! 🔥","곧 완료됩니다 🏁",
+            "지금 집중 모드 🎯","잠시 후 답변 드릴게요 💬","버그 수정 중(?)입니다 🔧","전력을 다하고 있어요 💪","급한 불 끄는 중! 🚒",
+            "딱 잠깐만요 🙏","5분만 주세요 ⏱️","지금 달리고 있습니다 🏃","마지막 마무리 중이에요 🎨","조금만 더 기다리시면... ⌛",
+            "최선을 다해 처리 중 🌟","지금 당장은 어렵고요 😅","급한 일 처리 후 바로요! ⚡","잠시 자리 비웁니다 🚶","확인 후 드리겠습니다 📋"
+        ]
+    },
+    {
+        id: "celebrate",
+        title: "🎉 축하 / 기쁨",
+        type: "text",
+        items: [
+            "축하드립니다! 🎊","만세! 🙌","대성공입니다! 🏆","와우! 놀라워요 😲","최고의 결과네요 🌟",
+            "감격스러운 순간! 🥹","정말 잘 됐어요! 🍀","이런 날이 오다니 🎈","하늘이 도왔네요 ☁️","행복한 소식이에요 💌",
+            "박수 100번! 👏","파티 타임! 🎉","환호성 질렀습니다 📣","기쁨을 나눠요! 🎁","흥이 넘칩니다 🎶",
+            "전국 방방곡곡에 알리고 싶어요 📡","기쁨의 눈물! 😭","뛰고 싶은 기분! 🏃","오늘 기념일로 합시다 📆","선생님 덕분이에요! 💐"
+        ]
+    },
+    {
+        id: "food",
+        title: "🍱 점심 / 식사 관련",
+        type: "text",
+        items: [
+            "맛점 하세요! 🍚","오늘 뭐 드실 거예요? 🤔","밥은 챙겨 드셨나요? 🍜","점심 같이 드실래요? 🙋","식사하고 오겠습니다 🚶",
+            "배고파요... 🍔","오늘 급식은 뭔가요? 🤤","맛있는 거 먹고 힘내요! 💪","후식도 챙기세요 🍰","소화 잘 되는 하루 되세요 😌",
+            "맛점 + 맛저 모두 챙기세요 🍽️","오늘도 든든하게! 🥘","먹을 생각에 행복해요 🥰","냠냠냠 🍴","밥 한 끼 언제 같이 해요 ☺️",
+            "오늘 특식 있대요! 🎉","뭐가 맛있을까요? 🧐","먹방 시작합니다 🎬","배부르면 의욕 뿜뿜 💯","식사 잘 하셨나요? 🙂"
+        ]
+    },
+    {
+        id: "meeting",
+        title: "📅 회의 / 업무 / 공지",
+        type: "text",
+        items: [
+            "회의 시작합니다! 📣","공지사항 있습니다 📋","중요한 안건이 있어요 ‼️","잠깐 들어주세요 🙏","회의 자료 공유드립니다 📎",
+            "오늘 일정 확인해 주세요 📅","안건 정리해 드릴게요 🗒️","다음 회의는 언제? 📆","간략하게 공유드릴게요 💬","이 부분은 협의가 필요해요 🤝",
+            "팀원 여러분 주목! 👀","이건 공식 공지입니다 📢","업무 분담 다시 확인해요 📊","마감일 잊지 마세요! ⏰","진행 상황 공유 부탁해요 🔄",
+            "회의록 올려드렸습니다 📝","문서 검토 부탁드려요 🔍","승인 부탁드립니다 ✅","일정 조율 필요합니다 📅","참고하실 내용 있어요 💡"
+        ]
+    },
+    {
+        id: "weather",
+        title: "🌦️ 날씨 / 계절",
+        type: "text",
+        items: [
+            "오늘 날씨 너무 좋아요 ☀️","비 오니 조심하세요 ☂️","따뜻하게 입고 오세요 🧥","오늘 좀 춥죠? 🥶","황사 조심하세요 😷",
+            "봄기운이 느껴져요 🌸","여름이 성큼 왔네요 🌊","가을 하늘이 예쁘다 🍂","눈 오는 날 낭만 ❄️","우산 챙기셨나요? ☂️",
+            "날씨처럼 맑은 하루 ☀️","미세먼지 주의보 😮‍💨","따뜻한 하루 되세요 🌤️","이런 날은 산책 하고 싶다 🚶","날씨가 도와주네요 오늘! 🌈",
+            "꽃샘추위 조심하세요 🌬️","태풍 소식 있어요 주의! 🌀","오늘따라 날씨가 최고 😎","구름 한 점 없는 하늘 🔵","비 맞지 말고 조심히! 💧"
+        ]
+    },
+    {
+        id: "weekend",
+        title: "🏖️ 주말 / 방학 / 휴일",
+        type: "text",
+        items: [
+            "주말 잘 쉬세요! 🛋️","드디어 주말이다 🎉","방학이다아아! 🏖️","연휴 즐겁게 보내세요 🎊","불금입니다! 🔥",
+            "오늘 뭐 하실 거예요? 🤔","재충전의 시간! ⚡","달콤한 휴식 즐기세요 🍯","가족과 행복한 시간 👨‍👩‍👧","여행 다녀오세요 ✈️",
+            "취미 시간 확보 완료! 🎨","낮잠 한 숨 자야겠다 😴","이번 주말은 맛집 탐방! 🍽️","운동하며 건강 챙겨요 🏃","드라마 정주행 예정 📺",
+            "주말이 있어서 살아요 😭","모처럼 여유를 즐겨요 ☕","긴 연휴 알차게! 📚","힐링 충전 후 월요일! 💪","행복한 주말 되세요 🌈"
+        ]
+    },
+    {
+        id: "student",
+        title: "🎒 학생 / 교실 / 학교",
+        type: "text",
+        items: [
+            "학생들 잘 있나요? 😊","교실이 시끌벅적 🎶","오늘 수업 파이팅! 📖","학생들이 최고예요 👍","우리 반 화이팅! ✊",
+            "선생님들 고생하세요 🙇","시험 대박 나세요! 📝","결과 잘 나왔으면 좋겠어요 🍀","학생 생활 즐겁게! 🎒","교무실 가득한 에너지 ⚡",
+            "방과후도 알차게! 📚","체육 시간 기다려요 ⚽","급식 시간 최고야 🍱","소풍 가고 싶다! 🌿","운동회 기대돼요 🏅",
+            "수행평가 화이팅 ✏️","학급 분위기 최고! 🌟","선생님이랑 같이 웃어요 😆","학교 오길 잘했다! 🏫","우리 모두 화이팅 💪"
+        ]
+    },
+    {
+        id: "etc",
+        title: "💬 기타 리액션",
+        type: "text",
+        items: [
+            "어머나! 😮","실화인가요? 🤨","말도 안 돼 🚫","진짜요? 🧐","그럴 수가... 🤭",
+            "충격과 공포 😱","오호라 💡","그렇군요 📝","역시나 🎯","우와아... ✨",
+            "대단해요 👏","세상에나 🌏","헐 대박 😲","에헤이~ ✋","이열~ 😎",
+            "아하! 💡","음... 🤔","글쎄요 🤷‍♂️","비밀입니다 🤫","쉿! 🤐",
+            "오예! ✌️","낄낄낄 😏","진심? 😳","이게 머선 129 😵","뭔가 이상해 🕵️",
+            "드라마틱하다 🎬","운명이에요 🎯","세상은 넓다 🌍","아무말 대잔치 🎪","인생이란... 🌊"
+        ]
+    },
+    {
+        id: "positive",
+        title: "🌈 긍정 / 희망 / 동기부여",
+        type: "text",
+        items: [
+            "오늘도 빛나는 하루! ✨","희망을 잃지 마세요 🌈","좋은 일만 가득! 🍀","긍정 에너지 폭발 🔥","매일이 기적입니다 🌟",
+            "우리의 미래는 밝아요 ☀️","작은 것에 감사해요 🙏","오늘도 성장 중! 🌱","한 걸음씩 나아가요 👣","포기란 없습니다! 💪",
+            "당신은 소중한 사람 💎","행복은 선택이에요 😊","꿈을 향해 달려요 🚀","내일은 더 좋을 거예요 🌅","우리가 만드는 이야기 📖",
+            "도전이 성장입니다 🧗","지금 이 순간 최선 ⭐","좋은 에너지 나눠요 💛","함께라면 못 할 게 없어요 🤝","오늘 하루도 선물이에요 🎁"
+        ]
+    },
+    {
+        id: "ani",
+        title: "🎬 애니메이션 배너 (클릭 복사)",
+        type: "anim",
+        items: [
+            { emoji: "👏", label: "격한 박수!", animClass: "bounce", text: "짝짝짝! 👏👏👏 최고입니다!" },
+            { emoji: "🙇‍♂️", label: "깊은 인사", animClass: "wave", text: "감사합니다! 정말 감사합니다 🙇🙇🙇" },
+            { emoji: "🏃‍♂️", label: "칼퇴 질주!", animClass: "dash", text: "칼퇴 성공!! 🏃‍♂️💨💨💨 신나라~" },
+            { emoji: "😭", label: "폭풍 오열", animClass: "shake", text: "감동입니다 ㅠㅠ 😭😭😭 고마워요!" },
+            { emoji: "💯", label: "완전 동의!!", animClass: "zoom", text: "100% 동의!! 💯💯 완전 맞아요!" },
+            { emoji: "🔥", label: "열정 폭발", animClass: "pulse", text: "우리 팀 화이팅!! 🔥🔥🔥 으쌰으쌰!" },
+            { emoji: "❤️", label: "사랑의 하트", animClass: "heartbeat", text: "선생님 최고! ❤️❤️❤️ 항상 감사해요!" },
+            { emoji: "😂", label: "웃음 폭발", animClass: "jello", text: "ㅋㅋㅋㅋㅋㅋ 😂😂😂 너무 웃겨요!" },
+            { emoji: "🎉", label: "파티타임!", animClass: "celebrate", text: "축하합니다!! 🎉🎊🎈 대박이에요!" },
+            { emoji: "🤦‍♂️", label: "멘붕 패닉", animClass: "tada", text: "이런... 🤦‍♂️ 제 실수였네요 죄송합니다!" },
+            { emoji: "⚡", label: "번개 속도!", animClass: "flash", text: "번개처럼 처리했습니다! ⚡⚡⚡ 완료!" },
+            { emoji: "🥺", label: "부탁이에요~", animClass: "wiggle", text: "부탁드려요~ 🥺🥺 한 번만요 제발!" },
+            { emoji: "🌟", label: "반짝반짝", animClass: "sparkle_anim", text: "선생님은 스타! 🌟⭐✨ 최고세요!" },
+            { emoji: "🙈", label: "슬금슬금", animClass: "swing", text: "슬금슬금 도망갑니다... 🙈🙈" },
+            { emoji: "😎", label: "쿨하게!", animClass: "flip", text: "쿨하게 처리했죠! 😎 믿으세요!" },
+            { emoji: "🍫", label: "초콜릿 충전", animClass: "rubberband", text: "단거 드시고 힘내세요! 🍫🍰☕" },
+            { emoji: "💪", label: "근육 뽐내기", animClass: "bounce", text: "저 잘할 수 있습니다! 💪💪💪 믿어주세요!" },
+            { emoji: "🎈", label: "풍선 둥실", animClass: "float", text: "기분 UP! UP! 🎈🎈 오늘도 즐겁게!" },
+            { emoji: "🐱", label: "고양이 반응", animClass: "nod", text: "알겠어요~ 냥! 🐱 잘 부탁드려요!" },
+            { emoji: "✨", label: "반짝이는 마무리", animClass: "blink", text: "오늘도 수고하셨습니다 ✨✨✨ 내일 또 뵈어요!" }
+        ]
+    },
+    {
+        id: "ani-thanks",
+        title: "🙏 감사 인사 애니메이션",
+        type: "anim",
+        theme: "thanks",
+        items: [
+            { emoji: "🙏", label: "진심 감사", animClass: "bow", text: "진심으로 감사드립니다 🙏🙏🙏 정말 고맙습니다!" },
+            { emoji: "🙇‍♀️", label: "90도 인사", animClass: "bow", text: "깊이 감사드립니다 🙇‍♀️🙇‍♂️ 덕분에 살았습니다!" },
+            { emoji: "💌", label: "마음의 편지", animClass: "lovePop", text: "마음 담아 감사드려요 💌💖 항상 고맙습니다!" },
+            { emoji: "💐", label: "꽃다발 드려요", animClass: "float", text: "선생님께 꽃다발을! 💐💐 항상 감사합니다!" },
+            { emoji: "👼", label: "천사 같아요", animClass: "angelic", text: "천사 같으세요 👼✨ 도와주셔서 정말 감사해요!" },
+            { emoji: "🥹", label: "감격 눈물", animClass: "pulse", text: "감격스럽습니다 🥹🥹 이렇게 도와주시다니!" },
+            { emoji: "💗", label: "두근두근 감사", animClass: "heartbeat", text: "진심으로 고맙습니다 💗💗 항상 감사해요!" },
+            { emoji: "🌸", label: "봄꽃 감사", animClass: "rainbow", text: "꽃처럼 고운 마음 감사해요 🌸🌷 행복하세요!" },
+            { emoji: "🧧", label: "복 드려요", animClass: "confetti", text: "복 많이 받으세요! 🧧🎁 정말 감사합니다!" },
+            { emoji: "🤲", label: "두 손 모아", animClass: "bow", text: "두 손 모아 감사드립니다 🤲🙏 정말 고마워요!" },
+            { emoji: "💫", label: "별처럼 빛나게", animClass: "glitter", text: "은혜를 갚겠습니다 💫⭐ 진심 어린 감사를!" },
+            { emoji: "😭", label: "눈물의 감사", animClass: "shake", text: "감사해서 눈물이 😭😭 정말 도움이 됐어요!" },
+            { emoji: "🌟", label: "스타! 감사", animClass: "starPop", text: "선생님은 저의 스타! 🌟✨ 항상 감사합니다!" },
+            { emoji: "☕", label: "커피 한 잔", animClass: "float", text: "커피 한 잔 대접하고 싶어요 ☕🍰 감사합니다!" },
+            { emoji: "🤗", label: "따뜻한 안아줘", animClass: "lovePop", text: "꼭 안아드리고 싶어요 🤗💖 정말 고마워요!" }
+        ]
+    },
+    {
+        id: "ani-celebrate",
+        title: "🎉 축하 인사 애니메이션",
+        type: "anim",
+        theme: "cheer",
+        items: [
+            { emoji: "🎉", label: "폭죽 축하!", animClass: "firework", text: "축하합니다!! 🎉🎊🎈 정말 잘 됐어요 대박!" },
+            { emoji: "🏆", label: "트로피 수여", animClass: "trophySpin", text: "우승입니다! 🏆🥇 최고! 정말 축하드려요!!" },
+            { emoji: "🥳", label: "파티 모자!", animClass: "celebrate", text: "파티 타임! 🥳🎂🎊 축하축하 정말 기뻐요!" },
+            { emoji: "🎊", label: "색종이 팡팡", animClass: "confetti", text: "색종이 팡팡!! 🎊🎉✨ 축하드립니다!!" },
+            { emoji: "🥂", label: "건배!", animClass: "clap", text: "건배! 짠~ 🥂🍾 진심으로 축하드립니다!" },
+            { emoji: "🌈", label: "무지개 축하", animClass: "rainbow", text: "무지개처럼 빛나는 날! 🌈✨ 축하해요!!" },
+            { emoji: "🎂", label: "케이크 등장", animClass: "riseUp", text: "케이크 들고 달려왔어요 🎂🕯️ 축하합니다!" },
+            { emoji: "🎁", label: "선물 상자", animClass: "starPop", text: "선물 드리고 싶어요 🎁🎀 축하드려요!!" },
+            { emoji: "🌟", label: "별빛 세례", animClass: "glitter", text: "별빛 세례를 드려요 🌟⭐💫 진심 축하!!" },
+            { emoji: "👑", label: "왕관 씌워드려요", animClass: "crown", text: "오늘의 주인공! 👑🎉 진심으로 축하드립니다!" },
+            { emoji: "🎆", label: "불꽃 축제", animClass: "firework", text: "불꽃놀이로 축하해요 🎆🎇 대박이에요!!" },
+            { emoji: "💎", label: "다이아 수여", animClass: "diamondSpin", text: "최고의 성과에 다이아 드려요 💎👑 축하!" },
+            { emoji: "🍾", label: "샴페인 팡!", animClass: "burstOut", text: "펑! 🍾🥂 이런 날을 축하해요!! 짝짝짝!" },
+            { emoji: "🎵", label: "축가 드려요", animClass: "rainbow", text: "축하 노래 드려요 🎵🎶🎤 진심 축하합니다!" },
+            { emoji: "🌺", label: "꽃길만 걸어요", animClass: "float", text: "꽃길만 걸으세요 🌺🌸🌼 진심 축하드립니다!" }
+        ]
+    },
+    {
+        id: "ani-wow",
+        title: "🤩 감탄 / 최고 / 대단해 애니메이션",
+        type: "anim",
+        theme: "wow",
+        items: [
+            { emoji: "🤩", label: "눈이 반짝!", animClass: "starPop", text: "눈이 번쩍! 🤩🤩 너무너무 대단하세요!!" },
+            { emoji: "👏", label: "우레 같은 박수", animClass: "clap", text: "우레와 같은 박수!! 👏👏👏 최고입니다!!" },
+            { emoji: "🏅", label: "메달 드려요", animClass: "medalSwing", text: "메달 드려요 🏅🥇 역시 최고! 대단해요!!" },
+            { emoji: "🔥", label: "불꽃 같은 열정", animClass: "burstOut", text: "불꽃 같은 실력! 🔥🔥 역시 선생님 최고!!" },
+            { emoji: "⚡", label: "번개 충격!", animClass: "flash", text: "충격 먹었습니다 ⚡😲 이게 가능해요?? 대박!!" },
+            { emoji: "💥", label: "폭발적 감탄!", animClass: "burstOut", text: "감탄 폭발!! 💥💥 도대체 어떻게 하신 거예요!!" },
+            { emoji: "🎯", label: "정확히 맞아!", animClass: "trophySpin", text: "바로 이거예요! 🎯💯 완벽 그 자체! 최고!!" },
+            { emoji: "🦁", label: "사자 포효!", animClass: "celebrate", text: "사자처럼 강하신 분! 🦁💪 진짜 대단해요!!" },
+            { emoji: "🚀", label: "로켓 발사!", animClass: "riseUp", text: "로켓처럼 날아오르시네요 🚀✨ 최고입니다!!" },
+            { emoji: "😮", label: "입이 딱!", animClass: "pulse", text: "입이 떡 벌어져요 😮😮 정말 대단하십니다!!" },
+            { emoji: "💯", label: "백점 만점!", animClass: "zoom", text: "완벽 그 자체! 💯💯 만점입니다 최고!! 갓!!" },
+            { emoji: "🌊", label: "파도처럼 감동", animClass: "wave", text: "감동의 파도가! 🌊💙 이렇게 대단하실 수가!!" },
+            { emoji: "✨", label: "눈부신 실력!", animClass: "glitter", text: "눈이 부십니다 ✨✨ 역시 선생님은 레전드!!" },
+            { emoji: "🎖️", label: "명예의 훈장", animClass: "medalSwing", text: "훈장 드려야 해요 🎖️🏆 이런 실력이라니!!" },
+            { emoji: "👑", label: "갓 선생님!", animClass: "crown", text: "갓 선생님! 👑👑 이 분야 최강자 인정합니다!!" }
+        ]
+    }
+];
 
-        reactionData.forEach(group => {
-            const groupDiv = document.createElement('div');
-            groupDiv.className = "bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-6";
-            
-            const titleHtml = `<h2 class="text-lg font-bold text-gray-700 mb-4 pb-2 border-b border-gray-100 flex items-center justify-between">
-                <span>${group.title}</span>
-                ${group.type === 'text' ? '<span class="text-[11px] bg-blue-50 text-blue-500 px-2 py-1 rounded-full font-bold">클릭 복사</span>' : '<span class="text-[11px] bg-red-50 text-red-500 px-2 py-1 rounded-full font-bold">우클릭 복사</span>'}
-            </h2>`;
-            groupDiv.innerHTML = titleHtml;
+// ── Tab 생성 ──
+const tabBar = document.getElementById('tabBar');
+const allBtn = document.createElement('button');
+allBtn.className = 'tab-btn active';
+allBtn.textContent = '🗂️ 전체 보기';
+allBtn.dataset.target = 'all';
+tabBar.appendChild(allBtn);
 
-            const itemsDiv = document.createElement('div');
-            
-            if (group.type === 'text') {
-                itemsDiv.className = "grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3";
-                group.items.forEach(text => {
-                    const btn = document.createElement('button');
-                    btn.className = "emoji-btn border border-gray-200 p-3 rounded-xl text-center text-[13px] text-gray-700 font-bold bg-gray-50 shadow-sm";
-                    btn.innerText = text;
-                    btn.onclick = () => copyText(text);
-                    itemsDiv.appendChild(btn);
-                });
-            } else if (group.type === 'image') {
-                itemsDiv.className = "grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4";
-                group.items.forEach(imgData => {
-                    const card = document.createElement('div');
-                    card.className = "gif-card border border-gray-200 rounded-xl p-2 bg-gray-50 cursor-pointer hover:border-blue-400 transition shadow-sm";
-                    card.title = "우클릭해서 이미지 복사";
-                    card.innerHTML = `
-                        <img src="${imgData.src}" alt="${imgData.label}">
-                        <p class="text-center text-[11px] font-bold text-gray-500 mt-2">${imgData.label}</p>
-                    `;
-                    itemsDiv.appendChild(card);
-                });
-            }
+reactionData.forEach(g => {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn';
+    btn.textContent = g.title.split(' ').slice(0,2).join(' ');
+    btn.dataset.target = g.id;
+    tabBar.appendChild(btn);
+});
 
-            groupDiv.appendChild(itemsDiv);
-            container.appendChild(groupDiv);
+tabBar.addEventListener('click', e => {
+    const btn = e.target.closest('.tab-btn');
+    if (!btn) return;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const target = btn.dataset.target;
+    document.querySelectorAll('.group-card').forEach(card => {
+        card.style.display = (target === 'all' || card.dataset.id === target) ? '' : 'none';
+    });
+    document.getElementById('searchInput').value = '';
+});
+
+// ── 렌더링 ──
+const container = document.getElementById('reaction-container');
+
+reactionData.forEach(group => {
+    const card = document.createElement('div');
+    card.className = 'group-card';
+    card.dataset.id = group.id;
+
+    const badgeHtml = group.type === 'anim'
+        ? '<span class="badge badge-anim">클릭 복사</span>'
+        : '<span class="badge badge-click">클릭 복사</span>';
+
+    card.innerHTML = `<div class="section-title">${group.title}${badgeHtml}</div>`;
+
+    const itemsDiv = document.createElement('div');
+
+    if (group.type === 'text') {
+        itemsDiv.className = 'emoji-grid';
+        group.items.forEach(text => {
+            const btn = document.createElement('button');
+            btn.className = 'emoji-btn';
+            btn.dataset.text = text;
+            btn.textContent = text;
+            btn.addEventListener('click', () => copyText(text, btn));
+            itemsDiv.appendChild(btn);
         });
-
-        function copyText(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                showToast(`'${text}' 복사 완료!`);
-            }).catch(err => {
-                alert('복사 실패! 수동으로 복사해주세요.');
+    } else if (group.type === 'anim') {
+        itemsDiv.className = 'anim-grid';
+        group.items.forEach(item => {
+            const animCard = document.createElement('div');
+            animCard.className = 'anim-card' + (group.theme ? ' theme-' + group.theme : '');
+            animCard.dataset.text = item.text;
+            animCard.innerHTML = `
+                <span class="copied-badge">복사됨!</span>
+                <div class="anim-stage">
+                    <span class="anim-emoji" style="display:inline-block; animation: ${getAnim(item.animClass)}; font-size:44px;">${item.emoji}</span>
+                </div>
+                <div class="anim-label">${item.label}</div>
+            `;
+            animCard.addEventListener('click', () => {
+                copyText(item.text, null);
+                animCard.classList.add('just-copied');
+                setTimeout(() => animCard.classList.remove('just-copied'), 1800);
             });
-        }
+            itemsDiv.appendChild(animCard);
+        });
+    }
 
-        function showToast(message) {
-            const toast = document.getElementById("toast");
-            toast.innerText = message;
-            toast.className = "show";
-            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 2000);
+    card.appendChild(itemsDiv);
+    container.appendChild(card);
+});
+
+function getAnim(cls) {
+    const map = {
+        bounce: 'bounce 0.7s ease infinite',
+        spin: 'spin 1.2s linear infinite',
+        shake: 'shake 0.6s ease infinite',
+        pulse: 'pulse 0.8s ease infinite',
+        wave: 'wave 1s ease infinite',
+        float: 'float 2s ease-in-out infinite',
+        flip: 'flip 1.4s ease infinite',
+        wiggle: 'wiggle 0.5s ease infinite',
+        jello: 'jello 1s ease infinite',
+        rubberband: 'rubberband 1s ease infinite',
+        tada: 'tada 1.2s ease infinite',
+        heartbeat: 'heartbeat 1s ease infinite',
+        swing: 'swing 1s ease infinite',
+        zoom: 'zoom 1s ease infinite',
+        dash: 'dash 0.8s ease-in-out infinite',
+        blink: 'blink 1s ease infinite',
+        celebrate: 'celebrate 0.9s ease infinite',
+        nod: 'nod 0.8s ease infinite',
+        flash:        'blink 0.4s step-start infinite',
+        sparkle_anim: 'sparkle 1.2s ease infinite',
+        bow:          'bow 1.1s ease-in-out infinite',
+        clap:         'clap 0.6s ease infinite',
+        crown:        'crown 1.2s ease-in-out infinite',
+        firework:     'firework 1.0s ease-in-out infinite',
+        starPop:      'starPop 0.9s ease infinite',
+        rainbow:      'rainbow 2s linear infinite',
+        trophySpin:   'trophySpin 1.0s ease-in-out infinite',
+        confetti:     'confetti 1.2s ease-in-out infinite',
+        glitter:      'glitter 1.0s ease-in-out infinite',
+        angelic:      'angelic 1.4s ease-in-out infinite',
+        medalSwing:   'medalSwing 0.8s ease-in-out infinite',
+        lovePop:      'lovePop 1.1s ease infinite',
+        riseUp:       'riseUp 1.2s ease-in-out infinite',
+        diamondSpin:  'diamondSpin 2.0s linear infinite',
+        burstOut:     'burstOut 0.8s ease infinite',
+    };
+    return map[cls] || 'bounce 0.8s ease infinite';
+}
+
+// ── 검색 ──
+document.getElementById('searchInput').addEventListener('input', function() {
+    const q = this.value.trim().toLowerCase();
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('[data-target="all"]').classList.add('active');
+
+    if (!q) {
+        document.querySelectorAll('.group-card').forEach(c => c.style.display = '');
+        document.querySelectorAll('.emoji-btn').forEach(b => b.style.display = '');
+        return;
+    }
+
+    document.querySelectorAll('.group-card').forEach(card => {
+        const buttons = card.querySelectorAll('.emoji-btn, .anim-card');
+        let anyVisible = false;
+        buttons.forEach(btn => {
+            const text = (btn.dataset.text || btn.textContent).toLowerCase();
+            const match = text.includes(q);
+            btn.style.display = match ? '' : 'none';
+            if (match) anyVisible = true;
+        });
+        card.style.display = anyVisible ? '' : 'none';
+    });
+});
+
+// ── 복사 ──
+function copyText(text, el) {
+    navigator.clipboard.writeText(text).then(() => {
+        showToast(`복사 완료! ✅`);
+        if (el) {
+            el.style.background = '#e6fff4';
+            el.style.borderColor = '#06d6a0';
+            setTimeout(() => { el.style.background = ''; el.style.borderColor = ''; }, 1200);
         }
-    </script>
+    }).catch(() => alert('복사 실패! 수동 복사 해주세요.'));
+}
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'show';
+    setTimeout(() => { t.className = ''; }, 2000);
+}
+</script>
 </body>
 </html>
