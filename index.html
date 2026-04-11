@@ -611,8 +611,23 @@
 
         function updateClassProgress() {
             const now = new Date();
+            const day = now.getDay(); // 0: 일요일, 6: 토요일
             const currentSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
 
+            const textEl = document.getElementById('current-period-text');
+            const timeEl = document.getElementById('time-left-text');
+            const barEl = document.getElementById('class-progress-bar');
+
+            // 1. 주말 체크 (토요일, 일요일)
+            if (day === 0 || day === 6) {
+                textEl.innerHTML = `🛋️ <b>오늘은 주말입니다!</b> 편안한 휴식 보내세요.`;
+                timeEl.innerHTML = "";
+                barEl.style.width = `0%`;
+                barEl.style.backgroundColor = "#e0e0e0";
+                return; // 함수 종료
+            }
+
+            // 2. 평일 일과 로직
             let currentPeriod = null;
             let nextPeriod = null;
 
@@ -631,10 +646,6 @@
                 }
             }
 
-            const textEl = document.getElementById('current-period-text');
-            const timeEl = document.getElementById('time-left-text');
-            const barEl = document.getElementById('class-progress-bar');
-
             if (currentPeriod) {
                 const total = currentPeriod.endTime - currentPeriod.startTime;
                 const elapsed = currentSeconds - currentPeriod.startTime;
@@ -644,7 +655,7 @@
                 textEl.innerHTML = `<span style="color:${currentPeriod.type === 'class' ? '#34a853' : '#fbbc05'}">●</span> 현재 <b>${currentPeriod.name}</b> 진행 중 (${currentPeriod.start}~${currentPeriod.end})`;
                 timeEl.innerHTML = `종료까지 <b>${leftMinutes}분</b>`;
                 barEl.style.width = `${percent}%`;
-                barEl.style.backgroundColor = currentPeriod.type === 'class' ? "#34a853" : "#fbbc05"; // 수업은 초록, 쉬는시간은 노랑
+                barEl.style.backgroundColor = currentPeriod.type === 'class' ? "#34a853" : "#fbbc05";
             } else if (nextPeriod) {
                 const leftMinutes = Math.ceil((nextPeriod.startTime - currentSeconds) / 60);
                 textEl.innerHTML = `⏳ 다음 일과: <b>${nextPeriod.name}</b> 대기 중...`;
@@ -652,7 +663,7 @@
                 barEl.style.width = `0%`;
             } else {
                 textEl.innerHTML = `🌙 오늘 정규 일과가 모두 종료되었습니다.`;
-                timeEl.innerHTML = `퇴근을 준비하세요!`;
+                timeEl.innerHTML = `고생하셨습니다!`;
                 barEl.style.width = `100%`;
                 barEl.style.backgroundColor = "#e0e0e0";
             }
