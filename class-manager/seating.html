@@ -7,68 +7,67 @@
     <script>if (sessionStorage.getItem("isAllowed") !== "true") location.href = "index.html";</script>
     
     <style>
-        /* 학생 카드 클릭 시 출석 상태별 테두리 및 배경색 (고정) */
+        /* 시선 전환용 좌우 반전 클래스 */
+        .mirror-view { transform: scaleX(-1); }
+        .mirror-view .student-card { transform: scaleX(-1); } /* 글씨는 똑바로 보이게 재반전 */
+        
+        /* 출석 상태별 테두리 및 배경색 지정 */
         .status-present { border-left: 8px solid #3b82f6 !important; background-color: #eff6ff; } /* 출석: 파랑 */
         .status-absent { border-left: 8px solid #ef4444 !important; background-color: #fef2f2; }  /* 결석: 빨강 */
         .status-late { border-left: 8px solid #f59e0b !important; background-color: #fffbeb; }    /* 지각: 노랑 */
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen p-6">
-    <div class="max-w-7xl mx-auto bg-white p-8 rounded-3xl shadow-sm border border-slate-200 h-[calc(100vh-48px)] flex flex-col">
+    <div class="max-w-7xl mx-auto bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
+        <h1 class="text-3xl font-black mb-6 text-slate-800">🪑 좌석 배치 및 출석부</h1>
         
-        <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
-            <h1 class="text-3xl font-black text-slate-800">🪑 좌석 배치 및 출석부</h1>
-            <div class="flex gap-2">
-                <button onclick="toggleMirror()" class="bg-amber-100 text-amber-700 px-6 py-3 rounded-xl font-bold hover:bg-amber-200 transition">
-                    🔄 교사 시선 전환
-                </button>
-                <button onclick="saveAttendance()" class="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-emerald-700 transition shadow-md">
-                    ✅ 출석 저장
-                </button>
-                <button onclick="saveSeatingToServer()" id="saveBtn" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-md">
-                    💾 좌석표 저장
-                </button>
-            </div>
-        </div>
-        
-        <div class="mb-6">
-            <select id="selectedSubject" onchange="loadStudents()" class="w-full p-3 bg-slate-100 border-2 border-slate-200 rounded-xl font-bold text-slate-700 focus:border-blue-500 focus:outline-none">
+        <div class="flex gap-4 mb-8">
+            <select id="selectedSubject" onchange="loadStudents()" class="flex-1 p-3 bg-slate-50 border-2 border-slate-100 rounded-xl font-bold text-slate-700 focus:border-blue-500 focus:outline-none">
                 <option value="">과목을 로딩 중입니다...</option>
             </select>
+            
+            <button onclick="toggleMirror()" class="bg-amber-100 text-amber-700 px-6 py-3 rounded-xl font-bold hover:bg-amber-200 transition">
+                🔄 시선 전환
+            </button>
+            <button onclick="saveAttendance()" class="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-emerald-700 transition shadow-md">
+                ✅ 출석 저장
+            </button>
+            <button onclick="saveSeatingToServer()" id="saveBtn" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-md">
+                💾 좌석표 저장
+            </button>
         </div>
 
-        <div class="flex gap-8 flex-1 overflow-hidden">
-            <div class="w-1/4 bg-slate-100 rounded-2xl p-4 flex flex-col h-full border border-slate-200">
+        <div class="flex gap-8">
+            <div class="w-1/4 bg-slate-100 rounded-2xl p-4 flex flex-col">
                 <h2 class="text-lg font-bold text-slate-700 mb-4 text-center">학생 대기열</h2>
-                <div id="waitingList" class="flex-1 overflow-y-auto space-y-2 p-2 min-h-0" 
+                <div id="waitingList" class="flex-1 overflow-y-auto space-y-2 p-2 min-h-[500px]" 
                      ondrop="drop(event)" ondragover="allowDrop(event)">
                     <p class="text-slate-400 text-center text-sm mt-10" id="emptyMsg">과목을 선택해주세요</p>
                 </div>
             </div>
 
-            <div class="w-3/4 flex flex-col border-2 border-slate-100 rounded-2xl p-6 bg-white h-full relative" id="classroomWrapper">
-                
-                <div id="chalkboard" class="bg-emerald-800 text-white text-center py-3 rounded-xl font-black text-xl mb-6 shadow-inner transition-all duration-300">
-                    칠 판 (교탁)
-                </div>
-
-                <div class="flex-1 overflow-y-auto min-h-0">
-                    <div class="grid grid-cols-6 gap-4 p-2" id="classroomGrid">
-                        </div>
-                </div>
+            <div class="w-3/4 flex flex-col border-2 border-slate-100 rounded-2xl p-6 bg-white">
+                <div class="bg-emerald-800 text-white text-center py-4 rounded-xl font-black text-xl mb-12 shadow-inner">칠 판 (교탁)</div>
+                <div class="grid grid-cols-6 gap-4 transition-transform duration-300" id="classroomGrid"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // ★ 앱스 스크립트 URL
+        // ★ 앱스 스크립트 URL 
         const API_URL = "https://script.google.com/macros/s/AKfycbxUgpimLYy_9K_vZjbxJYtImA4fcz3ZZxfXPvy9WlYXLv1dY-yBA6yrtHeybyAo1v_Vpg/exec";
 
-        let isMirror = false; // 현재 교사 시선 모드인지 여부
-        let studentDataLoaded = []; // 원본 학생 데이터를 보관
+        // 👇 추가된 시선 전환 로직 👇
+        let isMirror = false;
+        function toggleMirror() {
+            isMirror = !isMirror;
+            const grid = document.getElementById('classroomGrid');
+            if (isMirror) grid.classList.add('mirror-view');
+            else grid.classList.remove('mirror-view');
+        }
 
         window.onload = async function() {
-            createDesks(false); // 초기 책상 생성 (정방향)
+            createDesks(); 
             try {
                 const response = await fetch(`${API_URL}?type=GET_SUBJECTS`);
                 const subjects = await response.json();
@@ -77,17 +76,22 @@
                 
                 subjects.forEach(sub => {
                     const option = document.createElement('option');
-                    option.value = sub.fullName; option.innerText = sub.fullName;
+                    option.value = sub.fullName; 
+                    option.innerText = sub.fullName;
                     select.appendChild(option);
                 });
 
                 const urlParams = new URLSearchParams(window.location.search);
                 const targetSubject = urlParams.get('subject'); 
+                
                 if (targetSubject) {
                     let found = false;
                     for (let i = 0; i < select.options.length; i++) {
-                        if (select.options[i].value.replace(/\s/g, '') === targetSubject.replace(/\s/g, '')) {
-                            select.selectedIndex = i; found = true; break;
+                        const optVal = select.options[i].value.replace(/\s/g, '');
+                        const targetVal = targetSubject.replace(/\s/g, '');
+                        if (optVal === targetVal) {
+                            select.selectedIndex = i; 
+                            found = true; break;
                         }
                     }
                     if (found) loadStudents(); 
@@ -95,7 +99,6 @@
             } catch (e) { alert("과목 목록 로드 실패!"); }
         };
 
-        // 👇👇 [전면 개편] 데이터 로딩과 화면 그리기를 분리함 👇👇
         async function loadStudents() {
             const subject = document.getElementById('selectedSubject').value;
             const waitingList = document.getElementById('waitingList');
@@ -103,153 +106,75 @@
 
             waitingList.innerHTML = "<p class='text-center text-slate-500 mt-10'>데이터를 불러오는 중...</p>";
 
-            try {
-                // 서버에서 원본 데이터 가져오기
-                const [studentsRes, seatingRes] = await Promise.all([
-                    fetch(`${API_URL}?type=GET_STUDENTS&subject=${encodeURIComponent(subject)}`),
-                    fetch(`${API_URL}?type=GET_SEATING&subject=${encodeURIComponent(subject)}`)
-                ]);
-                
-                // 전역 변수에 저장 (나중에 시선 전환 시 재활용)
-                window.rawStudents = await studentsRes.json();
-                window.rawSavedSeating = await seatingRes.json();
-
-                renderClassroomView(); // 화면 그리기 실행
-
-            } catch (e) { alert("데이터 로드 에러가 발생했습니다."); }
-        }
-
-        // 실제 화면을 그리는 핵심 함수 (isMirror 상태에 따라 다르게 그림)
-        function renderClassroomView() {
-            const waitingList = document.getElementById('waitingList');
-            const students = window.rawStudents || [];
-            const savedSeating = window.rawSavedSeating || [];
-
-            waitingList.innerHTML = ""; 
-            if (students.length === 0) {
-                waitingList.innerHTML = "<p class='text-center text-red-400 mt-10 font-bold'>저장된 학생이 없습니다!</p>";
-                return;
-            }
-
-            // 책상 위 아이들 모두 초기화
             const desks = document.querySelectorAll('.desk');
             desks.forEach(desk => {
                 const card = desk.querySelector('.student-card');
                 if (card) card.remove();
             });
 
-            students.forEach((std, index) => {
-                const card = createStudentCard(std, index); // 카드 생성 함수 호출
-
-                const mySeat = savedSeating.find(seat => seat.name === std.name && seat.number == std.number);
+            try {
+                const [studentsRes, seatingRes] = await Promise.all([
+                    fetch(`${API_URL}?type=GET_STUDENTS&subject=${encodeURIComponent(subject)}`),
+                    fetch(`${API_URL}?type=GET_SEATING&subject=${encodeURIComponent(subject)}`)
+                ]);
                 
-                if (mySeat && mySeat.seatIndex >= 0 && mySeat.seatIndex < 36) {
-                    let targetIndex = mySeat.seatIndex;
+                const students = await studentsRes.json();
+                const savedSeating = await seatingRes.json();
 
-                    // 👇 교사 시선 모드일 때 좌우/앞뒤 강제 매칭 로직 👇
-                    if (isMirror) {
-                        const originalSeatIndex = mySeat.seatIndex;
-                        const originalRow = Math.floor(originalSeatIndex / 6);
-                        const originalCol = originalSeatIndex % 6;
-
-                        // 앞뒤 반전 (0행은 5행으로, 1행은 4행으로...)
-                        const mirrorRow = 5 - originalRow;
-                        // 좌우 반전 (0열은 5열로, 1열은 4열로...)
-                        const mirrorCol = 5 - originalCol;
-
-                        targetIndex = (mirrorRow * 6) + mirrorCol; // 새로운 인덱스 계산
-                    }
-
-                    if (desks[targetIndex]) desks[targetIndex].appendChild(card);
-                } else {
-                    waitingList.appendChild(card);
+                waitingList.innerHTML = ""; 
+                
+                if (students.length === 0) {
+                    waitingList.innerHTML = "<p class='text-center text-red-400 mt-10 font-bold'>저장된 학생이 없습니다!</p>";
+                    return;
                 }
-            });
+
+                students.forEach((std, index) => {
+                    const card = document.createElement('div');
+                    
+                    // 👇 출석 상태를 위한 기본 세팅 추가 👇
+                    card.className = "student-card p-3 rounded-lg shadow-sm border border-slate-200 text-center font-bold text-slate-700 hover:shadow-md mb-2 cursor-grab active:cursor-grabbing status-present";
+                    card.draggable = true;
+                    card.id = `std-${index}`;
+                    
+                    card.dataset.grade = std.grade;
+                    card.dataset.class = std.class;
+                    card.dataset.number = std.number;
+                    card.dataset.name = std.name;
+                    card.dataset.status = "present"; // 기본은 출석(present) 상태
+                    
+                    card.innerHTML = `<span class="text-xs text-blue-500 block mb-1 pointer-events-none">${std.class}반 ${std.number}번</span><span class="pointer-events-none">${std.name}</span>`;
+                    
+                    card.addEventListener('dragstart', drag);
+                    card.addEventListener('dragend', dragEnd);
+
+                    // 👇 카드 클릭 시 출석 상태 변경 로직 👇
+                    card.onclick = function() {
+                        if (!this.parentNode.classList.contains('desk')) return; // 책상에 있을 때만 작동
+                        
+                        this.classList.remove('status-present', 'status-absent', 'status-late');
+                        
+                        if (this.dataset.status === "present") {
+                            this.dataset.status = "absent";
+                            this.classList.add('status-absent');
+                        } else if (this.dataset.status === "absent") {
+                            this.dataset.status = "late";
+                            this.classList.add('status-late');
+                        } else {
+                            this.dataset.status = "present";
+                            this.classList.add('status-present');
+                        }
+                    };
+
+                    const mySeat = savedSeating.find(seat => seat.name === std.name && seat.number == std.number);
+                    if (mySeat && mySeat.seatIndex >= 0 && mySeat.seatIndex < 36) {
+                        desks[mySeat.seatIndex].appendChild(card);
+                    } else {
+                        waitingList.appendChild(card);
+                    }
+                });
+            } catch (e) { alert("데이터 로드 에러가 발생했습니다."); }
         }
 
-        // 학생 카드 한 장 만드는 함수
-        function createStudentCard(std, index) {
-            const card = document.createElement('div');
-            // 교사 시선 모드이면 좌우 반전 시켜서 글씨가 똑바로 보이게 함
-            const mirrorClass = isMirror ? '[transform:scaleX(-1)]' : '';
-            card.className = `student-card p-3 rounded-lg shadow-sm border border-slate-200 text-center font-bold text-slate-700 hover:shadow-md mb-2 cursor-grab active:cursor-grabbing status-present ${mirrorClass}`;
-            card.draggable = true;
-            card.id = `std-${index}`;
-            card.dataset.grade = std.grade; card.dataset.class = std.class; card.dataset.number = std.number; card.dataset.name = std.name; card.dataset.status = "present"; 
-            
-            card.innerHTML = `<span class="text-xs text-blue-500 block mb-1 pointer-events-none">${std.class}반 ${std.number}번</span><span class="pointer-events-none">${std.name}</span>`;
-            
-            card.addEventListener('dragstart', drag); card.addEventListener('dragend', dragEnd);
-            
-            // 출석 체크 클릭 이벤트
-            card.onclick = function() {
-                if (!this.parentNode.classList.contains('desk')) return;
-                this.classList.remove('status-present', 'status-absent', 'status-late');
-                if (this.dataset.status === "present") { this.dataset.status = "absent"; this.classList.add('status-absent'); } 
-                else if (this.dataset.status === "absent") { this.dataset.status = "late"; this.classList.add('status-late'); } 
-                else { this.dataset.status = "present"; this.classList.add('status-present'); }
-            };
-            return card;
-        }
-
-        // 👇👇 [추가] 시선 전환(앞뒤+좌우) 완전 구현 로직 👇👇
-        function toggleMirror() {
-            if (!window.rawStudents) return alert("과목을 먼저 선택하여 명단을 불러와주세요.");
-            
-            isMirror = !isMirror; // 상태 반전
-
-            // 1. 책상 그리드 재배치 (CSS Grid 순서 변경)
-            createDesks(isMirror);
-
-            // 2. 칠판(교탁) 위치 및 스타일 변경
-            const chalkboard = document.getElementById('chalkboard');
-            const wrapper = document.getElementById('classroomWrapper');
-            const mirrorClass = '[transform:scaleX(-1)]';
-
-            if (isMirror) {
-                // 교사 모드: 칠판을 아래쪽으로 이동시키고 좌우 반전
-                wrapper.appendChild(chalkboard); 
-                chalkboard.classList.add('mt-6', 'mb-0', 'bg-slate-700', mirrorClass);
-                chalkboard.classList.remove('mb-6', 'bg-emerald-800');
-            } else {
-                // 학생 모드: 칠판을 위쪽으로 원상복구
-                wrapper.prepend(chalkboard);
-                chalkboard.classList.add('mb-6', 'bg-emerald-800');
-                chalkboard.classList.remove('mt-6', 'mb-0', 'bg-slate-700', mirrorClass);
-            }
-
-            // 3. 바뀐 시선에 맞춰 아이들을 자리에 다시 앉히기
-            renderClassroomView();
-        }
-
-        // 책상을 36개 생성하는 함수 (isMirror에 따라 ID 배치가 달라짐)
-        function createDesks(mirror) {
-            const grid = document.getElementById('classroomGrid');
-            grid.innerHTML = ''; // 싹 비우기
-            
-            // 교사 시선 모드이면 책상 그리드 자체를 좌우 반전 시킵니다.
-            if(mirror) grid.classList.add('[transform:scaleX(-1)]');
-            else grid.classList.remove('[transform:scaleX(-1)]');
-
-            for(let i=0; i<36; i++) {
-                const desk = document.createElement('div');
-                desk.className = "desk border-2 border-dashed border-slate-300 rounded-xl flex items-center justify-center p-2 bg-slate-50 relative transition-colors duration-200 min-h-[80px]";
-                desk.addEventListener('drop', drop); desk.addEventListener('dragover', allowDrop); desk.addEventListener('dragenter', dragEnter); desk.addEventListener('dragleave', dragLeave);
-
-                const seatNum = document.createElement('span');
-                // 교사 모드이면 번호도 좌우 반전 시켜서 글씨가 똑바로 보이게 함
-                const mirrorNumClass = mirror ? '[transform:scaleX(-1)]' : '';
-                seatNum.className = `absolute text-slate-200 font-bold text-2xl z-0 pointer-events-none ${mirrorNumClass}`;
-                
-                // ID 배치는 언제나 1~36번 정순서대로 만듭니다. (자바스크립트가 로딩 시 위치를 조절)
-                seatNum.innerText = i + 1;
-                
-                desk.appendChild(seatNum);
-                grid.appendChild(desk);
-            }
-        }
-
-        // --- 좌석 및 출석부 저장 로직 (이전과 동일) ---
         async function saveSeatingToServer() {
             const subject = document.getElementById('selectedSubject').value;
             if (!subject) return alert("과목을 선택해주세요.");
@@ -258,25 +183,11 @@
 
             const desks = document.querySelectorAll('.desk');
             const seatingData = [];
-            
             desks.forEach((desk, index) => {
                 const card = desk.querySelector('.student-card');
                 if (card) {
-                    let actualSeatIndex = index;
-
-                    // 👇 교사 모드일 때 저장 시 실제 구글 시트 번호(학생 모드 기준)로 변환👇
-                    if(isMirror) {
-                        const originalRow = Math.floor(index / 6);
-                        const originalCol = index % 6;
-                        // 반대로 계산
-                        const mirrorRow = 5 - originalRow;
-                        const mirrorCol = 5 - originalCol;
-                        actualSeatIndex = (mirrorRow * 6) + mirrorCol;
-                    }
-
                     seatingData.push({
-                        seatIndex: actualSeatIndex, 
-                        grade: card.dataset.grade, class: card.dataset.class,
+                        seatIndex: index, grade: card.dataset.grade, class: card.dataset.class,
                         number: card.dataset.number, name: card.dataset.name
                     });
                 }
@@ -287,36 +198,93 @@
                     method: 'POST', body: JSON.stringify({ type: "SAVE_SEATING", payload: { subject, seatingData } })
                 });
                 const result = await response.json();
-                if (result.success) alert("✅ 좌석 배치가 완벽하게 저장되었습니다!");
+                if (result.success) alert("✅ 좌석 배치가 저장되었습니다!");
                 else alert("❌ 저장 실패");
             } catch (e) { alert("네트워크 오류"); } 
             finally { btn.innerText = "💾 좌석표 저장"; btn.disabled = false; }
         }
 
+        // 👇 추가된 출석부 저장 로직 👇
         async function saveAttendance() {
             const subject = document.getElementById('selectedSubject').value;
             if (!subject) return alert("과목을 선택해주세요.");
+            
             const cards = document.querySelectorAll('.desk .student-card');
             if (cards.length === 0) return alert("책상에 배치된 학생이 없습니다.");
+
             const attendanceData = Array.from(cards).map(c => ({
-                grade: c.dataset.grade, class: c.dataset.class, number: c.dataset.number, name: c.dataset.name, status: c.dataset.status
+                grade: c.dataset.grade, class: c.dataset.class, 
+                number: c.dataset.number, name: c.dataset.name, status: c.dataset.status
             }));
+
             try {
                 const response = await fetch(API_URL, {
-                    method: 'POST', body: JSON.stringify({ type: "SAVE_ATTENDANCE", payload: { subject, attendanceData } })
+                    method: 'POST',
+                    body: JSON.stringify({ type: "SAVE_ATTENDANCE", payload: { subject, attendanceData } })
                 });
                 const res = await response.json();
-                if (res.success) alert("✅ 오늘자 출석부가 구글 시트에 기록되었습니다!");
+                if (res.success) alert("✅ 오늘자 출석부가 구글 시트에 완벽히 기록되었습니다!");
+                else alert("❌ 출석부 저장 실패: " + res.msg);
             } catch (e) { alert("출석부 저장 중 오류가 발생했습니다."); }
         }
 
-        // --- 드래그 앤 드롭 함수 ---
-        function drag(ev) { ev.dataTransfer.setData("text", ev.target.id); setTimeout(() => { ev.target.style.opacity = "0.3"; }, 0); }
+        // --- 책상 생성 및 드래그 앤 드롭 함수 ---
+        function createDesks() {
+            const grid = document.getElementById('classroomGrid');
+            for(let i=0; i<36; i++) {
+                const desk = document.createElement('div');
+                desk.className = "desk border-2 border-dashed border-slate-300 rounded-xl flex items-center justify-center p-2 bg-slate-50 relative transition-colors duration-200 min-h-[80px]";
+                
+                desk.addEventListener('drop', drop);
+                desk.addEventListener('dragover', allowDrop);
+                desk.addEventListener('dragenter', dragEnter);
+                desk.addEventListener('dragleave', dragLeave);
+
+                const seatNum = document.createElement('span');
+                seatNum.className = "absolute text-slate-200 font-bold text-2xl z-0 pointer-events-none";
+                seatNum.innerText = i + 1;
+                desk.appendChild(seatNum);
+                grid.appendChild(desk);
+            }
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+            setTimeout(() => { ev.target.style.opacity = "0.3"; }, 0);
+        }
         function dragEnd(ev) { ev.target.style.opacity = "1"; }
         function allowDrop(ev) { ev.preventDefault(); }
-        function dragEnter(ev) { ev.preventDefault(); const dropZone = ev.target.closest('.desk'); if(dropZone) dropZone.classList.add('bg-blue-100', 'border-blue-500'); }
-        function dragLeave(ev) { const dropZone = ev.target.closest('.desk'); if(dropZone) dropZone.classList.remove('bg-blue-100', 'border-blue-500'); }
-        function drop(ev) { ev.preventDefault(); const dropZone = ev.target.closest('.desk') || ev.target.closest('#waitingList'); if(!dropZone) return; if(dropZone.classList.contains('desk')) dropZone.classList.remove('bg-blue-100', 'border-blue-500'); const data = ev.dataTransfer.getData("text"); const draggedEl = document.getElementById(data); if (!draggedEl) return; draggedEl.style.opacity = "1"; if (dropZone.classList.contains('desk')) { const existingStudent = dropZone.querySelector('.student-card'); if (!existingStudent) dropZone.appendChild(draggedEl); else if (existingStudent !== draggedEl) { const originalParent = draggedEl.parentNode; dropZone.appendChild(draggedEl); originalParent.appendChild(existingStudent); } } else if (dropZone.id === 'waitingList') dropZone.appendChild(draggedEl); }
+        function dragEnter(ev) {
+            ev.preventDefault();
+            const dropZone = ev.target.closest('.desk');
+            if(dropZone) dropZone.classList.add('bg-blue-100', 'border-blue-500');
+        }
+        function dragLeave(ev) {
+            const dropZone = ev.target.closest('.desk');
+            if(dropZone) dropZone.classList.remove('bg-blue-100', 'border-blue-500');
+        }
+        function drop(ev) {
+            ev.preventDefault();
+            const dropZone = ev.target.closest('.desk') || ev.target.closest('#waitingList');
+            if(!dropZone) return;
+            if(dropZone.classList.contains('desk')) dropZone.classList.remove('bg-blue-100', 'border-blue-500');
+
+            const data = ev.dataTransfer.getData("text");
+            const draggedEl = document.getElementById(data);
+            if (!draggedEl) return;
+            draggedEl.style.opacity = "1";
+
+            if (dropZone.classList.contains('desk')) {
+                const existingStudent = dropZone.querySelector('.student-card');
+                if (!existingStudent) dropZone.appendChild(draggedEl);
+                else if (existingStudent !== draggedEl) {
+                    const originalParent = draggedEl.parentNode;
+                    dropZone.appendChild(draggedEl);
+                    originalParent.appendChild(existingStudent);
+                }
+            } 
+            else if (dropZone.id === 'waitingList') dropZone.appendChild(draggedEl);
+        }
     </script>
 </body>
 </html>
