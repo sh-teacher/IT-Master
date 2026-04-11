@@ -101,3 +101,43 @@
                 alert("저장 실패: " + e.message);
             } finally {
                 btn.disabled = false;
+                btn.innerText = "학기 정보 저장";
+            }
+        }
+
+        // 2. 과목 등록 저장
+        async function addSubject() {
+            const btn = document.getElementById('btnSubject');
+            const name = document.getElementById('subjectName').value;
+            const target = document.getElementById('targetClass').value;
+
+            if(!name || !target) return alert("과목명과 대상반을 입력하세요.");
+
+            btn.disabled = true;
+            btn.innerText = "추가 중...";
+
+            try {
+                await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        type: "ADD_SUBJECT",
+                        payload: { name: name, target: target }
+                    })
+                });
+                
+                // 테이블에 임시 추가 (화면 갱신용)
+                const row = `<tr><td class="p-3 text-sm">${name}</td><td class="p-3 text-sm">${target}</td></tr>`;
+                document.getElementById('subjectTableBody').innerHTML += row;
+                
+                document.getElementById('subjectName').value = "";
+                document.getElementById('targetClass').value = "";
+            } catch (e) {
+                alert("과목 등록 실패: " + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "추가";
+            }
+        }
+    </script>
+</body>
+</html>
