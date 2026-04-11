@@ -7,10 +7,12 @@
     <script>if (sessionStorage.getItem("isAllowed") !== "true") location.href = "index.html";</script>
     
     <style>
-        /* 드래그 꼬임 방지를 위한 핵심 CSS 코팅 */
+        /* 마우스 꼬임 현상을 원천 차단하는 가장 확실한 CSS */
+        .student-card { cursor: grab; }
+        .student-card:active { cursor: grabbing; }
         .student-card * { pointer-events: none; } 
         
-        /* 출석 상태별 색상 */
+        /* 출석 상태 배경색 */
         .status-present { border-left: 8px solid #3b82f6 !important; background-color: #eff6ff; } 
         .status-absent { border-left: 8px solid #ef4444 !important; background-color: #fef2f2; }  
         .status-late { border-left: 8px solid #f59e0b !important; background-color: #fffbeb; }    
@@ -63,15 +65,12 @@
     </div>
 
     <script>
-        // ★ 선생님의 앱스 스크립트 URL로 꼭 변경해주세요! ★
+        // ★ 선생님의 앱스 스크립트 URL! ★
         const API_URL = "https://script.google.com/macros/s/AKfycbxUgpimLYy_9K_vZjbxJYtImA4fcz3ZZxfXPvy9WlYXLv1dY-yBA6yrtHeybyAo1v_Vpg/exec";
 
         let isMirror = false; 
         let rawStudents = []; 
         let rawSavedSeating = [];
-        
-        // 👇 이 변수가 브라우저 버그를 박살내는 핵심 무기입니다! 👇
-        let draggedCard = null; 
 
         window.onload = async function() {
             createDesks(); 
@@ -150,26 +149,31 @@
             });
         }
 
+        // 1. 학생 카드 생성 로직 (가장 안정적인 방식)
         function createStudentCard(std, index) {
             const card = document.createElement('div');
-            card.className = "student-card p-3 rounded-lg shadow-sm border border-slate-200 text-center font-bold text-slate-700 hover:shadow-md mb-2 cursor-grab active:cursor-grabbing status-present";
+            card.className = "student-card p-3 rounded-lg shadow-sm border border-slate-200 text-center font-bold text-slate-700 hover:shadow-md mb-2 status-present";
             card.draggable = true;
             card.id = `std-${index}`;
             card.dataset.grade = std.grade; card.dataset.class = std.class; card.dataset.number = std.number; card.dataset.name = std.name; card.dataset.status = "present"; 
             
-            card.innerHTML = `<span class="text-xs text-blue-500 block mb-1 pointer-events-none">${std.class}반 ${std.number}번</span><span class="pointer-events-none">${std.name}</span>`;
+            card.innerHTML = `<span class="text-xs text-blue-500 block mb-1">${std.class}반 ${std.number}번</span><span>${std.name}</span>`;
             
-            card.addEventListener('dragstart', drag);
-            card.addEventListener('dragend', dragEnd);
+            // 이벤트 유실을 막기 위해 속성(Attribute)에 직접 주입!
+            card.setAttribute('ondragstart', 'drag(event)');
+            card.setAttribute('ondragend', 'dragEnd(event)');
+            card.setAttribute('onclick', 'toggleStatus(this)');
             
-            card.onclick = function() {
-                if (!this.parentNode.classList.contains('desk')) return;
-                this.classList.remove('status-present', 'status-absent', 'status-late');
-                if (this.dataset.status === "present") { this.dataset.status = "absent"; this.classList.add('status-absent'); } 
-                else if (this.dataset.status === "absent") { this.dataset.status = "late"; this.classList.add('status-late'); } 
-                else { this.dataset.status = "present"; this.classList.add('status-present'); }
-            };
             return card;
+        }
+
+        // 출석 상태 토글 함수
+        function toggleStatus(el) {
+            if (!el.parentNode.classList.contains('desk')) return;
+            el.classList.remove('status-present', 'status-absent', 'status-late');
+            if (el.dataset.status === "present") { el.dataset.status = "absent"; el.classList.add('status-absent'); } 
+            else if (el.dataset.status === "absent") { el.dataset.status = "late"; el.classList.add('status-late'); } 
+            else { el.dataset.status = "present"; el.classList.add('status-present'); }
         }
 
         function updateLocalSeatingState() {
@@ -190,7 +194,6 @@
 
         function toggleMirror() {
             if (rawStudents.length === 0) return alert("과목을 먼저 선택하여 명단을 불러와주세요.");
-            
             updateLocalSeatingState(); 
             isMirror = !isMirror; 
 
@@ -206,26 +209,27 @@
                 chalkboard.classList.remove('mt-6', 'mb-0', 'bg-slate-700');
                 chalkboard.classList.add('mb-6', 'bg-emerald-800');
             }
-
             createDesks(); 
             renderClassroomView(); 
         }
 
+        // 2. 책상 생성 로직 (가장 안정적인 방식)
         function createDesks() {
             const grid = document.getElementById('classroomGrid');
             grid.innerHTML = ''; 
 
             for(let i=0; i<36; i++) {
                 const desk = document.createElement('div');
-                desk.className = "desk border-2 border-dashed border-slate-300 rounded-xl flex items-center justify-center p-2 bg-slate-50 relative transition-colors duration-200 min-h-[80px]";
+                desk.className = "desk border-2 border-dashed border-slate-300 rounded-xl flex items-center justify-center p-2 bg-slate-50 relative min-h-[80px]";
                 
                 const logicalIndex = isMirror ? (35 - i) : i;
                 desk.dataset.logicalIndex = logicalIndex;
 
-                desk.addEventListener('drop', drop);
-                desk.addEventListener('dragover', allowDrop);
-                desk.addEventListener('dragenter', dragEnter);
-                desk.addEventListener('dragleave', dragLeave);
+                // 이벤트 유실을 막기 위해 속성(Attribute)에 직접 주입!
+                desk.setAttribute('ondrop', 'drop(event)');
+                desk.setAttribute('ondragover', 'allowDrop(event)');
+                desk.setAttribute('ondragenter', 'dragEnter(event)');
+                desk.setAttribute('ondragleave', 'dragLeave(event)');
 
                 const seatNum = document.createElement('span');
                 seatNum.className = "absolute text-slate-200 font-bold text-2xl z-0 pointer-events-none";
@@ -236,22 +240,18 @@
             }
         }
 
-        // --- 🧲 브라우저 버그 무시! 초강력 자석 드래그 로직 ---
-        
+        // --- 🧲 오리지널 드래그 앤 드롭 코어 로직 ---
         function drag(ev) {
-            draggedCard = ev.currentTarget; // 브라우저 몰래 변수에 카드를 꽉 쥐어줍니다.
-            // 파이어폭스 호환용 쓰레기 데이터
-            ev.dataTransfer.setData("text/plain", "dummy");
-            setTimeout(() => { ev.currentTarget.style.opacity = "0.3"; }, 0);
+            ev.dataTransfer.setData("text", ev.target.id);
+            setTimeout(() => { ev.target.style.opacity = "0.4"; }, 0);
         }
 
         function dragEnd(ev) {
-            if (draggedCard) draggedCard.style.opacity = "1";
-            draggedCard = null; // 내려놓으면 쥐고 있던 카드를 놓습니다.
+            ev.target.style.opacity = "1";
         }
 
         function allowDrop(ev) {
-            ev.preventDefault(); // 드롭 허용
+            ev.preventDefault();
         }
 
         function dragEnter(ev) {
@@ -267,10 +267,6 @@
 
         function drop(ev) {
             ev.preventDefault();
-            
-            // 브라우저가 까먹어도, 우리가 직접 쥐고 있던 카드를 강제로 소환!
-            if (!draggedCard) return; 
-
             const dropZone = ev.target.closest('.desk') || ev.target.closest('#waitingList');
             if(!dropZone) return;
 
@@ -278,23 +274,24 @@
                 dropZone.classList.remove('bg-blue-100', 'border-blue-500');
             }
 
-            // 카드를 강제로 배치!
+            const data = ev.dataTransfer.getData("text");
+            const draggedEl = document.getElementById(data);
+            
+            if (!draggedEl) return;
+            draggedEl.style.opacity = "1";
+
             if (dropZone.classList.contains('desk')) {
                 const existingStudent = dropZone.querySelector('.student-card');
                 if (!existingStudent) {
-                    dropZone.appendChild(draggedCard);
-                } else if (existingStudent !== draggedCard) {
-                    // 서로 자리 바꾸기
-                    const originalParent = draggedCard.parentNode;
-                    dropZone.appendChild(draggedCard);
+                    dropZone.appendChild(draggedEl);
+                } else if (existingStudent !== draggedEl) {
+                    const originalParent = draggedEl.parentNode;
+                    dropZone.appendChild(draggedEl);
                     originalParent.appendChild(existingStudent);
                 }
             } else if (dropZone.id === 'waitingList') {
-                dropZone.appendChild(draggedCard);
+                dropZone.appendChild(draggedEl);
             }
-            
-            draggedCard.style.opacity = "1";
-            draggedCard = null;
         }
 
         // --- 저장 로직 ---
