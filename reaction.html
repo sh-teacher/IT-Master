@@ -108,4 +108,75 @@
                     { src: "https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif", label: "최고 고양이 👍" },
                     { src: "https://media.giphy.com/media/3o7TDepZQZ2Bhs1cNa/giphy.gif", label: "수고하셨습니다 🙇" },
                     { src: "https://media.giphy.com/media/26ufcVAp3AiLjVZkc/giphy.gif", label: "폭풍 오열 😭" },
-                    { src: "
+                    { src: "https://media.giphy.com/media/l41YkxvU8c7J7Bba0/giphy.gif", label: "칼퇴 요정 🏃💨" },
+                    { src: "https://media.giphy.com/media/11ISwbgCxEzMyY/giphy.gif", label: "끄덕 끄덕 ⭕" }
+                ]
+            }
+        ];
+
+        // =========================================================================
+        // ★ 렌더링 엔진 (아래는 건드릴 필요 없습니다!)
+        // =========================================================================
+        const container = document.getElementById('reaction-container');
+
+        reactionData.forEach(group => {
+            // 그룹 박스 생성
+            const groupDiv = document.createElement('div');
+            groupDiv.className = "bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-6";
+            
+            // 그룹 제목
+            const titleHtml = `<h2 class="text-lg font-bold text-gray-700 mb-4 pb-2 border-b border-gray-100 flex items-center justify-between">
+                <span>${group.title}</span>
+                ${group.type === 'text' ? '<span class="text-[11px] bg-blue-50 text-blue-500 px-2 py-1 rounded-full font-bold">클릭 복사</span>' : '<span class="text-[11px] bg-red-50 text-red-500 px-2 py-1 rounded-full font-bold">우클릭 복사</span>'}
+            </h2>`;
+            groupDiv.innerHTML = titleHtml;
+
+            // 아이템 컨테이너
+            const itemsDiv = document.createElement('div');
+            
+            if (group.type === 'text') {
+                itemsDiv.className = "grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3";
+                group.items.forEach(text => {
+                    const btn = document.createElement('button');
+                    btn.className = "emoji-btn border border-gray-200 p-3 rounded-xl text-center text-[13px] text-gray-700 font-bold bg-gray-50 shadow-sm";
+                    btn.innerText = text;
+                    btn.onclick = () => copyText(text);
+                    itemsDiv.appendChild(btn);
+                });
+            } else if (group.type === 'image') {
+                itemsDiv.className = "grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4";
+                group.items.forEach(imgData => {
+                    const card = document.createElement('div');
+                    card.className = "gif-card border border-gray-200 rounded-xl p-2 bg-gray-50 cursor-pointer hover:border-blue-400 transition shadow-sm";
+                    card.title = "우클릭해서 이미지 복사";
+                    card.innerHTML = `
+                        <img src="${imgData.src}" alt="${imgData.label}">
+                        <p class="text-center text-[11px] font-bold text-gray-500 mt-2">${imgData.label}</p>
+                    `;
+                    itemsDiv.appendChild(card);
+                });
+            }
+
+            groupDiv.appendChild(itemsDiv);
+            container.appendChild(groupDiv);
+        });
+
+        // 텍스트 복사 함수
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(`'${text}' 복사 완료!`);
+            }).catch(err => {
+                alert('복사 실패! 수동으로 복사해주세요.');
+            });
+        }
+
+        // 토스트 알림 함수
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            toast.innerText = message;
+            toast.className = "show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 2000);
+        }
+    </script>
+</body>
+</html>
