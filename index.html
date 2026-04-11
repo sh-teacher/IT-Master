@@ -676,7 +676,7 @@
         updateClassProgress(); // 로딩 즉시 1회 실행
 
         // ==========================================
-        // ★ 실시간 날씨 & 미세먼지 (초심플 모드)
+        // ★ 실시간 날씨 (기온/습도/바람 복구) & 미세먼지
         // ==========================================
         async function fetchWeatherString() {
             try {
@@ -684,15 +684,15 @@
                 const lat = 35.1595;
                 const lon = 126.8526;
                 
-                // 날씨(현재 기온, 체감 온도만)와 미세먼지 API 호출
-                const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,weather_code&timezone=Asia%2FSeoul`;
+                // 습도와 바람 API 다시 추가!
+                const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m&timezone=Asia%2FSeoul`;
                 const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10&timezone=Asia%2FSeoul`;
 
                 const [wRes, aRes] = await Promise.all([fetch(weatherUrl), fetch(aqiUrl)]);
                 const wData = await wRes.json();
                 const aData = await aRes.json();
 
-                // 날씨 아이콘
+                // 날씨 아이콘 및 바람 방향 계산기
                 const getIcon = (c) => {
                     if ([0].includes(c)) return "☀️";
                     if ([1, 2, 3].includes(c)) return "⛅";
@@ -702,22 +702,30 @@
                     if ([95, 96, 99].includes(c)) return "⛈️";
                     return "🌤️";
                 };
+                const getWindDir = (deg) => {
+                    const arrows = ["↓","↙","←","↖","↑","↗","→","↘"];
+                    return arrows[Math.round(deg / 45) % 8];
+                };
 
                 // 현재 화면이 다크모드인지 확인
                 const isDark = document.body.classList.contains('dark-mode');
 
                 // 미세먼지 상태 및 다크모드 전용 색상 적용
                 const getDustInfo = (pm) => {
-                    if(pm <= 30) return { txt: "🔵좋음", color: isDark ? "#60a5fa" : "#3b82f6" }; // 다크모드일 땐 더 밝은 파랑
-                    if(pm <= 80) return { txt: "🟢보통", color: isDark ? "#34d399" : "#10b981" }; // 더 밝은 초록
-                    if(pm <= 150) return { txt: "🟡나쁨", color: isDark ? "#fbbf24" : "#f59e0b" }; // 더 밝은 노랑
-                    return { txt: "🔴최악", color: isDark ? "#f87171" : "#ef4444" }; // 더 밝은 빨강
+                    if(pm <= 30) return { txt: "🔵좋음", color: isDark ? "#60a5fa" : "#3b82f6" }; 
+                    if(pm <= 80) return { txt: "🟢보통", color: isDark ? "#34d399" : "#10b981" }; 
+                    if(pm <= 150) return { txt: "🟡나쁨", color: isDark ? "#fbbf24" : "#f59e0b" }; 
+                    return { txt: "🔴최악", color: isDark ? "#f87171" : "#ef4444" }; 
                 };
 
                 const cur = wData.current;
                 const temp = Math.round(cur.temperature_2m);
                 const appTemp = Math.round(cur.apparent_temperature);
+                const hum = Math.round(cur.relative_humidity_2m); // 습도 부활!
+                const windSpd = Math.round(cur.wind_speed_10m); // 바람 부활!
+                const windDir = getWindDir(cur.wind_direction_10m); 
                 const icon = getIcon(cur.weather_code);
+                
                 const pm10 = Math.round(aData.current.pm10 || 0);
                 const dust = getDustInfo(pm10);
 
@@ -727,10 +735,14 @@
                 // 기본 글자색 (다크모드: 밝은 회색, 일반: 짙은 회색)
                 const labelColor = isDark ? "#e0e0e0" : "#555";
 
-                // 한 줄로 예쁘게 조립
+                // 선생님의 원래 포맷 그대로 조립!
                 const finalStr = `
                     <span style="color: ${labelColor};">📍 광주 서구: ${icon} ${tempStr}°C (체감:${appTempStr}°C)</span>
-                    <span style="color: ${labelColor}; margin: 0 8px; opacity: 0.4;">|</span>
+                    <span style="color: ${labelColor}; margin: 0 6px; opacity: 0.4;">|</span>
+                    <span style="color: ${labelColor};">습도:${hum}%</span>
+                    <span style="color: ${labelColor}; margin: 0 6px; opacity: 0.4;">|</span>
+                    <span style="color: ${labelColor};">바람:${windDir}${windSpd}km/h</span>
+                    <span style="color: ${labelColor}; margin: 0 6px; opacity: 0.4;">|</span>
                     <span style="color: ${labelColor};">😷먼지: </span>
                     <span style="color: ${dust.color}; font-weight: 800;">${dust.txt}</span>
                     <span style="color: ${labelColor}; font-size: 11px; opacity: 0.7; margin-left: 2px;">(${pm10})</span>
