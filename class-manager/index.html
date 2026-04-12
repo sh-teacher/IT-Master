@@ -68,12 +68,11 @@
         </header>
 
         <div class="flex-1 overflow-hidden bg-slate-50 relative">
-            <iframe name="mainFrame" id="mainFrame" src="dashboard.html" class="w-full h-full border-none"></iframe>
+            <iframe name="mainFrame" id="mainFrame" src="" class="w-full h-full border-none"></iframe>
         </div>
     </main>
 
     <script>
-        // ★ 선생님의 앱스 스크립트 URL로 꼭 변경해주세요! ★
         const API_URL = "https://script.google.com/macros/s/AKfycbxUgpimLYy_9K_vZjbxJYtImA4fcz3ZZxfXPvy9WlYXLv1dY-yBA6yrtHeybyAo1v_Vpg/exec";
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -101,6 +100,7 @@
                 if(data.success) {
                     sessionStorage.setItem("isAllowed", "true");
                     document.getElementById('loginOverlay').style.display = 'none';
+                    // 로그인 성공 시 앱 초기화 실행
                     initializeApp();
                 } else {
                     alert("비밀번호가 틀렸습니다.");
@@ -119,9 +119,19 @@
             location.reload();
         }
 
-        function initializeApp() {
+        // 🔥 로그인 직후에 실행되는 초기화 함수
+        async function initializeApp() {
             loadSubjectsMenu();
-            checkScheduleAndAutoLoad();
+            
+            // 현재 수업 자동 띄우기를 시도합니다.
+            const isAutoLoaded = await checkScheduleAndAutoLoad();
+            
+            // 만약 현재 진행 중인 수업이 없다면, 기본으로 대시보드를 띄워줍니다!
+            if (!isAutoLoaded) {
+                document.getElementById('mainFrame').src = "dashboard.html";
+                document.getElementById('headerTitle').innerText = "홈 (대시보드)";
+            }
+
             setInterval(updateClock, 1000);
             updateClock();
         }
@@ -149,7 +159,6 @@
                 subjects.forEach(sub => {
                     const groupDiv = document.createElement('div');
                     groupDiv.className = "mb-2";
-                    // 🔥 변경된 부분: 좌석 배치 메뉴와 출석/일지 메뉴 분리 및 활성화
                     groupDiv.innerHTML = `
                         <div class="px-4 py-2 text-slate-300 font-bold flex items-center gap-2">
                             <span class="w-2 h-2 rounded-full bg-blue-400"></span>
@@ -176,6 +185,7 @@
             }
         }
 
+        // 🔥 자동 로드 판별 후 결과를 반환하도록 수정
         async function checkScheduleAndAutoLoad() {
             try {
                 const response = await fetch(`${API_URL}?type=GET_SCHEDULE`);
@@ -191,11 +201,15 @@
 
                 if (currentClass) {
                     const frame = document.getElementById('mainFrame');
-                    // 🔥 변경된 부분: 수업 시간이 되면 seating.html이 아니라 attendance.html을 띄웁니다!
                     frame.src = `attendance.html?subject=${encodeURIComponent(currentClass.subject)}`;
                     document.getElementById('headerTitle').innerText = "현재 수업: " + currentClass.subject;
+                    return true; // 수업이 있어서 화면을 바꿨다고 알려줌
                 }
-            } catch (e) { console.log("시간표 없음"); }
+                return false; // 수업이 없음
+            } catch (e) { 
+                console.log("시간표 없음"); 
+                return false;
+            }
         }
     </script>
 </body>
