@@ -42,7 +42,9 @@
                 <select id="selectedPeriod" onchange="loadClassData()" class="p-3 bg-slate-50 border-2 border-slate-100 rounded-xl font-bold text-blue-600 focus:border-blue-500 focus:outline-none disabled:opacity-50 disabled:bg-slate-100">
                     <option value="">과목/날짜 선택</option>
                 </select>
-                
+                <button onclick="openReportModal()" class="bg-indigo-100 text-indigo-700 px-5 py-3 rounded-xl font-bold hover:bg-indigo-200 transition whitespace-nowrap shadow-sm">
+                    📊 누적 현황 보기
+                </button>
                 <button onclick="autoLoadCurrentClass(this)" class="bg-emerald-100 text-emerald-700 px-5 py-3 rounded-xl font-bold hover:bg-emerald-200 transition whitespace-nowrap">
                     ⏰ 현재 수업 로드
                 </button>
@@ -470,6 +472,126 @@
                 btn.disabled = false;
             }
         }
+        // 🌟 누적 현황 팝업 열기
+        async function openReportModal() {
+            const subject = document.getElementById('selectedSubject').value;
+            if (!subject) return alert("현황을 볼 과목을 선택해주세요.");
+
+            document.getElementById('reportTitle').innerText = subject;
+            document.getElementById('reportContent').innerHTML = '<div class="text-center p-20 text-slate-500 font-bold text-lg animate-pulse">데이터를 집계 중입니다...</div>';
+            document.getElementById('reportModal').classList.remove('hidden');
+
+            try {
+                const res = await fetch(`${API_URL}?type=GET_SUBJECT_REPORT&subject=${encodeURIComponent(subject)}&t=${Date.now()}`);
+                const result = await res.json();
+
+                if (!result.success || result.data.length === 0) {
+                    document.getElementById('reportContent').innerHTML = '<div class="text-center text-slate-500 p-20 font-bold text-lg">저장된 기록이 없습니다.</div>';
+                    return;
+                }
+                renderReport(result.data);
+            } catch (e) {
+                document.getElementById('reportContent').innerHTML = '<div class="text-center text-red-500 p-20 font-bold text-lg">데이터를 불러오는 중 오류가 발생했습니다.</div>';
+            }
+        }
+
+        // 팝업 닫기
+        function closeReportModal() {
+            document.getElementById('reportModal').classList.add('hidden');
+        }
+
+        // 🌟 누적 데이터 화면에 예쁘게 그리기
+        function renderReport(records) {
+            // 1. 학생별 결석/지각 누적 집계
+            const studentStats = {}; 
+
+            let logHTML = '<div class="space-y-4">';
+
+            records.forEach(record => {
+                // 왼쪽: 수업 일지 HTML 생성
+                logHTML += `
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-3 border-b border-slate-100 pb-2">
+                            <span class="font-black text-slate-700 text-lg">${record.date} <span class="text-blue-500 text-sm ml-1">${record.period}교시</span></span>
+                        </div>
+                        <p class="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed">${record.log || '<span class="text-slate-300 italic">내용 없음</span>'}</p>
+                    </div>
+                `;
+
+                // 데이터 집계
+                record.issues.forEach(issue => {
+                    const key = getStudentKey(issue);
+                    if (!studentStats[key]) {
+                        studentStats[key] = { class: issue.class, number: issue.number, name: issue.name, absent: 0, late: 0, memos: [] };
+                    }
+                    if (issue.status === 'absent') studentStats[key].absent++;
+                    if (issue.status === 'late') studentStats[key].late++;
+                    if (issue.memo && issue.memo !== "사유 미입력") {
+                        studentStats[key].memos.push(`<span class="text-slate-400 font-bold">[${record.date.slice(5)}]</span> ${issue.memo}`);
+                    }
+                });
+            });
+            logHTML += '</div>';
+
+            // 2. 오른쪽: 결석/지각 누적 명단 HTML 생성
+            let studentHTML = '<div class="grid grid-cols-1 xl:grid-cols-2 gap-4">';
+            const statValues = Object.values(studentStats);
+            
+            if (statValues.length === 0) {
+                studentHTML = '<div class="col-span-2 text-center py-10 text-slate-400 font-bold">누적된 결석/지각생이 없습니다. 🎉</div>';
+            } else {
+                // 반, 번호 순으로 깔끔하게 정렬
+                statValues.sort((a, b) => parseInt(a.class) - parseInt(b.class) || parseInt(a.number) - parseInt(b.number));
+                
+                statValues.forEach(std => {
+                    const memoText = std.memos.length > 0 ? `<div class="text-xs text-slate-500 mt-3 border-t border-slate-100 pt-2 space-y-1">${std.memos.join('<br>')}</div>` : '';
+                    studentHTML += `
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col">
+                            <div class="flex justify-between items-start mb-1">
+                                <span class="font-black text-slate-700">${std.class}반 ${std.number}번 ${std.name}</span>
+                                <div class="flex flex-col gap-1 items-end">
+                                    ${std.absent > 0 ? `<span class="bg-red-100 text-red-700 px-2 py-0.5 rounded text-[11px] font-black tracking-wide">결석 ${std.absent}회</span>` : ''}
+                                    ${std.late > 0 ? `<span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[11px] font-black tracking-wide">지각 ${std.late}회</span>` : ''}
+                                </div>
+                            </div>
+                            ${memoText}
+                        </div>
+                    `;
+                });
+                studentHTML += '</div>';
+            }
+
+            // 3. 최종 레이아웃에 꽂아넣기
+            document.getElementById('reportContent').innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
+                    <div class="flex flex-col h-full overflow-hidden">
+                        <h3 class="text-xl font-black text-slate-800 mb-4 pb-2 border-b-2 border-slate-800">📅 날짜별 수업 일지</h3>
+                        <div class="overflow-y-auto pr-2 pb-10 flex-1">
+                            ${logHTML}
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col h-full overflow-hidden">
+                        <h3 class="text-xl font-black text-red-800 mb-4 pb-2 border-b-2 border-red-800">🚨 결석/지각 누적 현황 (통계)</h3>
+                        <div class="bg-slate-100 p-5 rounded-2xl border border-slate-200 overflow-y-auto pb-10 flex-1 shadow-inner">
+                            ${studentHTML}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
     </script>
+    <div id="reportModal" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center hidden backdrop-blur-sm transition-opacity">
+        <div class="bg-white w-11/12 max-w-6xl h-[85vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+            <div class="bg-slate-800 text-white px-8 py-5 flex justify-between items-center">
+                <h2 class="text-2xl font-black flex items-center gap-2">
+                    📊 <span id="reportTitle">과목</span> 누적 현황판
+                </h2>
+                <button onclick="closeReportModal()" class="text-slate-400 hover:text-white font-bold text-3xl transition">&times;</button>
+            </div>
+            <div id="reportContent" class="flex-1 p-8 bg-slate-50 overflow-hidden">
+                </div>
+        </div>
+    </div>
 </body>
 </html>
