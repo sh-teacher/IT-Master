@@ -526,9 +526,18 @@
                     }
                     if (issue.status === 'absent') studentStats[key].absent++;
                     if (issue.status === 'late') studentStats[key].late++;
-                    if (issue.memo && issue.memo !== "사유 미입력") {
-                        studentStats[key].memos.push(`<span class="text-slate-400 font-bold">[${record.date.slice(5)}]</span> ${issue.memo}`);
-                    }
+                    
+                    // 🔥 수정됨: 사유가 없더라도 무조건 "날짜 + 상태 + 사유"를 기록합니다.
+                    const statusLabel = issue.status === 'absent' ? '<span class="text-red-500 font-black">결석</span>' : '<span class="text-amber-500 font-black">지각</span>';
+                    const memoText = (issue.memo && issue.memo !== "사유 미입력") ? issue.memo : '<span class="text-slate-300 text-xs italic">사유 미입력</span>';
+
+                    studentStats[key].memos.push(`
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-slate-500 font-bold w-14 shrink-0">[${record.date.slice(5)}]</span>
+                            <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[10px] shrink-0 border border-slate-200">${statusLabel}</span> 
+                            <span class="truncate">${memoText}</span>
+                        </div>
+                    `);
                 });
             });
             logHTML += '</div>';
@@ -544,11 +553,12 @@
                 statValues.sort((a, b) => parseInt(a.class) - parseInt(b.class) || parseInt(a.number) - parseInt(b.number));
                 
                 statValues.forEach(std => {
-                    const memoText = std.memos.length > 0 ? `<div class="text-xs text-slate-500 mt-3 border-t border-slate-100 pt-2 space-y-1">${std.memos.join('<br>')}</div>` : '';
+                    // 메모(날짜 기록)를 줄바꿈해서 출력
+                    const memoText = std.memos.length > 0 ? `<div class="text-xs text-slate-600 mt-3 border-t border-slate-100 pt-2 space-y-1.5">${std.memos.join('')}</div>` : '';
                     studentHTML += `
                         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col">
                             <div class="flex justify-between items-start mb-1">
-                                <span class="font-black text-slate-700">${std.class}반 ${std.number}번 ${std.name}</span>
+                                <span class="font-black text-slate-700 text-sm">${std.class}반 ${std.number}번 ${std.name}</span>
                                 <div class="flex flex-col gap-1 items-end">
                                     ${std.absent > 0 ? `<span class="bg-red-100 text-red-700 px-2 py-0.5 rounded text-[11px] font-black tracking-wide">결석 ${std.absent}회</span>` : ''}
                                     ${std.late > 0 ? `<span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[11px] font-black tracking-wide">지각 ${std.late}회</span>` : ''}
