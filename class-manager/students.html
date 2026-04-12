@@ -4,34 +4,86 @@
     <meta charset="UTF-8">
     <title>학생 명단 관리 - Class Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
         if (sessionStorage.getItem("isAllowed") !== "true") location.href = "index.html";
     </script>
+    <style>
+        .drag-over { border-color: #3b82f6 !important; background-color: #eff6ff !important; }
+    </style>
 </head>
-<body class="bg-slate-50 min-h-screen p-6 md:p-12">
-    <div class="max-w-4xl mx-auto bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
-        <h1 class="text-3xl font-black mb-2 text-slate-800">👥 학생 명단 등록</h1>
-        <p class="text-slate-500 mb-8 font-medium">과목을 선택하고 명단을 붙여넣으세요.</p>
-
-        <div class="space-y-6">
+<body class="bg-slate-50 min-h-screen p-6 md:p-10">
+    <div class="max-w-7xl mx-auto">
+        <header class="mb-8 flex justify-between items-end">
             <div>
-                <label class="block text-sm font-bold text-slate-700 mb-2">1. 대상 과목 선택</label>
-                <select id="selectedSubject" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-blue-500 focus:outline-none">
-                    <option value="">과목 로딩 중...</option>
-                </select>
+                <h1 class="text-3xl font-black mb-2 text-slate-800">👥 학생 명단 관리</h1>
+                <p class="text-slate-500 font-medium">나이스(NEIS) 엑셀 업로드 및 명단 수정/삭제</p>
+            </div>
+            <button onclick="location.href='setup.html'" class="text-slate-500 hover:text-slate-800 font-bold underline transition">환경설정으로 돌아가기</button>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+            
+            <div class="lg:col-span-2 space-y-6">
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                    <label class="block text-sm font-bold text-slate-700 mb-3">1. 대상 과목 선택</label>
+                    <select id="selectedSubject" onchange="loadStudentsForSubject()" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-slate-700 focus:border-blue-500 focus:outline-none">
+                        <option value="">과목 로딩 중...</option>
+                    </select>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                    <label class="block text-sm font-bold text-slate-700 mb-3">2. 엑셀 파일(나이스 양식) 업로드</label>
+                    <div id="dropZone" class="border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center transition hover:bg-slate-50 cursor-pointer" onclick="document.getElementById('fileInput').click()">
+                        <div class="text-4xl mb-3">📑</div>
+                        <p class="text-slate-600 font-bold">엑셀 파일을 이곳에 끌어다 놓거나 클릭하세요</p>
+                        <p class="text-xs text-slate-400 mt-2">나이스 출석부 양식을 자동으로 분석합니다.</p>
+                        <input type="file" id="fileInput" accept=".xlsx, .xls" class="hidden" onchange="handleFileUpload(event)">
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                    <div class="flex justify-between items-center mb-3">
+                        <label class="block text-sm font-bold text-slate-700">3. 텍스트로 직접 붙여넣기</label>
+                        <button onclick="parseTextAndAdd()" class="bg-slate-800 text-white px-4 py-1.5 rounded-lg text-xs font-bold hover:bg-black">명단 추출하기</button>
+                    </div>
+                    <textarea id="studentList" class="w-full h-32 p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-mono text-sm focus:border-blue-500 focus:outline-none" 
+                              placeholder="1 1 1 강호동&#10;1 1 2 유재석"></textarea>
+                </div>
             </div>
 
-            <div>
-                <label class="block text-sm font-bold text-slate-700 mb-2">2. 명단 붙여넣기 (번호와 성함 사이는 한 칸 띄우기)</label>
-                <textarea id="studentList" class="w-full h-64 p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-mono text-sm focus:border-blue-500 focus:outline-none" 
-                          placeholder="예시:&#10;1 1 1 강호동&#10;2 2 2 유재석&#10;3 3 15 신동엽"></textarea>
-                <p class="text-xs text-slate-400 mt-2">※ 엑셀에서 학생 학년 반 번호와 이름 열을 복사해서 붙여넣으면 자동으로 인식됩니다.</p>
-            </div>
+            <div class="lg:col-span-3 bg-white p-6 rounded-3xl shadow-sm border border-slate-200 flex flex-col h-[800px]">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-black text-slate-800">📋 현재 명단 <span id="studentCount" class="text-blue-600 ml-2">0명</span></h2>
+                    
+                    <div class="flex gap-2 items-center bg-slate-50 p-2 rounded-xl border border-slate-100">
+                        <input type="number" id="addG" placeholder="학년" class="w-14 p-2 bg-white border border-slate-200 rounded-lg text-sm text-center">
+                        <input type="number" id="addC" placeholder="반" class="w-14 p-2 bg-white border border-slate-200 rounded-lg text-sm text-center">
+                        <input type="number" id="addN" placeholder="번호" class="w-14 p-2 bg-white border border-slate-200 rounded-lg text-sm text-center">
+                        <input type="text" id="addName" placeholder="이름" class="w-24 p-2 bg-white border border-slate-200 rounded-lg text-sm">
+                        <button onclick="addSingleStudent()" class="bg-emerald-100 text-emerald-700 px-3 py-2 rounded-lg text-sm font-bold hover:bg-emerald-200">+</button>
+                    </div>
+                </div>
 
-            <div class="flex gap-4 pt-4">
-                <button onclick="location.href='setup.html'" class="flex-1 bg-slate-100 text-slate-600 py-4 rounded-2xl font-bold hover:bg-slate-200 transition">이전으로</button>
-                <button onclick="saveStudents()" id="saveBtn" class="flex-[2] bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg shadow-blue-100 hover:bg-blue-700 transition transform active:scale-95">
-                    학생 명단 저장하기
+                <div class="flex-1 overflow-y-auto border border-slate-200 rounded-xl mb-4">
+                    <table class="w-full text-center border-collapse">
+                        <thead class="bg-slate-100 sticky top-0 z-10 shadow-sm">
+                            <tr>
+                                <th class="p-3 text-sm font-bold text-slate-600">학년</th>
+                                <th class="p-3 text-sm font-bold text-slate-600">반</th>
+                                <th class="p-3 text-sm font-bold text-slate-600">번호</th>
+                                <th class="p-3 text-sm font-bold text-slate-600">이름</th>
+                                <th class="p-3 text-sm font-bold text-slate-600">관리</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTableBody" class="divide-y divide-slate-100">
+                            <tr><td colspan="5" class="p-10 text-slate-400 font-medium">과목을 선택해주세요.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <button onclick="saveStudentsToServer()" id="saveBtn" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black text-lg shadow-lg hover:bg-blue-700 transition transform active:scale-95 disabled:bg-slate-400">
+                    💾 서버에 명단 최종 저장하기
                 </button>
             </div>
         </div>
@@ -39,8 +91,10 @@
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbxUgpimLYy_9K_vZjbxJYtImA4fcz3ZZxfXPvy9WlYXLv1dY-yBA6yrtHeybyAo1v_Vpg/exec";
+        
+        let currentStudents = []; // 현재 화면에서 편집 중인 학생 배열
 
-        // 페이지 로드 시 과목 목록 가져오기
+        // 1. 초기 로드 (과목 목록 가져오기)
         window.onload = async function() {
             try {
                 const response = await fetch(`${API_URL}?type=GET_SUBJECTS`);
@@ -48,80 +102,242 @@
                 const select = document.getElementById('selectedSubject');
                 
                 if (subjects.length === 0) {
-                    select.innerHTML = '<option value="">등록된 과목이 없습니다. setup에서 등록해주세요.</option>';
+                    select.innerHTML = '<option value="">등록된 과목이 없습니다. 환경설정에서 등록해주세요.</option>';
                     return;
                 }
 
                 select.innerHTML = '<option value="">과목을 선택해주세요</option>';
                 subjects.forEach(sub => {
                     const option = document.createElement('option');
-                    option.value = JSON.stringify(sub); // 과목명과 대상반 정보를 통째로 저장
+                    option.value = sub.fullName;
                     option.innerText = sub.fullName;
                     select.appendChild(option);
                 });
             } catch (e) {
                 alert("과목 목록을 불러오지 못했습니다.");
             }
+            
+            setupDragAndDrop();
         };
 
-        // 학생 명단 저장
-        async function saveStudents() {
-            const subjectVal = document.getElementById('selectedSubject').value;
-            const listText = document.getElementById('studentList').value;
-            const btn = document.getElementById('saveBtn');
-
-            if (!subjectVal || !listText) return alert("과목 선택과 명단 입력은 필수입니다.");
-
-            const subjectInfo = JSON.parse(subjectVal); 
-            const lines = listText.trim().split('\n');
+        // 2. 과목 선택 시 기존 서버 명단 불러오기
+        async function loadStudentsForSubject() {
+            const subject = document.getElementById('selectedSubject').value;
+            const tbody = document.getElementById('studentTableBody');
             
-            const studentData = lines.map(line => {
+            if (!subject) {
+                currentStudents = [];
+                renderTable();
+                return;
+            }
+
+            tbody.innerHTML = '<tr><td colspan="5" class="p-10 text-blue-500 font-bold animate-pulse">서버에서 명단을 불러오는 중...</td></tr>';
+            
+            try {
+                const res = await fetch(`${API_URL}?type=GET_STUDENTS&subject=${encodeURIComponent(subject)}&t=${Date.now()}`);
+                currentStudents = await res.json();
+                renderTable();
+            } catch (e) {
+                tbody.innerHTML = '<tr><td colspan="5" class="p-10 text-red-500 font-bold">불러오기 실패</td></tr>';
+            }
+        }
+
+        // 3. UI 렌더링 (테이블 그리기)
+        function renderTable() {
+            const tbody = document.getElementById('studentTableBody');
+            document.getElementById('studentCount').innerText = `${currentStudents.length}명`;
+
+            if (currentStudents.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="p-10 text-slate-400 font-medium">등록된 학생이 없습니다. 엑셀이나 텍스트를 이용해 추가하세요.</td></tr>';
+                return;
+            }
+
+            // 학년 -> 반 -> 번호 순으로 정렬
+            currentStudents.sort((a, b) => {
+                if (a.grade !== b.grade) return a.grade - b.grade;
+                if (a.class !== b.class) return a.class - b.class;
+                return a.number - b.number;
+            });
+
+            tbody.innerHTML = '';
+            currentStudents.forEach((std, index) => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="p-3"><input type="number" class="w-12 text-center bg-transparent focus:bg-white border border-transparent focus:border-blue-300 rounded" value="${std.grade}" onchange="updateStd(${index}, 'grade', this.value)"></td>
+                        <td class="p-3"><input type="number" class="w-12 text-center bg-transparent focus:bg-white border border-transparent focus:border-blue-300 rounded" value="${std.class}" onchange="updateStd(${index}, 'class', this.value)"></td>
+                        <td class="p-3"><input type="number" class="w-12 text-center bg-transparent focus:bg-white border border-transparent focus:border-blue-300 rounded" value="${std.number}" onchange="updateStd(${index}, 'number', this.value)"></td>
+                        <td class="p-3"><input type="text" class="w-20 text-center bg-transparent focus:bg-white border border-transparent focus:border-blue-300 rounded font-bold" value="${std.name}" onchange="updateStd(${index}, 'name', this.value)"></td>
+                        <td class="p-3"><button onclick="deleteStd(${index})" class="text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-lg text-xs font-bold transition">삭제</button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        // --- 명단 편집 기능들 ---
+        function updateStd(index, field, value) {
+            currentStudents[index][field] = value;
+        }
+
+        function deleteStd(index) {
+            currentStudents.splice(index, 1);
+            renderTable();
+        }
+
+        function addSingleStudent() {
+            const g = document.getElementById('addG').value;
+            const c = document.getElementById('addC').value;
+            const n = document.getElementById('addN').value;
+            const name = document.getElementById('addName').value.trim();
+
+            if (!g || !c || !n || !name) return alert("학년, 반, 번호, 이름을 모두 입력하세요.");
+
+            currentStudents.push({ grade: g, class: c, number: n, name: name });
+            renderTable();
+
+            // 입력창 초기화 (학년, 반은 연속 입력을 위해 남겨둠)
+            document.getElementById('addN').value = "";
+            document.getElementById('addName').value = "";
+            document.getElementById('addN').focus();
+        }
+
+        // 4. 텍스트(수동) 붙여넣기 파싱
+        function parseTextAndAdd() {
+            const text = document.getElementById('studentList').value;
+            const lines = text.trim().split('\n');
+            let addedCount = 0;
+
+            lines.forEach(line => {
                 const parts = line.trim().split(/\s+/); 
                 if (parts.length >= 4) {
-                    return {
-                        grade: parts[0],
-                        class: parts[1],
-                        number: parts[2],
-                        name: parts[3]
-                    };
-                } 
-                return null; 
-            }).filter(std => std !== null);
+                    currentStudents.push({ grade: parts[0], class: parts[1], number: parts[2], name: parts[3] });
+                    addedCount++;
+                }
+            });
 
-            if (studentData.length === 0) return alert("형식이 맞지 않습니다. '학년 반 번호 이름' 순서인지 확인해주세요.");
+            if (addedCount > 0) {
+                renderTable();
+                document.getElementById('studentList').value = "";
+            } else {
+                alert("인식 가능한 명단이 없습니다. (형식: 1 1 1 홍길동)");
+            }
+        }
+
+        // 🌟 5. 엑셀 파일(NEIS 양식) 업로드 및 스마트 파싱
+        function setupDragAndDrop() {
+            const dropZone = document.getElementById('dropZone');
+            
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('drag-over');
+            });
+            
+            dropZone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+            });
+            
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+                if (e.dataTransfer.files.length) {
+                    processExcelFile(e.dataTransfer.files[0]);
+                }
+            });
+        }
+
+        function handleFileUpload(event) {
+            if (event.target.files.length) {
+                processExcelFile(event.target.files[0]);
+                event.target.value = ""; // 초기화
+            }
+        }
+
+        function processExcelFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                
+                // 2차원 배열 형태로 데이터 추출
+                const rows = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+                
+                let addedCount = 0;
+                let colIndices = { grade: -1, class: -1, num: -1, name: -1 };
+
+                rows.forEach((row, rowIndex) => {
+                    // 헤더(제목줄) 찾기 로직: NEIS 양식에는 보통 '학년', '반', '번호', '성명' 이 포함됨
+                    if (colIndices.name === -1) {
+                        row.forEach((cell, idx) => {
+                            const val = String(cell).replace(/\s/g, '');
+                            if (val.includes("학년")) colIndices.grade = idx;
+                            if (val.includes("반")) colIndices.class = idx;
+                            if (val.includes("번호")) colIndices.num = idx;
+                            if (val.includes("성명") || val.includes("이름")) colIndices.name = idx;
+                        });
+                    } 
+                    // 헤더를 찾은 이후의 줄에서 실제 학생 데이터 추출
+                    else {
+                        // 성명과 번호가 존재하는 행이면 학생으로 간주
+                        if (row[colIndices.num] !== undefined && row[colIndices.name] !== undefined) {
+                            // 숫자 형식이 아니면(예: 빈칸, 요약줄 등) 건너뜀
+                            if (!isNaN(parseInt(row[colIndices.num]))) {
+                                currentStudents.push({
+                                    grade: row[colIndices.grade] || "1", // 학년/반이 병합되어 없을 경우 기본값 부여 후 수정 유도
+                                    class: row[colIndices.class] || "1",
+                                    number: parseInt(row[colIndices.num]),
+                                    name: String(row[colIndices.name]).trim()
+                                });
+                                addedCount++;
+                            }
+                        }
+                    }
+                });
+
+                if (addedCount > 0) {
+                    renderTable();
+                    alert(`✅ 엑셀에서 ${addedCount}명의 학생 정보를 추출했습니다.\n우측 표에서 이상이 없는지 확인 후 [서버에 저장]을 눌러주세요.`);
+                } else {
+                    alert("❌ 학생 명단을 찾을 수 없습니다. 나이스 양식이 맞는지 확인해주세요.");
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // 6. 최종 서버로 전송 (동기화)
+        async function saveStudentsToServer() {
+            const subject = document.getElementById('selectedSubject').value;
+            const btn = document.getElementById('saveBtn');
+
+            if (!subject) return alert("과목을 먼저 선택해주세요.");
+            if (currentStudents.length === 0) {
+                if(!confirm("현재 명단이 0명입니다. 서버의 학생 데이터도 모두 지우시겠습니까?")) return;
+            }
 
             btn.disabled = true;
-            btn.innerText = "저장 중...";
+            btn.innerText = "서버와 동기화 중...";
 
             try {
-                console.log("데이터 전송 시작...", studentData);
-                
-                // setup.html에서 성공했던 가장 단순한 방식 (옵션 제거)
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     body: JSON.stringify({
                         type: "SAVE_STUDENTS",
-                        payload: {
-                            subject: subjectInfo.fullName,
-                            students: studentData
-                        }
+                        payload: { subject: subject, students: currentStudents }
                     })
                 });
 
-                // 응답 결과 확인
                 const result = await response.json();
                 if (result.success) {
-                    alert(`✅ 성공! ${studentData.length}명의 명단이 저장되었습니다.`);
-                    document.getElementById('studentList').value = "";
+                    alert(`✅ [${subject}] 서버에 최종 명단이 저장되었습니다.`);
                 } else {
-                    alert("❌ 서버 내부 에러: " + (result.msg || "이유를 알 수 없습니다."));
+                    alert("❌ 저장 실패: " + result.msg);
                 }
             } catch (e) {
-                console.error("Fetch 에러 상세:", e);
-                alert("🚨 전송 실패: 다시 한 번 시도해주세요.");
+                alert("🚨 네트워크 오류로 전송에 실패했습니다.");
             } finally {
                 btn.disabled = false;
-                btn.innerText = "학생 명단 저장하기";
+                btn.innerText = "💾 서버에 명단 최종 저장하기";
             }
         }
     </script>
