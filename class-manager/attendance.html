@@ -207,7 +207,7 @@
             });
         }
 
-        // 🌟 좌석 데이터 + 과거 출석부/일지 데이터 불러오기
+        // 🌟 좌석 데이터 + 과거 출석부/일지 데이터 불러오기 (숫자 매칭 강화)
         async function loadClassData() {
             const subject = document.getElementById('selectedSubject').value;
             const targetDate = document.getElementById('selectedDate').value;
@@ -240,21 +240,22 @@
                 // 기존 작성된 일지가 있으면 복원
                 document.getElementById('classLog').value = savedRecord && savedRecord.log ? savedRecord.log : '';
 
-                // 기존 결석/지각생 내역 복원
+                // 🔥 결석/지각생 내역 복원 (학생 번호를 무조건 Number(숫자)로 강제 변환하여 저장)
                 const issueMap = {};
                 if(savedRecord && savedRecord.attendanceIssues) {
                     savedRecord.attendanceIssues.forEach(issue => {
-                        issueMap[issue.number] = issue;
+                        issueMap[Number(issue.number)] = issue;
                     });
                 }
 
                 const desks = document.querySelectorAll('.desk');
 
                 students.forEach((std) => {
-                    const seat = savedSeating.find(s => s.name === std.name && s.number == std.number);
+                    const seat = savedSeating.find(s => s.name === std.name && Number(s.number) === Number(std.number));
                     if (seat && seat.seatIndex >= 0 && seat.seatIndex < TOTAL_SEATS) {
                         
-                        const savedIssue = issueMap[std.number];
+                        // 🔥 여기서도 Number()로 감싸서 정확히 일치하는지 확인
+                        const savedIssue = issueMap[Number(std.number)];
                         attendanceData[std.number] = {
                             name: std.name,
                             class: std.class,
