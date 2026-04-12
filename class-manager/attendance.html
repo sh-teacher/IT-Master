@@ -223,39 +223,37 @@
                 const [sr, seatingR, recordR] = await Promise.all([
                     fetch(`${API_URL}?type=GET_STUDENTS&subject=${encodeURIComponent(subject)}`),
                     fetch(`${API_URL}?type=GET_SEATING&subject=${encodeURIComponent(subject)}`),
-                    fetch(`${API_URL}?type=GET_DAILY_RECORD&subject=${encodeURIComponent(subject)}&date=${targetDate}&period=${period}`).catch(() => null)
+                    fetch(`${API_URL}?type=GET_DAILY_RECORD&subject=${encodeURIComponent(subject)}&date=${targetDate}&period=${period}`)
                 ]);
                 
                 const students = await sr.json();
                 const savedSeating = await seatingR.json();
+                const recordData = await recordR.json();
                 
-                let savedRecord = null;
-                if(recordR) {
-                    try { 
-                        const recordData = await recordR.json(); 
-                        if(recordData.success) savedRecord = recordData.data;
-                    } catch(e) { console.log("기록 없음"); }
-                }
+                let savedRecord = recordData.success ? recordData.data : null;
 
-                // 기존 작성된 일지가 있으면 복원
-                document.getElementById('classLog').value = savedRecord && savedRecord.log ? savedRecord.log : '';
+                // 1. 수업 일지 복구
+                document.getElementById('classLog').value = savedRecord ? savedRecord.log : '';
 
-                // 🔥 결석/지각생 내역 복원 (학생 번호를 무조건 Number(숫자)로 강제 변환하여 저장)
+                // 2. 결석/지각생 정보를 번호를 키(Key)로 해서 정리 (매칭 최적화)
                 const issueMap = {};
                 if(savedRecord && savedRecord.attendanceIssues) {
                     savedRecord.attendanceIssues.forEach(issue => {
-                        issueMap[Number(issue.number)] = issue;
+                        // 번호에서 혹시 모를 공백 제거
+                        issueMap[String(issue.number).trim()] = issue;
                     });
                 }
 
                 const desks = document.querySelectorAll('.desk');
 
                 students.forEach((std) => {
-                    const seat = savedSeating.find(s => s.name === std.name && Number(s.number) === Number(std.number));
+                    const stdNum = String(std.number).trim();
+                    const seat = savedSeating.find(s => String(s.name).trim() === String(std.name).trim() && String(s.number).trim() === stdNum);
+                    
                     if (seat && seat.seatIndex >= 0 && seat.seatIndex < TOTAL_SEATS) {
+                        // 저장된 기록이 있으면 그 상태를, 없으면 출석(present) 상태를 부여
+                        const savedIssue = issueMap[stdNum];
                         
-                        // 🔥 여기서도 Number()로 감싸서 정확히 일치하는지 확인
-                        const savedIssue = issueMap[Number(std.number)];
                         attendanceData[std.number] = {
                             name: std.name,
                             class: std.class,
@@ -281,7 +279,8 @@
                 updateAbsenceList();
 
             } catch (e) {
-                alert("데이터 로드 오류");
+                console.error(e);
+                alert("데이터 로드 오류가 발생했습니다.");
                 document.getElementById('classLog').value = '';
             }
         }
