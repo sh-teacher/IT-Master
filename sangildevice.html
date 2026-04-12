@@ -2,6 +2,15 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <script>
+        // 세션에 암호가 없으면
+        if (!sessionStorage.getItem('asset_pw')) {
+            // 화면 렌더링을 즉시 멈추고 하얗게 가려버립니다.
+            document.documentElement.style.display = 'none'; 
+            // 로그인 페이지로 강제 반송!
+            location.replace('index.html'); 
+        }
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>자산 관리 대시보드 - IT Master</title>
     <script src="https://cdn.tailwindcss.com"></script>
