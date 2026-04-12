@@ -153,15 +153,9 @@
                     groupDiv.innerHTML = `
                         <div class="px-4 py-2 text-slate-300 font-bold flex items-center gap-2">
                             <span class="w-2 h-2 rounded-full bg-blue-400"></span>
-                            ${sub.fullName}
-                        </div>
-                        <div class="pl-8 pr-4 space-y-1 mt-1">
-                            <a href="seating.html?subject=${encodeURIComponent(sub.fullName)}" target="mainFrame" class="menu-link block py-2 px-3 text-sm rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition">
-                                🪑 좌석 배치 세팅
-                            </a>
-                            <a href="attendance.html?subject=${encodeURIComponent(sub.fullName)}" target="mainFrame" class="menu-link block py-2 px-3 text-sm rounded-lg text-emerald-400 hover:bg-slate-800 hover:text-emerald-300 transition">
-                                📋 출석 및 수업 일지
-                            </a>
+                                <a href="attendance.html?subject=${encodeURIComponent(sub.fullName)}" target="mainFrame" class="menu-link block py-2 px-3 text-sm rounded-lg text-emerald-400 hover:bg-slate-800 hover:text-emerald-300 transition">
+                                ${sub.fullName}
+                                </a>
                         </div>
                     `;
                     menuContainer.appendChild(groupDiv);

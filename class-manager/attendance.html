@@ -21,35 +21,45 @@
 <body class="bg-slate-50 min-h-screen p-6">
     <div class="max-w-7xl mx-auto bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
         
-        <div class="flex justify-between items-end mb-6 border-b border-slate-100 pb-4">
-            <div>
-                <h1 class="text-3xl font-black text-slate-800">📋 출석 및 수업 일지</h1>
-                <p class="text-slate-500 mt-2 font-medium" id="currentDateTime">불러오는 중...</p>
-            </div>
-            <div class="flex gap-3 items-center flex-wrap justify-end">
-                
-                <input type="date" id="selectedDate" onchange="updatePeriodDropdown()" class="p-3 bg-slate-50 border-2 border-slate-100 rounded-xl font-bold text-slate-700 focus:border-blue-500 focus:outline-none">
-                
-                <select id="selectedSubject" onchange="updatePeriodDropdown()" class="p-3 bg-slate-50 border-2 border-slate-100 rounded-xl font-bold text-slate-700 focus:border-blue-500 focus:outline-none min-w-[200px]">
-                    <option value="">과목을 선택하세요...</option>
-                </select>
-
-                <div class="flex items-center gap-2 bg-slate-50 p-3 rounded-xl border-2 border-slate-100 cursor-pointer hover:bg-slate-100 transition" onclick="document.getElementById('showAllPeriods').click()">
-                    <input type="checkbox" id="showAllPeriods" onchange="updatePeriodDropdown(); event.stopPropagation();" class="w-4 h-4 cursor-pointer accent-blue-600">
-                    <label for="showAllPeriods" class="text-xs font-bold text-slate-600 cursor-pointer whitespace-nowrap">모든 교시 허용</label>
+        <div class="flex flex-col gap-4 mb-4 border-b border-slate-200 pb-0">
+            
+            <div class="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-4 pb-4">
+                <div class="min-w-0 max-w-full">
+                    <h1 id="mainTitle" class="text-2xl md:text-3xl font-black text-slate-800 truncate">📋 출석 및 수업 일지</h1>
+                    <p class="text-slate-500 mt-2 font-medium" id="currentDateTime">불러오는 중...</p>
                 </div>
+                
+                <div class="flex gap-2 items-center flex-wrap justify-end shrink-0">
+                    <input type="date" id="selectedDate" onchange="updatePeriodDropdown()" class="p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-700 focus:border-blue-500 focus:outline-none text-sm">
+                    
+                    <select id="selectedSubject" onchange="updatePeriodDropdown()" class="p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-700 focus:border-blue-500 focus:outline-none min-w-[160px] text-sm">
+                        <option value="">과목을 선택하세요...</option>
+                    </select>
 
-                <select id="selectedPeriod" onchange="loadClassData()" class="p-3 bg-slate-50 border-2 border-slate-100 rounded-xl font-bold text-blue-600 focus:border-blue-500 focus:outline-none disabled:opacity-50 disabled:bg-slate-100">
-                    <option value="">과목/날짜 선택</option>
-                </select>
-                <button onclick="openReportModal()" class="bg-indigo-100 text-indigo-700 px-5 py-3 rounded-xl font-bold hover:bg-indigo-200 transition whitespace-nowrap shadow-sm">
-                    📊 누적 현황 보기
+                    <div class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-200 cursor-pointer hover:bg-slate-100 transition" onclick="document.getElementById('showAllPeriods').click()">
+                        <input type="checkbox" id="showAllPeriods" onchange="updatePeriodDropdown(); event.stopPropagation();" class="w-4 h-4 cursor-pointer accent-blue-600">
+                        <label for="showAllPeriods" class="text-xs font-bold text-slate-600 cursor-pointer whitespace-nowrap">모든 교시</label>
+                    </div>
+
+                    <select id="selectedPeriod" onchange="loadClassData()" class="p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-bold text-blue-600 focus:border-blue-500 focus:outline-none disabled:opacity-50 text-sm">
+                        <option value="">교시 선택</option>
+                    </select>
+                    
+                    <button onclick="autoLoadCurrentClass(this)" class="bg-emerald-100 text-emerald-700 px-4 py-2.5 rounded-lg font-bold hover:bg-emerald-200 transition whitespace-nowrap text-sm">
+                        ⏰ 현재 수업 로드
+                    </button>
+                    <button onclick="openReportModal()" class="bg-indigo-100 text-indigo-700 px-4 py-2.5 rounded-lg font-bold hover:bg-indigo-200 transition whitespace-nowrap shadow-sm text-sm">
+                        📊 누적 현황 보기
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex gap-1 mt-2">
+                <button class="bg-blue-600 text-white px-6 py-2.5 rounded-t-xl font-bold text-sm shadow-sm">
+                    📋 출석 및 수업 일지
                 </button>
-                <button onclick="autoLoadCurrentClass(this)" class="bg-emerald-100 text-emerald-700 px-5 py-3 rounded-xl font-bold hover:bg-emerald-200 transition whitespace-nowrap">
-                    ⏰ 현재 수업 로드
-                </button>
-                <button onclick="location.href='dashboard.html'" class="bg-slate-100 text-slate-600 px-5 py-3 rounded-xl font-bold hover:bg-slate-200 transition whitespace-nowrap">
-                    홈으로
+                <button onclick="goToSeating()" class="bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700 px-6 py-2.5 rounded-t-xl font-bold transition text-sm">
+                    🪑 좌석 배치 세팅
                 </button>
             </div>
         </div>
@@ -154,6 +164,14 @@
 
         function updatePeriodDropdown() {
             const subject = document.getElementById('selectedSubject').value;
+            
+            // 🌟 1. 과목명 선택 시 메인 타이틀 동적 변경 로직 추가
+            const mainTitle = document.getElementById('mainTitle');
+            if (subject) {
+                mainTitle.innerText = `📋 ${subject} 출석 및 일지`;
+            } else {
+                mainTitle.innerText = `📋 출석 및 수업 일지`;
+            }
             const dateVal = document.getElementById('selectedDate').value;
             const periodSelect = document.getElementById('selectedPeriod');
             const showAll = document.getElementById('showAllPeriods').checked; 
@@ -589,6 +607,15 @@
                     </div>
                 </div>
             `;
+        }
+        // 🌟 좌석 배치 세팅 탭으로 이동
+        function goToSeating() {
+            const subject = document.getElementById('selectedSubject').value;
+            if (subject) {
+                location.href = `seating.html?subject=${encodeURIComponent(subject)}`;
+            } else {
+                location.href = 'seating.html';
+            }
         }
     </script>
     <div id="reportModal" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center hidden backdrop-blur-sm transition-opacity">
