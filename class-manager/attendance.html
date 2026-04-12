@@ -246,7 +246,11 @@
             });
         }
 
-        // 🌟🔥 완벽한 캐시 무력화가 적용된 데이터 로드 함수 🔥🌟
+        // 🌟 학생을 반/번호/이름으로 완벽하게 구별하기 위한 고유 키 생성기
+        function getStudentKey(std) {
+            return `${std.class}_${std.number}_${std.name}`.replace(/\s/g, '');
+        }
+
         async function loadClassData() {
             const subject = document.getElementById('selectedSubject').value;
             const targetDate = document.getElementById('selectedDate').value;
@@ -254,14 +258,12 @@
 
             if (!subject || !targetDate || !period) return;
 
-            attendanceData = {};
+            attendanceData = {}; // 초기화
             document.getElementById('classLog').value = '데이터 불러오는 중...';
             document.querySelectorAll('.desk .student-card').forEach(c => c.remove());
 
             try {
-                // 매 요청마다 새로운 시간표식(t=현재시간)을 생성하여 브라우저가 예전 데이터를 기억하지 못하도록 합니다!
                 const timestamp = new Date().getTime();
-                
                 const [sr, seatingR, recordR] = await Promise.all([
                     fetch(`${API_URL}?type=GET_STUDENTS&subject=${encodeURIComponent(subject)}&t=${timestamp}`),
                     fetch(`${API_URL}?type=GET_SEATING&subject=${encodeURIComponent(subject)}&t=${timestamp}`),
@@ -273,27 +275,29 @@
                 const recordData = await recordR.json();
                 
                 let savedRecord = recordData.success ? recordData.data : null;
-
                 document.getElementById('classLog').value = savedRecord ? savedRecord.log : '';
 
+                // 🔥 결석생 정보를 [반_번호_이름] 키로 매핑하여 정확도 100% 확보
                 const issueMap = {};
                 if(savedRecord && savedRecord.attendanceIssues) {
                     savedRecord.attendanceIssues.forEach(issue => {
-                        issueMap[String(issue.number).trim()] = issue;
+                        const key = getStudentKey(issue);
+                        issueMap[key] = issue;
                     });
                 }
 
                 const desks = document.querySelectorAll('.desk');
 
                 students.forEach((std) => {
-                    const stdNum = String(std.number).trim();
-                    const seat = savedSeating.find(s => String(s.name).trim() === String(std.name).trim() && String(s.number).trim() === stdNum);
+                    const stdKey = getStudentKey(std);
+                    // 좌석 배치 정보 찾기
+                    const seat = savedSeating.find(s => getStudentKey(s) === stdKey);
                     
                     if (seat && seat.seatIndex >= 0 && seat.seatIndex < TOTAL_SEATS) {
+                        const savedIssue = issueMap[stdKey];
                         
-                        const savedIssue = issueMap[stdNum];
-                        
-                        attendanceData[std.number] = {
+                        // attendanceData에도 고유 키를 사용하여 저장
+                        attendanceData[stdKey] = {
                             name: std.name,
                             class: std.class,
                             number: std.number,
@@ -302,7 +306,7 @@
                         };
 
                         const card = document.createElement('div');
-                        const statusClass = `card-${attendanceData[std.number].status}`;
+                        const statusClass = `card-${attendanceData[stdKey].status}`;
                         card.className = `student-card w-full h-full flex flex-col items-center justify-center rounded-lg border-2 font-bold text-slate-700 ${statusClass}`;
                         card.style.height = "62px";
                         card.innerHTML = `
@@ -310,7 +314,8 @@
                             <span class="pointer-events-none text-sm">${std.name}</span>
                         `;
                         
-                        card.onclick = function() { toggleAttendance(card, std.number); };
+                        // 클릭 시에도 고유 키를 전달
+                        card.onclick = function() { toggleAttendance(card, stdKey); };
                         desks[seat.seatIndex].appendChild(card);
                     }
                 });
@@ -319,29 +324,29 @@
 
             } catch (e) {
                 console.error(e);
-                alert("데이터 로드 오류가 발생했습니다.");
+                alert("데이터 로드 중 오류가 발생했습니다.");
                 document.getElementById('classLog').value = '';
             }
         }
 
-        function toggleAttendance(card, stdNumber) {
-            const student = attendanceData[stdNumber];
-            
+        function toggleAttendance(card, stdKey) {
+            const student = attendanceData[stdKey];
+            if(!student) return;
+
             if (student.status === 'present') {
                 student.status = 'absent';
-                const reason = prompt(`[결석] ${student.name} 학생의 결석 사유를 입력하세요 (선택):`, "질병결석");
+                const reason = prompt(`[결석] ${student.name} 학생의 결석 사유를 입력하세요:`, "질병결석");
                 student.memo = reason || "사유 미입력";
             } else if (student.status === 'absent') {
                 student.status = 'late';
-                const reason = prompt(`[지각] ${student.name} 학생의 지각 사유를 입력하세요 (선택):`, "지각");
+                const reason = prompt(`[지각] ${student.name} 학생의 지각 사유를 입력하세요:`, "지각");
                 student.memo = reason || "사유 미입력";
             } else {
                 student.status = 'present';
                 student.memo = '';
             }
 
-            card.classList.remove('card-present', 'card-absent', 'card-late');
-            card.classList.add(`card-${student.status}`);
+            card.className = `student-card w-full h-full flex flex-col items-center justify-center rounded-lg border-2 font-bold text-slate-700 card-${student.status}`;
             updateAbsenceList();
         }
 
@@ -350,6 +355,7 @@
             list.innerHTML = '';
             let hasIssue = false;
             
+            // 고유 키 기반의 attendanceData를 순회
             Object.values(attendanceData).forEach(std => {
                 if (std.status !== 'present') {
                     hasIssue = true;
