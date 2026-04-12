@@ -22,10 +22,11 @@
     <div class="max-w-7xl mx-auto bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
         
         <div class="flex flex-col gap-4 mb-4 border-b border-slate-200 pb-0">
-            
             <div class="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-4 pb-4">
-                <div class="min-w-0 max-w-full">
-                    <h1 id="mainTitle" class="text-2xl md:text-3xl font-black text-slate-800 truncate">📋 출석 및 수업 일지</h1>
+                <div class="min-w-0 flex-1">
+                    <h1 id="mainTitle" class="text-2xl md:text-3xl font-black text-slate-800 whitespace-nowrap overflow-hidden text-ellipsis">
+                        📋 출석 및 수업 일지
+                    </h1>
                     <p class="text-slate-500 mt-2 font-medium" id="currentDateTime">불러오는 중...</p>
                 </div>
                 
@@ -36,8 +37,8 @@
                         <option value="">과목을 선택하세요...</option>
                     </select>
 
-                    <div class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-200 cursor-pointer hover:bg-slate-100 transition" onclick="document.getElementById('showAllPeriods').click()">
-                        <input type="checkbox" id="showAllPeriods" onchange="updatePeriodDropdown(); event.stopPropagation();" class="w-4 h-4 cursor-pointer accent-blue-600">
+                    <div class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                        <input type="checkbox" id="showAllPeriods" onchange="updatePeriodDropdown()" class="w-4 h-4 cursor-pointer accent-blue-600">
                         <label for="showAllPeriods" class="text-xs font-bold text-slate-600 cursor-pointer whitespace-nowrap">모든 교시</label>
                     </div>
 
@@ -54,7 +55,7 @@
                 </div>
             </div>
 
-            <div class="flex gap-1 mt-2">
+            <div class="flex gap-1">
                 <button class="bg-blue-600 text-white px-6 py-2.5 rounded-t-xl font-bold text-sm shadow-sm">
                     📋 출석 및 수업 일지
                 </button>
@@ -164,18 +165,18 @@
 
         function updatePeriodDropdown() {
             const subject = document.getElementById('selectedSubject').value;
-            
-            // 🌟 1. 과목명 선택 시 메인 타이틀 동적 변경 로직 추가
-            const mainTitle = document.getElementById('mainTitle');
-            if (subject) {
-                mainTitle.innerText = `📋 ${subject}`;
-            } else {
-                mainTitle.innerText = `📋 출석 및 수업 일지`;
-            }
             const dateVal = document.getElementById('selectedDate').value;
             const periodSelect = document.getElementById('selectedPeriod');
             const showAll = document.getElementById('showAllPeriods').checked; 
             
+            // 🌟 제목 동적 변경: 과목을 선택하면 제목에 과목명이 붙습니다.
+            const mainTitle = document.getElementById('mainTitle');
+            if (subject) {
+                mainTitle.innerText = `📋 ${subject} 출석 및 일지`;
+            } else {
+                mainTitle.innerText = `📋 출석 및 수업 일지`;
+            }
+
             periodSelect.innerHTML = '';
 
             if (!subject || !dateVal) {
@@ -199,6 +200,7 @@
                 periodSelect.disabled = false;
                 
                 if (showAll) {
+                    // 모든 교시 허용 시 1~7교시 표시
                     for (let i = 1; i <= 7; i++) {
                         periodSelect.innerHTML += `<option value="${i}">${i}교시</option>`;
                     }
@@ -210,6 +212,17 @@
                 }
                 
                 loadClassData();
+            }
+        }
+
+        // 🌟 좌석 배치 세팅 탭으로 이동하는 함수
+        function goToSeating() {
+            const subject = document.getElementById('selectedSubject').value;
+            if (subject) {
+                // 현재 선택된 과목을 들고 좌석 배치 페이지로 이동합니다.
+                location.href = `seating.html?subject=${encodeURIComponent(subject)}`;
+            } else {
+                location.href = 'seating.html';
             }
         }
 
