@@ -108,9 +108,11 @@
             createDesks();
 
             try {
+                // 초기에만 불러오므로 타임스탬프를 붙여 브라우저 캐시를 막습니다.
+                const ts = Date.now();
                 const [subRes, schRes] = await Promise.all([
-                    fetch(`${API_URL}?type=GET_SUBJECTS`),
-                    fetch(`${API_URL}?type=GET_SCHEDULE`)
+                    fetch(`${API_URL}?type=GET_SUBJECTS&t=${ts}`),
+                    fetch(`${API_URL}?type=GET_SCHEDULE&t=${ts}`)
                 ]);
                 
                 const subjects = await subRes.json();
@@ -139,12 +141,11 @@
             document.getElementById('currentDateTime').innerText = `${dateStr} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
         }
 
-        // 🌟 수정됨: 체크박스 값에 따라 전체 교시를 보여주거나 필터링합니다.
         function updatePeriodDropdown() {
             const subject = document.getElementById('selectedSubject').value;
             const dateVal = document.getElementById('selectedDate').value;
             const periodSelect = document.getElementById('selectedPeriod');
-            const showAll = document.getElementById('showAllPeriods').checked; // 체크박스 상태
+            const showAll = document.getElementById('showAllPeriods').checked; 
             
             periodSelect.innerHTML = '';
 
@@ -169,12 +170,10 @@
                 periodSelect.disabled = false;
                 
                 if (showAll) {
-                    // 체크박스가 켜져있으면 1~7교시 전부 렌더링
                     for (let i = 1; i <= 7; i++) {
                         periodSelect.innerHTML += `<option value="${i}">${i}교시</option>`;
                     }
                 } else {
-                    // 체크박스가 꺼져있으면 원래대로 시간표 기반 렌더링
                     matchedPeriods.sort((a, b) => parseInt(a.period) - parseInt(b.period));
                     matchedPeriods.forEach(p => {
                         periodSelect.innerHTML += `<option value="${p.period}">${p.period}교시</option>`;
@@ -205,7 +204,6 @@
                 document.getElementById('selectedDate').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
                 document.getElementById('selectedSubject').value = targetClass.subject;
                 
-                // 자동 로드 시에는 '모든 교시 허용' 체크를 해제하고 정확한 시간표대로 띄웁니다.
                 document.getElementById('showAllPeriods').checked = false;
                 
                 updatePeriodDropdown(); 
@@ -248,6 +246,7 @@
             });
         }
 
+        // 🌟🔥 완벽한 캐시 무력화가 적용된 데이터 로드 함수 🔥🌟
         async function loadClassData() {
             const subject = document.getElementById('selectedSubject').value;
             const targetDate = document.getElementById('selectedDate').value;
@@ -260,10 +259,13 @@
             document.querySelectorAll('.desk .student-card').forEach(c => c.remove());
 
             try {
+                // 매 요청마다 새로운 시간표식(t=현재시간)을 생성하여 브라우저가 예전 데이터를 기억하지 못하도록 합니다!
+                const timestamp = new Date().getTime();
+                
                 const [sr, seatingR, recordR] = await Promise.all([
-                    fetch(`${API_URL}?type=GET_STUDENTS&subject=${encodeURIComponent(subject)}`),
-                    fetch(`${API_URL}?type=GET_SEATING&subject=${encodeURIComponent(subject)}`),
-                    fetch(`${API_URL}?type=GET_DAILY_RECORD&subject=${encodeURIComponent(subject)}&date=${targetDate}&period=${period}`)
+                    fetch(`${API_URL}?type=GET_STUDENTS&subject=${encodeURIComponent(subject)}&t=${timestamp}`),
+                    fetch(`${API_URL}?type=GET_SEATING&subject=${encodeURIComponent(subject)}&t=${timestamp}`),
+                    fetch(`${API_URL}?type=GET_DAILY_RECORD&subject=${encodeURIComponent(subject)}&date=${targetDate}&period=${period}&t=${timestamp}`)
                 ]);
                 
                 const students = await sr.json();
