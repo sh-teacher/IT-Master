@@ -94,8 +94,8 @@
             <button onclick="window.print()" class="bg-indigo-100 text-indigo-700 px-6 py-3 rounded-xl font-bold hover:bg-indigo-200 transition">
                 🖨️ 인쇄하기
             </button>
-            <button onclick="location.href='setup.html'" class="bg-slate-100 text-slate-600 px-6 py-3 rounded-xl font-bold hover:bg-slate-200 transition">
-                홈으로
+            <button onclick="goBackToAttendance()" class="bg-slate-100 text-slate-600 px-5 py-3 rounded-xl font-bold hover:bg-slate-200 transition whitespace-nowrap">
+                ⬅️ 이전으로
             </button>
         </div>
 
@@ -406,6 +406,28 @@
         if (dnd.card)        dnd.card.classList.remove('dragging-source');
         if (dnd.ghost)       dnd.ghost.style.display = 'none';
         dnd.active = false; dnd.card = null; dnd.currentOver = null;
+    }
+
+    // 🌟 이전(출석 및 수업 일지) 화면으로 돌아가기 (현재 과목 기억)
+    function goBackToAttendance() {
+        // 1. 현재 화면의 드롭다운에서 선택된 과목 찾기
+        let targetSubject = "";
+        const subjectSelect = document.getElementById('selectedSubject');
+        
+        if (subjectSelect && subjectSelect.value) {
+            targetSubject = subjectSelect.value;
+        } else {
+            // 2. 드롭다운에 없으면 URL 주소에서 과목 찾기
+            const urlParams = new URLSearchParams(window.location.search);
+            targetSubject = urlParams.get('subject');
+        }
+
+        // 3. 과목을 들고 출석부로 이동!
+        if (targetSubject) {
+            location.href = `attendance.html?subject=${encodeURIComponent(targetSubject)}`;
+        } else {
+            location.href = 'attendance.html'; // 과목을 못 찾았을 경우 기본 출석부로
+        }
     }
     </script>
 </body>
