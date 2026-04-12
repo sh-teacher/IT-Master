@@ -12,13 +12,13 @@
     </script>
 </head>
 <body class="bg-slate-50 min-h-screen p-6 md:p-12">
-    <div class="max-w-4xl mx-auto">
+    <div class="max-w-5xl mx-auto">
         <header class="mb-10 flex justify-between items-end">
             <div>
                 <h1 class="text-3xl font-black text-slate-800">⚙️ 시스템 환경 설정</h1>
-                <p class="text-slate-500 font-medium">학년도, 학기, 담당 과목 및 시간표를 관리합니다.</p>
+                <p class="text-slate-500 font-medium">학년도, 학기, 담당 과목 및 시간표를 일괄 관리합니다.</p>
             </div>
-            <button onclick="location.href='index.html'" class="text-sm text-slate-400 underline">로그아웃</button>
+            <button onclick="location.href='index.html'" class="text-sm text-slate-400 underline hover:text-slate-600">로그아웃</button>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -44,58 +44,49 @@
             </div>
 
             <div class="md:col-span-2 space-y-6">
-                <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <h2 class="text-lg font-bold mb-4 flex items-center gap-2">📚 담당 과목 등록</h2>
-                    <div class="flex gap-2 mb-6">
-                        <input type="text" id="subjectName" class="flex-1 p-3 bg-slate-50 border rounded-xl focus:outline-green-500" placeholder="과목명 (예: 정보A)">
-                        <input type="text" id="targetClass" class="w-32 p-3 bg-slate-50 border rounded-xl focus:outline-green-500" placeholder="대상반 (2-1)">
-                        <button onclick="addSubject()" id="btnSubject" class="bg-green-600 text-white px-6 rounded-xl font-bold hover:bg-green-700 transition">추가</button>
+                
+                <section class="bg-white p-6 rounded-2xl shadow-sm border border-blue-200 bg-blue-50/30">
+                    <h2 class="text-lg font-bold mb-5 flex items-center gap-2 text-blue-800">📚 과목 및 시간표 일괄 등록</h2>
+                    
+                    <div class="flex gap-3 mb-5">
+                        <input type="text" id="subjectName" class="flex-1 p-3 bg-white border border-slate-200 rounded-xl focus:border-blue-500 focus:outline-none" placeholder="과목명 (예: 정보A)">
+                        <input type="text" id="targetClass" class="w-1/3 p-3 bg-white border border-slate-200 rounded-xl focus:border-blue-500 focus:outline-none" placeholder="대상반 (예: 2-1)">
                     </div>
-                    
-                    
 
-                    <div class="overflow-hidden rounded-xl border border-slate-100">
-                        <table class="w-full text-left border-collapse">
-                            <thead class="bg-slate-50">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 mb-5">
+                        <div class="flex justify-between items-center mb-3">
+                            <label class="block text-sm font-bold text-slate-600">수업 시간 세팅</label>
+                            <button onclick="addSlot()" class="text-xs bg-slate-100 text-slate-600 font-bold px-3 py-1.5 rounded-lg hover:bg-slate-200 transition">+ 시간 추가</button>
+                        </div>
+                        <div id="scheduleSlots" class="space-y-2">
+                            </div>
+                    </div>
+
+                    <button onclick="saveSubjectAndSchedule()" id="btnSubmitAll" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black text-lg hover:bg-blue-700 transition shadow-md">
+                        과목 및 시간표 일괄 등록하기
+                    </button>
+                </section>
+
+                <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-lg font-bold mb-4 flex items-center gap-2 text-slate-700">📊 전체 등록 현황</h2>
+                    <div class="overflow-hidden rounded-xl border border-slate-200">
+                        <table class="w-full text-left border-collapse bg-white">
+                            <thead class="bg-slate-100">
                                 <tr>
-                                    <th class="p-3 text-sm font-bold text-slate-500">과목명</th>
-                                    <th class="p-3 text-sm font-bold text-slate-500">대상반</th>
+                                    <th class="p-3 text-sm font-black text-slate-600 border-b border-slate-200">과목명</th>
+                                    <th class="p-3 text-sm font-black text-slate-600 border-b border-slate-200">대상반</th>
+                                    <th class="p-3 text-sm font-black text-slate-600 border-b border-slate-200">시간표</th>
                                 </tr>
                             </thead>
                             <tbody id="subjectTableBody" class="divide-y divide-slate-100">
+                                <tr><td colspan="3" class="p-6 text-center text-slate-400 text-sm">데이터를 불러오는 중입니다...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </section>
-                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 mt-6 mb-6">
-                        <h2 class="text-lg font-bold text-slate-700 mb-4">🗓️ 시간표 등록</h2>
-                        <div class="flex gap-4">
-                            <select id="schDay" class="p-3 bg-white border border-slate-200 rounded-xl">
-                                <option value="월">월요일</option>
-                                <option value="화">화요일</option>
-                                <option value="수">수요일</option>
-                                <option value="목">목요일</option>
-                                <option value="금">금요일</option>
-                            </select>
-                            <select id="schPeriod" class="p-3 bg-white border border-slate-200 rounded-xl">
-                                <option value="1">1교시</option>
-                                <option value="2">2교시</option>
-                                <option value="3">3교시</option>
-                                <option value="4">4교시</option>
-                                <option value="5">5교시</option>
-                                <option value="6">6교시</option>
-                                <option value="7">7교시</option>
-                            </select>
-                            <select id="schSubject" class="flex-1 p-3 bg-white border border-slate-200 rounded-xl">
-                                <option value="">과목을 불러오는 중...</option>
-                            </select>
-                            <button onclick="addSchedule()" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700">
-                                등록
-                            </button>
-                        </div>
-                    </div>
-                <div class="flex justify-end">
-                    <button onclick="location.href='students.html'" class="bg-blue-600 text-white px-8 py-4 rounded-2xl font-black shadow-lg shadow-blue-200 hover:bg-blue-700 transition transform active:scale-95">
+
+                <div class="flex justify-end pt-4">
+                    <button onclick="location.href='students.html'" class="bg-slate-800 text-white px-8 py-4 rounded-2xl font-black shadow-lg hover:bg-black transition transform active:scale-95">
                         학생 명단 등록하러 가기 ➡️
                     </button>
                 </div>
@@ -106,76 +97,161 @@
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbxUgpimLYy_9K_vZjbxJYtImA4fcz3ZZxfXPvy9WlYXLv1dY-yBA6yrtHeybyAo1v_Vpg/exec";
 
-        // 🔥 페이지 로드 시 등록된 과목 목록을 불러와 표와 드롭다운을 채웁니다.
-        window.onload = loadSubjects;
+        window.onload = () => {
+            // 초기 슬롯 1개 세팅
+            document.getElementById('scheduleSlots').innerHTML = getSlotHTML();
+            // 전체 현황판 로드
+            loadAllData();
+        };
 
-        async function loadSubjects() {
-            try {
-                const response = await fetch(API_URL + "?type=GET_SUBJECTS");
-                const subjects = await response.json();
-                
-                const tbody = document.getElementById('subjectTableBody');
-                const schSubject = document.getElementById('schSubject');
-                
-                tbody.innerHTML = '';
-                schSubject.innerHTML = '<option value="">시간표에 등록할 과목 선택</option>';
-
-                subjects.forEach(sub => {
-                    tbody.innerHTML += `<tr><td class="p-3 text-sm font-bold text-slate-700">${sub.name}</td><td class="p-3 text-sm text-slate-500">${sub.target}</td></tr>`;
-                    schSubject.innerHTML += `<option value="${sub.fullName}">${sub.fullName}</option>`;
-                });
-            } catch (e) {
-                console.log("과목 로드 실패", e);
-            }
+        // --- UI 컨트롤 ---
+        function getSlotHTML() {
+            return `
+                <div class="flex gap-2 items-center slot-row">
+                    <select class="sch-day flex-1 p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-400 font-medium text-slate-700">
+                        <option value="월">월요일</option>
+                        <option value="화">화요일</option>
+                        <option value="수">수요일</option>
+                        <option value="목">목요일</option>
+                        <option value="금">금요일</option>
+                    </select>
+                    <select class="sch-period flex-1 p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-400 font-medium text-slate-700">
+                        <option value="1">1교시</option>
+                        <option value="2">2교시</option>
+                        <option value="3">3교시</option>
+                        <option value="4">4교시</option>
+                        <option value="5">5교시</option>
+                        <option value="6">6교시</option>
+                        <option value="7">7교시</option>
+                    </select>
+                    <button onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 p-2.5 rounded-lg font-bold transition px-4" title="삭제">X</button>
+                </div>
+            `;
         }
 
+        function addSlot() {
+            const container = document.getElementById('scheduleSlots');
+            container.insertAdjacentHTML('beforeend', getSlotHTML());
+        }
+
+        // --- 데이터 처리 ---
         async function saveConfig() {
             const btn = document.getElementById('btnConfig');
             const payload = { year: document.getElementById('year').value, semester: document.getElementById('semester').value };
             btn.disabled = true; btn.innerText = "저장 중...";
             try {
                 await fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "SAVE_CONFIG", payload: payload }) });
-                alert("학년도와 학기가 구글 시트에 저장되었습니다!");
+                alert("학년도와 학기가 성공적으로 저장되었습니다!");
             } catch (e) { alert("저장 실패: " + e.message); } 
             finally { btn.disabled = false; btn.innerText = "학기 정보 저장"; }
         }
 
-        async function addSubject() {
-            const btn = document.getElementById('btnSubject');
-            const name = document.getElementById('subjectName').value;
-            const target = document.getElementById('targetClass').value;
-            if(!name || !target) return alert("과목명과 대상반을 입력하세요.");
+        // 과목 + 시간표 한 번에 저장하는 마법의 로직
+        async function saveSubjectAndSchedule() {
+            const btn = document.getElementById('btnSubmitAll');
+            const name = document.getElementById('subjectName').value.trim();
+            const target = document.getElementById('targetClass').value.trim();
 
-            btn.disabled = true; btn.innerText = "추가 중...";
+            if(!name || !target) return alert("과목명과 대상반을 정확히 입력해주세요.");
+
+            const slots = document.querySelectorAll('.slot-row');
+            if(slots.length === 0) return alert("최소 1개 이상의 수업 시간을 추가해주세요.");
+
+            btn.disabled = true;
+            btn.innerText = "일괄 등록 진행 중...";
+
             try {
+                // 1. 과목 저장 API 호출
                 await fetch(API_URL, {
                     method: 'POST',
                     body: JSON.stringify({ type: "ADD_SUBJECT", payload: { name: name, target: target } })
                 });
+
+                // 2. 시간표 정보들 병렬로 저장 API 호출 (백엔드 수정 없이 프론트에서 연속 호출)
+                const fullName = `${name} (${target})`;
+                const schedulePromises = Array.from(slots).map(slot => {
+                    const day = slot.querySelector('.sch-day').value;
+                    const period = slot.querySelector('.sch-period').value;
+                    return fetch(API_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ type: "ADD_SCHEDULE", payload: { day: day, period: period, subject: fullName } })
+                    });
+                });
+
+                await Promise.all(schedulePromises);
+
+                alert(`✅ [${fullName}] 과목과 ${slots.length}개의 시간표가 성공적으로 일괄 등록되었습니다!`);
+                
+                // 입력창 초기화
                 document.getElementById('subjectName').value = "";
                 document.getElementById('targetClass').value = "";
-                
-                // 과목을 추가했으니 목록을 다시 불러옵니다!
-                await loadSubjects(); 
-            } catch (e) { alert("과목 등록 실패: " + e.message); } 
-            finally { btn.disabled = false; btn.innerText = "추가"; }
+                document.getElementById('scheduleSlots').innerHTML = getSlotHTML();
+
+                // 현황판 새로고침
+                await loadAllData();
+
+            } catch (e) {
+                alert("등록 중 오류 발생: " + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "과목 및 시간표 일괄 등록하기";
+            }
         }
 
-        async function addSchedule() {
-            const day = document.getElementById('schDay').value;
-            const period = document.getElementById('schPeriod').value;
-            const subject = document.getElementById('schSubject').value;
-
-            if (!subject) return alert("과목을 먼저 선택/등록해주세요.");
-
+        // 과목과 시간표를 동시에 불러와서 표에 매핑
+        async function loadAllData() {
             try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ type: "ADD_SCHEDULE", payload: { day: day, period: period, subject: subject } })
+                const [subRes, schRes] = await Promise.all([
+                    fetch(API_URL + "?type=GET_SUBJECTS"),
+                    fetch(API_URL + "?type=GET_SCHEDULE")
+                ]);
+                
+                const subjects = await subRes.json();
+                const schedules = await schRes.json();
+                
+                const tbody = document.getElementById('subjectTableBody');
+                tbody.innerHTML = '';
+
+                if (subjects.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" class="p-6 text-center text-slate-400 text-sm">등록된 과목이 없습니다.</td></tr>';
+                    return;
+                }
+
+                // 과목별로 시간표 묶기 (예: "월1, 수3")
+                const schMap = {};
+                schedules.forEach(s => {
+                    if (!schMap[s.subject]) schMap[s.subject] = [];
+                    schMap[s.subject].push(`${s.day}${s.period}`);
                 });
-                const result = await response.json();
-                if(result.success) alert(`✅ ${day}요일 ${period}교시에 [${subject}] 과목이 등록되었습니다!`);
-            } catch(e) { alert("저장 실패"); }
+
+                // 표 렌더링
+                subjects.forEach(sub => {
+                    // 해당 과목의 시간표 배열을 가져와 콤마(,)로 연결
+                    const timesArray = schMap[sub.fullName] || [];
+                    
+                    // 정렬 로직 (월1, 화2 순서대로 예쁘게 보이기 위해)
+                    const dayOrder = { '월':1, '화':2, '수':3, '목':4, '금':5 };
+                    timesArray.sort((a, b) => {
+                        const dayA = dayOrder[a.charAt(0)] || 9;
+                        const dayB = dayOrder[b.charAt(0)] || 9;
+                        if (dayA !== dayB) return dayA - dayB;
+                        return parseInt(a.charAt(1)) - parseInt(b.charAt(1));
+                    });
+
+                    const timesText = timesArray.length > 0 ? timesArray.join(', ') : '<span class="text-red-400 text-xs">시간표 미등록</span>';
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="p-4 text-sm font-bold text-slate-700">${sub.name}</td>
+                            <td class="p-4 text-sm font-medium text-slate-500">${sub.target}</td>
+                            <td class="p-4 text-sm font-black text-blue-600">${timesText}</td>
+                        </tr>
+                    `;
+                });
+            } catch (e) {
+                console.error(e);
+                document.getElementById('subjectTableBody').innerHTML = '<tr><td colspan="3" class="p-6 text-center text-red-400 text-sm">데이터를 불러오지 못했습니다.</td></tr>';
+            }
         }
     </script>
 </body>
