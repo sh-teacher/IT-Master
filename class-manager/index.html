@@ -76,12 +76,10 @@
         // ★ 선생님의 앱스 스크립트 URL로 꼭 변경해주세요! ★
         const API_URL = "https://script.google.com/macros/s/AKfycbxUgpimLYy_9K_vZjbxJYtImA4fcz3ZZxfXPvy9WlYXLv1dY-yBA6yrtHeybyAo1v_Vpg/exec";
 
-        // --- 1. 로그인 로직 ---
         window.addEventListener('DOMContentLoaded', () => {
-            // 이미 로그인 상태인지 확인
             if (sessionStorage.getItem("isAllowed") === "true") {
-                document.getElementById('loginOverlay').style.display = 'none'; // 로그인 창 숨김
-                initializeApp(); // 시스템 시작
+                document.getElementById('loginOverlay').style.display = 'none';
+                initializeApp();
             }
         });
 
@@ -101,9 +99,9 @@
                 const data = await response.json();
                 
                 if(data.success) {
-                    sessionStorage.setItem("isAllowed", "true"); // 인증 완료 도장 찍기
-                    document.getElementById('loginOverlay').style.display = 'none'; // 창 닫기
-                    initializeApp(); // 시스템 시작
+                    sessionStorage.setItem("isAllowed", "true");
+                    document.getElementById('loginOverlay').style.display = 'none';
+                    initializeApp();
                 } else {
                     alert("비밀번호가 틀렸습니다.");
                     document.getElementById('adminPw').value = "";
@@ -117,21 +115,17 @@
         }
 
         function logout() {
-            sessionStorage.removeItem("isAllowed"); // 도장 지우기
-            location.reload(); // 새로고침해서 다시 로그인 창 띄우기
+            sessionStorage.removeItem("isAllowed");
+            location.reload();
         }
 
-        // --- 2. 시스템 초기화 로직 (로그인 성공 후 실행) ---
         function initializeApp() {
             loadSubjectsMenu();
             checkScheduleAndAutoLoad();
-            
-            // 시계 작동
             setInterval(updateClock, 1000);
             updateClock();
         }
 
-        // --- 3. 메뉴 및 시간표 로직 ---
         function updateClock() {
             const now = new Date();
             const timeString = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -155,6 +149,7 @@
                 subjects.forEach(sub => {
                     const groupDiv = document.createElement('div');
                     groupDiv.className = "mb-2";
+                    // 🔥 변경된 부분: 좌석 배치 메뉴와 출석/일지 메뉴 분리 및 활성화
                     groupDiv.innerHTML = `
                         <div class="px-4 py-2 text-slate-300 font-bold flex items-center gap-2">
                             <span class="w-2 h-2 rounded-full bg-blue-400"></span>
@@ -162,20 +157,20 @@
                         </div>
                         <div class="pl-8 pr-4 space-y-1 mt-1">
                             <a href="seating.html?subject=${encodeURIComponent(sub.fullName)}" target="mainFrame" class="menu-link block py-2 px-3 text-sm rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition">
-                                🪑 좌석 및 출석부
+                                🪑 좌석 배치 세팅
                             </a>
-                            <a href="#" class="block py-2 px-3 text-sm rounded-lg text-slate-500 hover:bg-slate-800 transition cursor-not-allowed">
-                                📝 수업 기록 (준비중)
+                            <a href="attendance.html?subject=${encodeURIComponent(sub.fullName)}" target="mainFrame" class="menu-link block py-2 px-3 text-sm rounded-lg text-emerald-400 hover:bg-slate-800 hover:text-emerald-300 transition">
+                                📋 출석 및 수업 일지
                             </a>
                         </div>
                     `;
                     menuContainer.appendChild(groupDiv);
                 });
 
-                // 메뉴 클릭 시 활성화 효과
-                const links = document.querySelectorAll('nav a:not(.cursor-not-allowed)');
+                const links = document.querySelectorAll('nav a');
                 links.forEach(link => {
                     link.addEventListener('click', function() {
+                        if(this.classList.contains('cursor-not-allowed')) return;
                         links.forEach(l => l.classList.remove('bg-slate-800', 'text-white'));
                         this.classList.add('bg-slate-800', 'text-white');
                         document.getElementById('headerTitle').innerText = this.innerText.replace(/[^가-힣a-zA-Z\s]/g, '').trim();
@@ -202,7 +197,8 @@
 
                 if (currentClass) {
                     const frame = document.getElementById('mainFrame');
-                    frame.src = `seating.html?subject=${encodeURIComponent(currentClass.subject)}`;
+                    // 🔥 변경된 부분: 수업 시간이 되면 seating.html이 아니라 attendance.html을 띄웁니다!
+                    frame.src = `attendance.html?subject=${encodeURIComponent(currentClass.subject)}`;
                     document.getElementById('headerTitle').innerText = "현재 수업: " + currentClass.subject;
                 }
             } catch (e) { console.log("시간표 없음"); }

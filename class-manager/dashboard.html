@@ -5,10 +5,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-50 flex items-center justify-center min-h-screen">
-    <div class="text-center">
+    <div class="text-center w-full px-6">
         <h1 class="text-4xl font-black text-slate-800 mb-4">🏫 Class Manager에 오신 것을 환영합니다</h1>
         <p class="text-lg text-slate-500 mb-8">왼쪽 메뉴를 선택하여 교과 관리를 시작하세요.</p>
-        <div class="grid grid-cols-3 gap-6 max-w-4xl mx-auto">
+        
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
                 <div class="text-3xl mb-3">⚙️</div>
                 <h3 class="font-bold text-lg text-slate-700">1. 환경 설정</h3>
@@ -23,6 +24,11 @@
                 <div class="text-3xl mb-3">🪑</div>
                 <h3 class="font-bold text-lg text-slate-700">3. 좌석 배치</h3>
                 <p class="text-sm text-slate-500 mt-2">드래그 앤 드롭으로 자리를 만드세요.</p>
+            </div>
+            <div class="bg-emerald-50 p-6 rounded-2xl shadow-sm border border-emerald-200">
+                <div class="text-3xl mb-3">📋</div>
+                <h3 class="font-bold text-lg text-emerald-800">4. 출석 및 일지</h3>
+                <p class="text-sm text-emerald-600 mt-2">수업 기록과 결석/지각을 관리하세요.</p>
             </div>
         </div>
     </div>
