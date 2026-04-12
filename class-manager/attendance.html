@@ -34,6 +34,11 @@
                     <option value="">과목을 선택하세요...</option>
                 </select>
 
+                <div class="flex items-center gap-2 bg-slate-50 p-3 rounded-xl border-2 border-slate-100 cursor-pointer hover:bg-slate-100 transition" onclick="document.getElementById('showAllPeriods').click()">
+                    <input type="checkbox" id="showAllPeriods" onchange="updatePeriodDropdown(); event.stopPropagation();" class="w-4 h-4 cursor-pointer accent-blue-600">
+                    <label for="showAllPeriods" class="text-xs font-bold text-slate-600 cursor-pointer whitespace-nowrap">모든 교시 허용</label>
+                </div>
+
                 <select id="selectedPeriod" onchange="loadClassData()" class="p-3 bg-slate-50 border-2 border-slate-100 rounded-xl font-bold text-blue-600 focus:border-blue-500 focus:outline-none disabled:opacity-50 disabled:bg-slate-100">
                     <option value="">과목/날짜 선택</option>
                 </select>
@@ -92,10 +97,9 @@
         const TOTAL_SEATS = ROW_CONFIG.reduce((a, r) => a + r.desks, 0);
         
         let attendanceData = {}; 
-        let fullSchedule = []; // 🔥 전체 시간표 저장 변수 추가
+        let fullSchedule = []; 
 
         window.onload = async function () {
-            // 오늘 날짜로 초기화
             const today = new Date();
             document.getElementById('selectedDate').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
@@ -104,14 +108,13 @@
             createDesks();
 
             try {
-                // 🔥 과목과 전체 시간표를 한 번에 불러옵니다.
                 const [subRes, schRes] = await Promise.all([
                     fetch(`${API_URL}?type=GET_SUBJECTS`),
                     fetch(`${API_URL}?type=GET_SCHEDULE`)
                 ]);
                 
                 const subjects = await subRes.json();
-                fullSchedule = await schRes.json(); // 전체 시간표 데이터 저장
+                fullSchedule = await schRes.json(); 
                 
                 const sel = document.getElementById('selectedSubject');
                 subjects.forEach(s => {
@@ -120,12 +123,11 @@
                     sel.appendChild(o);
                 });
 
-                // URL 파라미터가 있으면 과목 자동 선택 및 교시 업데이트
                 const urlParams = new URLSearchParams(window.location.search);
                 const targetSubject = urlParams.get('subject');
                 if(targetSubject) {
                     sel.value = targetSubject;
-                    updatePeriodDropdown(); // 교시를 요일에 맞게 업데이트
+                    updatePeriodDropdown(); 
                 }
             } catch { console.log("초기 데이터 로드 실패"); }
         };
@@ -137,11 +139,12 @@
             document.getElementById('currentDateTime').innerText = `${dateStr} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
         }
 
-        // 🌟 날짜와 과목을 기반으로 등록된 '교시'만 뽑아오는 핵심 함수 🌟
+        // 🌟 수정됨: 체크박스 값에 따라 전체 교시를 보여주거나 필터링합니다.
         function updatePeriodDropdown() {
             const subject = document.getElementById('selectedSubject').value;
             const dateVal = document.getElementById('selectedDate').value;
             const periodSelect = document.getElementById('selectedPeriod');
+            const showAll = document.getElementById('showAllPeriods').checked; // 체크박스 상태
             
             periodSelect.innerHTML = '';
 
@@ -152,64 +155,61 @@
                 return;
             }
 
-            // 선택한 날짜의 요일 계산
             const dateObj = new Date(dateVal);
             const days = ['일', '월', '화', '수', '목', '금', '토'];
             const dayStr = days[dateObj.getDay()];
 
-            // 시간표에서 일치하는 요일과 과목 찾기
             const matchedPeriods = fullSchedule.filter(s => s.subject === subject && s.day === dayStr);
 
-            if (matchedPeriods.length === 0) {
+            if (!showAll && matchedPeriods.length === 0) {
                 periodSelect.innerHTML = `<option value="">${dayStr}요일 수업 없음</option>`;
                 periodSelect.disabled = true;
-                clearBoard(); // 수업이 없으므로 화면 초기화
+                clearBoard(); 
             } else {
                 periodSelect.disabled = false;
                 
-                // 교시 순서대로 정렬
-                matchedPeriods.sort((a, b) => parseInt(a.period) - parseInt(b.period));
+                if (showAll) {
+                    // 체크박스가 켜져있으면 1~7교시 전부 렌더링
+                    for (let i = 1; i <= 7; i++) {
+                        periodSelect.innerHTML += `<option value="${i}">${i}교시</option>`;
+                    }
+                } else {
+                    // 체크박스가 꺼져있으면 원래대로 시간표 기반 렌더링
+                    matchedPeriods.sort((a, b) => parseInt(a.period) - parseInt(b.period));
+                    matchedPeriods.forEach(p => {
+                        periodSelect.innerHTML += `<option value="${p.period}">${p.period}교시</option>`;
+                    });
+                }
                 
-                matchedPeriods.forEach(p => {
-                    periodSelect.innerHTML += `<option value="${p.period}">${p.period}교시</option>`;
-                });
-                
-                // 선택할 수 있는 교시가 생겼으므로 데이터 로드
                 loadClassData();
             }
         }
 
-        // 수업 없는 날일 때 화면 초기화
         function clearBoard() {
             document.querySelectorAll('.desk .student-card').forEach(c => c.remove());
             document.getElementById('classLog').value = '';
             document.getElementById('absenceList').innerHTML = '<li class="text-sm text-red-400 text-center py-4">해당 요일에 등록된 수업이 없습니다.</li>';
         }
 
-        // 🌟 현재 수업 로드 (최적화)
         function autoLoadCurrentClass(btnElement) {
             const now = new Date();
             const days = ['일', '월', '화', '수', '목', '금', '토'];
             const currentDay = days[now.getDay()];
             
-            // 현재 교시 계산 (수정 필요시 변경)
             const h = now.getHours();
             const currentPeriod = String(h > 8 ? h - 8 : 1); 
 
-            // fullSchedule에서 현재 시간에 맞는 수업 찾기
             const targetClass = fullSchedule.find(s => s.day === currentDay && String(s.period) === currentPeriod);
 
             if (targetClass) {
                 document.getElementById('selectedDate').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
                 document.getElementById('selectedSubject').value = targetClass.subject;
                 
-                // 날짜와 과목을 세팅했으므로 드롭다운을 요일에 맞게 변환
+                // 자동 로드 시에는 '모든 교시 허용' 체크를 해제하고 정확한 시간표대로 띄웁니다.
+                document.getElementById('showAllPeriods').checked = false;
+                
                 updatePeriodDropdown(); 
-                
-                // 변환된 드롭다운에서 현재 교시 선택
                 document.getElementById('selectedPeriod').value = currentPeriod;
-                
-                // 데이터 불러오기
                 loadClassData(); 
                 alert(`⏰ ${currentDay}요일 ${currentPeriod}교시: [${targetClass.subject}] 과목을 불러왔습니다.`);
             } else {
