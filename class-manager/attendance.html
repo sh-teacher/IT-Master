@@ -56,15 +56,24 @@
             <div class="w-full lg:w-2/3 flex flex-col gap-5 border-2 border-slate-100 rounded-2xl p-6 bg-white">
                 <div class="flex justify-between items-center mb-2">
                     <h2 class="text-lg font-bold text-slate-700">학생 출석판 <span class="text-sm font-normal text-slate-400 ml-2">(클릭하여 상태 변경)</span></h2>
-                    <div class="flex gap-4 text-sm font-bold">
-                        <span class="flex items-center gap-1"><div class="w-3 h-3 rounded-full bg-white border-2 border-slate-200"></div> 출석</span>
-                        <span class="flex items-center gap-1"><div class="w-3 h-3 rounded-full bg-red-100 border-2 border-red-400"></div> 결석</span>
-                        <span class="flex items-center gap-1"><div class="w-3 h-3 rounded-full bg-amber-100 border-2 border-amber-400"></div> 지각</span>
+                    
+                    <div class="flex items-center gap-4">
+                        <button id="viewToggleBtn" onclick="toggleView()" class="bg-violet-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-violet-700 transition text-xs shadow-sm">
+                            🧑‍🏫 교사 위치 (기본)
+                        </button>
+
+                        <div class="flex gap-3 text-xs font-bold">
+                            <span class="flex items-center gap-1"><div class="w-3 h-3 rounded-full bg-white border-2 border-slate-200"></div> 출석</span>
+                            <span class="flex items-center gap-1"><div class="w-3 h-3 rounded-full bg-red-100 border-2 border-red-400"></div> 결석</span>
+                            <span class="flex items-center gap-1"><div class="w-3 h-3 rounded-full bg-amber-100 border-2 border-amber-400"></div> 지각</span>
+                        </div>
                     </div>
                 </div>
                 
-                <div id="board" class="bg-emerald-800 text-white text-center py-3 rounded-xl font-black text-lg shadow-inner">칠 판 (교탁)</div>
-                <div id="classroomGrid" class="flex flex-col gap-3"></div>
+                <div id="boardArea" class="flex flex-col gap-3 transition-all duration-300">
+                    <div id="board" class="bg-emerald-800 text-white text-center py-3 rounded-xl font-black text-lg shadow-inner">칠 판 (교탁)</div>
+                    <div id="classroomGrid" class="flex flex-col gap-3"></div>
+                </div>
             </div>
 
             <div class="w-full lg:w-1/3 flex flex-col gap-6">
@@ -98,6 +107,7 @@
         
         let attendanceData = {}; 
         let fullSchedule = []; 
+        let isTeacherView = true; // 🔥 기본값을 교사 위치로 설정
 
         window.onload = async function () {
             const today = new Date();
@@ -108,7 +118,6 @@
             createDesks();
 
             try {
-                // 초기에만 불러오므로 타임스탬프를 붙여 브라우저 캐시를 막습니다.
                 const ts = Date.now();
                 const [subRes, schRes] = await Promise.all([
                     fetch(`${API_URL}?type=GET_SUBJECTS&t=${ts}`),
@@ -195,29 +204,19 @@
             const days = ['일', '월', '화', '수', '목', '금', '토'];
             const currentDay = days[now.getDay()];
             
-            // 🌟 선생님 학교 시간표에 맞춘 정밀 교시 계산 🌟
             const h = now.getHours();
             const m = now.getMinutes();
-            const currentTime = h * 100 + m; // 예: 09:15 -> 915
+            const currentTime = h * 100 + m; 
             
-            let currentPeriod = "1"; // 기본값 (아침 일찍)
+            let currentPeriod = "1";
 
-            // 쉬는 시간 및 점심 시간에는 미리 다음 시간표를 띄우도록 설정
-            if (currentTime < 950) {
-                currentPeriod = "1"; // ~ 09:49 (1교시)
-            } else if (currentTime < 1050) {
-                currentPeriod = "2"; // 09:50 ~ 10:49 (2교시)
-            } else if (currentTime < 1150) {
-                currentPeriod = "3"; // 10:50 ~ 11:49 (3교시)
-            } else if (currentTime < 1340) {
-                currentPeriod = "4"; // 11:50 ~ 13:39 (4교시 + 점심시간)
-            } else if (currentTime < 1440) {
-                currentPeriod = "5"; // 13:40 ~ 14:39 (5교시)
-            } else if (currentTime < 1540) {
-                currentPeriod = "6"; // 14:40 ~ 15:39 (6교시)
-            } else {
-                currentPeriod = "7"; // 15:40 이후 (7교시)
-            }
+            if (currentTime < 950) { currentPeriod = "1"; }
+            else if (currentTime < 1050) { currentPeriod = "2"; }
+            else if (currentTime < 1150) { currentPeriod = "3"; }
+            else if (currentTime < 1340) { currentPeriod = "4"; }
+            else if (currentTime < 1440) { currentPeriod = "5"; }
+            else if (currentTime < 1540) { currentPeriod = "6"; }
+            else { currentPeriod = "7"; }
 
             const targetClass = fullSchedule.find(s => s.day === currentDay && String(s.period) === currentPeriod);
 
@@ -225,7 +224,6 @@
                 document.getElementById('selectedDate').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
                 document.getElementById('selectedSubject').value = targetClass.subject;
                 
-                // 자동 로드 시에는 '모든 교시 허용' 체크를 해제하고 정확한 시간표대로 띄웁니다.
                 document.getElementById('showAllPeriods').checked = false;
                 
                 updatePeriodDropdown(); 
@@ -266,9 +264,44 @@
                 }
                 grid.appendChild(rowDiv);
             });
+            
+            // 🔥 책상을 다 생성한 후 기본 시점(교사 위치) 적용
+            applyView();
         }
 
-        // 🌟 학생을 반/번호/이름으로 완벽하게 구별하기 위한 고유 키 생성기
+        // 🌟🔥 시각적 시점 반전 로직 (데이터에는 영향 X) 🔥🌟
+        function toggleView() {
+            isTeacherView = !isTeacherView;
+            applyView();
+        }
+
+        function applyView() {
+            const btn = document.getElementById('viewToggleBtn');
+            const boardArea = document.getElementById('boardArea');
+            const rows = [...document.querySelectorAll('.row-grid')];
+
+            if (isTeacherView) {
+                // 교사 위치 (칠판이 아래, 상하좌우 반전)
+                btn.className = "bg-violet-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-violet-700 transition text-xs shadow-sm";
+                btn.innerHTML = "🧑‍🏫 교사 위치 (기본)";
+                boardArea.style.flexDirection = 'column-reverse'; 
+            } else {
+                // 학생 시점 (칠판이 위, 기본 배열)
+                btn.className = "bg-slate-100 text-slate-600 px-4 py-2 rounded-xl font-bold hover:bg-slate-200 transition text-xs shadow-sm";
+                btn.innerHTML = "🧑‍🎓 학생 시점";
+                boardArea.style.flexDirection = 'column'; 
+            }
+
+            // 각 줄과 칸의 CSS order(순서)만 변경하여 시각적으로 뒤집음
+            rows.forEach((row, i) => {
+                row.style.order = isTeacherView ? (rows.length - 1 - i) : i; // 상하 반전
+                const cells = [...row.children];
+                cells.forEach((cell, j) => {
+                    cell.style.order = isTeacherView ? (cells.length - 1 - j) : j; // 좌우 반전
+                });
+            });
+        }
+
         function getStudentKey(std) {
             return `${std.class}_${std.number}_${std.name}`.replace(/\s/g, '');
         }
@@ -280,12 +313,13 @@
 
             if (!subject || !targetDate || !period) return;
 
-            attendanceData = {}; // 초기화
+            attendanceData = {};
             document.getElementById('classLog').value = '데이터 불러오는 중...';
             document.querySelectorAll('.desk .student-card').forEach(c => c.remove());
 
             try {
                 const timestamp = new Date().getTime();
+                
                 const [sr, seatingR, recordR] = await Promise.all([
                     fetch(`${API_URL}?type=GET_STUDENTS&subject=${encodeURIComponent(subject)}&t=${timestamp}`),
                     fetch(`${API_URL}?type=GET_SEATING&subject=${encodeURIComponent(subject)}&t=${timestamp}`),
@@ -297,14 +331,13 @@
                 const recordData = await recordR.json();
                 
                 let savedRecord = recordData.success ? recordData.data : null;
+
                 document.getElementById('classLog').value = savedRecord ? savedRecord.log : '';
 
-                // 🔥 결석생 정보를 [반_번호_이름] 키로 매핑하여 정확도 100% 확보
                 const issueMap = {};
                 if(savedRecord && savedRecord.attendanceIssues) {
                     savedRecord.attendanceIssues.forEach(issue => {
-                        const key = getStudentKey(issue);
-                        issueMap[key] = issue;
+                        issueMap[getStudentKey(issue)] = issue;
                     });
                 }
 
@@ -312,13 +345,12 @@
 
                 students.forEach((std) => {
                     const stdKey = getStudentKey(std);
-                    // 좌석 배치 정보 찾기
                     const seat = savedSeating.find(s => getStudentKey(s) === stdKey);
                     
                     if (seat && seat.seatIndex >= 0 && seat.seatIndex < TOTAL_SEATS) {
+                        
                         const savedIssue = issueMap[stdKey];
                         
-                        // attendanceData에도 고유 키를 사용하여 저장
                         attendanceData[stdKey] = {
                             name: std.name,
                             class: std.class,
@@ -336,7 +368,6 @@
                             <span class="pointer-events-none text-sm">${std.name}</span>
                         `;
                         
-                        // 클릭 시에도 고유 키를 전달
                         card.onclick = function() { toggleAttendance(card, stdKey); };
                         desks[seat.seatIndex].appendChild(card);
                     }
@@ -346,7 +377,7 @@
 
             } catch (e) {
                 console.error(e);
-                alert("데이터 로드 중 오류가 발생했습니다.");
+                alert("데이터 로드 오류가 발생했습니다.");
                 document.getElementById('classLog').value = '';
             }
         }
@@ -354,14 +385,14 @@
         function toggleAttendance(card, stdKey) {
             const student = attendanceData[stdKey];
             if(!student) return;
-
+            
             if (student.status === 'present') {
                 student.status = 'absent';
-                const reason = prompt(`[결석] ${student.name} 학생의 결석 사유를 입력하세요:`, "질병결석");
+                const reason = prompt(`[결석] ${student.name} 학생의 결석 사유를 입력하세요 (선택):`, "질병결석");
                 student.memo = reason || "사유 미입력";
             } else if (student.status === 'absent') {
                 student.status = 'late';
-                const reason = prompt(`[지각] ${student.name} 학생의 지각 사유를 입력하세요:`, "지각");
+                const reason = prompt(`[지각] ${student.name} 학생의 지각 사유를 입력하세요 (선택):`, "지각");
                 student.memo = reason || "사유 미입력";
             } else {
                 student.status = 'present';
@@ -377,7 +408,6 @@
             list.innerHTML = '';
             let hasIssue = false;
             
-            // 고유 키 기반의 attendanceData를 순회
             Object.values(attendanceData).forEach(std => {
                 if (std.status !== 'present') {
                     hasIssue = true;
