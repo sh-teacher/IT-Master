@@ -5,7 +5,6 @@
     <title>시스템 설정 - Class Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        // [보안] 로그인 여부 확인 (세션 체크)
         if (sessionStorage.getItem("isAllowed") !== "true") {
             alert("인증이 필요합니다.");
             location.href = "index.html";
@@ -17,7 +16,7 @@
         <header class="mb-10 flex justify-between items-end">
             <div>
                 <h1 class="text-3xl font-black text-slate-800">⚙️ 시스템 환경 설정</h1>
-                <p class="text-slate-500 font-medium">학년도, 학기 및 담당 과목을 관리합니다.</p>
+                <p class="text-slate-500 font-medium">학년도, 학기, 담당 과목 및 시간표를 관리합니다.</p>
             </div>
             <button onclick="location.href='index.html'" class="text-sm text-slate-400 underline">로그아웃</button>
         </header>
@@ -52,17 +51,18 @@
                         <input type="text" id="targetClass" class="w-32 p-3 bg-slate-50 border rounded-xl focus:outline-green-500" placeholder="대상반 (2-1)">
                         <button onclick="addSubject()" id="btnSubject" class="bg-green-600 text-white px-6 rounded-xl font-bold hover:bg-green-700 transition">추가</button>
                     </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mt-6">
-                        <h2 class="text-xl font-bold text-slate-700 mb-4">🗓️ 시간표 등록</h2>
+                    
+                    <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 mt-6 mb-6">
+                        <h2 class="text-lg font-bold text-slate-700 mb-4">🗓️ 시간표 등록</h2>
                         <div class="flex gap-4">
-                            <select id="schDay" class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                            <select id="schDay" class="p-3 bg-white border border-slate-200 rounded-xl">
                                 <option value="월">월요일</option>
                                 <option value="화">화요일</option>
                                 <option value="수">수요일</option>
                                 <option value="목">목요일</option>
                                 <option value="금">금요일</option>
                             </select>
-                            <select id="schPeriod" class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                            <select id="schPeriod" class="p-3 bg-white border border-slate-200 rounded-xl">
                                 <option value="1">1교시</option>
                                 <option value="2">2교시</option>
                                 <option value="3">3교시</option>
@@ -71,13 +71,15 @@
                                 <option value="6">6교시</option>
                                 <option value="7">7교시</option>
                             </select>
-                            <select id="schSubject" class="flex-1 p-3 bg-slate-50 border border-slate-200 rounded-xl">
-                                </select>
+                            <select id="schSubject" class="flex-1 p-3 bg-white border border-slate-200 rounded-xl">
+                                <option value="">과목을 불러오는 중...</option>
+                            </select>
                             <button onclick="addSchedule()" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700">
-                                시간표 추가
+                                등록
                             </button>
                         </div>
                     </div>
+
                     <div class="overflow-hidden rounded-xl border border-slate-100">
                         <table class="w-full text-left border-collapse">
                             <thead class="bg-slate-50">
@@ -87,7 +89,7 @@
                                 </tr>
                             </thead>
                             <tbody id="subjectTableBody" class="divide-y divide-slate-100">
-                                </tbody>
+                            </tbody>
                         </table>
                     </div>
                 </section>
@@ -102,67 +104,63 @@
     </div>
 
     <script>
-        // 🔗 선생님의 Apps Script 웹 앱 URL을 반드시 입력하세요!
         const API_URL = "https://script.google.com/macros/s/AKfycbxUgpimLYy_9K_vZjbxJYtImA4fcz3ZZxfXPvy9WlYXLv1dY-yBA6yrtHeybyAo1v_Vpg/exec";
 
-        // 1. 학기 정보 저장
-        async function saveConfig() {
-            const btn = document.getElementById('btnConfig');
-            const payload = {
-                year: document.getElementById('year').value,
-                semester: document.getElementById('semester').value
-            };
+        // 🔥 페이지 로드 시 등록된 과목 목록을 불러와 표와 드롭다운을 채웁니다.
+        window.onload = loadSubjects;
 
-            btn.disabled = true;
-            btn.innerText = "저장 중...";
-
+        async function loadSubjects() {
             try {
-                await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ type: "SAVE_CONFIG", payload: payload })
+                const response = await fetch(API_URL + "?type=GET_SUBJECTS");
+                const subjects = await response.json();
+                
+                const tbody = document.getElementById('subjectTableBody');
+                const schSubject = document.getElementById('schSubject');
+                
+                tbody.innerHTML = '';
+                schSubject.innerHTML = '<option value="">시간표에 등록할 과목 선택</option>';
+
+                subjects.forEach(sub => {
+                    tbody.innerHTML += `<tr><td class="p-3 text-sm font-bold text-slate-700">${sub.name}</td><td class="p-3 text-sm text-slate-500">${sub.target}</td></tr>`;
+                    schSubject.innerHTML += `<option value="${sub.fullName}">${sub.fullName}</option>`;
                 });
-                alert("학년도와 학기가 구글 시트에 저장되었습니다!");
             } catch (e) {
-                alert("저장 실패: " + e.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "학기 정보 저장";
+                console.log("과목 로드 실패", e);
             }
         }
 
-        // 2. 과목 등록 저장
+        async function saveConfig() {
+            const btn = document.getElementById('btnConfig');
+            const payload = { year: document.getElementById('year').value, semester: document.getElementById('semester').value };
+            btn.disabled = true; btn.innerText = "저장 중...";
+            try {
+                await fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "SAVE_CONFIG", payload: payload }) });
+                alert("학년도와 학기가 구글 시트에 저장되었습니다!");
+            } catch (e) { alert("저장 실패: " + e.message); } 
+            finally { btn.disabled = false; btn.innerText = "학기 정보 저장"; }
+        }
+
         async function addSubject() {
             const btn = document.getElementById('btnSubject');
             const name = document.getElementById('subjectName').value;
             const target = document.getElementById('targetClass').value;
-
             if(!name || !target) return alert("과목명과 대상반을 입력하세요.");
 
-            btn.disabled = true;
-            btn.innerText = "추가 중...";
-
+            btn.disabled = true; btn.innerText = "추가 중...";
             try {
                 await fetch(API_URL, {
                     method: 'POST',
-                    body: JSON.stringify({
-                        type: "ADD_SUBJECT",
-                        payload: { name: name, target: target }
-                    })
+                    body: JSON.stringify({ type: "ADD_SUBJECT", payload: { name: name, target: target } })
                 });
-                
-                // 테이블에 임시 추가 (화면 갱신용)
-                const row = `<tr><td class="p-3 text-sm">${name}</td><td class="p-3 text-sm">${target}</td></tr>`;
-                document.getElementById('subjectTableBody').innerHTML += row;
-                
                 document.getElementById('subjectName').value = "";
                 document.getElementById('targetClass').value = "";
-            } catch (e) {
-                alert("과목 등록 실패: " + e.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "추가";
-            }
+                
+                // 과목을 추가했으니 목록을 다시 불러옵니다!
+                await loadSubjects(); 
+            } catch (e) { alert("과목 등록 실패: " + e.message); } 
+            finally { btn.disabled = false; btn.innerText = "추가"; }
         }
+
         async function addSchedule() {
             const day = document.getElementById('schDay').value;
             const period = document.getElementById('schPeriod').value;
@@ -173,10 +171,7 @@
             try {
                 const response = await fetch(API_URL, {
                     method: 'POST',
-                    body: JSON.stringify({
-                        type: "ADD_SCHEDULE",
-                        payload: { day: day, period: period, subject: subject }
-                    })
+                    body: JSON.stringify({ type: "ADD_SCHEDULE", payload: { day: day, period: period, subject: subject } })
                 });
                 const result = await response.json();
                 if(result.success) alert(`✅ ${day}요일 ${period}교시에 [${subject}] 과목이 등록되었습니다!`);
