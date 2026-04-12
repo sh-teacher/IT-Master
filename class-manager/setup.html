@@ -52,7 +52,32 @@
                         <input type="text" id="targetClass" class="w-32 p-3 bg-slate-50 border rounded-xl focus:outline-green-500" placeholder="대상반 (2-1)">
                         <button onclick="addSubject()" id="btnSubject" class="bg-green-600 text-white px-6 rounded-xl font-bold hover:bg-green-700 transition">추가</button>
                     </div>
-
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mt-6">
+                        <h2 class="text-xl font-bold text-slate-700 mb-4">🗓️ 시간표 등록</h2>
+                        <div class="flex gap-4">
+                            <select id="schDay" class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                                <option value="월">월요일</option>
+                                <option value="화">화요일</option>
+                                <option value="수">수요일</option>
+                                <option value="목">목요일</option>
+                                <option value="금">금요일</option>
+                            </select>
+                            <select id="schPeriod" class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                                <option value="1">1교시</option>
+                                <option value="2">2교시</option>
+                                <option value="3">3교시</option>
+                                <option value="4">4교시</option>
+                                <option value="5">5교시</option>
+                                <option value="6">6교시</option>
+                                <option value="7">7교시</option>
+                            </select>
+                            <select id="schSubject" class="flex-1 p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                                </select>
+                            <button onclick="addSchedule()" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700">
+                                시간표 추가
+                            </button>
+                        </div>
+                    </div>
                     <div class="overflow-hidden rounded-xl border border-slate-100">
                         <table class="w-full text-left border-collapse">
                             <thead class="bg-slate-50">
@@ -137,6 +162,25 @@
                 btn.disabled = false;
                 btn.innerText = "추가";
             }
+        }
+        async function addSchedule() {
+            const day = document.getElementById('schDay').value;
+            const period = document.getElementById('schPeriod').value;
+            const subject = document.getElementById('schSubject').value;
+
+            if (!subject) return alert("과목을 먼저 선택/등록해주세요.");
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        type: "ADD_SCHEDULE",
+                        payload: { day: day, period: period, subject: subject }
+                    })
+                });
+                const result = await response.json();
+                if(result.success) alert(`✅ ${day}요일 ${period}교시에 [${subject}] 과목이 등록되었습니다!`);
+            } catch(e) { alert("저장 실패"); }
         }
     </script>
 </body>

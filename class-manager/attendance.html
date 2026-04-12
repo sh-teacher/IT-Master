@@ -78,13 +78,42 @@
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbxUgpimLYy_9K_vZjbxJYtImA4fcz3ZZxfXPvy9WlYXLv1dY-yBA6yrtHeybyAo1v_Vpg/exec";
+        
+        async function autoLoadCurrentClass() {
+            const btn = event.currentTarget;
+            btn.innerText = "로딩 중...";
+            
+            try {
+                // 서버에서 선생님이 등록한 시간표를 가져옴
+                const res = await fetch(`${API_URL}?type=GET_SCHEDULE`);
+                const schedule = await res.json();
+                
+                const now = new Date();
+                const days = ['일', '월', '화', '수', '목', '금', '토'];
+                const currentDay = days[now.getDay()];
+                
+                // 현재 교시 임시 계산 (종소리 시간에 맞게 조건문으로 변경 추천)
+                const currentPeriod = String(now.getHours() - 8); 
 
-        // 선생님 시간표 설정 (0=일, 1=월...)
-        const TIMETABLE = {
-            1: { 1: "정보A (2-6)", 2: "정보B (아름실)", 3: "인공지능기초I (3-8)" },
-            2: { 4: "인공지능기초H (아름실)" }
-        };
+                // 오늘 요일과 현재 교시가 일치하는 과목 찾기
+                const targetClass = schedule.find(s => s.day === currentDay && String(s.period) === currentPeriod);
 
+                if (targetClass) {
+                    document.getElementById('selectedDate').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+                    document.getElementById('selectedPeriod').value = currentPeriod;
+                    document.getElementById('selectedSubject').value = targetClass.subject;
+                    
+                    loadClassData();
+                    alert(`⏰ ${currentDay}요일 ${currentPeriod}교시: [${targetClass.subject}] 과목을 불러왔습니다.`);
+                } else {
+                    alert("현재 시간에 해당하는 시간표가 등록되어 있지 않습니다.");
+                }
+            } catch(e) {
+                alert("시간표를 불러오지 못했습니다.");
+            } finally {
+                btn.innerText = "⏰ 현재 수업 로드";
+            }
+        }
         const ROW_CONFIG = [
             { desks: 6, empty: 1 }, { desks: 6, empty: 1 },
             { desks: 7, empty: 0 }, { desks: 7, empty: 0 },
