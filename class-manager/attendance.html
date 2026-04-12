@@ -195,8 +195,29 @@
             const days = ['일', '월', '화', '수', '목', '금', '토'];
             const currentDay = days[now.getDay()];
             
+            // 🌟 선생님 학교 시간표에 맞춘 정밀 교시 계산 🌟
             const h = now.getHours();
-            const currentPeriod = String(h > 8 ? h - 8 : 1); 
+            const m = now.getMinutes();
+            const currentTime = h * 100 + m; // 예: 09:15 -> 915
+            
+            let currentPeriod = "1"; // 기본값 (아침 일찍)
+
+            // 쉬는 시간 및 점심 시간에는 미리 다음 시간표를 띄우도록 설정
+            if (currentTime < 950) {
+                currentPeriod = "1"; // ~ 09:49 (1교시)
+            } else if (currentTime < 1050) {
+                currentPeriod = "2"; // 09:50 ~ 10:49 (2교시)
+            } else if (currentTime < 1150) {
+                currentPeriod = "3"; // 10:50 ~ 11:49 (3교시)
+            } else if (currentTime < 1340) {
+                currentPeriod = "4"; // 11:50 ~ 13:39 (4교시 + 점심시간)
+            } else if (currentTime < 1440) {
+                currentPeriod = "5"; // 13:40 ~ 14:39 (5교시)
+            } else if (currentTime < 1540) {
+                currentPeriod = "6"; // 14:40 ~ 15:39 (6교시)
+            } else {
+                currentPeriod = "7"; // 15:40 이후 (7교시)
+            }
 
             const targetClass = fullSchedule.find(s => s.day === currentDay && String(s.period) === currentPeriod);
 
@@ -204,6 +225,7 @@
                 document.getElementById('selectedDate').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
                 document.getElementById('selectedSubject').value = targetClass.subject;
                 
+                // 자동 로드 시에는 '모든 교시 허용' 체크를 해제하고 정확한 시간표대로 띄웁니다.
                 document.getElementById('showAllPeriods').checked = false;
                 
                 updatePeriodDropdown(); 
