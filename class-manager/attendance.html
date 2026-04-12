@@ -350,7 +350,9 @@
 
         async function saveDailyRecord() {
             const subject = document.getElementById('selectedSubject').value;
-            const targetDate = document.getElementById('selectedDate').value; // 달력에서 선택한 날짜
+            const targetDate = document.getElementById('selectedDate').value;
+            const period = document.getElementById('selectedPeriod').value; // 1, 2, 3... 교시 값
+
             if (!subject) return alert("과목을 선택해주세요.");
 
             const classLog = document.getElementById('classLog').value;
@@ -360,9 +362,11 @@
             btn.innerText = "저장 중...";
             btn.disabled = true;
 
+            // 🔥 payload의 속성 이름이 GAS의 변수 이름과 정확히 일치해야 합니다.
             const payload = {
-                date: targetDate, // 과거 날짜도 정확히 지정되어 저장됨
-                subject: subject,
+                date: targetDate,
+                period: period,  // 여기가 교시
+                subject: subject, // 여기가 과목명
                 log: classLog,
                 attendanceIssues: issues
             };
@@ -374,12 +378,10 @@
                 });
                 const r = await res.json();
                 if(r.success) {
-                    alert(`✅ [${targetDate}] 출석 및 수업 일지가 성공적으로 저장되었습니다!`);
-                } else {
-                    alert("❌ 저장 실패: " + r.msg);
+                    alert(`✅ [${targetDate} / ${period}교시] 저장이 완료되었습니다!`);
                 }
             } catch (e) {
-                alert("네트워크 오류 발생");
+                alert("저장 중 오류 발생");
             } finally {
                 btn.innerText = "💾 출석 및 일지 저장하기";
                 btn.disabled = false;
