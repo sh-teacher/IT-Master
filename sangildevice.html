@@ -2,16 +2,6 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <script>
-        // 🌟 수정 1: sessionStorage -> localStorage 로 변경
-        // 1차 방어: 암호 자체가 없으면 즉시 차단
-        if (!localStorage.getItem('asset_pw')) {
-            // 화면 렌더링을 즉시 멈추고 하얗게 가려버립니다.
-            document.documentElement.style.display = 'none'; 
-            // 로그인 페이지로 강제 반송!
-            location.replace('index.html'); 
-        }
-    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>자산 관리 대시보드 - IT Master</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -21,21 +11,28 @@
         th.sortable:hover { background-color: #f3f4f6; }
         th.sortable::after { content: ' ↕'; font-size: 0.8em; color: #ccc; }
         td { white-space: nowrap; }
-        /* 비고란이 너무 길면 잘라내고 말줄임표 처리 */
         .note-cell { max-width: 60px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .model-cell { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .chart-container { position: relative; height: 200px; width: 100%; }
-        /* 팝업창 스크롤바 숨기기 (깔끔한 디자인) */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gray-50 min-h-screen relative">
 
-    <div id="authLoadingScreen" class="fixed inset-0 bg-gray-900 z-[9999] flex flex-col items-center justify-center text-white">
-        <div class="text-6xl mb-6 animate-bounce">🔐</div>
-        <h2 class="text-2xl font-bold mb-2">서버 인증 확인 중...</h2>
-        <p class="text-gray-400 text-sm">비밀번호를 확인하고 데이터를 불러오고 있습니다.</p>
+    <div id="loginScreen" class="fixed inset-0 bg-gray-900 z-[10000] flex items-center justify-center hidden">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm text-center">
+            <h1 class="text-2xl font-bold mb-6 text-gray-800">🔐 자산 관리 시스템</h1>
+            <p class="text-gray-500 text-sm mb-6">시스템 접속을 위해 비밀번호를 입력하세요.</p>
+            <input type="password" id="pwInput" onkeypress="if(event.key==='Enter') attemptLogin()" class="w-full border-2 border-gray-100 p-4 rounded-xl mb-4 focus:border-blue-500 outline-none transition text-center text-lg font-bold" placeholder="비밀번호 입력">
+            <button onclick="attemptLogin()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 transition shadow-lg">접속하기</button>
+        </div>
+    </div>
+
+    <div id="authLoadingScreen" class="fixed inset-0 bg-gray-900 z-[9999] flex flex-col items-center justify-center text-white hidden">
+        <div class="text-6xl mb-6 animate-bounce">⏳</div>
+        <h2 class="text-2xl font-bold mb-2">서버 데이터 불러오는 중...</h2>
+        <p class="text-gray-400 text-sm">자산 현황을 동기화하고 있습니다.</p>
     </div>
 
     <div id="mainDashboardContent" class="hidden">
@@ -46,7 +43,7 @@
                     <a href="print_qr.html" class="bg-green-500 hover:bg-green-400 px-3 py-1 rounded shadow-sm">🖨️ QR 일괄출력</a>
                     <span class="text-blue-300">|</span>
                     <a href="write.html" class="hover:underline">등록</a>
-                    <a href="sangildevice.html" class="bg-blue-700 px-3 py-1 rounded">목록현황</a>
+                    <button onclick="logout()" class="bg-blue-700 px-3 py-1 rounded hover:bg-blue-800 transition">로그아웃</button>
                 </div>
             </div>
         </nav>
@@ -167,16 +164,13 @@
 
         <div id="assetModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 transition-opacity">
             <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden border border-gray-100 flex flex-col max-h-[90vh]">
-                
                 <div class="bg-blue-600 pt-6 pb-5 px-6 text-white text-center relative shrink-0">
                     <div class="absolute top-4 left-5 text-left">
                         <div class="text-[9px] text-blue-200 font-bold uppercase tracking-wider mb-0.5">관리번호</div>
                         <div id="m_sn" class="text-xl font-black text-white leading-none">-</div>
                     </div>
                     <button onclick="closeAssetModal()" class="absolute top-4 right-4 text-white hover:text-blue-200 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
                     <div id="m_type" class="inline-block bg-blue-400 px-4 py-1 rounded-full text-xs font-bold mb-2">ASSET INFO</div>
                     <h2 id="m_model" class="text-xl font-bold leading-tight tracking-wide mt-1">모델명</h2>
@@ -193,7 +187,6 @@
                             <span id="m_group" class="font-bold text-gray-800 text-base">-</span>
                         </div>
                     </div>
-                    
                     <div class="grid grid-cols-2 gap-4">
                         <div class="flex flex-col border-b border-gray-100 pb-2">
                             <span class="text-gray-400 text-[11px] font-bold mb-1">취득일자</span>
@@ -204,18 +197,15 @@
                             <span id="m_ip" class="font-bold text-blue-500 text-sm">-</span>
                         </div>
                     </div>
-
                     <div class="pt-1">
                         <span class="text-gray-400 text-[11px] font-bold">비고</span>
                         <div id="m_note" class="bg-gray-50 text-gray-700 text-sm mt-2 p-3 rounded-lg border border-gray-100 min-h-[44px] flex items-center">-</div>
                     </div>
-
                     <div class="flex flex-col items-center pt-5">
                         <span class="text-gray-400 text-[11px] font-bold mb-2">해당 기기 QR코드</span>
                         <div id="m_qr" class="p-2 border border-gray-200 rounded-xl bg-white shadow-sm"></div>
                     </div>
                 </div>
-
                 <div class="p-4 text-center shrink-0">
                     <button onclick="closeAssetModal()" class="w-full py-3 bg-gray-200 text-gray-700 rounded-lg font-bold text-base hover:bg-gray-300 transition">닫기</button>
                 </div>
@@ -239,51 +229,76 @@
                     </button>
                 </div>
                 <div class="p-6 overflow-y-auto no-scrollbar" id="ipResultArea"></div>
-                
                 <div class="bg-gray-50 p-4 text-center shrink-0 border-t border-gray-100">
                     <button onclick="closeIpModal()" class="w-full py-2 bg-gray-200 text-gray-700 rounded-lg font-bold hover:bg-gray-300 transition">닫기</button>
                 </div>
             </div>
         </div>
-    </div> 
-    
-    <script>
-        // 🌟 수정 2: sessionStorage -> localStorage 로 변경
-        const savedPw = localStorage.getItem('asset_pw');
-        // index.html 로 통일 (기존에 login.html 쓰셨다면 수정 필요)
-        if (!savedPw && !window.location.href.includes('index.html')) {
-            location.replace('index.html');
-        }
-        
+    </div> <script>
         const GAS_URL = "https://script.google.com/macros/s/AKfycbyZvgICRHPoQFHKrRX-bI27Ti9RUNWMjdMOlDTzzSNdviEjC1Gxpa0jlMYBi5bOotLyxQ/exec"; 
         let assetData = [];
         let currentSort = { column: '', ascending: true };
         let mChart, yChart;
 
-        async function loadData() {
+        // 🌟 1. 페이지가 열릴 때 실행되는 흐름
+        window.onload = function() {
+            const savedPw = localStorage.getItem('asset_pw');
+            
+            if (!savedPw) {
+                // 암호가 없으면 내장된 로그인 화면을 띄움 (어디로 튕겨내지 않음!)
+                document.getElementById('loginScreen').classList.remove('hidden');
+            } else {
+                // 암호가 있으면 로딩 화면을 띄우고 데이터 가져오기 시작
+                document.getElementById('authLoadingScreen').classList.remove('hidden');
+                loadData(savedPw);
+            }
+        };
+
+        // 🌟 2. 로그인 버튼을 눌렀을 때
+        function attemptLogin() {
+            const pw = document.getElementById('pwInput').value;
+            if (!pw) return alert("비밀번호를 입력하세요.");
+            
+            // 임시로 암호를 저장하고 로딩 화면으로 전환 후 통신
+            localStorage.setItem('asset_pw', pw);
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('authLoadingScreen').classList.remove('hidden');
+            loadData(pw);
+        }
+
+        // 🌟 3. 로그아웃 기능 추가
+        function logout() {
+            localStorage.removeItem('asset_pw');
+            location.reload(); // 새로고침하면 알아서 로그인 창이 다시 뜸
+        }
+
+        // 🌟 4. 데이터 로딩 및 검증 로직
+        async function loadData(pw) {
             try {
-                const res = await fetch(`${GAS_URL}?pw=${encodeURIComponent(savedPw)}`);
+                const res = await fetch(`${GAS_URL}?pw=${encodeURIComponent(pw)}`);
                 const text = await res.text();
                 
-                // 🌟 서버 검증 실패 시
                 if (text === "인증 실패") {
-                    // 🌟 수정 3: sessionStorage -> localStorage 로 변경
                     localStorage.removeItem('asset_pw');
-                    alert("비밀번호가 틀렸습니다.");
-                    location.replace('index.html');
+                    alert("비밀번호가 일치하지 않습니다!");
+                    document.getElementById('pwInput').value = '';
+                    
+                    // 로딩 끄고 다시 로그인 창 켜기
+                    document.getElementById('authLoadingScreen').classList.add('hidden');
+                    document.getElementById('loginScreen').classList.remove('hidden');
                     return;
                 }
                 
-                // 🌟 서버 검증 성공 시! (로딩 화면 끄고, 진짜 화면 켜기)
+                // 인증 성공! 데이터 그리기
                 assetData = JSON.parse(text);
                 updateDashboard(assetData);
                 renderTable(assetData);
                 
-                document.getElementById('authLoadingScreen').style.display = 'none';
+                // 로딩 창 끄고 진짜 대시보드 열기!
+                document.getElementById('authLoadingScreen').classList.add('hidden');
                 document.getElementById('mainDashboardContent').classList.remove('hidden');
 
             } catch (err) {
-                // 통신 자체 에러일 경우
                 document.getElementById('authLoadingScreen').innerHTML = `
                     <div class="text-6xl mb-6">❌</div>
                     <h2 class="text-2xl font-bold mb-2">서버 통신 에러</h2>
@@ -293,6 +308,7 @@
             }
         }
 
+        // ================= 기존 데이터 렌더링 함수들 (변경 없음) =================
         function updateDashboard(data) {
             const counts = { 노트북: 0, 데스크톱: 0, 태블릿: 0, 프린터: 0 };
             const groupData = {};
@@ -569,8 +585,6 @@
         }
 
         function closeModal() { document.getElementById('qrModal').classList.add('hidden'); }
-        
-        window.onload = loadData;
     </script>
 </body>
 </html>
