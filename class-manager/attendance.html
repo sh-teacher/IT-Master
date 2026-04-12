@@ -27,20 +27,15 @@
                 <p class="text-slate-500 mt-2 font-medium" id="currentDateTime">불러오는 중...</p>
             </div>
             <div class="flex gap-3 items-center flex-wrap justify-end">
-                <input type="date" id="selectedDate" onchange="loadClassData()" class="p-3 bg-slate-50 border-2 border-slate-100 rounded-xl font-bold text-slate-700 focus:border-blue-500 focus:outline-none">
                 
-                <select id="selectedPeriod" onchange="loadClassData()" class="p-3 bg-slate-50 border-2 border-slate-100 rounded-xl font-bold text-slate-700 focus:border-blue-500 focus:outline-none">
-                    <option value="1">1교시</option>
-                    <option value="2">2교시</option>
-                    <option value="3">3교시</option>
-                    <option value="4">4교시</option>
-                    <option value="5">5교시</option>
-                    <option value="6">6교시</option>
-                    <option value="7">7교시</option>
+                <input type="date" id="selectedDate" onchange="updatePeriodDropdown()" class="p-3 bg-slate-50 border-2 border-slate-100 rounded-xl font-bold text-slate-700 focus:border-blue-500 focus:outline-none">
+                
+                <select id="selectedSubject" onchange="updatePeriodDropdown()" class="p-3 bg-slate-50 border-2 border-slate-100 rounded-xl font-bold text-slate-700 focus:border-blue-500 focus:outline-none min-w-[200px]">
+                    <option value="">과목을 선택하세요...</option>
                 </select>
 
-                <select id="selectedSubject" onchange="loadClassData()" class="p-3 bg-slate-50 border-2 border-slate-100 rounded-xl font-bold text-slate-700 focus:border-blue-500 focus:outline-none min-w-[200px]">
-                    <option value="">과목을 선택하세요...</option>
+                <select id="selectedPeriod" onchange="loadClassData()" class="p-3 bg-slate-50 border-2 border-slate-100 rounded-xl font-bold text-blue-600 focus:border-blue-500 focus:outline-none disabled:opacity-50 disabled:bg-slate-100">
+                    <option value="">과목/날짜 선택</option>
                 </select>
                 
                 <button onclick="autoLoadCurrentClass(this)" class="bg-emerald-100 text-emerald-700 px-5 py-3 rounded-xl font-bold hover:bg-emerald-200 transition whitespace-nowrap">
@@ -88,7 +83,6 @@
     </div>
 
     <script>
-        // ★ 선생님의 앱스 스크립트 URL로 꼭 변경해주세요! ★
         const API_URL = "https://script.google.com/macros/s/AKfycbxUgpimLYy_9K_vZjbxJYtImA4fcz3ZZxfXPvy9WlYXLv1dY-yBA6yrtHeybyAo1v_Vpg/exec";
 
         const ROW_CONFIG = [
@@ -98,6 +92,7 @@
         const TOTAL_SEATS = ROW_CONFIG.reduce((a, r) => a + r.desks, 0);
         
         let attendanceData = {}; 
+        let fullSchedule = []; // 🔥 전체 시간표 저장 변수 추가
 
         window.onload = async function () {
             // 오늘 날짜로 초기화
@@ -109,9 +104,15 @@
             createDesks();
 
             try {
-                // 과목 목록 불러오기
-                const res = await fetch(`${API_URL}?type=GET_SUBJECTS`);
-                const subjects = await res.json();
+                // 🔥 과목과 전체 시간표를 한 번에 불러옵니다.
+                const [subRes, schRes] = await Promise.all([
+                    fetch(`${API_URL}?type=GET_SUBJECTS`),
+                    fetch(`${API_URL}?type=GET_SCHEDULE`)
+                ]);
+                
+                const subjects = await subRes.json();
+                fullSchedule = await schRes.json(); // 전체 시간표 데이터 저장
+                
                 const sel = document.getElementById('selectedSubject');
                 subjects.forEach(s => {
                     const o = document.createElement('option');
@@ -119,14 +120,14 @@
                     sel.appendChild(o);
                 });
 
-                // URL 파라미터가 있으면 과목 자동 선택
+                // URL 파라미터가 있으면 과목 자동 선택 및 교시 업데이트
                 const urlParams = new URLSearchParams(window.location.search);
                 const targetSubject = urlParams.get('subject');
                 if(targetSubject) {
                     sel.value = targetSubject;
-                    loadClassData();
+                    updatePeriodDropdown(); // 교시를 요일에 맞게 업데이트
                 }
-            } catch { console.log("과목 로드 실패"); }
+            } catch { console.log("초기 데이터 로드 실패"); }
         };
 
         function updateDateTime() {
@@ -136,43 +137,83 @@
             document.getElementById('currentDateTime').innerText = `${dateStr} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
         }
 
-        // 🌟 서버의 시간표 데이터를 읽어와 현재 수업을 자동으로 매칭합니다.
-        async function autoLoadCurrentClass(btnElement) {
-            const originalText = btnElement.innerText;
-            btnElement.innerText = "시간표 확인 중...";
-            btnElement.disabled = true;
+        // 🌟 날짜와 과목을 기반으로 등록된 '교시'만 뽑아오는 핵심 함수 🌟
+        function updatePeriodDropdown() {
+            const subject = document.getElementById('selectedSubject').value;
+            const dateVal = document.getElementById('selectedDate').value;
+            const periodSelect = document.getElementById('selectedPeriod');
             
-            try {
-                const res = await fetch(`${API_URL}?type=GET_SCHEDULE`);
-                const schedule = await res.json();
-                
-                const now = new Date();
-                const days = ['일', '월', '화', '수', '목', '금', '토'];
-                const currentDay = days[now.getDay()];
-                
-                // 학교 종소리에 맞춰 교시를 정확하게 세팅하고 싶으시면 이 부분을 수정하시면 됩니다.
-                // 현재는 (현재시간 - 8)로 대략적인 교시를 잡습니다. (예: 9시=1교시)
-                const h = now.getHours();
-                const currentPeriod = String(h > 8 ? h - 8 : 1); 
+            periodSelect.innerHTML = '';
 
-                const targetClass = schedule.find(s => s.day === currentDay && String(s.period) === currentPeriod);
+            if (!subject || !dateVal) {
+                periodSelect.innerHTML = '<option value="">과목/날짜 선택</option>';
+                periodSelect.disabled = true;
+                clearBoard();
+                return;
+            }
 
-                if (targetClass) {
-                    // 세팅
-                    document.getElementById('selectedDate').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-                    document.getElementById('selectedPeriod').value = currentPeriod;
-                    document.getElementById('selectedSubject').value = targetClass.subject;
-                    
-                    loadClassData(); // 데이터 로드
-                    alert(`⏰ ${currentDay}요일 ${currentPeriod}교시: [${targetClass.subject}] 과목을 불러왔습니다.`);
-                } else {
-                    alert(`현재 시간(${currentDay}요일 ${currentPeriod}교시 기준)에 등록된 시간표가 없습니다.\n\n먼저 환경설정에서 시간표를 등록해주세요.`);
-                }
-            } catch(e) {
-                alert("시간표를 불러오지 못했습니다.");
-            } finally {
-                btnElement.innerText = originalText;
-                btnElement.disabled = false;
+            // 선택한 날짜의 요일 계산
+            const dateObj = new Date(dateVal);
+            const days = ['일', '월', '화', '수', '목', '금', '토'];
+            const dayStr = days[dateObj.getDay()];
+
+            // 시간표에서 일치하는 요일과 과목 찾기
+            const matchedPeriods = fullSchedule.filter(s => s.subject === subject && s.day === dayStr);
+
+            if (matchedPeriods.length === 0) {
+                periodSelect.innerHTML = `<option value="">${dayStr}요일 수업 없음</option>`;
+                periodSelect.disabled = true;
+                clearBoard(); // 수업이 없으므로 화면 초기화
+            } else {
+                periodSelect.disabled = false;
+                
+                // 교시 순서대로 정렬
+                matchedPeriods.sort((a, b) => parseInt(a.period) - parseInt(b.period));
+                
+                matchedPeriods.forEach(p => {
+                    periodSelect.innerHTML += `<option value="${p.period}">${p.period}교시</option>`;
+                });
+                
+                // 선택할 수 있는 교시가 생겼으므로 데이터 로드
+                loadClassData();
+            }
+        }
+
+        // 수업 없는 날일 때 화면 초기화
+        function clearBoard() {
+            document.querySelectorAll('.desk .student-card').forEach(c => c.remove());
+            document.getElementById('classLog').value = '';
+            document.getElementById('absenceList').innerHTML = '<li class="text-sm text-red-400 text-center py-4">해당 요일에 등록된 수업이 없습니다.</li>';
+        }
+
+        // 🌟 현재 수업 로드 (최적화)
+        function autoLoadCurrentClass(btnElement) {
+            const now = new Date();
+            const days = ['일', '월', '화', '수', '목', '금', '토'];
+            const currentDay = days[now.getDay()];
+            
+            // 현재 교시 계산 (수정 필요시 변경)
+            const h = now.getHours();
+            const currentPeriod = String(h > 8 ? h - 8 : 1); 
+
+            // fullSchedule에서 현재 시간에 맞는 수업 찾기
+            const targetClass = fullSchedule.find(s => s.day === currentDay && String(s.period) === currentPeriod);
+
+            if (targetClass) {
+                document.getElementById('selectedDate').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+                document.getElementById('selectedSubject').value = targetClass.subject;
+                
+                // 날짜와 과목을 세팅했으므로 드롭다운을 요일에 맞게 변환
+                updatePeriodDropdown(); 
+                
+                // 변환된 드롭다운에서 현재 교시 선택
+                document.getElementById('selectedPeriod').value = currentPeriod;
+                
+                // 데이터 불러오기
+                loadClassData(); 
+                alert(`⏰ ${currentDay}요일 ${currentPeriod}교시: [${targetClass.subject}] 과목을 불러왔습니다.`);
+            } else {
+                alert(`현재 시간(${currentDay}요일 ${currentPeriod}교시 기준)에 등록된 시간표가 없습니다.`);
             }
         }
 
@@ -207,13 +248,12 @@
             });
         }
 
-        // 🌟 좌석 데이터 + 과거 출석부/일지 데이터 불러오기 (숫자 매칭 강화)
         async function loadClassData() {
             const subject = document.getElementById('selectedSubject').value;
             const targetDate = document.getElementById('selectedDate').value;
             const period = document.getElementById('selectedPeriod').value;
 
-            if (!subject || !targetDate) return;
+            if (!subject || !targetDate || !period) return;
 
             attendanceData = {};
             document.getElementById('classLog').value = '데이터 불러오는 중...';
@@ -232,14 +272,11 @@
                 
                 let savedRecord = recordData.success ? recordData.data : null;
 
-                // 1. 수업 일지 복구
                 document.getElementById('classLog').value = savedRecord ? savedRecord.log : '';
 
-                // 2. 결석/지각생 정보를 번호를 키(Key)로 해서 정리 (매칭 최적화)
                 const issueMap = {};
                 if(savedRecord && savedRecord.attendanceIssues) {
                     savedRecord.attendanceIssues.forEach(issue => {
-                        // 번호에서 혹시 모를 공백 제거
                         issueMap[String(issue.number).trim()] = issue;
                     });
                 }
@@ -251,7 +288,7 @@
                     const seat = savedSeating.find(s => String(s.name).trim() === String(std.name).trim() && String(s.number).trim() === stdNum);
                     
                     if (seat && seat.seatIndex >= 0 && seat.seatIndex < TOTAL_SEATS) {
-                        // 저장된 기록이 있으면 그 상태를, 없으면 출석(present) 상태를 부여
+                        
                         const savedIssue = issueMap[stdNum];
                         
                         attendanceData[std.number] = {
@@ -333,13 +370,12 @@
             }
         }
 
-        // 🌟 수정 완료된 최종 저장 기능
         async function saveDailyRecord() {
             const subject = document.getElementById('selectedSubject').value;
             const targetDate = document.getElementById('selectedDate').value;
             const period = document.getElementById('selectedPeriod').value; 
 
-            if (!subject) return alert("과목을 선택해주세요.");
+            if (!subject || !period) return alert("저장할 과목과 교시가 올바르게 선택되었는지 확인해주세요.");
 
             const classLog = document.getElementById('classLog').value;
             const btn = document.getElementById('saveBtn');
