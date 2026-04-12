@@ -6,7 +6,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>if (sessionStorage.getItem("isAllowed") !== "true") location.href = "index.html";</script>
     <style>
-        .desk { min-height: 90px; }
         .desk.over {
             border-color: #3b82f6 !important;
             background-color: #eff6ff !important;
@@ -15,6 +14,7 @@
         #waitingList.over {
             background-color: #f0fdf4 !important;
             outline: 2px dashed #22c55e;
+            outline-offset: -2px;
         }
         #ghost {
             position: fixed;
@@ -27,6 +27,48 @@
         }
         .dragging-source { opacity: 0.28 !important; }
         .student-card { cursor: grab; user-select: none; -webkit-user-select: none; }
+
+        /* 좌석 번호 편집 인풋 */
+        .seat-num-input {
+            position: absolute;
+            top: 3px;
+            left: 5px;
+            width: 28px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #94a3b8;
+            background: transparent;
+            border: none;
+            outline: none;
+            z-index: 10;
+            cursor: text;
+        }
+        .seat-num-input:focus {
+            color: #3b82f6;
+            background: #eff6ff;
+            border-radius: 3px;
+        }
+
+        /* 행별 그리드 */
+        .row-grid {
+            display: grid;
+            gap: 10px;
+        }
+        .row-1, .row-2 { grid-template-columns: repeat(6, 1fr); }
+        .row-3, .row-4 { grid-template-columns: repeat(7, 1fr); }
+
+        .desk {
+            min-height: 88px;
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            background: #f8fafc;
+            position: relative;
+            transition: border-color 0.15s, background 0.15s;
+        }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen p-6">
@@ -52,6 +94,7 @@
         </div>
 
         <div class="flex gap-8">
+            <!-- 학생 대기열 -->
             <div class="w-1/4 bg-slate-100 rounded-2xl p-4 flex flex-col">
                 <h2 class="text-lg font-bold text-slate-700 mb-4 text-center">학생 대기열</h2>
                 <div id="waitingList" class="flex-1 overflow-y-auto grid grid-cols-2 gap-2 content-start p-2 min-h-[500px] rounded-xl transition-all">
@@ -59,35 +102,35 @@
                 </div>
             </div>
 
-            <div id="classroomContainer" class="w-3/4 flex flex-col gap-6 border-2 border-slate-100 rounded-2xl p-6 bg-white transition-all duration-300">
+            <!-- 교실 -->
+            <div id="classroomContainer" class="w-3/4 flex flex-col gap-5 border-2 border-slate-100 rounded-2xl p-6 bg-white">
                 <div id="board" class="bg-emerald-800 text-white text-center py-4 rounded-xl font-black text-xl shadow-inner">
                     칠 판 (교탁)
                 </div>
-                <div class="grid grid-cols-6 gap-3" id="classroomGrid"></div>
+
+                <!-- 행별로 분리된 그리드 -->
+                <div id="classroomGrid" class="flex flex-col gap-3"></div>
             </div>
         </div>
     </div>
 
-    <!-- 드래그 중 따라다니는 고스트 카드 -->
+    <!-- 고스트 카드 -->
     <div id="ghost" class="flex flex-col items-center justify-center bg-white rounded-lg border border-slate-200 font-bold text-slate-700"></div>
 
     <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbxUgpimLYy_9K_vZjbxJYtImA4fcz3ZZxfXPvy9WlYXLv1dY-yBA6yrtHeybyAo1v_Vpg/exec";
+
+    // ── 행 구성 정의 (쉽게 수정 가능) ──
+    // 각 숫자 = 해당 행의 열 수
+    const ROW_COLS = [6, 6, 7, 7]; // 1행6, 2행6, 3행7, 4행7 → 총 26석
+    const TOTAL_SEATS = ROW_COLS.reduce((a, b) => a + b, 0); // 26
+
     let isTeacherView = false;
 
-    /* ─── 드래그 상태 ─── */
-    const dnd = {
-        active:      false,
-        card:        null,
-        ghost:       null,
-        offsetX:     0,
-        offsetY:     0,
-        startX:      0,
-        startY:      0,
-        currentOver: null,
-    };
+    // 드래그 상태
+    const dnd = { active:false, card:null, ghost:null, offsetX:0, offsetY:0, startX:0, startY:0, currentOver:null };
 
-    /* ─── 초기화 ─── */
+    /* ── 초기화 ── */
     window.onload = async function () {
         createDesks();
         try {
@@ -111,7 +154,44 @@
         } catch { alert("과목 목록 로드 실패!"); }
     };
 
-    /* ─── 학생 로드 ─── */
+    /* ── 책상 생성 (행별 그리드) ── */
+    function createDesks() {
+        const grid = document.getElementById('classroomGrid');
+        grid.innerHTML = '';
+        let seatIdx = 0;
+
+        ROW_COLS.forEach((cols, rowIdx) => {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = `row-grid row-${rowIdx + 1}`;
+            rowDiv.dataset.rowIndex = rowIdx;
+
+            for (let c = 0; c < cols; c++) {
+                const desk = document.createElement('div');
+                desk.className = 'desk';
+                desk.dataset.seatIndex = seatIdx;
+                desk.dataset.row = rowIdx;
+                desk.dataset.col = c;
+                desk.dataset.rowCols = cols;
+
+                // 클릭 편집 가능한 좌석 번호
+                const numInput = document.createElement('input');
+                numInput.type = 'text';
+                numInput.className = 'seat-num-input';
+                numInput.value = seatIdx + 1;
+                numInput.maxLength = 3;
+                numInput.title = '클릭하여 번호 변경';
+                numInput.addEventListener('mousedown', e => e.stopPropagation()); // 드래그 방지
+                numInput.addEventListener('click', e => e.stopPropagation());
+                desk.appendChild(numInput);
+
+                grid.appendChild(rowDiv);
+                rowDiv.appendChild(desk);
+                seatIdx++;
+            }
+        });
+    }
+
+    /* ── 학생 로드 ── */
     async function loadStudents() {
         const subject = document.getElementById('selectedSubject').value;
         if (!subject) return;
@@ -136,7 +216,7 @@
             students.forEach((std, idx) => {
                 const card = makeCard(std, idx);
                 const seat = saved.find(s => s.name === std.name && s.number == std.number);
-                if (seat && seat.seatIndex >= 0 && seat.seatIndex < 36) {
+                if (seat && seat.seatIndex >= 0 && seat.seatIndex < TOTAL_SEATS) {
                     desks[seat.seatIndex].appendChild(card);
                 } else {
                     wl.appendChild(card);
@@ -145,11 +225,11 @@
         } catch { alert("데이터 로드 오류"); }
     }
 
-    /* ─── 카드 생성 ─── */
+    /* ── 카드 생성 ── */
     function makeCard(std, idx) {
         const card = document.createElement('div');
         card.className = "student-card w-full flex flex-col items-center justify-center bg-white p-1 rounded-lg shadow-sm border border-slate-200 text-center font-bold text-slate-700 hover:shadow-md";
-        card.style.height = "65px";
+        card.style.height = "62px";
         card.dataset.grade  = std.grade;
         card.dataset.class  = std.class;
         card.dataset.number = std.number;
@@ -161,7 +241,7 @@
         return card;
     }
 
-    /* ─── 저장 ─── */
+    /* ── 저장 ── */
     async function saveSeatingToServer() {
         const subject = document.getElementById('selectedSubject').value;
         if (!subject) return alert("과목을 먼저 선택해주세요.");
@@ -170,10 +250,14 @@
         const data = [];
         document.querySelectorAll('.desk').forEach(desk => {
             const card = desk.querySelector('.student-card');
+            const numInput = desk.querySelector('.seat-num-input');
             if (card) data.push({
-                seatIndex: parseInt(desk.dataset.seatIndex),
-                grade: card.dataset.grade, class: card.dataset.class,
-                number: card.dataset.number, name: card.dataset.name
+                seatIndex:   parseInt(desk.dataset.seatIndex),
+                seatLabel:   numInput ? numInput.value : '',
+                grade:  card.dataset.grade,
+                class:  card.dataset.class,
+                number: card.dataset.number,
+                name:   card.dataset.name
             });
         });
         try {
@@ -187,27 +271,13 @@
         finally { btn.innerText = "💾 현재 좌석 저장"; btn.disabled = false; }
     }
 
-    /* ─── 책상 생성 ─── */
-    function createDesks() {
-        const grid = document.getElementById('classroomGrid');
-        grid.innerHTML = '';
-        for (let i = 0; i < 36; i++) {
-            const desk = document.createElement('div');
-            desk.className = "desk border-2 border-dashed border-slate-300 rounded-xl flex items-center justify-center p-1.5 bg-slate-50 relative transition-colors duration-150";
-            desk.dataset.seatIndex = i;
-            desk.style.order = i;
-            const num = document.createElement('span');
-            num.className = "absolute top-1 left-2 text-slate-400 font-bold text-sm pointer-events-none";
-            num.innerText = i + 1;
-            desk.appendChild(num);
-            grid.appendChild(desk);
-        }
-    }
-
-    /* ─── 교사위치 ─── */
+    /* ── 교사위치 토글 ── */
     function toggleTeacherView() {
         isTeacherView = !isTeacherView;
         const btn = document.getElementById('teacherBtn');
+        const board = document.getElementById('board');
+        const container = document.getElementById('classroomContainer');
+
         if (isTeacherView) {
             btn.className = "bg-violet-600 text-white px-5 py-3 rounded-xl font-bold hover:bg-violet-700 transition";
             btn.innerText = '🧑‍🏫 학생시점으로';
@@ -215,41 +285,45 @@
             btn.className = "bg-violet-100 text-violet-700 px-5 py-3 rounded-xl font-bold hover:bg-violet-200 transition";
             btn.innerText = '🧑‍🏫 교사위치';
         }
-        document.querySelectorAll('.desk').forEach(desk => {
-            let idx = parseInt(desk.dataset.seatIndex);
-            let row = Math.floor(idx / 6), col = idx % 6;
-            if (isTeacherView) { row = 5 - row; col = 5 - col; }
-            desk.style.order = row * 6 + col;
+
+        // 행 순서 뒤집기 (상하반전)
+        const rowDivs = [...document.querySelectorAll('.row-grid')];
+        rowDivs.forEach((row, i) => {
+            row.style.order = isTeacherView ? (rowDivs.length - 1 - i) : i;
         });
-        const c = document.getElementById('classroomContainer');
-        c.classList.toggle('flex-col-reverse', isTeacherView);
-        c.classList.toggle('flex-col', !isTeacherView);
+
+        // 각 행 내 책상 좌우 반전
+        document.querySelectorAll('.row-grid').forEach(row => {
+            const desks = [...row.querySelectorAll('.desk')];
+            desks.forEach((desk, i) => {
+                desk.style.order = isTeacherView ? (desks.length - 1 - i) : i;
+            });
+        });
+
+        // 칠판 위치 (상하반전 시 flex-col-reverse)
+        container.style.flexDirection = isTeacherView ? 'column-reverse' : 'column';
     }
 
-    /* ════════════════════════════════════════════
+    /* ════════════════════════════════════
        마우스 드래그 앤 드롭
-       HTML5 drag API 완전 미사용 → 브라우저 호환 이슈 없음
-    ════════════════════════════════════════════ */
-
+    ════════════════════════════════════ */
     function onMouseDown(e) {
         if (e.button !== 0) return;
         e.preventDefault();
         const card = e.currentTarget;
         const rect = card.getBoundingClientRect();
-
-        dnd.card    = card;
-        dnd.active  = false;
-        dnd.startX  = e.clientX;
-        dnd.startY  = e.clientY;
+        dnd.card   = card;
+        dnd.active = false;
+        dnd.startX = e.clientX;
+        dnd.startY = e.clientY;
         dnd.offsetX = e.clientX - rect.left;
         dnd.offsetY = e.clientY - rect.top;
 
-        // 고스트 준비 (아직 숨김)
         const ghost = document.getElementById('ghost');
         dnd.ghost = ghost;
         ghost.innerHTML = card.innerHTML;
-        ghost.style.width  = rect.width  + 'px';
-        ghost.style.height = rect.height + 'px';
+        ghost.style.width   = rect.width + 'px';
+        ghost.style.height  = rect.height + 'px';
         ghost.style.display = 'none';
 
         document.addEventListener('mousemove', onMouseMove);
@@ -258,52 +332,36 @@
 
     function onMouseMove(e) {
         if (!dnd.card) return;
-
-        // 5px 이상 이동 시 드래그 시작
         if (!dnd.active) {
-            const dx = e.clientX - dnd.startX;
-            const dy = e.clientY - dnd.startY;
+            const dx = e.clientX - dnd.startX, dy = e.clientY - dnd.startY;
             if (Math.sqrt(dx*dx + dy*dy) < 5) return;
             dnd.active = true;
             dnd.card.classList.add('dragging-source');
             dnd.ghost.style.display = 'flex';
         }
-
-        // 고스트 이동
         dnd.ghost.style.left = (e.clientX - dnd.offsetX) + 'px';
         dnd.ghost.style.top  = (e.clientY - dnd.offsetY) + 'px';
 
-        // 고스트 잠깐 숨겨서 그 아래 요소 탐색 (핵심)
         dnd.ghost.style.visibility = 'hidden';
         const el = document.elementFromPoint(e.clientX, e.clientY);
         dnd.ghost.style.visibility = 'visible';
 
         const zone = findDropZone(el);
-
-        // hover 스타일 갱신
-        if (dnd.currentOver && dnd.currentOver !== zone) {
-            dnd.currentOver.classList.remove('over');
-        }
-        if (zone && zone !== dnd.currentOver) {
-            zone.classList.add('over');
-        }
+        if (dnd.currentOver && dnd.currentOver !== zone) dnd.currentOver.classList.remove('over');
+        if (zone && zone !== dnd.currentOver) zone.classList.add('over');
         dnd.currentOver = zone;
     }
 
     function onMouseUp(e) {
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup',   onMouseUp);
+        if (!dnd.active) { cleanup(); return; }
 
-        if (!dnd.active) { cleanup(); return; }   // 클릭만 한 경우
-
-        // 최종 드롭존 찾기
         dnd.ghost.style.visibility = 'hidden';
         const el = document.elementFromPoint(e.clientX, e.clientY);
         dnd.ghost.style.visibility = 'visible';
         const zone = findDropZone(el);
-
-        if (zone) drop(dnd.card, zone);
-
+        if (zone) performDrop(dnd.card, zone);
         cleanup();
     }
 
@@ -316,13 +374,12 @@
         return null;
     }
 
-    function drop(card, zone) {
+    function performDrop(card, zone) {
         if (zone.classList.contains('desk')) {
             const existing = zone.querySelector('.student-card');
             if (!existing) {
                 zone.appendChild(card);
             } else if (existing !== card) {
-                // 두 학생 자리 스왑
                 const origParent = card.parentNode;
                 zone.appendChild(card);
                 origParent.appendChild(existing);
