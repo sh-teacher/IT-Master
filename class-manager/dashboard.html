@@ -2,35 +2,285 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <title>홈 - Class Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-slate-50 flex items-center justify-center min-h-screen">
-    <div class="text-center w-full px-6">
-        <h1 class="text-4xl font-black text-slate-800 mb-4">🏫 성환(SH) 교과관리시스템에 오신 것을 환영합니다</h1>
-        <p class="text-lg text-slate-500 mb-8">왼쪽 메뉴를 선택하거나 아래 메뉴를 클릭하여 교과 관리를 시작하세요.</p>
+    <script>
+        if (sessionStorage.getItem("isAllowed") !== "true") location.href = "index.html";
+    </script>
+    <style>
+        /* 가로 스크롤바 숨기기 (깔끔한 디자인용) */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            <button onclick="location.href='setup.html'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:bg-slate-100 transition text-center flex flex-col items-center">
-                <div class="text-4xl mb-3">⚙️</div>
+        .timeline-card { min-width: 140px; }
+        .is-active { border-color: #3b82f6; background-color: #eff6ff; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1); }
+        .is-active .period-title { color: #2563eb; font-weight: 900; }
+        .is-active .period-time { color: #60a5fa; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen p-6 md:p-10">
+    <div class="max-w-6xl mx-auto">
+        
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-black text-slate-800 mb-4">🏫 Class Manager</h1>
+            <p class="text-lg text-slate-500">오늘의 일정을 확인하고 빠르게 업무를 시작하세요.</p>
+        </header>
+        
+        <div class="mb-10">
+            <h2 class="text-2xl font-black text-slate-800 mb-4 flex items-center gap-2">🏃 오늘의 수업 타임라인</h2>
+            <div class="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-200">
+                
+                <div class="flex justify-between items-end mb-3">
+                    <div id="timelineStatus" class="font-black text-slate-700 text-lg flex items-center gap-2">
+                        ⏳ 일과 계산 중...
+                    </div>
+                    <div id="timelineCountdown" class="font-black text-red-500 text-lg"></div>
+                </div>
+
+                <div class="w-full bg-slate-100 h-4 rounded-full mb-8 overflow-hidden border border-slate-200">
+                    <div id="timelineProgress" class="bg-blue-500 h-full transition-all duration-1000 relative" style="width: 0%;">
+                        <div class="absolute inset-0 bg-white/20 animate-pulse"></div>
+                    </div>
+                </div>
+
+                <div id="timelineCards" class="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
+                    </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <button onclick="location.href='setup.html'" class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 hover:bg-slate-100 hover:shadow-md transition text-center flex flex-col items-center group">
+                <div class="text-4xl mb-3 group-hover:scale-110 transition-transform">⚙️</div>
                 <h3 class="font-bold text-lg text-slate-700">1. 환경 설정</h3>
                 <p class="text-sm text-slate-500 mt-2">학기 정보와 과목/시간표 세팅</p>
             </button>
-            <button onclick="location.href='students.html'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:bg-slate-100 transition text-center flex flex-col items-center">
-                <div class="text-4xl mb-3">👥</div>
+            <button onclick="location.href='students.html'" class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 hover:bg-slate-100 hover:shadow-md transition text-center flex flex-col items-center group">
+                <div class="text-4xl mb-3 group-hover:scale-110 transition-transform">👥</div>
                 <h3 class="font-bold text-lg text-slate-700">2. 명단 관리</h3>
-                <p class="text-sm text-slate-500 mt-2">학생 명단 복사 및 붙여넣기</p>
+                <p class="text-sm text-slate-500 mt-2">나이스 엑셀 업로드 및 편집</p>
             </button>
-            <button onclick="location.href='seating.html'" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:bg-slate-100 transition text-center flex flex-col items-center">
-                <div class="text-4xl mb-3">🪑</div>
+            <button onclick="location.href='seating.html'" class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 hover:bg-slate-100 hover:shadow-md transition text-center flex flex-col items-center group">
+                <div class="text-4xl mb-3 group-hover:scale-110 transition-transform">🪑</div>
                 <h3 class="font-bold text-lg text-slate-700">3. 좌석 배치</h3>
-                <p class="text-sm text-slate-500 mt-2">드래그 앤 드롭 좌석 만들기</p>
+                <p class="text-sm text-slate-500 mt-2">드래그 앤 드롭 좌석표 만들기</p>
             </button>
-            <button onclick="location.href='attendance.html'" class="bg-emerald-50 p-6 rounded-2xl shadow-sm border border-emerald-200 hover:bg-emerald-100 transition text-center flex flex-col items-center">
-                <div class="text-4xl mb-3">📋</div>
+            <button onclick="location.href='attendance.html'" class="bg-emerald-50 p-6 rounded-3xl shadow-sm border border-emerald-200 hover:bg-emerald-100 hover:shadow-md transition text-center flex flex-col items-center group">
+                <div class="text-4xl mb-3 group-hover:scale-110 transition-transform">📋</div>
                 <h3 class="font-bold text-lg text-emerald-800">4. 출석 및 일지</h3>
-                <p class="text-sm text-emerald-600 mt-2">출석 확인(결석/지각 기록) 및 수업 기록</p>
+                <p class="text-sm text-emerald-600 mt-2">수업 기록 및 결석/지각 관리</p>
             </button>
         </div>
+
+        <div>
+            <h2 class="text-2xl font-black text-slate-800 mb-6 flex items-center gap-2">🗓️ 나의 주간 시간표</h2>
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                <table class="w-full text-center border-collapse">
+                    <thead class="bg-slate-100 border-b border-slate-200">
+                        <tr>
+                            <th class="p-4 text-sm font-black text-slate-500 w-16 border-r border-slate-200">교시</th>
+                            <th class="p-4 text-sm font-black text-slate-700 w-1/5 border-r border-slate-200">월요일</th>
+                            <th class="p-4 text-sm font-black text-slate-700 w-1/5 border-r border-slate-200">화요일</th>
+                            <th class="p-4 text-sm font-black text-slate-700 w-1/5 border-r border-slate-200">수요일</th>
+                            <th class="p-4 text-sm font-black text-slate-700 w-1/5 border-r border-slate-200">목요일</th>
+                            <th class="p-4 text-sm font-black text-slate-700 w-1/5">금요일</th>
+                        </tr>
+                    </thead>
+                    <tbody id="timetableBody" class="divide-y divide-slate-100">
+                        <tr>
+                            <td colspan="6" class="p-16 text-slate-400 font-bold animate-pulse text-lg">
+                                서버에서 시간표를 불러오는 중입니다...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbxUgpimLYy_9K_vZjbxJYtImA4fcz3ZZxfXPvy9WlYXLv1dY-yBA6yrtHeybyAo1v_Vpg/exec";
+
+        // 🌟 선생님 학교 일과표 (분 단위 변환 포함)
+        const PERIODS = [
+            { id: 1, start: "08:50", end: "09:40", sMin: 8*60+50, eMin: 9*60+40 },
+            { id: 2, start: "09:50", end: "10:40", sMin: 9*60+50, eMin: 10*60+40 },
+            { id: 3, start: "10:50", end: "11:40", sMin: 10*60+50, eMin: 11*60+40 },
+            { id: 4, start: "11:50", end: "12:40", sMin: 11*60+50, eMin: 12*60+40 },
+            { id: 5, start: "13:40", end: "14:30", sMin: 13*60+40, eMin: 14*60+30 },
+            { id: 6, start: "14:40", end: "15:30", sMin: 14*60+40, eMin: 15*60+30 },
+            { id: 7, start: "15:40", end: "16:30", sMin: 15*60+40, eMin: 16*60+30 }
+        ];
+
+        let todayScheduleMap = {}; // 오늘의 시간표 저장용
+
+        window.onload = async function() {
+            await loadSchedule();
+            updateTimelineLogic(); 
+            setInterval(updateTimelineLogic, 1000 * 60); // 1분마다 타임라인 갱신
+        };
+
+        async function loadSchedule() {
+            const tbody = document.getElementById('timetableBody');
+            try {
+                const res = await fetch(`${API_URL}?type=GET_SCHEDULE&t=${Date.now()}`);
+                const schedule = await res.json();
+
+                const matrix = Array.from({ length: 7 }, () => Array(5).fill(''));
+                const dayMap = { '월': 0, '화': 1, '수': 2, '목': 3, '금': 4 };
+                
+                const now = new Date();
+                const days = ['일', '월', '화', '수', '목', '금', '토'];
+                const currentDay = days[now.getDay()];
+
+                schedule.forEach(s => {
+                    const dayIdx = dayMap[s.day];
+                    const periodIdx = parseInt(s.period) - 1; 
+                    if (dayIdx !== undefined && periodIdx >= 0 && periodIdx < 7) {
+                        matrix[periodIdx][dayIdx] = s.subject;
+                        // 오늘 요일의 시간표는 따로 빼두기 (타임라인용)
+                        if (s.day === currentDay) todayScheduleMap[s.period] = s.subject;
+                    }
+                });
+
+                // 주간 시간표 렌더링
+                tbody.innerHTML = '';
+                for (let p = 0; p < 7; p++) {
+                    let rowHtml = `<tr class="hover:bg-slate-50 transition"><td class="p-4 text-sm font-black text-slate-500 bg-slate-50/50 border-r border-slate-100">${p + 1}</td>`;
+                    for (let d = 0; d < 5; d++) {
+                        const subject = matrix[p][d];
+                        if (subject) {
+                            rowHtml += `
+                                <td class="p-3 border-r border-slate-100 last:border-0 h-20">
+                                    <div onclick="location.href='attendance.html?subject=${encodeURIComponent(subject)}'" class="h-full flex items-center justify-center bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 font-bold text-sm rounded-xl cursor-pointer transition shadow-sm p-2 break-keep text-center">
+                                        ${subject}
+                                    </div>
+                                </td>`;
+                        } else {
+                            rowHtml += `<td class="p-4 border-r border-slate-100 last:border-0 h-20 text-slate-200 text-xs"></td>`;
+                        }
+                    }
+                    rowHtml += `</tr>`;
+                    tbody.innerHTML += rowHtml;
+                }
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-red-500 font-bold">시간표 로드 에러</td></tr>`;
+            }
+        }
+
+        // 🌟 타임라인 핵심 로직
+        function updateTimelineLogic() {
+            const now = new Date();
+            const days = ['일', '월', '화', '수', '목', '금', '토'];
+            const currentDay = days[now.getDay()];
+
+            const statusEl = document.getElementById('timelineStatus');
+            const countdownEl = document.getElementById('timelineCountdown');
+            const progressEl = document.getElementById('timelineProgress');
+            const cardsEl = document.getElementById('timelineCards');
+
+            // 주말 체크
+            if (currentDay === '토' || currentDay === '일') {
+                statusEl.innerHTML = "🏖️ 신나는 주말입니다!";
+                countdownEl.innerText = "";
+                progressEl.style.width = "100%";
+                cardsEl.innerHTML = '<div class="text-slate-400 font-bold p-4">등록된 일과가 없습니다.</div>';
+                return;
+            }
+
+            const currentMin = now.getHours() * 60 + now.getMinutes();
+            const startOfDay = 8 * 60 + 30; // 학교 시작 기준 08:30
+            const endOfDay = 16 * 60 + 30;  // 일과 종료 16:30
+
+            let statusText = "대기 중";
+            let nextEventTime = -1;
+            let currentPeriodIdx = -1;
+
+            // 상태 판단 (수업 중? 쉬는 시간? 점심시간?)
+            if (currentMin < PERIODS[0].sMin) {
+                statusText = "🌅 아침조회 대기 중...";
+                nextEventTime = PERIODS[0].sMin;
+            } else if (currentMin >= endOfDay) {
+                statusText = "🏠 모든 일과가 종료되었습니다. 고생하셨습니다!";
+            } else {
+                for (let i = 0; i < PERIODS.length; i++) {
+                    const p = PERIODS[i];
+                    if (currentMin >= p.sMin && currentMin < p.eMin) {
+                        const sub = todayScheduleMap[p.id] || '공강';
+                        statusText = `📝 ${p.id}교시 [${sub}] 진행 중`;
+                        nextEventTime = p.eMin;
+                        currentPeriodIdx = i;
+                        break;
+                    }
+                    
+                    // 쉬는 시간 또는 점심시간 계산
+                    if (i < PERIODS.length - 1) {
+                        const nextP = PERIODS[i+1];
+                        if (currentMin >= p.eMin && currentMin < nextP.sMin) {
+                            if (nextP.id === 5) {
+                                statusText = "🍱 즐거운 점심시간!";
+                            } else {
+                                statusText = `☕ 쉬는 시간 (${p.id}교시 종료)`;
+                            }
+                            nextEventTime = nextP.sMin;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // 카운트다운 계산
+            if (nextEventTime !== -1) {
+                const diff = nextEventTime - currentMin;
+                countdownEl.innerText = `다음 일과까지 ${diff}분`;
+            } else {
+                countdownEl.innerText = "";
+            }
+
+            // 전체 프로그레스 바 갱신 (08:30 ~ 16:30 기준)
+            let percent = 0;
+            if (currentMin >= endOfDay) percent = 100;
+            else if (currentMin > startOfDay) {
+                percent = ((currentMin - startOfDay) / (endOfDay - startOfDay)) * 100;
+            }
+            progressEl.style.width = `${percent}%`;
+
+            // 교시 카드 렌더링
+            cardsEl.innerHTML = '';
+            PERIODS.forEach((p, idx) => {
+                const subject = todayScheduleMap[p.id];
+                const isCurrent = (idx === currentPeriodIdx);
+                const isPassed = (currentMin >= p.eMin);
+                
+                // 카드 스타일 결정
+                let cardClass = "timeline-card flex-1 p-4 rounded-2xl border-2 transition text-center shrink-0 ";
+                let titleHtml = "";
+
+                if (isCurrent) {
+                    cardClass += "is-active"; 
+                } else if (isPassed) {
+                    cardClass += "bg-slate-50 border-slate-100 opacity-60"; // 지나간 시간 흐리게
+                } else {
+                    cardClass += "bg-white border-slate-200"; // 다가올 시간
+                }
+
+                if (subject) {
+                    // 수업 있는 칸 (클릭 시 이동 가능)
+                    titleHtml = `<div class="period-title font-black text-slate-800 text-lg mb-1 cursor-pointer hover:text-blue-600 transition" onclick="location.href='attendance.html?subject=${encodeURIComponent(subject)}'">${subject}</div>`;
+                } else {
+                    // 공강
+                    titleHtml = `<div class="period-title font-bold text-slate-400 text-lg mb-1">공강</div>`;
+                }
+
+                cardsEl.innerHTML += `
+                    <div class="${cardClass}">
+                        <div class="text-xs font-bold text-slate-400 mb-1">${p.id}교시</div>
+                        ${titleHtml}
+                        <div class="period-time text-[11px] font-bold text-slate-400 mt-2 bg-slate-100 rounded-md py-1">${p.start} ~ ${p.end}</div>
+                    </div>
+                `;
+            });
+        }
+    </script>
 </body>
 </html>
