@@ -340,19 +340,15 @@
         function convertGoogleDriveUrl(url) {
             if (!url) return "";
 
-            // 형식 1: /file/d/FILE_ID/view
+            // 형식: /uc?export=view&id=FILE_ID  ← 지금 이 케이스
+            // 형식: /file/d/FILE_ID/view
+            // 형식: ?id=FILE_ID
             const match1 = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-            if (match1) {
-                return `https://drive.google.com/thumbnail?id=${match1[1]}&sz=w200`;
-            }
+            if (match1) return `https://drive.google.com/thumbnail?id=${match1[1]}&sz=w200`;
 
-            // 형식 2: ?id=FILE_ID 또는 &id=FILE_ID
             const match2 = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-            if (match2) {
-                return `https://drive.google.com/thumbnail?id=${match2[1]}&sz=w200`;
-            }
+            if (match2) return `https://drive.google.com/thumbnail?id=${match2[1]}&sz=w200`;
 
-            // 이미 직접 URL이면 그대로 반환
             return url;
         }
 
