@@ -336,6 +336,26 @@
             });
         }
 
+        // 🌟 구글 드라이브 URL → img 태그에서 직접 표시 가능한 thumbnail URL로 변환
+        function convertGoogleDriveUrl(url) {
+            if (!url) return "";
+
+            // 형식 1: /file/d/FILE_ID/view
+            const match1 = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+            if (match1) {
+                return `https://drive.google.com/thumbnail?id=${match1[1]}&sz=w200`;
+            }
+
+            // 형식 2: ?id=FILE_ID 또는 &id=FILE_ID
+            const match2 = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+            if (match2) {
+                return `https://drive.google.com/thumbnail?id=${match2[1]}&sz=w200`;
+            }
+
+            // 이미 직접 URL이면 그대로 반환
+            return url;
+        }
+
         function getStudentKey(std) {
             return `${std.class}_${std.number}_${std.name}`.replace(/\s/g, '');
         }
@@ -389,8 +409,7 @@
                         };
 
                         // 🌟 사진 데이터 확보 (시트 열 제목이 '사진'이어야 함)
-                        const photoUrl = std.사진 || std.photo || "";
-                        
+                        const photoUrl = convertGoogleDriveUrl(std.사진 || std.photo || "");
                         const card = document.createElement('div');
                         card.className = `student-card w-full h-full flex flex-col items-center justify-center rounded-lg border-2 font-bold p-1 card-present`;
                         card.style.minHeight = "110px";
