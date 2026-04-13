@@ -11,7 +11,7 @@
     <div id="loginOverlay" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center">
         <div class="bg-white p-10 rounded-3xl shadow-2xl w-96 flex flex-col items-center">
             <div class="text-5xl mb-4">🏫</div>
-            <h2 class="text-2xl font-black text-slate-800 mb-2">SH교과관리시스템</h2>
+            <h2 class="text-2xl font-black text-slate-800 mb-2">SH 교과관리시스템</h2>
             <p class="text-sm text-slate-500 mb-8">관리자 비밀번호를 입력해주세요</p>
             
             <input type="password" id="adminPw" placeholder="비밀번호" 
@@ -156,32 +156,87 @@
                     return;
                 }
 
+                // 📌 [추가] 교과목별 시간표 데이터 매핑
+                const scheduleData = {
+                    "인공지능기초I (3-8)": "월1 수1",
+                    "인공지능기초H (아름반)": "화2 목2",
+                    "정보A (2-6)": "화7 목6 금2",
+                    "정보B (아름반)": "월4 목5 금6",
+                    "정보E (2-2)": "화1 수2 목3",
+                    "교육학J (3-2)": "화4 수3"
+                };
+
+                // 📌 [추가] 오늘 요일 구하기
+                const days = ['일','월','화','수','목','금','토'];
+                const todayStr = days[new Date().getDay()]; // 예: '화'
+
+                // 1. 과목 데이터에 시간표 문자열 및 오늘 교시 정보(정렬용) 추가
+                subjects.forEach(sub => {
+                    sub.scheduleStr = scheduleData[sub.fullName] || "";
+                    
+                    let todayPeriod = 99; // 오늘 수업이 없는 과목은 맨 아래로 보내기 위한 기본값
+                    
+                    // 정규식을 사용해 오늘 요일이 포함되어 있으면 뒤의 숫자(교시)를 추출
+                    // (예: "금 2" 처럼 띄어쓰기가 있어도 대응할 수 있도록 \s* 추가)
+                    const regex = new RegExp(todayStr + "\\s*(\\d+)");
+                    const match = sub.scheduleStr.match(regex);
+                    
+                    if (match && match[1]) {
+                        todayPeriod = parseInt(match[1], 10);
+                    }
+                    
+                    sub.todayPeriod = todayPeriod;
+                });
+
+                // 2. 오늘 진행하는 교시 순서대로 정렬 (오름차순)
+                subjects.sort((a, b) => a.todayPeriod - b.todayPeriod);
+
+                // 3. 정렬된 순서대로 메뉴 렌더링
                 subjects.forEach(sub => {
                     const groupDiv = document.createElement('div');
-                    groupDiv.className = "mb-2";
+                    groupDiv.className = "mb-1 px-2";
+                    
+                    // 오늘 수업이 있는지 여부에 따라 색상 및 뱃지 다르게 표시
+                    const isToday = sub.todayPeriod !== 99;
+                    const dotColor = isToday ? "bg-emerald-400" : "bg-slate-500";
+                    const titleColor = isToday ? "text-emerald-300" : "text-slate-300";
+                    const badgeHtml = isToday 
+                        ? `<span class="ml-auto text-[10px] bg-slate-700 text-emerald-300 px-1.5 py-0.5 rounded-md font-bold">${sub.todayPeriod}교시</span>` 
+                        : "";
+
                     groupDiv.innerHTML = `
-                        <div class="px-4 py-2 text-slate-300 font-bold flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-blue-400"></span>
-                                <a href="attendance.html?subject=${encodeURIComponent(sub.fullName)}" target="mainFrame" class="menu-link block py-2 px-3 text-sm rounded-lg text-emerald-400 hover:bg-slate-800 hover:text-emerald-300 transition">
-                                ${sub.fullName}
-                                </a>
-                        </div>
+                        <a href="attendance.html?subject=${encodeURIComponent(sub.fullName)}" target="mainFrame" class="menu-link block py-2 px-3 rounded-xl hover:bg-slate-800 transition">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="w-2 h-2 rounded-full ${dotColor}"></span>
+                                <span class="text-sm font-bold ${titleColor} subject-title">${sub.fullName}</span>
+                                ${badgeHtml}
+                            </div>
+                            <div class="pl-4 text-xs text-slate-400 font-normal tracking-wide">
+                                ${sub.scheduleStr}
+                            </div>
+                        </a>
                     `;
                     menuContainer.appendChild(groupDiv);
                 });
 
+                // 메뉴 클릭 시 활성화 디자인 처리 및 상단 헤더 텍스트 변경
                 const links = document.querySelectorAll('nav a');
                 links.forEach(link => {
                     link.addEventListener('click', function() {
                         if(this.classList.contains('cursor-not-allowed')) return;
                         links.forEach(l => l.classList.remove('bg-slate-800', 'text-white'));
                         this.classList.add('bg-slate-800', 'text-white');
-                        document.getElementById('headerTitle').innerText = this.innerText.replace(/[^가-힣a-zA-Z\s]/g, '').trim();
+                        
+                        // 상단 대시보드 타이틀 변경 (과목명만 깔끔하게 추출)
+                        const titleSpan = this.querySelector('.subject-title');
+                        const titleText = titleSpan ? titleSpan.innerText : this.innerText.replace(/[^가-힣a-zA-Z\s]/g, '').trim();
+                        document.getElementById('headerTitle').innerText = titleText;
                     });
                 });
 
             } catch (e) {
                 document.getElementById('dynamicMenu').innerHTML = '<p class="px-4 text-sm text-red-400">메뉴 로드 실패</p>';
+                console.error(e);
             }
         }
 
