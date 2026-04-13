@@ -90,8 +90,15 @@
         }
         .timeline-box.past { opacity: 0.4; background: #f1f1f1; }
         .tb-period { font-size: 12px; font-weight: bold; color: #787774; }
-        .tb-subject { font-size: 16px; font-weight: 700; color: #37352f; }
         .tb-time { font-size: 11px; color: #999; }
+        /* 🌟 타임라인 과목명 스타일 업그레이드 (수업 vs 공강 분리) */
+        .tb-subject { font-size: 15px; padding: 4px 8px; border-radius: 8px; display: inline-block; word-break: keep-all; margin: 2px 0; }
+        .tb-subject.real-class { color: #1e40af; background-color: #dbeafe; font-weight: 900; border: 1px solid #bfdbfe; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .tb-subject.empty-class { color: #a1a1aa; font-weight: 500; }
+
+        /* 다크모드 대응 추가 */
+        body.dark-mode .tb-subject.real-class { color: #bfdbfe; background-color: #1e3a8a; border-color: #1e40af; }
+        body.dark-mode .tb-subject.empty-class { color: #6b7280; }
 
         /* 그리드 레이아웃 (주간시간표 & 생산성 도구) */
         .grid-row { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
@@ -414,11 +421,17 @@
 
             const todaySchedule = scheduleData[today] || [];
             periodTimes.forEach((pt, index) => {
-                const subject = todaySchedule[index] || '공강';
+                const subject = todaySchedule[index] || '';
+                const isClass = subject !== ''; // 🌟 수업인지 공강인지 판별
+                
+                // 수업 유무에 따라 텍스트와 디자인 클래스를 다르게 적용
+                const displaySubject = isClass ? subject : '공강';
+                const styleClass = isClass ? 'real-class' : 'empty-class';
+
                 html += `
                     <div class="timeline-box" id="period-${pt.period}">
                         <span class="tb-period">${pt.period}교시</span>
-                        <span class="tb-subject">${subject}</span>
+                        <span class="tb-subject ${styleClass}">${displaySubject}</span>
                         <span class="tb-time">${pt.start} ~ ${pt.end}</span>
                     </div>
                 `;
@@ -601,23 +614,23 @@
         // ==========================================
         // ★ 실시간 일과 진행률 바 로직
         // ==========================================
-        // 상일여고 일과 시간표 (학교에 맞게 시간 수정 가능!)
+        // 상일여고 실제 일과 시간표 완벽 적용 (쉬는시간, 점심시간 빈틈없이 연결)
         const schoolSchedule = [
             { name: "🌅 아침조회", start: "08:30", end: "08:45", type: "rest" },
-            { name: "📖 1교시", start: "08:50", end: "09:40", type: "class" },
-            { name: "☕ 쉬는시간", start: "09:40", end: "09:50", type: "rest" },
-            { name: "📖 2교시", start: "09:50", end: "10:40", type: "class" },
-            { name: "☕ 쉬는시간", start: "10:40", end: "10:50", type: "rest" },
-            { name: "📖 3교시", start: "10:50", end: "11:40", type: "class" },
-            { name: "☕ 쉬는시간", start: "11:40", end: "11:50", type: "rest" },
-            { name: "📖 4교시", start: "11:50", end: "12:40", type: "class" },
-            { name: "🍚 점심시간", start: "12:40", end: "13:40", type: "rest" },
-            { name: "📖 5교시", start: "13:40", end: "14:30", type: "class" },
-            { name: "☕ 쉬는시간", start: "14:30", end: "14:40", type: "rest" },
-            { name: "📖 6교시", start: "14:40", end: "15:30", type: "class" },
-            { name: "☕ 쉬는시간", start: "15:30", end: "15:40", type: "rest" },
+            { name: "📖 1교시", start: "08:45", end: "09:35", type: "class" },
+            { name: "☕ 쉬는시간", start: "09:35", end: "09:45", type: "rest" },
+            { name: "📖 2교시", start: "09:45", end: "10:35", type: "class" },
+            { name: "☕ 쉬는시간", start: "10:35", end: "10:45", type: "rest" },
+            { name: "📖 3교시", start: "10:45", end: "11:35", type: "class" },
+            { name: "☕ 쉬는시간", start: "11:35", end: "11:45", type: "rest" },
+            { name: "📖 4교시", start: "11:45", end: "12:35", type: "class" },
+            { name: "🍚 점심시간", start: "12:35", end: "13:35", type: "rest" }, // 60분
+            { name: "📖 5교시", start: "13:35", end: "14:25", type: "class" },
+            { name: "☕ 쉬는시간", start: "14:25", end: "14:35", type: "rest" },
+            { name: "📖 6교시", start: "14:35", end: "15:25", type: "class" },
+            { name: "🧹 청소/쉬는시간", start: "15:25", end: "15:40", type: "rest" }, // 15분
             { name: "📖 7교시", start: "15:40", end: "16:30", type: "class" },
-            { name: "🧹 종례/청소", start: "16:30", end: "16:50", type: "rest" }
+            { name: "🎒 종례/하교", start: "16:30", end: "16:50", type: "rest" }
         ];
 
         function updateClassProgress() {
