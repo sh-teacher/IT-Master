@@ -405,18 +405,28 @@
                         let photoHtml = '';
 
                         if (photoUrl) {
-                            // 구글 드라이브 주소인 경우, 보안 토큰 문제를 피하기 위해 
-                            // 이미지 태그에 'referrerpolicy' 설정을 추가합니다.
-                            photoHtml = `<img src="${photoUrl}" 
-                                            referrerpolicy="no-referrer" 
-                                            class="w-12 h-14 object-cover rounded shadow-sm border border-slate-200 mb-1 pointer-events-none"
-                                            onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'w-12 h-14 bg-red-50 rounded flex items-center justify-center text-red-300 font-bold text-xs mb-1 border border-red-100\'>에러</div>';">`;
+                            // 🌟 referrerpolicy="no-referrer"는 구글의 보안 차단을 우회하는 핵심 열쇠입니다.
+                            // 🌟 loading="lazy"를 추가하여 로딩 성능을 최적화합니다.
+                            photoInnerHtml = `
+                                <img src="${photoUrl}" 
+                                    referrerpolicy="no-referrer" 
+                                    loading="lazy"
+                                    class="w-12 h-14 object-cover rounded shadow-sm border border-slate-200 mb-1 pointer-events-none"
+                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="w-12 h-14 bg-slate-100 rounded flex items-center justify-center text-slate-300 font-bold text-xl mb-1 border border-slate-200 pointer-events-none shadow-inner" style="display:none;">
+                                    ${std.number}
+                                </div>`;
                         } else {
-                            photoHtml = `<div class="w-12 h-14 bg-slate-100 rounded flex items-center justify-center text-slate-300 font-bold text-xl mb-1 border border-slate-200 pointer-events-none shadow-inner">${std.number}</div>`;
+                            // 사진이 아예 없는 경우 번호 표시
+                            photoInnerHtml = `
+                                <div class="w-12 h-14 bg-slate-100 rounded flex items-center justify-center text-slate-300 font-bold text-xl mb-1 border border-slate-200 pointer-events-none shadow-inner">
+                                    ${std.number}
+                                </div>`;
                         }
-                        // 카드 내부 레이아웃 조립
+
+                        // 2. 카드 내부 HTML 조립
                         card.innerHTML = `
-                            ${photoHtml}
+                            ${photoInnerHtml}
                             <span class="text-[10px] opacity-70 block pointer-events-none leading-none mb-0.5">${std.class}반 ${std.number}번</span>
                             <span class="pointer-events-none text-sm leading-tight">${std.name}</span>
                         `;
