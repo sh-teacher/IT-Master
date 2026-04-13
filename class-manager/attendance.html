@@ -401,10 +401,19 @@
                         card.style.minHeight = "110px"; // 사진 공간 확보
                         
                         // 🌟 사진이 있으면 <img> 태그, 없으면 큰 숫자(회색 박스) 출력
-                        const photoHtml = std.사진 
-                            ? `<img src="${std.사진}" class="w-12 h-14 object-cover rounded shadow-sm border border-slate-200 mb-1 pointer-events-none">`
-                            : `<div class="w-12 h-14 bg-slate-100 rounded flex items-center justify-center text-slate-300 font-bold text-xl mb-1 border border-slate-200 pointer-events-none shadow-inner">${std.number}</div>`;
+                        const photoUrl = std.사진 || std.photo;
+                        let photoHtml = '';
 
+                        if (photoUrl) {
+                            // 구글 드라이브 주소인 경우, 보안 토큰 문제를 피하기 위해 
+                            // 이미지 태그에 'referrerpolicy' 설정을 추가합니다.
+                            photoHtml = `<img src="${photoUrl}" 
+                                            referrerpolicy="no-referrer" 
+                                            class="w-12 h-14 object-cover rounded shadow-sm border border-slate-200 mb-1 pointer-events-none"
+                                            onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'w-12 h-14 bg-red-50 rounded flex items-center justify-center text-red-300 font-bold text-xs mb-1 border border-red-100\'>에러</div>';">`;
+                        } else {
+                            photoHtml = `<div class="w-12 h-14 bg-slate-100 rounded flex items-center justify-center text-slate-300 font-bold text-xl mb-1 border border-slate-200 pointer-events-none shadow-inner">${std.number}</div>`;
+                        }
                         // 카드 내부 레이아웃 조립
                         card.innerHTML = `
                             ${photoHtml}
