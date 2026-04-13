@@ -8,8 +8,8 @@
     <style>
         .row-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
         /* 🌟 사진이 들어갈 수 있도록 책상 높이를 120px로 확장 */
-        .desk { min-height: 120px; border: 2px dashed #cbd5e1; border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 4px; background: #f8fafc; position: relative; }
-        .desk-empty { min-height: 120px; background: transparent; }
+        .desk { min-height: 160px; border: 2px dashed #cbd5e1; border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 4px; background: #f8fafc; position: relative; }
+        .desk-empty { min-height: 160px; background: transparent; }
         .seat-num-label { position: absolute; top: 3px; left: 5px; font-size: 11px; font-weight: 700; color: #94a3b8; z-index: 10; pointer-events: none; }
         
         .card-present { background-color: #ffffff; border-color: #e2e8f0; }
@@ -409,19 +409,19 @@
                         const photoUrl = convertGoogleDriveUrl(std.사진 || std.photo || "");
                         const card = document.createElement('div');
                         card.className = `student-card w-full h-full flex flex-col items-center justify-center rounded-lg border-2 font-bold p-1 card-present`;
-                        card.style.minHeight = "110px";
+                        card.style.minHeight = "150px";
 
                         let photoHtml = "";
                         if (photoUrl) {
                             photoHtml = `
-                                <img src="" 
-                                    class="w-12 h-14 object-cover rounded shadow-sm border border-slate-200 mb-1 pointer-events-none"
+                                <img src=""
+                                    class="w-16 h-20 object-cover rounded-lg shadow-md border-2 border-slate-200 mb-1 pointer-events-none"
                                     style="background:#e2e8f0;">
-                                <div class="w-12 h-14 bg-slate-100 rounded flex items-center justify-center text-slate-300 font-bold text-xl mb-1 border border-slate-200 pointer-events-none shadow-inner" style="display:none;">
+                                <div class="w-16 h-20 bg-slate-100 rounded-lg flex items-center justify-center text-slate-300 font-bold text-2xl mb-1 border-2 border-slate-200 pointer-events-none shadow-inner" style="display:none;">
                                     ${std.number}
                                 </div>`;
                         } else {
-                            photoHtml = `<div class="w-12 h-14 bg-slate-100 rounded flex items-center justify-center text-slate-300 font-bold text-xl mb-1 border border-slate-200 pointer-events-none shadow-inner">${std.number}</div>`;
+                            photoHtml = `<div class="w-16 h-20 bg-slate-100 rounded-lg flex items-center justify-center text-slate-300 font-bold text-2xl mb-1 border-2 border-slate-200 pointer-events-none shadow-inner">${std.number}</div>`;
                         }
 
                         card.innerHTML = `
