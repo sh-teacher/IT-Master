@@ -82,12 +82,16 @@
 
         window.onload = async function() {
             try {
-                const res = await fetch(`${API_URL}?type=GET_SUBJECTS`);
+                // 캐시 방지용 꼬리표(t) 추가
+                const res = await fetch(`${API_URL}?type=GET_SUBJECTS&t=${Date.now()}`);
                 const subjects = await res.json();
                 const sel = document.getElementById('selectedSubject');
                 sel.innerHTML = '<option value="">과목을 선택해주세요</option>';
                 subjects.forEach(sub => sel.innerHTML += `<option value="${sub.fullName}">${sub.fullName}</option>`);
-            } catch { alert("과목 로드 실패"); }
+            } catch (e) { 
+                console.error(e);
+                alert("과목 로드 실패: 새로고침 해주세요."); 
+            }
             setupDragAndDrop();
         };
 
@@ -95,12 +99,12 @@
             const subject = document.getElementById('selectedSubject').value;
             if (!subject) return;
             const tbody = document.getElementById('studentTableBody');
-            tbody.innerHTML = '<tr><td colspan="3" class="p-10 font-bold animate-pulse">데이터 로드 중...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="3" class="p-10 font-bold animate-pulse text-blue-600">데이터 로드 중...</td></tr>';
             try {
                 const res = await fetch(`${API_URL}?type=GET_STUDENTS&subject=${encodeURIComponent(subject)}&t=${Date.now()}`);
                 currentStudents = await res.json();
                 renderTable();
-            } catch { alert("불러오기 실패"); }
+            } catch { alert("학생 명단을 불러오는데 실패했습니다."); }
         }
 
         function renderTable() {
@@ -111,24 +115,27 @@
             currentStudents.sort((a,b) => (a.grade-b.grade || a.class-b.class || a.number-b.number));
 
             currentStudents.forEach((std, idx) => {
-                const photoHtml = std.사진 ? `<img src="${std.사진}" class="photo-preview mx-auto">` : `<div class="no-photo mx-auto">👤</div>`;
-                // 이름이 없으면 엑셀 로딩이 잘못된 것임을 시각적으로 표시
+                const photoHtml = std.사진 ? `<img src="${std.사진}" class="photo-preview mx-auto shadow-sm">` : `<div class="no-photo mx-auto">👤</div>`;
                 const displayName = std.name ? std.name : '<span class="text-red-500">(이름 인식 실패)</span>';
                 
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition">
+                    <tr class="hover:bg-slate-50 transition border-b border-slate-100">
                         <td class="p-3">${photoHtml}</td>
                         <td class="p-3 text-left">
                             <div class="font-bold text-slate-800">${displayName}</div>
                             <div class="text-[10px] text-slate-400">${std.grade || '?'}학년 ${std.class}반 ${std.number}번</div>
                         </td>
-                        <td class="p-3"><button onclick="deleteStd(${idx})" class="text-red-400 font-bold text-xs">삭제</button></td>
+                        <td class="p-3"><button onclick="deleteStd(${idx})" class="text-red-400 font-bold text-xs hover:text-red-600 px-2 py-1 bg-red-50 rounded">삭제</button></td>
                     </tr>
                 `;
             });
+            
+            if(currentStudents.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="p-10 text-slate-400">등록된 학생이 없습니다.</td></tr>';
+            }
         }
 
-        // 🌟 3중 방어막이 적용된 강력한 사진 매칭 로직
+        // 🌟 3중 방어막 적용 사진 매칭 로직
         async function handlePhotoUpload(event) {
             const files = event.target.files;
             if (!files.length) return;
@@ -140,32 +147,25 @@
             let successCount = 0;
 
             for (let file of files) {
-                // 예: "3104 김도연.jpg" -> "3104김도연"
                 const fileNameClean = file.name.replace(/\.[^/.]+$/, "").replace(/\s/g, ''); 
                 const fileNumStr = fileNameClean.replace(/[^0-9]/g, '');
 
                 const targetIdx = currentStudents.findIndex(s => {
                     if (!s.name) return false;
 
-                    // 이름에서 (여), (남) 같은 괄호를 빼버리고 공백도 제거
                     const stdName = String(s.name).replace(/\([^)]*\)/g, '').replace(/\s/g, '');
                     const c = String(s.class).replace(/[^0-9]/g, '');
                     const n = String(s.number).replace(/[^0-9]/g, '');
                     
                     if (stdName.length < 2) return false;
 
-                    // 1. 파일명에 이름이 포함되어 있는가?
                     const isNameMatch = fileNameClean.includes(stdName);
-                    
-                    // 2. 숫자가 포함되어 있는가? (예: 10반 4번이면 104 또는 1004)
-                    const numPattern1 = `${c}${n}`; // 104
-                    const numPattern2 = `${c}${n.padStart(2,'0')}`; // 1004
+                    const numPattern1 = `${c}${n}`; 
+                    const numPattern2 = `${c}${n.padStart(2,'0')}`; 
                     const isNumMatch = fileNumStr.endsWith(numPattern1) || fileNumStr.endsWith(numPattern2) || fileNumStr === n;
 
-                    // 🎯 1순위: 파일명에 "이름"과 "반+번호 숫자"가 모두 들어있으면 100% 합격!
                     if (isNameMatch && isNumMatch) return true;
 
-                    // 🎯 2순위: 숫자는 좀 다르더라도(또는 없더라도), 반에 동명이인이 없는 유일한 이름이면 합격!
                     const sameNameCount = currentStudents.filter(st => {
                         const otherName = String(st.name || '').replace(/\([^)]*\)/g, '').replace(/\s/g, '');
                         return otherName === stdName;
@@ -186,7 +186,7 @@
                             type: "UPLOAD_PHOTO",
                             payload: {
                                 subject: subject,
-                                grade: currentStudents[targetIdx].grade || "", // 학년 누락 방어
+                                grade: currentStudents[targetIdx].grade || "", 
                                 class: currentStudents[targetIdx].class,
                                 number: currentStudents[targetIdx].number,
                                 name: currentStudents[targetIdx].name,
@@ -220,7 +220,8 @@
             zones.forEach(id => {
                 const zone = document.getElementById(id);
                 zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('drag-over'); });
-                zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'); });
+                // 🚨 방금 뻗었던 원인 해결 완료 부분!
+                zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
                 zone.addEventListener('drop', (e) => {
                     e.preventDefault();
                     zone.classList.remove('drag-over');
@@ -232,7 +233,6 @@
         
         function handleFileUpload(e) { processExcelFile(e.target.files[0]); }
         
-        // 🌟 엑셀 로더도 훨씬 유연하게 개선 (성명, 이름 둘 다 허용)
         function processExcelFile(file) {
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -245,11 +245,11 @@
                 rows.forEach((row, i) => {
                     if (col.name === -1) {
                         row.forEach((cell, idx) => {
-                            const v = String(cell).replace(/\s/g, ''); // 공백 무시
+                            const v = String(cell).replace(/\s/g, ''); 
                             if (v.includes("학년")) col.grade = idx;
                             if (v.includes("반")) col.class = idx;
                             if (v.includes("번호") || v.includes("출석")) col.num = idx;
-                            if (v.includes("성명") || v.includes("이름")) col.name = idx; // "이름" 헤더도 허용!
+                            if (v.includes("성명") || v.includes("이름")) col.name = idx; 
                         });
                     } else if (row[col.num] !== undefined && !isNaN(row[col.num]) && row[col.name]) {
                         currentStudents.push({ 
