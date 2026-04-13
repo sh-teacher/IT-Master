@@ -341,18 +341,15 @@
             if (!url) return "";
 
             let fileId = "";
-
             const match1 = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
             if (match1) fileId = match1[1];
-
             const match2 = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
             if (match2) fileId = match2[1];
 
             if (fileId) {
-                // ✅ 방법 1 시도 → 실패 시 방법 2로 자동 fallback
-                return `https://lh3.google.com/u/0/d/${fileId}=w200`;
+                // Apps Script를 프록시로 사용 → base64로 받아서 표시
+                return `${API_URL}?type=GET_IMAGE&id=${fileId}`;
             }
-
             return url;
         }
 
@@ -414,36 +411,12 @@
                         card.className = `student-card w-full h-full flex flex-col items-center justify-center rounded-lg border-2 font-bold p-1 card-present`;
                         card.style.minHeight = "110px";
 
-                        // 기존 photoHtml 부분 전체 교체
                         let photoHtml = "";
                         if (photoUrl) {
-                            const fileIdMatch = (std.사진 || std.photo || "").match(/[?&]id=([a-zA-Z0-9_-]+)/) 
-                                            || (std.사진 || std.photo || "").match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-                            const fileId = fileIdMatch ? fileIdMatch[1] : "";
-
-                            const fallback1 = fileId ? `https://drive.google.com/thumbnail?id=${fileId}&sz=w200` : "";
-                            const fallback2 = fileId ? `https://wsrv.nl/?url=${encodeURIComponent(fallback1)}` : "";
-
                             photoHtml = `
-                                <img src="${photoUrl}" 
-                                    referrerpolicy="no-referrer"
-                                    data-fallback1="${fallback1}"
-                                    data-fallback2="${fallback2}"
-                                    data-fallback-step="0"
+                                <img src="" 
                                     class="w-12 h-14 object-cover rounded shadow-sm border border-slate-200 mb-1 pointer-events-none"
-                                    onerror="
-                                        const step = parseInt(this.dataset.fallbackStep);
-                                        if (step === 0 && this.dataset.fallback1) {
-                                            this.dataset.fallbackStep = '1';
-                                            this.src = this.dataset.fallback1;
-                                        } else if (step === 1 && this.dataset.fallback2) {
-                                            this.dataset.fallbackStep = '2';
-                                            this.src = this.dataset.fallback2;
-                                        } else {
-                                            this.style.display='none';
-                                            this.nextElementSibling.style.display='flex';
-                                        }
-                                    ">
+                                    style="background:#e2e8f0;">
                                 <div class="w-12 h-14 bg-slate-100 rounded flex items-center justify-center text-slate-300 font-bold text-xl mb-1 border border-slate-200 pointer-events-none shadow-inner" style="display:none;">
                                     ${std.number}
                                 </div>`;
@@ -456,7 +429,16 @@
                             <span class="text-[10px] opacity-70 block pointer-events-none leading-none mb-0.5">${std.class}반 ${std.number}번</span>
                             <span class="pointer-events-none text-sm leading-tight">${std.name}</span>
                         `;
-                        
+                        // students.forEach 내부, card.onclick 바로 위에 추가
+                        if (photoUrl) {
+                            fetch(photoUrl)
+                                .then(r => r.text())
+                                .then(base64 => {
+                                    const img = desks[seat.seatIndex].querySelector('img');
+                                    if (img) img.src = `data:image/jpeg;base64,${base64}`;
+                                })
+                                .catch(() => {});
+                        }
                         card.onclick = function() { toggleAttendance(card, stdKey); };
                         desks[seat.seatIndex].appendChild(card);
                     }
