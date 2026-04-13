@@ -90,8 +90,15 @@
         }
         .timeline-box.past { opacity: 0.4; background: #f1f1f1; }
         .tb-period { font-size: 12px; font-weight: bold; color: #787774; }
-        .tb-subject { font-size: 16px; font-weight: 700; color: #37352f; }
         .tb-time { font-size: 11px; color: #999; }
+        /* 🌟 타임라인 과목명 스타일 업그레이드 (수업 vs 공강 분리) */
+        .tb-subject { font-size: 15px; padding: 4px 8px; border-radius: 8px; display: inline-block; word-break: keep-all; margin: 2px 0; }
+        .tb-subject.real-class { color: #1e40af; background-color: #dbeafe; font-weight: 900; border: 1px solid #bfdbfe; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .tb-subject.empty-class { color: #a1a1aa; font-weight: 500; }
+
+        /* 다크모드 대응 추가 */
+        body.dark-mode .tb-subject.real-class { color: #bfdbfe; background-color: #1e3a8a; border-color: #1e40af; }
+        body.dark-mode .tb-subject.empty-class { color: #6b7280; }
 
         /* 그리드 레이아웃 (주간시간표 & 생산성 도구) */
         .grid-row { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
@@ -414,11 +421,17 @@
 
             const todaySchedule = scheduleData[today] || [];
             periodTimes.forEach((pt, index) => {
-                const subject = todaySchedule[index] || '공강';
+                const subject = todaySchedule[index] || '';
+                const isClass = subject !== ''; // 🌟 수업인지 공강인지 판별
+                
+                // 수업 유무에 따라 텍스트와 디자인 클래스를 다르게 적용
+                const displaySubject = isClass ? subject : '공강';
+                const styleClass = isClass ? 'real-class' : 'empty-class';
+
                 html += `
                     <div class="timeline-box" id="period-${pt.period}">
                         <span class="tb-period">${pt.period}교시</span>
-                        <span class="tb-subject">${subject}</span>
+                        <span class="tb-subject ${styleClass}">${displaySubject}</span>
                         <span class="tb-time">${pt.start} ~ ${pt.end}</span>
                     </div>
                 `;
