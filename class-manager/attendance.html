@@ -336,7 +336,7 @@
             });
         }
 
-        // 🌟 구글 드라이브 URL → img 태그에서 직접 표시 가능한 thumbnail URL로 변환
+        // 기존 함수 전체를 아래로 교체
         function convertGoogleDriveUrl(url) {
             if (!url) return "";
 
@@ -349,9 +349,8 @@
             if (match2) fileId = match2[1];
 
             if (fileId) {
-                // 구글 드라이브 thumbnail을 wsrv.nl 프록시로 중계
-                const thumbnailUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w200`;
-                return `https://wsrv.nl/?url=${encodeURIComponent(thumbnailUrl)}`;
+                // ✅ 방법 1 시도 → 실패 시 방법 2로 자동 fallback
+                return `https://lh3.google.com/u/0/d/${fileId}=w200`;
             }
 
             return url;
@@ -415,19 +414,40 @@
                         card.className = `student-card w-full h-full flex flex-col items-center justify-center rounded-lg border-2 font-bold p-1 card-present`;
                         card.style.minHeight = "110px";
 
-                        // 🌟 구글 보안 정책 우회용 referrerpolicy 추가
+                        // 기존 photoHtml 부분 전체 교체
                         let photoHtml = "";
-                        if (photoUrl && photoUrl.includes("http")) {
+                        if (photoUrl) {
+                            const fileIdMatch = (std.사진 || std.photo || "").match(/[?&]id=([a-zA-Z0-9_-]+)/) 
+                                            || (std.사진 || std.photo || "").match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+                            const fileId = fileIdMatch ? fileIdMatch[1] : "";
+
+                            const fallback1 = fileId ? `https://drive.google.com/thumbnail?id=${fileId}&sz=w200` : "";
+                            const fallback2 = fileId ? `https://wsrv.nl/?url=${encodeURIComponent(fallback1)}` : "";
+
                             photoHtml = `
                                 <img src="${photoUrl}" 
-                                     referrerpolicy="no-referrer"
-                                     class="w-12 h-14 object-cover rounded shadow-sm border border-slate-200 mb-1 pointer-events-none"
-                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                    referrerpolicy="no-referrer"
+                                    data-fallback1="${fallback1}"
+                                    data-fallback2="${fallback2}"
+                                    data-fallback-step="0"
+                                    class="w-12 h-14 object-cover rounded shadow-sm border border-slate-200 mb-1 pointer-events-none"
+                                    onerror="
+                                        const step = parseInt(this.dataset.fallbackStep);
+                                        if (step === 0 && this.dataset.fallback1) {
+                                            this.dataset.fallbackStep = '1';
+                                            this.src = this.dataset.fallback1;
+                                        } else if (step === 1 && this.dataset.fallback2) {
+                                            this.dataset.fallbackStep = '2';
+                                            this.src = this.dataset.fallback2;
+                                        } else {
+                                            this.style.display='none';
+                                            this.nextElementSibling.style.display='flex';
+                                        }
+                                    ">
                                 <div class="w-12 h-14 bg-slate-100 rounded flex items-center justify-center text-slate-300 font-bold text-xl mb-1 border border-slate-200 pointer-events-none shadow-inner" style="display:none;">
                                     ${std.number}
                                 </div>`;
                         } else {
-                            // 사진이 없을 때 표시될 기본 박스
                             photoHtml = `<div class="w-12 h-14 bg-slate-100 rounded flex items-center justify-center text-slate-300 font-bold text-xl mb-1 border border-slate-200 pointer-events-none shadow-inner">${std.number}</div>`;
                         }
 
