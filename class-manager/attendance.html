@@ -349,84 +349,70 @@
 
             attendanceData = {};
             document.getElementById('classLog').value = '데이터 불러오는 중...';
-            document.querySelectorAll('.desk .student-card').forEach(c => c.remove());
+            // 기존 좌석 초기화
+            document.querySelectorAll('.desk').forEach(d => d.innerHTML = '');
 
             try {
-                const timestamp = new Date().getTime();
-                
+                const timestamp = Date.now();
+                // 데이터 동시 호출
                 const [sr, seatingR, recordR] = await Promise.all([
                     fetch(`${API_URL}?type=GET_STUDENTS&subject=${encodeURIComponent(subject)}&t=${timestamp}`),
                     fetch(`${API_URL}?type=GET_SEATING&subject=${encodeURIComponent(subject)}&t=${timestamp}`),
                     fetch(`${API_URL}?type=GET_DAILY_RECORD&subject=${encodeURIComponent(subject)}&date=${targetDate}&period=${period}&t=${timestamp}`)
                 ]);
                 
-                const students = await sr.json();
+                const students = await sr.json(); // 여기서 사진 주소가 들어옵니다.
                 const savedSeating = await seatingR.json();
                 const recordData = await recordR.json();
                 
                 let savedRecord = recordData.success ? recordData.data : null;
-
                 document.getElementById('classLog').value = savedRecord ? savedRecord.log : '';
-
-                const issueMap = {};
-                if(savedRecord && savedRecord.attendanceIssues) {
-                    savedRecord.attendanceIssues.forEach(issue => {
-                        issueMap[getStudentKey(issue)] = issue;
-                    });
-                }
 
                 const desks = document.querySelectorAll('.desk');
 
                 students.forEach((std) => {
+                    // 🌟 이름 정규화 (괄호 제거 및 공백 제거)
+                    const cleanStdName = String(std.name || "").replace(/\([^)]*\)/g, '').replace(/\s/g, '');
                     const stdKey = getStudentKey(std);
-                    const seat = savedSeating.find(s => getStudentKey(s) === stdKey);
                     
-                    if (seat && seat.seatIndex >= 0 && seat.seatIndex < TOTAL_SEATS) {
-                        
-                        const savedIssue = issueMap[stdKey];
-                        
+                    // 좌석 배치도에서 해당 학생 찾기
+                    const seat = savedSeating.find(s => {
+                        const sCleanName = String(s.name || "").replace(/\([^)]*\)/g, '').replace(/\s/g, '');
+                        // 학번(숫자)과 이름이 모두 일치해야 매칭
+                        return parseInt(s.number) === parseInt(std.number) && sCleanName === cleanStdName;
+                    });
+                    
+                    if (seat && seat.seatIndex >= 0 && seat.seatIndex < desks.length) {
                         attendanceData[stdKey] = {
-                            name: std.name,
-                            class: std.class,
-                            number: std.number,
-                            status: savedIssue ? savedIssue.status : 'present', 
-                            memo: savedIssue ? savedIssue.memo : ''
+                            name: std.name, class: std.class, number: std.number,
+                            status: 'present', memo: ''
                         };
 
+                        // 🌟 사진 데이터 확보 (시트 열 제목이 '사진'이어야 함)
+                        const photoUrl = std.사진 || std.photo || "";
+                        
                         const card = document.createElement('div');
-                        const statusClass = `card-${attendanceData[stdKey].status}`;
-                        
-                        // 🔥 클래스명에 p-1 (패딩) 추가
-                        card.className = `student-card w-full h-full flex flex-col items-center justify-center rounded-lg border-2 font-bold text-slate-700 p-1 ${statusClass}`;
-                        card.style.minHeight = "110px"; // 사진 공간 확보
-                        
-                        // 🌟 사진이 있으면 <img> 태그, 없으면 큰 숫자(회색 박스) 출력
-                        const photoUrl = std.사진 || std.photo;
-                        let photoHtml = '';
+                        card.className = `student-card w-full h-full flex flex-col items-center justify-center rounded-lg border-2 font-bold p-1 card-present`;
+                        card.style.minHeight = "110px";
 
-                        if (photoUrl) {
-                            // 🌟 referrerpolicy="no-referrer"는 구글의 보안 차단을 우회하는 핵심 열쇠입니다.
-                            // 🌟 loading="lazy"를 추가하여 로딩 성능을 최적화합니다.
-                            photoInnerHtml = `
+                        // 🌟 구글 보안 정책 우회용 referrerpolicy 추가
+                        let photoHtml = "";
+                        if (photoUrl && photoUrl.includes("http")) {
+                            photoHtml = `
                                 <img src="${photoUrl}" 
-                                    referrerpolicy="no-referrer" 
-                                    loading="lazy"
-                                    class="w-12 h-14 object-cover rounded shadow-sm border border-slate-200 mb-1 pointer-events-none"
-                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                     referrerpolicy="no-referrer"
+                                     class="w-12 h-14 object-cover rounded shadow-sm border border-slate-200 mb-1 pointer-events-none"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                 <div class="w-12 h-14 bg-slate-100 rounded flex items-center justify-center text-slate-300 font-bold text-xl mb-1 border border-slate-200 pointer-events-none shadow-inner" style="display:none;">
                                     ${std.number}
                                 </div>`;
                         } else {
-                            // 사진이 아예 없는 경우 번호 표시
-                            photoInnerHtml = `
-                                <div class="w-12 h-14 bg-slate-100 rounded flex items-center justify-center text-slate-300 font-bold text-xl mb-1 border border-slate-200 pointer-events-none shadow-inner">
-                                    ${std.number}
-                                </div>`;
+                            // 사진이 없을 때 표시될 기본 박스
+                            photoHtml = `<div class="w-12 h-14 bg-slate-100 rounded flex items-center justify-center text-slate-300 font-bold text-xl mb-1 border border-slate-200 pointer-events-none shadow-inner">${std.number}</div>`;
                         }
 
-                        // 2. 카드 내부 HTML 조립
                         card.innerHTML = `
-                            ${photoInnerHtml}
+                            ${photoHtml}
                             <span class="text-[10px] opacity-70 block pointer-events-none leading-none mb-0.5">${std.class}반 ${std.number}번</span>
                             <span class="pointer-events-none text-sm leading-tight">${std.name}</span>
                         `;
@@ -436,12 +422,28 @@
                     }
                 });
 
+                // 기존 저장된 특이사항(결석 등) 반영 로직
+                if(savedRecord && savedRecord.attendanceIssues) {
+                    savedRecord.attendanceIssues.forEach(issue => {
+                        const key = getStudentKey(issue);
+                        if(attendanceData[key]) {
+                            attendanceData[key].status = issue.status;
+                            attendanceData[key].memo = issue.memo;
+                            // 카드 색상 업데이트
+                            const cards = document.querySelectorAll('.student-card');
+                            cards.forEach(c => {
+                                if(c.innerHTML.includes(`${issue.class}반 ${issue.number}번`)) {
+                                    c.className = c.className.replace(/card-\w+/, `card-${issue.status}`);
+                                }
+                            });
+                        }
+                    });
+                }
                 updateAbsenceList();
 
             } catch (e) {
-                console.error(e);
-                alert("데이터 로드 오류가 발생했습니다.");
-                document.getElementById('classLog').value = '';
+                console.error("로딩 에러 상세:", e);
+                alert("학생 데이터를 불러오는 중 오류가 발생했습니다.");
             }
         }
 
