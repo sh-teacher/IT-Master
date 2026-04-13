@@ -388,13 +388,15 @@
             let currentPeriod = 0;
             
             // ⏰ 학교 일반적인 시간표 기준 세팅 (학교에 맞게 시간을 수정해서 사용하세요)
-            if (time >= 840 && time < 950) currentPeriod = 1;
-                else if (time >= 950 && time < 1050) currentPeriod = 2;
-                else if (time >= 1050 && time < 1150) currentPeriod = 3;
-                else if (time >= 1150 && time < 1250) currentPeriod = 4;
-                else if (time >= 1340 && time < 1440) currentPeriod = 5;
-                else if (time >= 1440 && time < 1540) currentPeriod = 6;
-                else if (time >= 1540 && time < 1640) currentPeriod = 7;
+            // ⏰ 선생님 학교 시간표 기준 세팅 (쉬는/준비 시간 포함)
+            if (time >= 830 && time < 945) currentPeriod = 1;        // 08:30(조회) ~ 09:44 (1교시 종료 후 쉬는시간까지)
+            else if (time >= 945 && time < 1045) currentPeriod = 2;  // 09:45(2교시 시작) ~ 10:44
+            else if (time >= 1045 && time < 1145) currentPeriod = 3; // 10:45(3교시 시작) ~ 11:44
+            else if (time >= 1145 && time < 1235) currentPeriod = 4; // 11:45(4교시 시작) ~ 12:35 (종료 및 중식 시작)
+            // 🍽️ 12:35 ~ 13:24 까지는 점심시간으로 인식하여 "수업 시간이 아닙니다" 알림 발생
+            else if (time >= 1325 && time < 1435) currentPeriod = 5; // 13:25(점심시간 끝무렵 준비) ~ 14:34
+            else if (time >= 1435 && time < 1525) currentPeriod = 6; // 14:35(6교시 시작) ~ 15:24
+            else if (time >= 1525 && time <= 1630) currentPeriod = 7; // 15:25(청소 및 준비) ~ 16:30 (7교시 종료)
             
             if (currentPeriod === 0) {
                 alert("현재 진행 중인 수업 시간이 아닙니다.");
