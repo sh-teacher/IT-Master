@@ -5,24 +5,25 @@
     <title>학생 명단 관리 - Class Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script>if (sessionStorage.getItem("isAllowed") !== "true") location.href = "index.html";</script>
+    <script> 
+        if (sessionStorage.getItem("isAllowed") !== "true") location.href = "index.html";
+    </script>
     <style>
         .drag-over { border-color: #3b82f6 !important; background-color: #eff6ff !important; }
-        .photo-preview { width: 40px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd; }
-        .no-photo { width: 40px; height: 50px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; border-radius: 4px; border: 1px dashed #cbd5e1; font-size: 18px; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen p-6 md:p-10">
     <div class="max-w-7xl mx-auto">
         <header class="mb-8 flex justify-between items-end">
             <div>
-                <h1 class="text-3xl font-black mb-2 text-slate-800">👥 학생 명단 및 사진 관리</h1>
-                <p class="text-slate-500 font-medium">나이스 명단 업로드 후 학생 사진을 한꺼번에 올려주세요.</p>
+                <h1 class="text-3xl font-black mb-2 text-slate-800">👥 학생 명단 관리</h1>
+                <p class="text-slate-500 font-medium">나이스(NEIS) 엑셀 업로드 및 명단 수정/삭제</p>
             </div>
-            <button onclick="location.href='setup.html'" class="text-slate-500 hover:text-slate-800 font-bold underline transition">이전으로</button>
+            <button onclick="location.href='setup.html'" class="text-slate-500 hover:text-slate-800 font-bold underline transition">환경설정으로 돌아가기</button>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+            
             <div class="lg:col-span-2 space-y-6">
                 <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
                     <label class="block text-sm font-bold text-slate-700 mb-3">1. 대상 과목 선택</label>
@@ -32,100 +33,314 @@
                 </div>
 
                 <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-                    <label class="block text-sm font-bold text-slate-700 mb-3">2. 명단 업로드 (나이스 양식)</label>
+                    <label class="block text-sm font-bold text-slate-700 mb-3">2. 엑셀 파일(나이스 양식) 업로드</label>
                     <div id="dropZone" class="border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center transition hover:bg-slate-50 cursor-pointer" onclick="document.getElementById('fileInput').click()">
-                        <div class="text-4xl mb-2">📑</div>
-                        <p class="text-slate-600 font-bold text-sm">엑셀 파일을 끌어오거나 클릭</p>
+                        <div class="text-4xl mb-3">📑</div>
+                        <p class="text-slate-600 font-bold">엑셀 파일을 이곳에 끌어다 놓거나 클릭하세요</p>
+                        <p class="text-xs text-slate-400 mt-2">나이스 출석부 양식을 자동으로 분석합니다.</p>
                         <input type="file" id="fileInput" accept=".xlsx, .xls" class="hidden" onchange="handleFileUpload(event)">
                     </div>
                 </div>
 
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-blue-200 bg-blue-50/20">
-                    <label class="block text-sm font-bold text-blue-800 mb-3">3. 사진 일괄 매칭 (JPG 파일들)</label>
-                    <div id="photoDropZone" class="border-2 border-dashed border-blue-300 rounded-2xl p-8 text-center transition hover:bg-blue-50 cursor-pointer" onclick="document.getElementById('photoInput').click()">
-                        <div class="text-4xl mb-2">📸</div>
-                        <p class="text-blue-700 font-bold text-sm">준비한 사진 파일들을 몽땅 드래그!</p>
-                        <p class="text-[11px] text-blue-500 mt-2">※ 파일명 예시: 10101.jpg / 30805_강호동.jpg<br>(파일명 숫자로 자동 매칭됩니다)</p>
-                        <input type="file" id="photoInput" multiple accept="image/*" class="hidden" onchange="handlePhotoUpload(event)">
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                    <div class="flex justify-between items-center mb-3">
+                        <label class="block text-sm font-bold text-slate-700">3. 텍스트로 직접 붙여넣기</label>
+                        <button onclick="parseTextAndAdd()" class="bg-slate-800 text-white px-4 py-1.5 rounded-lg text-xs font-bold hover:bg-black">명단 추출하기</button>
                     </div>
-                    <div id="uploadStatus" class="mt-3 text-xs font-bold text-center"></div>
+                    <textarea id="studentList" class="w-full h-32 p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-mono text-sm focus:border-blue-500 focus:outline-none" 
+                              placeholder="1 1 1 강호동&#10;1 1 2 유재석"></textarea>
                 </div>
             </div>
 
             <div class="lg:col-span-3 bg-white p-6 rounded-3xl shadow-sm border border-slate-200 flex flex-col h-[800px]">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-black text-slate-800">📋 학생 명단 <span id="studentCount" class="text-blue-600 ml-2">0명</span></h2>
-                    <button onclick="saveStudentsToServer()" id="saveBtn" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-blue-700 transition">💾 명단 최종 저장</button>
+                    <h2 class="text-lg font-black text-slate-800">📋 현재 명단 <span id="studentCount" class="text-blue-600 ml-2">0명</span></h2>
+                    
+                    <div class="flex gap-2 items-center bg-slate-50 p-2 rounded-xl border border-slate-100">
+                        <input type="number" id="addG" placeholder="학년" class="w-14 p-2 bg-white border border-slate-200 rounded-lg text-sm text-center">
+                        <input type="number" id="addC" placeholder="반" class="w-14 p-2 bg-white border border-slate-200 rounded-lg text-sm text-center">
+                        <input type="number" id="addN" placeholder="번호" class="w-14 p-2 bg-white border border-slate-200 rounded-lg text-sm text-center">
+                        <input type="text" id="addName" placeholder="이름" class="w-24 p-2 bg-white border border-slate-200 rounded-lg text-sm">
+                        <button onclick="addSingleStudent()" class="bg-emerald-100 text-emerald-700 px-3 py-2 rounded-lg text-sm font-bold hover:bg-emerald-200">+</button>
+                    </div>
                 </div>
 
-                <div class="flex-1 overflow-y-auto border border-slate-200 rounded-xl">
+                <div class="flex-1 overflow-y-auto border border-slate-200 rounded-xl mb-4">
                     <table class="w-full text-center border-collapse">
-                        <thead class="bg-slate-100 sticky top-0 z-10">
+                        <thead class="bg-slate-100 sticky top-0 z-10 shadow-sm">
                             <tr>
-                                <th class="p-3 text-xs font-bold text-slate-500">사진</th>
-                                <th class="p-3 text-xs font-bold text-slate-500">학번/이름</th>
-                                <th class="p-3 text-xs font-bold text-slate-500">관리</th>
+                                <th class="p-3 text-sm font-bold text-slate-600">학년</th>
+                                <th class="p-3 text-sm font-bold text-slate-600">반</th>
+                                <th class="p-3 text-sm font-bold text-slate-600">번호</th>
+                                <th class="p-3 text-sm font-bold text-slate-600">이름</th>
+                                <th class="p-3 text-sm font-bold text-slate-600">관리</th>
                             </tr>
                         </thead>
                         <tbody id="studentTableBody" class="divide-y divide-slate-100">
-                            <tr><td colspan="3" class="p-10 text-slate-400">과목을 선택해주세요.</td></tr>
+                            <tr><td colspan="5" class="p-10 text-slate-400 font-medium">과목을 선택해주세요.</td></tr>
                         </tbody>
                     </table>
                 </div>
+
+                <button onclick="saveStudentsToServer()" id="saveBtn" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black text-lg shadow-lg hover:bg-blue-700 transition transform active:scale-95 disabled:bg-slate-400">
+                    💾 서버에 명단 최종 저장하기
+                </button>
             </div>
         </div>
     </div>
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbxUgpimLYy_9K_vZjbxJYtImA4fcz3ZZxfXPvy9WlYXLv1dY-yBA6yrtHeybyAo1v_Vpg/exec";
-        let currentStudents = [];
+        
+        let currentStudents = []; // 현재 화면에서 편집 중인 학생 배열
 
+        // 1. 초기 로드 (과목 목록 가져오기)
         window.onload = async function() {
             try {
-                const res = await fetch(`${API_URL}?type=GET_SUBJECTS`);
-                const subjects = await res.json();
-                const sel = document.getElementById('selectedSubject');
-                sel.innerHTML = '<option value="">과목을 선택해주세요</option>';
-                subjects.forEach(sub => sel.innerHTML += `<option value="${sub.fullName}">${sub.fullName}</option>`);
-            } catch { alert("과목 로드 실패"); }
+                const response = await fetch(`${API_URL}?type=GET_SUBJECTS`);
+                const subjects = await response.json();
+                const select = document.getElementById('selectedSubject');
+                
+                if (subjects.length === 0) {
+                    select.innerHTML = '<option value="">등록된 과목이 없습니다. 환경설정에서 등록해주세요.</option>';
+                    return;
+                }
+
+                select.innerHTML = '<option value="">과목을 선택해주세요</option>';
+                subjects.forEach(sub => {
+                    const option = document.createElement('option');
+                    option.value = sub.fullName;
+                    option.innerText = sub.fullName;
+                    select.appendChild(option);
+                });
+            } catch (e) {
+                alert("과목 목록을 불러오지 못했습니다.");
+            }
+            
             setupDragAndDrop();
         };
 
+        // 2. 과목 선택 시 기존 서버 명단 불러오기
         async function loadStudentsForSubject() {
             const subject = document.getElementById('selectedSubject').value;
-            if (!subject) return;
             const tbody = document.getElementById('studentTableBody');
-            tbody.innerHTML = '<tr><td colspan="3" class="p-10 font-bold animate-pulse">데이터 로드 중...</td></tr>';
+            
+            if (!subject) {
+                currentStudents = [];
+                renderTable();
+                return;
+            }
+
+            tbody.innerHTML = '<tr><td colspan="5" class="p-10 text-blue-500 font-bold animate-pulse">서버에서 명단을 불러오는 중...</td></tr>';
+            
             try {
                 const res = await fetch(`${API_URL}?type=GET_STUDENTS&subject=${encodeURIComponent(subject)}&t=${Date.now()}`);
                 currentStudents = await res.json();
                 renderTable();
-            } catch { alert("불러오기 실패"); }
+            } catch (e) {
+                tbody.innerHTML = '<tr><td colspan="5" class="p-10 text-red-500 font-bold">불러오기 실패</td></tr>';
+            }
         }
 
+        // 3. UI 렌더링 (테이블 그리기)
         function renderTable() {
             const tbody = document.getElementById('studentTableBody');
             document.getElementById('studentCount').innerText = `${currentStudents.length}명`;
-            tbody.innerHTML = '';
-            
-            currentStudents.sort((a,b) => (a.grade-b.grade || a.class-b.class || a.number-b.number));
 
-            currentStudents.forEach((std, idx) => {
-                const photoHtml = std.사진 ? `<img src="${std.사진}" class="photo-preview mx-auto">` : `<div class="no-photo mx-auto">👤</div>`;
+            if (currentStudents.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="p-10 text-slate-400 font-medium">등록된 학생이 없습니다. 엑셀이나 텍스트를 이용해 추가하세요.</td></tr>';
+                return;
+            }
+
+            // 학년 -> 반 -> 번호 순으로 정렬
+            currentStudents.sort((a, b) => {
+                if (a.grade !== b.grade) return a.grade - b.grade;
+                if (a.class !== b.class) return a.class - b.class;
+                return a.number - b.number;
+            });
+
+            tbody.innerHTML = '';
+            currentStudents.forEach((std, index) => {
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition">
-                        <td class="p-3">${photoHtml}</td>
-                        <td class="p-3 text-left">
-                            <div class="font-bold text-slate-800">${std.name}</div>
-                            <div class="text-[10px] text-slate-400">${std.grade}학년 ${std.class}반 ${std.number}번</div>
-                        </td>
-                        <td class="p-3"><button onclick="deleteStd(${idx})" class="text-red-400 font-bold text-xs">삭제</button></td>
+                        <td class="p-3"><input type="number" class="w-12 text-center bg-transparent focus:bg-white border border-transparent focus:border-blue-300 rounded" value="${std.grade}" onchange="updateStd(${index}, 'grade', this.value)"></td>
+                        <td class="p-3"><input type="number" class="w-12 text-center bg-transparent focus:bg-white border border-transparent focus:border-blue-300 rounded" value="${std.class}" onchange="updateStd(${index}, 'class', this.value)"></td>
+                        <td class="p-3"><input type="number" class="w-12 text-center bg-transparent focus:bg-white border border-transparent focus:border-blue-300 rounded" value="${std.number}" onchange="updateStd(${index}, 'number', this.value)"></td>
+                        <td class="p-3"><input type="text" class="w-20 text-center bg-transparent focus:bg-white border border-transparent focus:border-blue-300 rounded font-bold" value="${std.name}" onchange="updateStd(${index}, 'name', this.value)"></td>
+                        <td class="p-3"><button onclick="deleteStd(${index})" class="text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-lg text-xs font-bold transition">삭제</button></td>
                     </tr>
                 `;
             });
         }
 
-        // 🌟 사진 파일 일괄 처리 및 서버 전송
+        // --- 명단 편집 기능들 ---
+        function updateStd(index, field, value) {
+            currentStudents[index][field] = value;
+        }
+
+        function deleteStd(index) {
+            currentStudents.splice(index, 1);
+            renderTable();
+        }
+
+        function addSingleStudent() {
+            const g = document.getElementById('addG').value;
+            const c = document.getElementById('addC').value;
+            const n = document.getElementById('addN').value;
+            const name = document.getElementById('addName').value.trim();
+
+            if (!g || !c || !n || !name) return alert("학년, 반, 번호, 이름을 모두 입력하세요.");
+
+            currentStudents.push({ grade: g, class: c, number: n, name: name });
+            renderTable();
+
+            // 입력창 초기화 (학년, 반은 연속 입력을 위해 남겨둠)
+            document.getElementById('addN').value = "";
+            document.getElementById('addName').value = "";
+            document.getElementById('addN').focus();
+        }
+
+        // 4. 텍스트(수동) 붙여넣기 파싱
+        function parseTextAndAdd() {
+            const text = document.getElementById('studentList').value;
+            const lines = text.trim().split('\n');
+            let addedCount = 0;
+
+            lines.forEach(line => {
+                const parts = line.trim().split(/\s+/); 
+                if (parts.length >= 4) {
+                    currentStudents.push({ grade: parts[0], class: parts[1], number: parts[2], name: parts[3] });
+                    addedCount++;
+                }
+            });
+
+            if (addedCount > 0) {
+                renderTable();
+                document.getElementById('studentList').value = "";
+            } else {
+                alert("인식 가능한 명단이 없습니다. (형식: 1 1 1 홍길동)");
+            }
+        }
+
+        // 🌟 5. 엑셀 파일(NEIS 양식) 업로드 및 스마트 파싱
+        function setupDragAndDrop() {
+            const dropZone = document.getElementById('dropZone');
+            
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('drag-over');
+            });
+            
+            dropZone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+            });
+            
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+                if (e.dataTransfer.files.length) {
+                    processExcelFile(e.dataTransfer.files[0]);
+                }
+            });
+        }
+
+        function handleFileUpload(event) {
+            if (event.target.files.length) {
+                processExcelFile(event.target.files[0]);
+                event.target.value = ""; // 초기화
+            }
+        }
+
+        function processExcelFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                
+                // 2차원 배열 형태로 데이터 추출
+                const rows = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+                
+                let addedCount = 0;
+                let colIndices = { grade: -1, class: -1, num: -1, name: -1 };
+
+                rows.forEach((row, rowIndex) => {
+                    // 헤더(제목줄) 찾기 로직: NEIS 양식에는 보통 '학년', '반', '번호', '성명' 이 포함됨
+                    if (colIndices.name === -1) {
+                        row.forEach((cell, idx) => {
+                            const val = String(cell).replace(/\s/g, '');
+                            if (val.includes("학년")) colIndices.grade = idx;
+                            if (val.includes("반")) colIndices.class = idx;
+                            if (val.includes("번호")) colIndices.num = idx;
+                            if (val.includes("성명") || val.includes("이름")) colIndices.name = idx;
+                        });
+                    } 
+                    // 헤더를 찾은 이후의 줄에서 실제 학생 데이터 추출
+                    else {
+                        // 성명과 번호가 존재하는 행이면 학생으로 간주
+                        if (row[colIndices.num] !== undefined && row[colIndices.name] !== undefined) {
+                            // 숫자 형식이 아니면(예: 빈칸, 요약줄 등) 건너뜀
+                            if (!isNaN(parseInt(row[colIndices.num]))) {
+                                currentStudents.push({
+                                    grade: row[colIndices.grade] || "1", // 학년/반이 병합되어 없을 경우 기본값 부여 후 수정 유도
+                                    class: row[colIndices.class] || "1",
+                                    number: parseInt(row[colIndices.num]),
+                                    name: String(row[colIndices.name]).trim()
+                                });
+                                addedCount++;
+                            }
+                        }
+                    }
+                });
+
+                if (addedCount > 0) {
+                    renderTable();
+                    alert(`✅ 엑셀에서 ${addedCount}명의 학생 정보를 추출했습니다.\n우측 표에서 이상이 없는지 확인 후 [서버에 저장]을 눌러주세요.`);
+                } else {
+                    alert("❌ 학생 명단을 찾을 수 없습니다. 나이스 양식이 맞는지 확인해주세요.");
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // 6. 최종 서버로 전송 (동기화)
+        async function saveStudentsToServer() {
+            const subject = document.getElementById('selectedSubject').value;
+            const btn = document.getElementById('saveBtn');
+
+            if (!subject) return alert("과목을 먼저 선택해주세요.");
+            if (currentStudents.length === 0) {
+                if(!confirm("현재 명단이 0명입니다. 서버의 학생 데이터도 모두 지우시겠습니까?")) return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "서버와 동기화 중...";
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        type: "SAVE_STUDENTS",
+                        payload: { subject: subject, students: currentStudents }
+                    })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert(`✅ [${subject}] 서버에 최종 명단이 저장되었습니다.`);
+                } else {
+                    alert("❌ 저장 실패: " + result.msg);
+                }
+            } catch (e) {
+                alert("🚨 네트워크 오류로 전송에 실패했습니다.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "💾 서버에 명단 최종 저장하기";
+            }
+        }
+        // 🌟 완벽한 사진 파일 일괄 매칭 로직 (동명이인 및 오작동 방지 3중 잠금)
         async function handlePhotoUpload(event) {
             const files = event.target.files;
             if (!files.length) return;
@@ -136,15 +351,41 @@
             let successCount = 0;
 
             for (let file of files) {
-                // 1. 파일명에서 숫자 추출 (예: 10105_홍길동.jpg -> 10105)
-                const fileNumStr = file.name.replace(/[^0-9]/g, '');
-                if (fileNumStr.length < 3) continue; // 너무 짧으면 패스
+                // 확장자(.jpg) 떼어내고 띄어쓰기 제거 (예: "3104 김도연.jpg" -> "3104김도연")
+                const fileNameClean = file.name.replace(/\.[^/.]+$/, "").replace(/\s/g, ''); 
+                // 파일명에서 숫자만 추출 (예: "3104")
+                const fileNumStr = fileNameClean.replace(/[^0-9]/g, '');
 
-                // 2. 현재 명단에서 해당 학번을 가진 학생 찾기
-                // 나이스 학번 방식(10105) 또는 번호(5) 매칭
                 const targetIdx = currentStudents.findIndex(s => {
-                    const fullId = `${s.grade}${String(s.class).padStart(2,'0')}${String(s.number).padStart(2,'0')}`;
-                    return fullId === fileNumStr || String(s.number) === fileNumStr;
+                    const g = String(s.grade).replace(/[^0-9]/g, '');
+                    const c = String(s.class).replace(/[^0-9]/g, '');
+                    const n = String(s.number).replace(/[^0-9]/g, '');
+                    const stdName = String(s.name).replace(/\s/g, '');
+
+                    // 학번 조합 경우의 수 (31004, 3104 등 모두 커버)
+                    const fullId = `${g}${c.padStart(2,'0')}${n.padStart(2,'0')}`; 
+                    const shortId = `${g}${c}${n}`; 
+                    const midId = `${g}${c}${n.padStart(2,'0')}`; 
+                    
+                    const isNumMatch = fileNumStr && (fileNumStr === fullId || fileNumStr === shortId || fileNumStr === midId);
+                    const isNameMatch = stdName.length >= 2 && fileNameClean.includes(stdName);
+
+                    // 🎯 1순위: 학번(숫자)과 이름이 파일명에 "모두" 일치하는 경우 (가장 완벽한 매칭)
+                    if (isNumMatch && isNameMatch) return true;
+
+                    // 🎯 2순위: 파일명에 글자 없이 숫자만 있는 경우 (예: 3104.jpg)
+                    const hasNoLetters = fileNameClean.replace(/[0-9]/g, '').length === 0;
+                    if (isNumMatch && hasNoLetters) return true;
+
+                    // 🎯 3순위: 파일명에 숫자 없이 이름만 있는 경우 (예: 김도연.jpg)
+                    if (isNameMatch && !fileNumStr) {
+                        // 🚨 동명이인 방지: 명단에 이 이름을 가진 학생이 "딱 1명"일 때만 허용!
+                        const sameNameCount = currentStudents.filter(st => String(st.name).replace(/\s/g, '') === stdName).length;
+                        if (sameNameCount === 1) return true;
+                    }
+
+                    // 학번은 틀린데 이름만 맞다? -> 동명이인의 사진일 수 있으므로 매칭 거부!
+                    return false; 
                 });
 
                 if (targetIdx !== -1) {
@@ -171,73 +412,12 @@
                     if (result.success) {
                         currentStudents[targetIdx].사진 = result.photoUrl;
                         successCount++;
-                        renderTable();
+                        renderTable(); // 표에 즉시 썸네일 표시
                     }
                 }
             }
             statusEl.innerText = `✅ 총 ${successCount}장의 사진 매칭 완료!`;
-            alert(`사진 업로드 완료! (${successCount}명 매칭됨)`);
-        }
-
-        const toBase64 = file => new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = error => reject(error);
-        });
-
-        // (기타 엑셀 업로드 및 삭제 함수는 이전과 동일...)
-        function setupDragAndDrop() {
-            const zones = ['dropZone', 'photoDropZone'];
-            zones.forEach(id => {
-                const zone = document.getElementById(id);
-                zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('drag-over'); });
-                zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-                zone.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    zone.classList.remove('drag-over');
-                    if (id === 'dropZone') processExcelFile(e.dataTransfer.files[0]);
-                    else handlePhotoUpload({ target: { files: e.dataTransfer.files } });
-                });
-            });
-        }
-        
-        function handleFileUpload(e) { processExcelFile(e.target.files[0]); }
-        function processExcelFile(file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, {type: 'array'});
-                const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header: 1});
-                let col = { grade: -1, class: -1, num: -1, name: -1 };
-                rows.forEach((row, i) => {
-                    if (col.name === -1) {
-                        row.forEach((cell, idx) => {
-                            const v = String(cell);
-                            if (v.includes("학년")) col.grade = idx;
-                            if (v.includes("반")) col.class = idx;
-                            if (v.includes("번호")) col.num = idx;
-                            if (v.includes("성명")) col.name = idx;
-                        });
-                    } else if (row[col.num] && !isNaN(row[col.num])) {
-                        currentStudents.push({ grade: row[col.grade], class: row[col.class], number: row[col.num], name: row[col.name] });
-                    }
-                });
-                renderTable();
-            };
-            reader.readAsArrayBuffer(file);
-        }
-        function deleteStd(i) { currentStudents.splice(i, 1); renderTable(); }
-        async function saveStudentsToServer() {
-            const subject = document.getElementById('selectedSubject').value;
-            if (!subject) return alert("과목 선택 필수");
-            const btn = document.getElementById('saveBtn');
-            btn.disabled = true; btn.innerText = "저장 중...";
-            try {
-                await fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "SAVE_STUDENTS", payload: { subject, students: currentStudents } }) });
-                alert("서버 저장 완료!");
-            } catch { alert("저장 실패"); }
-            finally { btn.disabled = false; btn.innerText = "💾 명단 최종 저장"; }
+            alert(`사진 업로드 완료! (${successCount}명 매칭됨)\n\n※ 우측 상단의 [💾 명단 최종 저장] 버튼을 꼭 눌러주세요!`);
         }
     </script>
 </body>
