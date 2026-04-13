@@ -41,11 +41,11 @@
                 </div>
 
                 <div class="bg-white p-6 rounded-3xl shadow-sm border border-blue-200 bg-blue-50/20">
-                    <label class="block text-sm font-bold text-blue-800 mb-3">3. 사진 일괄 매칭 (JPG 파일들)</label>
+                    <label class="block text-sm font-bold text-blue-800 mb-3">3. 사진 일괄 매칭 (JPG/PNG 파일들)</label>
                     <div id="photoDropZone" class="border-2 border-dashed border-blue-300 rounded-2xl p-8 text-center transition hover:bg-blue-50 cursor-pointer" onclick="document.getElementById('photoInput').click()">
                         <div class="text-4xl mb-2">📸</div>
                         <p class="text-blue-700 font-bold text-sm">준비한 사진 파일들을 몽땅 드래그!</p>
-                        <p class="text-[11px] text-blue-500 mt-2">※ 파일명 예시: 3104.jpg 또는 3104김도연.jpg<br>(학번과 이름으로 자동 매칭됩니다)</p>
+                        <p class="text-[11px] text-blue-500 mt-2">※ 파일명 예시: 3104.jpg 또는 3104김도연.png<br>(학번과 이름으로 자동 매칭됩니다)</p>
                         <input type="file" id="photoInput" multiple accept="image/*" class="hidden" onchange="handlePhotoUpload(event)">
                     </div>
                     <div id="uploadStatus" class="mt-3 text-xs font-bold text-center"></div>
@@ -82,16 +82,12 @@
 
         window.onload = async function() {
             try {
-                // 캐시 방지용 꼬리표(t) 추가
-                const res = await fetch(`${API_URL}?type=GET_SUBJECTS&t=${Date.now()}`);
+                const res = await fetch(`${API_URL}?type=GET_SUBJECTS`);
                 const subjects = await res.json();
                 const sel = document.getElementById('selectedSubject');
                 sel.innerHTML = '<option value="">과목을 선택해주세요</option>';
                 subjects.forEach(sub => sel.innerHTML += `<option value="${sub.fullName}">${sub.fullName}</option>`);
-            } catch (e) { 
-                console.error(e);
-                alert("과목 로드 실패: 새로고침 해주세요."); 
-            }
+            } catch { alert("과목 로드 실패"); }
             setupDragAndDrop();
         };
 
@@ -135,7 +131,7 @@
             }
         }
 
-        // 🌟 묻지도 따지지도 않는 초강력 매칭 + 원인 탐지기 로직
+        // 🌟 사진 매칭 및 업로드 실행 (에러 알림 포함)
         async function handlePhotoUpload(event) {
             const files = event.target.files;
             if (!files.length) return;
@@ -145,50 +141,43 @@
 
             const statusEl = document.getElementById('uploadStatus');
             let successCount = 0;
-            let debugLog = ""; // 실패 원인을 담을 변수
+            let failLogs = []; 
 
             for (let file of files) {
-                // 확장자 떼고 공백 제거 (예: "3104 김도연.jpg" -> "3104김도연")
-                const fileNameClean = file.name.replace(/\.[^/.]+$/, "").replace(/\s/g, ''); 
+                const fileNameClean = file.name.normalize('NFC').replace(/\.[^/.]+$/, "").replace(/\s/g, ''); 
+                const fileNumStr = fileNameClean.replace(/[^0-9]/g, '');
 
                 const targetIdx = currentStudents.findIndex(s => {
                     if (!s.name) return false;
-                    
-                    // 엑셀 이름에서 괄호와 공백 제거 (예: "김도연(여)" -> "김도연")
-                    const stdName = String(s.name).replace(/\([^)]*\)/g, '').replace(/\s/g, '');
+                    const stdName = String(s.name).normalize('NFC').replace(/\([^)]*\)/g, '').replace(/\s/g, '');
                     if (stdName.length < 2) return false;
 
-                    // 🎯 가장 단순한 1순위 조건: 파일명에 "김도연"이 포함되어 있는가?
+                    const c = String(s.class).replace(/[^0-9]/g, '');
+                    const n = String(s.number).replace(/[^0-9]/g, '');
+
                     if (fileNameClean.includes(stdName)) {
-                        // 반에 이 이름을 가진 학생이 딱 1명이라면 묻지도 따지지도 않고 무조건 합격!
                         const sameNameCount = currentStudents.filter(st => {
-                            const otherName = String(st.name || '').replace(/\([^)]*\)/g, '').replace(/\s/g, '');
+                            const otherName = String(st.name || '').normalize('NFC').replace(/\([^)]*\)/g, '').replace(/\s/g, '');
                             return otherName === stdName;
                         }).length;
-                        
                         if (sameNameCount === 1) return true;
                         
-                        // 만약 반에 '김도연'이 2명 이상이면, 파일명에 번호가 있는지 확인해서 구별
-                        const n = String(s.number).replace(/[^0-9]/g, '');
                         if (fileNameClean.includes(n)) return true;
                     }
 
-                    // 이름 없이 숫자만 있는 파일명(예: 3104.jpg)을 위한 백업 로직
-                    const fileNumStr = fileNameClean.replace(/[^0-9]/g, '');
                     if (fileNumStr && fileNameClean.replace(/[0-9]/g, '').length === 0) {
-                        const c = String(s.class).replace(/[^0-9]/g, '');
-                        const n = String(s.number).replace(/[^0-9]/g, '');
                         if (fileNumStr.endsWith(`${c}${n}`) || fileNumStr.endsWith(`${c}${n.padStart(2,'0')}`)) {
                             return true;
                         }
                     }
-
                     return false; 
                 });
 
                 if (targetIdx !== -1) {
-                    statusEl.innerText = `⏳ [${file.name}] 업로드 중...`;
-                    const base64 = await toBase64(file);
+                    statusEl.innerText = `⏳ [${file.name}] 구글 드라이브로 업로드 중...`;
+                    
+                    // 👉 통역기 함수(toBase64)를 호출해서 이미지를 글자로 바꿈!
+                    const base64 = await toBase64(file); 
                     
                     try {
                         const res = await fetch(API_URL, {
@@ -207,42 +196,54 @@
                             })
                         });
                         
-                        const result = await res.json();
-                        if (result.success) {
-                            currentStudents[targetIdx].사진 = result.photoUrl;
-                            successCount++;
-                            renderTable(); // 표에 즉시 썸네일 표시
+                        const text = await res.text();
+                        try {
+                            const result = JSON.parse(text);
+                            if (result.success) {
+                                currentStudents[targetIdx].사진 = result.photoUrl;
+                                successCount++;
+                                renderTable(); 
+                            } else {
+                                failLogs.push(`[${file.name}] 백엔드 에러: ${result.msg}`);
+                            }
+                        } catch (e) {
+                            failLogs.push(`[${file.name}] 서버 통신 실패! 구글 스크립트 '새 버전 배포'를 다시 해주세요.`);
+                            break; 
                         }
                     } catch (e) {
-                        console.error("통신 에러:", e);
-                    }
-                } else {
-                    // 매칭에 실패했다면, 선생님이 원인을 눈으로 볼 수 있게 기록해둠
-                    if (!debugLog) {
-                        const sample = currentStudents[0]; // 명단 첫번째 학생
-                        const sName = String(sample.name).replace(/\([^)]*\)/g, '').replace(/\s/g, '');
-                        debugLog = `💡 원인 분석 결과:\n- 컴퓨터가 읽은 엑셀 이름: '${sName}'\n- 올리신 사진 파일명: '${fileNameClean}'\n\n두 글자가 미세하게 달라서 매칭이 안 되고 있습니다!`;
+                        failLogs.push(`[${file.name}] 네트워크 에러: ${e.message}`);
+                        break; 
                     }
                 }
             }
             
-            statusEl.innerText = `✅ 총 ${successCount}장의 사진 매칭 완료!`;
-            
-            if (successCount === 0) {
-                // 0명 매칭일 경우 원인 분석 팝업 띄우기
-                alert(`사진 매칭 실패 (0명)\n\n${debugLog}`);
+            if (failLogs.length > 0) {
+                statusEl.innerText = `❌ 업로드 중 오류 발생`;
+                alert(`🚨 업로드 실패 알림\n\n${failLogs.join('\n')}`);
+            } else if (successCount > 0) {
+                statusEl.innerText = `✅ 총 ${successCount}장의 사진 업로드 완료!`;
+                alert(`사진 업로드 완료! (${successCount}명 성공)\n\n※ 우측 상단의 [💾 명단 최종 저장] 버튼을 꼭 눌러주세요!`);
             } else {
-                alert(`사진 업로드 완료! (${successCount}명 매칭됨)\n\n※ 우측 상단의 [💾 명단 최종 저장] 버튼을 꼭 눌러주세요!`);
+                statusEl.innerText = `❌ 매칭된 학생이 없습니다.`;
+                alert("사진 매칭 실패 (0명)\n엑셀의 이름과 파일명이 너무 달라 매칭을 하지 못했습니다.");
             }
         }
 
+        // 🚨 잃어버렸던 핵심 통역기 함수 부활! 🚨
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+
+        // 파일 드래그 앤 드롭 세팅
         function setupDragAndDrop() {
             const zones = ['dropZone', 'photoDropZone'];
             zones.forEach(id => {
                 const zone = document.getElementById(id);
                 zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('drag-over'); });
-                // 🚨 방금 뻗었던 원인 해결 완료 부분!
-                zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+                zone.addEventListener('dragleave', () => { zone.classList.remove('drag-over'); });
                 zone.addEventListener('drop', (e) => {
                     e.preventDefault();
                     zone.classList.remove('drag-over');
@@ -254,6 +255,7 @@
         
         function handleFileUpload(e) { processExcelFile(e.target.files[0]); }
         
+        // 엑셀 로딩 기능
         function processExcelFile(file) {
             const reader = new FileReader();
             reader.onload = function(e) {
