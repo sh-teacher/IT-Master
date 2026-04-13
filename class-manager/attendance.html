@@ -7,8 +7,9 @@
     <script>if (sessionStorage.getItem("isAllowed") !== "true") location.href = "index.html";</script>
     <style>
         .row-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
-        .desk { min-height: 88px; border: 2px dashed #cbd5e1; border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 4px; background: #f8fafc; position: relative; }
-        .desk-empty { min-height: 88px; background: transparent; }
+        /* 🌟 사진이 들어갈 수 있도록 책상 높이를 120px로 확장 */
+        .desk { min-height: 120px; border: 2px dashed #cbd5e1; border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 4px; background: #f8fafc; position: relative; }
+        .desk-empty { min-height: 120px; background: transparent; }
         .seat-num-label { position: absolute; top: 3px; left: 5px; font-size: 11px; font-weight: 700; color: #94a3b8; z-index: 10; pointer-events: none; }
         
         .card-present { background-color: #ffffff; border-color: #e2e8f0; }
@@ -394,11 +395,21 @@
 
                         const card = document.createElement('div');
                         const statusClass = `card-${attendanceData[stdKey].status}`;
-                        card.className = `student-card w-full h-full flex flex-col items-center justify-center rounded-lg border-2 font-bold text-slate-700 ${statusClass}`;
-                        card.style.height = "62px";
+                        
+                        // 🔥 클래스명에 p-1 (패딩) 추가
+                        card.className = `student-card w-full h-full flex flex-col items-center justify-center rounded-lg border-2 font-bold text-slate-700 p-1 ${statusClass}`;
+                        card.style.minHeight = "110px"; // 사진 공간 확보
+                        
+                        // 🌟 사진이 있으면 <img> 태그, 없으면 큰 숫자(회색 박스) 출력
+                        const photoHtml = std.사진 
+                            ? `<img src="${std.사진}" class="w-12 h-14 object-cover rounded shadow-sm border border-slate-200 mb-1 pointer-events-none">`
+                            : `<div class="w-12 h-14 bg-slate-100 rounded flex items-center justify-center text-slate-300 font-bold text-xl mb-1 border border-slate-200 pointer-events-none shadow-inner">${std.number}</div>`;
+
+                        // 카드 내부 레이아웃 조립
                         card.innerHTML = `
-                            <span class="text-[11px] opacity-70 block mb-0.5 pointer-events-none">${std.class}반 ${std.number}번</span>
-                            <span class="pointer-events-none text-sm">${std.name}</span>
+                            ${photoHtml}
+                            <span class="text-[10px] opacity-70 block pointer-events-none leading-none mb-0.5">${std.class}반 ${std.number}번</span>
+                            <span class="pointer-events-none text-sm leading-tight">${std.name}</span>
                         `;
                         
                         card.onclick = function() { toggleAttendance(card, stdKey); };
@@ -432,7 +443,8 @@
                 student.memo = '';
             }
 
-            card.className = `student-card w-full h-full flex flex-col items-center justify-center rounded-lg border-2 font-bold text-slate-700 card-${student.status}`;
+            // 🔥 변경됨: p-1 추가 (사진과 테두리 사이 여백 유지)
+            card.className = `student-card w-full h-full flex flex-col items-center justify-center rounded-lg border-2 font-bold text-slate-700 p-1 card-${student.status}`;
             updateAbsenceList();
         }
 
