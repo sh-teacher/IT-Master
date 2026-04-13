@@ -101,18 +101,18 @@
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbxUgpimLYy_9K_vZjbxJYtImA4fcz3ZZxfXPvy9WlYXLv1dY-yBA6yrtHeybyAo1v_Vpg/exec";
 
-        // 🌟 선생님 학교 일과표 (분 단위 변환 포함)
+        // 🌟 1. 선생님 학교의 실제 일과 시간표 (08:45 시작 기준)
         const PERIODS = [
-            { id: 1, start: "08:50", end: "09:40", sMin: 8*60+50, eMin: 9*60+40 },
-            { id: 2, start: "09:50", end: "10:40", sMin: 9*60+50, eMin: 10*60+40 },
-            { id: 3, start: "10:50", end: "11:40", sMin: 10*60+50, eMin: 11*60+40 },
-            { id: 4, start: "11:50", end: "12:40", sMin: 11*60+50, eMin: 12*60+40 },
-            { id: 5, start: "13:40", end: "14:30", sMin: 13*60+40, eMin: 14*60+30 },
-            { id: 6, start: "14:40", end: "15:30", sMin: 14*60+40, eMin: 15*60+30 },
+            { id: 1, start: "08:45", end: "09:35", sMin: 8*60+45, eMin: 9*60+35 },
+            { id: 2, start: "09:45", end: "10:35", sMin: 9*60+45, eMin: 10*60+35 },
+            { id: 3, start: "10:45", end: "11:35", sMin: 10*60+45, eMin: 11*60+35 },
+            { id: 4, start: "11:45", end: "12:35", sMin: 11*60+45, eMin: 12*60+35 },
+            { id: 5, start: "13:35", end: "14:25", sMin: 13*60+35, eMin: 14*60+25 },
+            { id: 6, start: "14:35", end: "15:25", sMin: 14*60+35, eMin: 15*60+25 },
             { id: 7, start: "15:40", end: "16:30", sMin: 15*60+40, eMin: 16*60+30 }
         ];
 
-        let todayScheduleMap = {}; // 오늘의 시간표 저장용
+        let todayScheduleMap = {};
 
         window.onload = async function() {
             await loadSchedule();
@@ -168,7 +168,7 @@
             }
         }
 
-        // 🌟 타임라인 핵심 로직
+        // 🌟 2. 타임라인 핵심 로직 수정
         function updateTimelineLogic() {
             const now = new Date();
             const days = ['일', '월', '화', '수', '목', '금', '토'];
@@ -179,65 +179,62 @@
             const progressEl = document.getElementById('timelineProgress');
             const cardsEl = document.getElementById('timelineCards');
 
-            // 주말 체크
             if (currentDay === '토' || currentDay === '일') {
-                statusEl.innerHTML = "🏖️ 신나는 주말입니다!";
+                statusEl.innerHTML = "🏖️ 즐거운 주말입니다!";
                 countdownEl.innerText = "";
                 progressEl.style.width = "100%";
-                cardsEl.innerHTML = '<div class="text-slate-400 font-bold p-4">등록된 일과가 없습니다.</div>';
+                cardsEl.innerHTML = '<div class="text-slate-400 font-bold p-4">주말 일과가 없습니다.</div>';
                 return;
             }
 
             const currentMin = now.getHours() * 60 + now.getMinutes();
-            const startOfDay = 8 * 60 + 30; // 학교 시작 기준 08:30
-            const endOfDay = 16 * 60 + 30;  // 일과 종료 16:30
+            const startOfDay = PERIODS[0].sMin; // 08:45
+            const endOfDay = PERIODS[6].eMin;   // 16:30
 
-            let statusText = "대기 중";
-            let nextEventTime = -1;
+            let statusText = "☕ 일과 대기 중";
+            let nextLessonMin = -1;
             let currentPeriodIdx = -1;
 
-            // 상태 판단 (수업 중? 쉬는 시간? 점심시간?)
-            if (currentMin < PERIODS[0].sMin) {
-                statusText = "🌅 아침조회 대기 중...";
-                nextEventTime = PERIODS[0].sMin;
-            } else if (currentMin >= endOfDay) {
-                statusText = "🏠 모든 일과가 종료되었습니다. 고생하셨습니다!";
-            } else {
-                for (let i = 0; i < PERIODS.length; i++) {
-                    const p = PERIODS[i];
-                    if (currentMin >= p.sMin && currentMin < p.eMin) {
-                        const sub = todayScheduleMap[p.id] || '공강';
-                        statusText = `📝 ${p.id}교시 [${sub}] 진행 중`;
-                        nextEventTime = p.eMin;
-                        currentPeriodIdx = i;
+            // [로직 1] 현재 수업 중인지 확인
+            for (let i = 0; i < PERIODS.length; i++) {
+                const p = PERIODS[i];
+                if (currentMin >= p.sMin && currentMin < p.eMin) {
+                    const sub = todayScheduleMap[p.id];
+                    statusText = sub ? `📝 ${p.id}교시 [${sub}] 수업 중` : `☕ ${p.id}교시 공강 시간`;
+                    currentPeriodIdx = i;
+                    break;
+                }
+            }
+
+            // [로직 2] 다음 "실제 수업" 찾기 (공강 제외)
+            // 현재 시간 이후의 교시들을 훑으면서 todayScheduleMap에 과목이 있는 첫 번째 교시를 찾음
+            for (let i = 0; i < PERIODS.length; i++) {
+                const p = PERIODS[i];
+                if (p.sMin > currentMin) { // 아직 시작 안 한 교시들 중에서
+                    if (todayScheduleMap[p.id]) { // 과목이 등록되어 있다면
+                        nextLessonMin = p.sMin;
                         break;
-                    }
-                    
-                    // 쉬는 시간 또는 점심시간 계산
-                    if (i < PERIODS.length - 1) {
-                        const nextP = PERIODS[i+1];
-                        if (currentMin >= p.eMin && currentMin < nextP.sMin) {
-                            if (nextP.id === 5) {
-                                statusText = "🍱 즐거운 점심시간!";
-                            } else {
-                                statusText = `☕ 쉬는 시간 (${p.id}교시 종료)`;
-                            }
-                            nextEventTime = nextP.sMin;
-                            break;
-                        }
                     }
                 }
             }
 
-            // 카운트다운 계산
-            if (nextEventTime !== -1) {
-                const diff = nextEventTime - currentMin;
-                countdownEl.innerText = `다음 일과까지 ${diff}분`;
-            } else {
-                countdownEl.innerText = "";
+            // [로직 3] 상태 메시지 및 카운트다운 표시
+            if (currentMin < startOfDay) {
+                statusText = "🌅 곧 일과가 시작됩니다.";
+            } else if (currentMin >= endOfDay) {
+                statusText = "🏠 오늘의 모든 일과가 종료되었습니다.";
             }
 
-            // 전체 프로그레스 바 갱신 (08:30 ~ 16:30 기준)
+            statusEl.innerHTML = statusText;
+
+            if (nextLessonMin !== -1) {
+                const diff = nextLessonMin - currentMin;
+                countdownEl.innerText = `다음 수업까지 ${diff}분`;
+            } else {
+                countdownEl.innerText = (currentMin < endOfDay) ? "남은 수업 없음" : "";
+            }
+
+            // [로직 4] 프로그레스 바 (08:45 ~ 16:30 기준)
             let percent = 0;
             if (currentMin >= endOfDay) percent = 100;
             else if (currentMin > startOfDay) {
@@ -245,32 +242,26 @@
             }
             progressEl.style.width = `${percent}%`;
 
-            // 교시 카드 렌더링
+            // [로직 5] 교시 카드 렌더링
             cardsEl.innerHTML = '';
             PERIODS.forEach((p, idx) => {
                 const subject = todayScheduleMap[p.id];
                 const isCurrent = (idx === currentPeriodIdx);
                 const isPassed = (currentMin >= p.eMin);
                 
-                // 카드 스타일 결정
                 let cardClass = "timeline-card flex-1 p-4 rounded-2xl border-2 transition text-center shrink-0 ";
-                let titleHtml = "";
-
+                
                 if (isCurrent) {
                     cardClass += "is-active"; 
                 } else if (isPassed) {
-                    cardClass += "bg-slate-50 border-slate-100 opacity-60"; // 지나간 시간 흐리게
+                    cardClass += "bg-slate-50 border-slate-100 opacity-60";
                 } else {
-                    cardClass += "bg-white border-slate-200"; // 다가올 시간
+                    cardClass += "bg-white border-slate-200";
                 }
 
-                if (subject) {
-                    // 수업 있는 칸 (클릭 시 이동 가능)
-                    titleHtml = `<div class="period-title font-black text-slate-800 text-lg mb-1 cursor-pointer hover:text-blue-600 transition" onclick="location.href='attendance.html?subject=${encodeURIComponent(subject)}'">${subject}</div>`;
-                } else {
-                    // 공강
-                    titleHtml = `<div class="period-title font-bold text-slate-400 text-lg mb-1">공강</div>`;
-                }
+                const titleHtml = subject 
+                    ? `<div class="period-title font-black text-slate-800 text-lg mb-1 cursor-pointer hover:text-blue-600 transition" onclick="location.href='attendance.html?subject=${encodeURIComponent(subject)}'">${subject}</div>`
+                    : `<div class="period-title font-bold text-slate-400 text-lg mb-1">공강</div>`;
 
                 cardsEl.innerHTML += `
                     <div class="${cardClass}">
