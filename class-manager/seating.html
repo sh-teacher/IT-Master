@@ -280,14 +280,19 @@
         document.querySelectorAll('.desk').forEach(desk => {
             const card = desk.querySelector('.student-card');
             const numInput = desk.querySelector('.seat-num-input');
-            if (card) data.push({
-                seatIndex: parseInt(desk.dataset.seatIndex),
-                seatLabel: numInput ? numInput.value : '',
-                grade:  card.dataset.grade,
-                class:  card.dataset.class,
-                number: card.dataset.number,
-                name:   card.dataset.name
-            });
+            const seatLabel = numInput ? numInput.value.trim() : '';
+
+            // 🌟 학생이 있거나, 번호라도 입력된 책상은 모두 저장
+            if (card || seatLabel) {
+                data.push({
+                    seatIndex: parseInt(desk.dataset.seatIndex),
+                    seatLabel: seatLabel,
+                    grade:  card ? card.dataset.grade  : '',
+                    class:  card ? card.dataset.class  : '',
+                    number: card ? card.dataset.number : '',
+                    name:   card ? card.dataset.name   : ''
+                });
+            }
         });
         try {
             const res = await fetch(API_URL, {
