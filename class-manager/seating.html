@@ -290,7 +290,7 @@
                     grade:  card ? card.dataset.grade  : '',
                     class:  card ? card.dataset.class  : '',
                     number: card ? card.dataset.number : '',
-                    name:   card ? card.dataset.name   : ''
+                    name:   card ? card.dataset.name   : '__EMPTY__'  // ← 이 줄만 변경
                 });
             }
         });
