@@ -55,7 +55,7 @@
             background: transparent;
         }
 
-        /* 좌석 번호 인풋 */
+        /* 좌석 번호 인풋 - 빈칸 클릭 시 입력 가능하게 변경 */
         .seat-num-input {
             position: absolute;
             top: 3px;
@@ -73,6 +73,11 @@
         .seat-num-input:focus {
             color: #3b82f6;
             background: #eff6ff;
+            border-radius: 3px;
+        }
+        /* 입력값이 없을 때도 마우스 오버 시 영역을 살짝 표시해주어 클릭 유도 */
+        .seat-num-input:hover:placeholder-shown {
+            background: #f1f5f9;
             border-radius: 3px;
         }
     </style>
@@ -100,7 +105,6 @@
         </div>
 
         <div class="flex gap-8">
-            <!-- 학생 대기열 -->
             <div class="w-1/4 bg-slate-100 rounded-2xl p-4 flex flex-col">
                 <h2 class="text-lg font-bold text-slate-700 mb-4 text-center">학생 대기열</h2>
                 <div id="waitingList" class="flex-1 overflow-y-auto grid grid-cols-2 gap-2 content-start p-2 min-h-[500px] rounded-xl transition-all">
@@ -108,7 +112,6 @@
                 </div>
             </div>
 
-            <!-- 교실 -->
             <div id="classroomContainer" class="w-3/4 flex flex-col gap-5 border-2 border-slate-100 rounded-2xl p-6 bg-white">
                 <div id="board" class="bg-emerald-800 text-white text-center py-4 rounded-xl font-black text-xl shadow-inner">
                     칠 판 (교탁)
@@ -118,14 +121,12 @@
         </div>
     </div>
 
-    <!-- 고스트 카드 -->
     <div id="ghost" class="flex flex-col items-center justify-center bg-white rounded-lg border border-slate-200 font-bold text-slate-700"></div>
 
     <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbxUgpimLYy_9K_vZjbxJYtImA4fcz3ZZxfXPvy9WlYXLv1dY-yBA6yrtHeybyAo1v_Vpg/exec";
 
     // ── 행 구성 정의
-    // desks: 실제 책상 수, empty: 오른쪽 빈칸 수 (전체 열 = desks + empty = 7)
     const ROW_CONFIG = [
         { desks: 6, empty: 1 },  // 1행: 책상6 + 빈칸1
         { desks: 6, empty: 1 },  // 2행: 책상6 + 빈칸1
@@ -161,101 +162,97 @@
         } catch { alert("과목 목록 로드 실패!"); }
     };
 
-    /* ── 책상 생성 ── */
-    function createDesks() {
-        const grid = document.getElementById('classroomGrid');
-        grid.innerHTML = '';
-        let seatIdx = 0;
+    /* ── 책상 생성 (수정완료: 번호 싹 지움) ── */
+    function createDesks() {
+        const grid = document.getElementById('classroomGrid');
+        grid.innerHTML = '';
+        let seatIdx = 0;
 
-        ROW_CONFIG.forEach((rowCfg, rowIdx) => {
-            const rowDiv = document.createElement('div');
-            rowDiv.className = 'row-grid';
-            rowDiv.dataset.rowIndex = rowIdx;
+        ROW_CONFIG.forEach((rowCfg, rowIdx) => {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'row-grid';
+            rowDiv.dataset.rowIndex = rowIdx;
 
-            // 실제 책상
-            for (let c = 0; c < rowCfg.desks; c++) {
-                const desk = document.createElement('div');
-                desk.className = 'desk';
-                desk.dataset.seatIndex = seatIdx;
-                desk.dataset.row = rowIdx;
-                desk.dataset.col = c;
+            for (let c = 0; c < rowCfg.desks; c++) {
+                const desk = document.createElement('div');
+                desk.className = 'desk';
+                desk.dataset.seatIndex = seatIdx;
+                desk.dataset.row = rowIdx;
+                desk.dataset.col = c;
 
-                const numInput = document.createElement('input');
-                numInput.type = 'text';
-                numInput.className = 'seat-num-input';
-                // 🌟 변경된 부분: 기본 번호를 지우고 빈칸으로 설정
-                numInput.value = ''; 
-                numInput.placeholder = '번호'; // (선택) 입력칸 안내
-                numInput.maxLength = 3;
-                numInput.title = '클릭하여 출석부 번호 입력';
-                numInput.addEventListener('mousedown', e => e.stopPropagation());
-                numInput.addEventListener('click', e => e.stopPropagation());
-                desk.appendChild(numInput);
+                const numInput = document.createElement('input');
+                numInput.type = 'text';
+                numInput.className = 'seat-num-input';
+                numInput.value = ''; // 🌟 기본 번호 삭제 완료!
+                numInput.placeholder = ''; // 화면에 아무것도 안보이게 깔끔하게 처리
+                numInput.maxLength = 3;
+                numInput.title = '클릭하여 번호 입력';
+                numInput.addEventListener('mousedown', e => e.stopPropagation());
+                numInput.addEventListener('click', e => e.stopPropagation());
+                desk.appendChild(numInput);
 
-                rowDiv.appendChild(desk);
-                seatIdx++;
-            }
+                rowDiv.appendChild(desk);
+                seatIdx++;
+            }
 
-            // 오른쪽 빈 공백칸
-            for (let e = 0; e < rowCfg.empty; e++) {
-                const empty = document.createElement('div');
-                empty.className = 'desk-empty';
-                rowDiv.appendChild(empty);
-            }
+            for (let e = 0; e < rowCfg.empty; e++) {
+                const empty = document.createElement('div');
+                empty.className = 'desk-empty';
+                rowDiv.appendChild(empty);
+            }
 
-            grid.appendChild(rowDiv);
-        });
-    }
+            grid.appendChild(rowDiv);
+        });
+    }
 
-    /* ── 학생 로드 ── */
-    async function loadStudents() {
-        const subject = document.getElementById('selectedSubject').value;
-        if (!subject) return;
-        const wl = document.getElementById('waitingList');
-        wl.innerHTML = "<div class='col-span-2 text-center text-slate-500 mt-10'>불러오는 중...</div>";
-        
-        // 🌟 화면에 있는 기존 학생 카드와 좌석 번호 모두 초기화
-        document.querySelectorAll('.desk .student-card').forEach(c => c.remove());
-        document.querySelectorAll('.seat-num-input').forEach(input => input.value = '');
+    /* ── 학생 로드 (수정완료: 저장된 번호만 불러옴) ── */
+    async function loadStudents() {
+        const subject = document.getElementById('selectedSubject').value;
+        if (!subject) return;
+        const wl = document.getElementById('waitingList');
+        wl.innerHTML = "<div class='col-span-2 text-center text-slate-500 mt-10'>불러오는 중...</div>";
+        
+        document.querySelectorAll('.desk .student-card').forEach(c => c.remove());
+        // 🌟 과목 변경 시 책상의 모든 번호 입력창도 초기화 (이전 반 데이터 안 섞이게)
+        document.querySelectorAll('.seat-num-input').forEach(input => input.value = '');
 
-        try {
-            const [sr, seatingR] = await Promise.all([
-                fetch(`${API_URL}?type=GET_STUDENTS&subject=${encodeURIComponent(subject)}`),
-                fetch(`${API_URL}?type=GET_SEATING&subject=${encodeURIComponent(subject)}`)
-            ]);
-            const students = await sr.json();
-            const saved    = await seatingR.json();
-            wl.innerHTML   = "";
+        try {
+            const [sr, seatingR] = await Promise.all([
+                fetch(`${API_URL}?type=GET_STUDENTS&subject=${encodeURIComponent(subject)}`),
+                fetch(`${API_URL}?type=GET_SEATING&subject=${encodeURIComponent(subject)}`)
+            ]);
+            const students = await sr.json();
+            const saved    = await seatingR.json();
+            wl.innerHTML   = "";
 
-            if (!students.length) {
-                wl.innerHTML = "<div class='col-span-2 text-center text-red-400 mt-10 font-bold'>저장된 학생이 없습니다!</div>";
-                return;
-            }
-            
-            const desks = document.querySelectorAll('.desk');
+            if (!students.length) {
+                wl.innerHTML = "<div class='col-span-2 text-center text-red-400 mt-10 font-bold'>저장된 학생이 없습니다!</div>";
+                return;
+            }
+            
+            const desks = document.querySelectorAll('.desk');
 
-            // 🌟 1. 서버에 저장되어 있던 커스텀 좌석 번호(seatLabel) 복원하기
-            saved.forEach(seatData => {
-                if (seatData.seatIndex >= 0 && seatData.seatIndex < TOTAL_SEATS) {
-                    const numInput = desks[seatData.seatIndex].querySelector('.seat-num-input');
-                    if (numInput && seatData.seatLabel) {
-                        numInput.value = seatData.seatLabel;
-                    }
-                }
-            });
+            // 🌟 저장되어 있던 커스텀 좌석 번호 불러오기
+            saved.forEach(seatData => {
+                if (seatData.seatIndex >= 0 && seatData.seatIndex < TOTAL_SEATS) {
+                    const numInput = desks[seatData.seatIndex].querySelector('.seat-num-input');
+                    if (numInput && seatData.seatLabel) {
+                        numInput.value = seatData.seatLabel;
+                    }
+                }
+            });
 
-            // 2. 학생 카드 배치하기
-            students.forEach((std, idx) => {
-                const card = makeCard(std, idx);
-                const seat = saved.find(s => s.name === std.name && s.number == std.number);
-                if (seat && seat.seatIndex >= 0 && seat.seatIndex < TOTAL_SEATS) {
-                    desks[seat.seatIndex].appendChild(card);
-                } else {
-                    wl.appendChild(card);
-                }
-            });
-        } catch { alert("데이터 로드 오류"); }
-    }
+            students.forEach((std, idx) => {
+                const card = makeCard(std, idx);
+                const seat = saved.find(s => s.name === std.name && s.number == std.number);
+                if (seat && seat.seatIndex >= 0 && seat.seatIndex < TOTAL_SEATS) {
+                    desks[seat.seatIndex].appendChild(card);
+                } else {
+                    wl.appendChild(card);
+                }
+            });
+        } catch { alert("데이터 로드 오류"); }
+    }
 
     /* ── 카드 생성 ── */
     function makeCard(std, idx) {
@@ -316,28 +313,23 @@
             btn.innerText = '🧑‍🏫 교사위치';
         }
 
-        // 상하반전: 행 순서 뒤집기
         const rows = [...document.querySelectorAll('.row-grid')];
         rows.forEach((row, i) => {
             row.style.order = isTeacherView ? (rows.length - 1 - i) : i;
         });
 
-        // 좌우반전: 각 행 내 칸 순서 뒤집기
         rows.forEach(row => {
-            const cells = [...row.children]; // desk + desk-empty 모두 포함
+            const cells = [...row.children];
             cells.forEach((cell, i) => {
                 cell.style.order = isTeacherView ? (cells.length - 1 - i) : i;
             });
         });
 
-        // 칠판 위치
         document.getElementById('classroomContainer').style.flexDirection =
             isTeacherView ? 'column-reverse' : 'column';
     }
 
-    /* ════════════════════════════════
-       마우스 드래그 앤 드롭
-    ════════════════════════════════ */
+    /* ── 마우스 드래그 앤 드롭 ── */
     function onMouseDown(e) {
         if (e.button !== 0) return;
         e.preventDefault();
@@ -426,25 +418,21 @@
         dnd.active = false; dnd.card = null; dnd.currentOver = null;
     }
 
-    // 🌟 이전(출석 및 수업 일지) 화면으로 돌아가기 (현재 과목 기억)
     function goBackToAttendance() {
-        // 1. 현재 화면의 드롭다운에서 선택된 과목 찾기
         let targetSubject = "";
         const subjectSelect = document.getElementById('selectedSubject');
         
         if (subjectSelect && subjectSelect.value) {
             targetSubject = subjectSelect.value;
         } else {
-            // 2. 드롭다운에 없으면 URL 주소에서 과목 찾기
             const urlParams = new URLSearchParams(window.location.search);
             targetSubject = urlParams.get('subject');
         }
 
-        // 3. 과목을 들고 출석부로 이동!
         if (targetSubject) {
             location.href = `attendance.html?subject=${encodeURIComponent(targetSubject)}`;
         } else {
-            location.href = 'attendance.html'; // 과목을 못 찾았을 경우 기본 출석부로
+            location.href = 'attendance.html';
         }
     }
     </script>
