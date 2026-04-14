@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>출석 및 수업 일지 - Class Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>if (sessionStorage.getItem("isAllowed") !== "true") location.href = "index.html";</script>
+    <style>
+        .row-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; }
+        /* 🌟 사진을 키우기 위해 책상 높이를 더 확보했습니다 */
+        .desk { min-height: 220px; border: 2px dashed #cbd5e1; border-radius: 16px; display: flex; align-items: center; justify-content: center; padding: 6px; background: #f8fafc; position: relative; }
+        .desk-empty { min-height: 220px; background: transparent; }
+        .seat-num-label { position: absolute; top: 5px; left: 8px; font-size: 12px; font-weight: 700; color: #94a3b8; z-index: 10; pointer-events: none; }
+        
+        .card-present { background-color: #ffffff; border-color: #e2e8f0; }
+        .card-absent { background-color: #fef2f2; border-color: #f87171; color: #b91c1c; }
+        .card-late { background-color: #fffbeb; border-color: #fbbf24; color: #b45309; }
+        .student-card { cursor: pointer; transition: all 0.2s; user-select: none; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .student-card:active { transform: scale(0.95); }
+        .student-photo { width: 100%; height: 140px; object-fit: cover; border-radius: 10px; margin-bottom: 8px; border: 1px solid #eee; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen p-6 md:p-10">
+    <div class="max-w-7xl mx-auto bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
+        
+        <div class="flex flex-col gap-4 mb-6 border-b border-slate-200 pb-6">
+            <div class="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-4">
+                <div class="min-w-0 flex-1">
+                    <h1 id="mainTitle" class="text-3xl font-black text-slate-800">📋 출석 및 수업 일지</h1>
+                    <p class="text-slate-500 mt-2 font-medium" id="currentDateTime">불러오는 중...</p>
+                </div>
+                
+                <div class="flex gap-2 items-center flex-wrap justify-end">
+                    <input type="date" id="selectedDate" onchange="updatePeriodDropdown()" class="p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-700 text-sm">
+                    <select id="selectedSubject" onchange="updatePeriodDropdown()" class="p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-700 min-w-[180px] text-sm">
+                        <option value="">과목을 선택하세요...</option>
+                    </select>
+                    <div class="flex items-center gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <input type="checkbox" id="showAllPeriods" onchange="updatePeriodDropdown()" class="w-4 h-4 cursor-pointer accent-blue-600">
+                        <label for="showAllPeriods" class="text-xs font-bold text-slate-600 cursor-pointer">모든 교시</label>
+                    </div>
+                    <select id="selectedPeriod" onchange="loadClassData()" class="p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-blue-600 text-sm">
+                        <option value="">교시 선택</option>
+                    </select>
+                    <button onclick="autoLoadCurrentClass(this)" class="bg-emerald-100 text-emerald-700 px-4 py-3 rounded-xl font-bold hover:bg-emerald-200 transition text-sm">⏰ 현재 수업</button>
+                    <button onclick="openReportModal()" class="bg-indigo-100 text-indigo-700 px-4 py-3 rounded-xl font-bold hover:bg-indigo-200 transition text-sm">📊 누적 현황</button>
+                </div>
+            </div>
+
+            <div class="flex gap-1 mt-4">
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-t-2xl font-bold text-sm">📋 출석 및 수업 일지</button>
+                <button onclick="goToSeating()" class="bg-slate-100 text-slate-500 hover:bg-slate-200 px-8 py-3 rounded-t-2xl font-bold text-sm transition">🪑 좌석 배치 세팅</button>
+            </div>
+        </div>
+
+        <div class="bg-white border-2 border-slate-100 rounded-3xl p-8 mb-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-slate-700">학생 출석판 <span class="text-sm font-normal text-slate-400 ml-2">(사진을 클릭하면 상태가 바뀝니다)</span></h2>
+                <div class="flex items-center gap-6">
+                    <button id="viewToggleBtn" onclick="toggleView()" class="bg-violet-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md">🧑‍🏫 교사 위치 (기본)</button>
+                    <div class="flex gap-4 text-xs font-bold">
+                        <span class="flex items-center gap-1.5"><div class="w-3.5 h-3.5 rounded-full bg-white border-2 border-slate-200"></div> 출석</span>
+                        <span class="flex items-center gap-1.5"><div class="w-3.5 h-3.5 rounded-full bg-red-100 border-2 border-red-400"></div> 결석</span>
+                        <span class="flex items-center gap-1.5"><div class="w-3.5 h-3.5 rounded-full bg-amber-100 border-2 border-amber-400"></div> 지각</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="boardArea" class="flex flex-col gap-4 transition-all duration-300">
+                <div id="board" class="bg-emerald-800 text-white text-center py-4 rounded-2xl font-black text-xl shadow-inner mb-2">칠 판 (교탁)</div>
+                <div id="classroomGrid" class="flex flex-col gap-4"></div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-slate-50 border border-slate-200 rounded-3xl p-6 flex flex-col h-[400px]">
+                <h2 class="text-lg font-bold text-slate-700 mb-4 flex items-center gap-2">📝 수업 일지</h2>
+                <textarea id="classLog" class="flex-1 w-full p-5 rounded-2xl border border-slate-300 focus:border-blue-500 focus:outline-none resize-none text-base" placeholder="오늘의 수업 내용과 진도를 기록하세요."></textarea>
+            </div>
+
+            <div class="flex flex-col gap-4 h-[400px]">
+                <div class="bg-red-50 border border-red-100 rounded-3xl p-6 flex-1 overflow-y-auto shadow-inner">
+                    <h2 class="text-lg font-bold text-red-800 mb-4 flex items-center gap-2">🚨 특이사항 명단</h2>
+                    <ul id="absenceList" class="space-y-3">
+                        <li class="text-sm text-red-400 text-center py-10">과목을 선택해주세요.</li>
+                    </ul>
+                </div>
+                <button onclick="saveDailyRecord()" id="saveBtn" class="w-full bg-blue-600 text-white px-6 py-5 rounded-2xl font-black text-xl hover:bg-blue-700 transition shadow-xl">
+                    💾 출석 및 일지 저장하기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbxUgpimLYy_9K_vZjbxJYtImA4fcz3ZZxfXPvy9WlYXLv1dY-yBA6yrtHeybyAo1v_Vpg/exec";
+        const ROW_CONFIG = [{ desks: 6, empty: 1 }, { desks: 6, empty: 1 }, { desks: 7, empty: 0 }, { desks: 7, empty: 0 }];
+        const TOTAL_SEATS = ROW_CONFIG.reduce((a, r) => a + r.desks, 0);
+        let attendanceData = {}, fullSchedule = [], isTeacherView = true;
+
+        window.onload = async function () {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            document.getElementById('selectedDate').value = `${year}-${month}-${day}`;
+            
+            updateDateTime();
+            setInterval(updateDateTime, 60000); 
+            createDesks();
+            try {
+                const ts = Date.now();
+                const [subRes, schRes] = await Promise.all([
+                    fetch(`${API_URL}?type=GET_SUBJECTS&t=${ts}`),
+                    fetch(`${API_URL}?type=GET_SCHEDULE&t=${ts}`)
+                ]);
+                const subjects = await subRes.json();
+                fullSchedule = await schRes.json(); 
+                const sel = document.getElementById('selectedSubject');
+                subjects.forEach(s => {
+                    const o = document.createElement('option');
+                    o.value = s.fullName; o.innerText = s.fullName;
+                    sel.appendChild(o);
+                });
+                const urlParams = new URLSearchParams(window.location.search);
+                const targetSubject = urlParams.get('subject');
+                if(targetSubject) { sel.value = targetSubject; updatePeriodDropdown(); }
+            } catch { console.log("데이터 로드 실패"); }
+        };
+
+        function updateDateTime() {
+            const now = new Date();
+            const days = ['일', '월', '화', '수', '목', '금', '토'];
+            document.getElementById('currentDateTime').innerText = `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 (${days[now.getDay()]}) ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+        }
+
+        function updatePeriodDropdown() {
+            const subject = document.getElementById('selectedSubject').value;
+            const dateVal = document.getElementById('selectedDate').value;
+            const periodSelect = document.getElementById('selectedPeriod');
+            const showAll = document.getElementById('showAllPeriods').checked; 
+            const mainTitle = document.getElementById('mainTitle');
+            mainTitle.innerText = subject ? `📋 ${subject}` : `📋 출석 및 수업 일지`;
+            periodSelect.innerHTML = '';
+            if (!subject || !dateVal) {
+                periodSelect.innerHTML = '<option value="">과목/날짜 선택</option>';
+                periodSelect.disabled = true;
+                return;
+            }
+            const dateObj = new Date(dateVal);
+            const days = ['일', '월', '화', '수', '목', '금', '토'];
+            const dayStr = days[dateObj.getDay()];
+            const matchedPeriods = fullSchedule.filter(s => s.subject === subject && s.day === dayStr);
+            periodSelect.disabled = false;
+            if (showAll) {
+                for (let i = 1; i <= 7; i++) periodSelect.innerHTML += `<option value="${i}">${i}교시</option>`;
+            } else if (matchedPeriods.length > 0) {
+                matchedPeriods.sort((a, b) => a.period - b.period);
+                matchedPeriods.forEach(p => periodSelect.innerHTML += `<option value="${p.period}">${p.period}교시</option>`);
+            } else {
+                periodSelect.innerHTML = `<option value="">${dayStr}요일 수업 없음</option>`;
+                periodSelect.disabled = true;
+            }
+            loadClassData();
+        }
+
+        function createDesks() {
+            const grid = document.getElementById('classroomGrid');
+            grid.innerHTML = '';
+            let seatIdx = 0;
+            ROW_CONFIG.forEach((rowCfg) => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'row-grid';
+                for (let c = 0; c < rowCfg.desks; c++) {
+                    const desk = document.createElement('div');
+                    desk.className = 'desk';
+                    desk.dataset.seatIndex = seatIdx;
+                    const numLabel = document.createElement('span');
+                    numLabel.className = 'seat-num-label';
+                    numLabel.dataset.seatIndex = seatIdx;  // ← 나중에 라벨 찾기 위해 추가
+                    numLabel.innerText = '';               // ← 기본값 비움
+                    desk.appendChild(numLabel);
+                    rowDiv.appendChild(desk);
+                    seatIdx++;
+                }
+                for (let e = 0; e < rowCfg.empty; e++) {
+                    const empty = document.createElement('div');
+                    empty.className = 'desk-empty';
+                    rowDiv.appendChild(empty);
+                }
+                grid.appendChild(rowDiv);
+            });
+            applyView();
+        }
+
+        function toggleView() { isTeacherView = !isTeacherView; applyView(); }
+        function applyView() {
+            const btn = document.getElementById('viewToggleBtn');
+            const boardArea = document.getElementById('boardArea');
+            const rows = [...document.querySelectorAll('.row-grid')];
+            if (isTeacherView) {
+                btn.className = "bg-violet-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md";
+                btn.innerHTML = "🧑‍🏫 교사 위치 (기본)";
+                boardArea.style.flexDirection = 'column-reverse'; 
+            } else {
+                btn.className = "bg-slate-100 text-slate-600 px-5 py-2.5 rounded-xl font-bold text-xs shadow-md";
+                btn.innerHTML = "🧑‍🎓 학생 시점";
+                boardArea.style.flexDirection = 'column'; 
+            }
+            rows.forEach((row, i) => {
+                row.style.order = isTeacherView ? (rows.length - 1 - i) : i;
+                const cells = [...row.children];
+                cells.forEach((cell, j) => cell.style.order = isTeacherView ? (cells.length - 1 - j) : j);
+            });
+        }
+
+        function convertGoogleDriveUrl(url) {
+            if (!url) return "";
+            let fileId = "";
+            const m1 = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+            if (m1) fileId = m1[1];
+            const m2 = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+            if (m2) fileId = m2[1];
+            return fileId ? `${API_URL}?type=GET_IMAGE&id=${fileId}` : url;
+        }
+
+        function getStudentKey(std) { return `${std.class}_${std.number}_${std.name}`.replace(/\s/g, ''); }
+
+        async function loadClassData() {
+            const subject = document.getElementById('selectedSubject').value;
+            const targetDate = document.getElementById('selectedDate').value;
+            const period = document.getElementById('selectedPeriod').value;
+            if (!subject || !targetDate || !period) return;
+            attendanceData = {};
+            document.getElementById('classLog').value = '데이터 불러오는 중...';
+            document.querySelectorAll('.desk').forEach(d => {
+                const label = d.querySelector('.seat-num-label');
+                d.innerHTML = '';
+                if(label) d.appendChild(label);
+            });
+
+            try {
+                const ts = Date.now();
+                const [sr, seatingR, recordR] = await Promise.all([
+                    fetch(`${API_URL}?type=GET_STUDENTS&subject=${encodeURIComponent(subject)}&t=${ts}`),
+                    fetch(`${API_URL}?type=GET_SEATING&subject=${encodeURIComponent(subject)}&t=${ts}`),
+                    fetch(`${API_URL}?type=GET_DAILY_RECORD&subject=${encodeURIComponent(subject)}&date=${targetDate}&period=${period}&t=${ts}`)
+                ]);
+                const students = await sr.json();
+                const savedSeating = await seatingR.json();
+                // 🌟 좌석 라벨 적용
+                savedSeating.forEach(seat => {
+                    if (seat.seatLabel) {
+                        const label = document.querySelector(`.seat-num-label[data-seat-index="${seat.seatIndex}"]`);
+                        if (label) label.innerText = seat.seatLabel;
+                    }
+                });
+                const recordData = await recordR.json();
+                document.getElementById('classLog').value = recordData.success ? recordData.data.log : '';
+                const desks = document.querySelectorAll('.desk');
+
+                students.forEach((std) => {
+                    const cleanStdName = String(std.name || "").replace(/\([^)]*\)/g, '').replace(/\s/g, '');
+                    const stdKey = getStudentKey(std);
+                    const seat = savedSeating.find(s => parseInt(s.number) === parseInt(std.number) && String(s.name || "").replace(/\([^)]*\)/g, '').replace(/\s/g, '') === cleanStdName);
+                    
+                    if (seat && seat.seatIndex < desks.length) {
+                        attendanceData[stdKey] = { name: std.name, class: std.class, number: std.number, status: 'present', memo: '' };
+                        const photoUrl = convertGoogleDriveUrl(std.사진 || std.photo || "");
+                        const card = document.createElement('div');
+                        card.className = `student-card w-full h-full flex flex-col items-center justify-center rounded-xl border-2 font-bold p-2 card-present`;
+
+                        let photoContent = photoUrl ? `<img src="" class="student-photo" style="background:#f1f5f9;">` : `<div class="student-photo bg-slate-100 flex items-center justify-center text-slate-300 text-3xl font-black">${std.number}</div>`;
+
+                        card.innerHTML = `${photoContent}<span class="text-[11px] opacity-60 leading-none mb-1">${std.class}-${std.number}</span><span class="text-base leading-tight">${std.name}</span>`;
+                        
+                        if (photoUrl) {
+                            fetch(photoUrl).then(r => r.text()).then(base64 => {
+                                const img = card.querySelector('img');
+                                if (img) img.src = `data:image/jpeg;base64,${base64}`;
+                            });
+                        }
+                        card.onclick = () => toggleAttendance(card, stdKey);
+                        desks[seat.seatIndex].appendChild(card);
+                    }
+                });
+                if(recordData.success && recordData.data.attendanceIssues) {
+                    recordData.data.attendanceIssues.forEach(issue => {
+                        const key = getStudentKey(issue);
+                        if(attendanceData[key]) {
+                            attendanceData[key].status = issue.status;
+                            attendanceData[key].memo = issue.memo;
+                            const card = [...document.querySelectorAll('.student-card')].find(c => c.innerHTML.includes(issue.name));
+                            if(card) card.className = card.className.replace(/card-\w+/, `card-${issue.status}`);
+                        }
+                    });
+                }
+                updateAbsenceList();
+            } catch (e) { alert("데이터 로드 중 오류 발생"); }
+        }
+
+        function toggleAttendance(card, stdKey) {
+            const s = attendanceData[stdKey];
+            if (s.status === 'present') { s.status = 'absent'; s.memo = prompt(`[결석] 사유 입력:`, "질병결석") || "사유 미입력"; }
+            else if (s.status === 'absent') { s.status = 'late'; s.memo = prompt(`[지각] 사유 입력:`, "지각") || "사유 미입력"; }
+            else { s.status = 'present'; s.memo = ''; }
+            card.className = `student-card w-full h-full flex flex-col items-center justify-center rounded-xl border-2 font-bold p-2 card-${s.status}`;
+            updateAbsenceList();
+        }
+
+        function updateAbsenceList() {
+            const list = document.getElementById('absenceList');
+            list.innerHTML = '';
+            let hasIssue = false;
+            Object.values(attendanceData).forEach(std => {
+                if (std.status !== 'present') {
+                    hasIssue = true;
+                    const li = document.createElement('li');
+                    li.className = `p-4 rounded-2xl text-sm font-bold border ${std.status === 'absent' ? 'bg-red-100 text-red-800 border-red-200' : 'bg-amber-50 text-amber-800 border-amber-200'}`;
+                    li.innerHTML = `<div class="flex justify-between items-center mb-1"><span>${std.class}반 ${std.number}번 ${std.name}</span><span class="text-xs px-2 py-1 bg-white rounded-lg">${std.status==='absent'?'❌ 결석':'⚠️ 지각'}</span></div><div class="text-xs font-normal opacity-80">사유: ${std.memo}</div>`;
+                    list.appendChild(li);
+                }
+            });
+            if (!hasIssue) list.innerHTML = '<li class="text-sm text-red-400 text-center py-10">현재 결석 및 지각생이 없습니다. 🎉</li>';
+        }
+
+        async function saveDailyRecord() {
+            const subject = document.getElementById('selectedSubject').value;
+            const period = document.getElementById('selectedPeriod').value;
+            if (!subject || !period) return alert("과목과 교시를 선택하세요.");
+            const btn = document.getElementById('saveBtn');
+            btn.innerText = "저장 중..."; btn.disabled = true;
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ type: "SAVE_DAILY_RECORD", payload: {
+                        date: document.getElementById('selectedDate').value,
+                        period, subject, log: document.getElementById('classLog').value,
+                        attendanceIssues: Object.values(attendanceData).filter(std => std.status !== 'present')
+                    }})
+                });
+                const r = await res.json();
+                if(r.success) alert("✅ 저장이 완료되었습니다!");
+            } catch { alert("네트워크 오류 발생"); } finally {
+                btn.innerText = "💾 출석 및 일지 저장하기"; btn.disabled = false;
+            }
+        }
+
+        function goToSeating() {
+            const sub = document.getElementById('selectedSubject').value;
+            location.href = sub ? `seating.html?subject=${encodeURIComponent(sub)}` : 'seating.html';
+        }
+
+        async function openReportModal() {
+            const sub = document.getElementById('selectedSubject').value;
+            if (!sub) return alert("과목을 선택해주세요.");
+            document.getElementById('reportTitle').innerText = sub;
+            document.getElementById('reportContent').innerHTML = '<div class="text-center p-20 text-slate-500 font-bold animate-pulse">데이터 집계 중...</div>';
+            document.getElementById('reportModal').classList.remove('hidden');
+            try {
+                const res = await fetch(`${API_URL}?type=GET_SUBJECT_REPORT&subject=${encodeURIComponent(sub)}&t=${Date.now()}`);
+                const result = await res.json();
+                if (!result.success || result.data.length === 0) {
+                    document.getElementById('reportContent').innerHTML = '<div class="text-center p-20 font-bold">기록이 없습니다.</div>';
+                } else renderReport(result.data);
+            } catch { document.getElementById('reportContent').innerHTML = '오류 발생'; }
+        }
+        function closeReportModal() { document.getElementById('reportModal').classList.add('hidden'); }
+        function renderReport(records) {
+            const stats = {};
+            let logsHTML = '<div class="space-y-4">';
+            records.forEach(r => {
+                logsHTML += `<div class="bg-white p-5 rounded-2xl border shadow-sm"><div class="font-black mb-2">${r.date} <span class="text-blue-500">${r.period}교시</span></div><p class="text-sm text-slate-600 whitespace-pre-wrap">${r.log || '내용 없음'}</p></div>`;
+                r.issues.forEach(i => {
+                    const k = getStudentKey(i);
+                    if (!stats[k]) stats[k] = { ...i, absent: 0, late: 0, memos: [] };
+                    if (i.status === 'absent') stats[k].absent++; else stats[k].late++;
+                    stats[k].memos.push(`<div class="text-[11px] font-medium">[${r.date.slice(5)}] ${i.status==='absent'?'❌':'⚠️'} ${i.memo||'사유없음'}</div>`);
+                });
+            });
+            logsHTML += '</div>';
+            let studentsHTML = '<div class="grid grid-cols-1 xl:grid-cols-2 gap-4">';
+            Object.values(stats).sort((a,b)=>a.class-b.class || a.number-b.number).forEach(s => {
+                studentsHTML += `<div class="bg-white p-4 rounded-2xl border shadow-sm"><div class="flex justify-between font-bold text-sm"><span>${s.class}-${s.number} ${s.name}</span><div class="flex flex-col text-[10px]">${s.absent?`<span class="text-red-600">결석 ${s.absent}</span>`:''}${s.late?`<span class="text-amber-600">지각 ${s.late}</span>`:''}</div></div><div class="mt-2 space-y-1 border-t pt-2">${s.memos.join('')}</div></div>`;
+            });
+            studentsHTML += '</div>';
+            document.getElementById('reportContent').innerHTML = `<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full"><div class="flex flex-col overflow-hidden"><h3 class="font-black mb-4">📅 수업 일지 히스토리</h3><div class="overflow-y-auto flex-1">${logsHTML}</div></div><div class="flex flex-col overflow-hidden"><h3 class="font-black text-red-800 mb-4">🚨 누적 통계</h3><div class="bg-slate-100 p-4 rounded-2xl overflow-y-auto flex-1">${studentsHTML}</div></div></div>`;
+        }
+        // 🌟 새롭게 추가할 '현재 수업 자동 로드' 함수
+        function autoLoadCurrentClass(btn) {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const time = hours * 100 + minutes; // 예: 9시 30분 -> 930
+            
+            let currentPeriod = 0;
+            
+            // ⏰ 학교 일반적인 시간표 기준 세팅 (학교에 맞게 시간을 수정해서 사용하세요)
+            // ⏰ 선생님 학교 시간표 기준 세팅 (쉬는/준비 시간 포함)
+            if (time >= 830 && time < 945) currentPeriod = 1;        // 08:30(조회) ~ 09:44 (1교시 종료 후 쉬는시간까지)
+            else if (time >= 945 && time < 1045) currentPeriod = 2;  // 09:45(2교시 시작) ~ 10:44
+            else if (time >= 1045 && time < 1145) currentPeriod = 3; // 10:45(3교시 시작) ~ 11:44
+            else if (time >= 1145 && time < 1235) currentPeriod = 4; // 11:45(4교시 시작) ~ 12:35 (종료 및 중식 시작)
+            // 🍽️ 12:35 ~ 13:24 까지는 점심시간으로 인식하여 "수업 시간이 아닙니다" 알림 발생
+            else if (time >= 1325 && time < 1435) currentPeriod = 5; // 13:25(점심시간 끝무렵 준비) ~ 14:34
+            else if (time >= 1435 && time < 1525) currentPeriod = 6; // 14:35(6교시 시작) ~ 15:24
+            else if (time >= 1525 && time <= 1630) currentPeriod = 7; // 15:25(청소 및 준비) ~ 16:30 (7교시 종료)
+            
+            if (currentPeriod === 0) {
+                alert("현재 진행 중인 수업 시간이 아닙니다.");
+                return;
+            }
+            
+            const days = ['일', '월', '화', '수', '목', '금', '토'];
+            const todayStr = days[now.getDay()];
+            
+            // 전체 스케줄에서 오늘 요일과 현재 교시에 맞는 수업 찾기
+            const currentClassInfo = fullSchedule.find(s => s.day === todayStr && parseInt(s.period) === currentPeriod);
+            
+            if (currentClassInfo) {
+                document.getElementById('selectedSubject').value = currentClassInfo.subject;
+                updatePeriodDropdown(); // 과목에 맞는 교시 목록 업데이트
+                document.getElementById('selectedPeriod').value = currentClassInfo.period;
+                loadClassData(); // 해당 수업 데이터 불러오기
+                
+                // 버튼 피드백 효과
+                if(btn) {
+                    const originalText = btn.innerText;
+                    btn.innerText = "✅ 로드 완료!";
+                    setTimeout(() => btn.innerText = originalText, 1500);
+                }
+            } else {
+                alert(`오늘 ${currentPeriod}교시에 배정된 수업 스케줄을 찾을 수 없습니다.`);
+            }
+        }
+    </script>
+
+    <div id="reportModal" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center hidden backdrop-blur-sm">
+        <div class="bg-white w-11/12 max-w-6xl h-[85vh] rounded-[40px] shadow-2xl flex flex-col overflow-hidden">
+            <div class="bg-slate-800 text-white px-8 py-6 flex justify-between items-center">
+                <h2 class="text-2xl font-black">📊 <span id="reportTitle">과목</span> 누적 현황판</h2>
+                <button onclick="closeReportModal()" class="text-3xl font-bold">&times;</button>
+            </div>
+            <div id="reportContent" class="flex-1 p-8 bg-slate-50 overflow-hidden"></div>
+        </div>
+    </div>
+</body>
+</html>
