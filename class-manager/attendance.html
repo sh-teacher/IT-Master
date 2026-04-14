@@ -8,37 +8,36 @@
     <script>if (sessionStorage.getItem("isAllowed") !== "true") location.href = "index.html";</script>
     <style>
         /* ── 공통 ── */
-        /* minmax(0, 1fr)를 주어 내부 텍스트가 길어도 그리드가 터지지 않도록 고정 */
         .row-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
         @media (min-width: 768px) { .row-grid { gap: 10px; } }
 
-        /* ── 출석판 책상 (기본: 텍스트 모드) ── */
+        /* ── 출석판 책상 (기본: 텍스트(이름) 모드) ── */
         .desk-attend {
-            min-height: 44px; /* 모바일 극대화 압축 */
+            min-height: 48px; /* 모바일 극대화 압축 */
             border: 2px dashed #cbd5e1; border-radius: 6px;
             display: flex; align-items: center; justify-content: center;
             padding: 2px; background: #f8fafc; position: relative;
             transition: all 0.2s;
-            overflow: hidden; /* 책상 밖으로 삐져나감 방지 */
+            overflow: hidden;
         }
-        .desk-attend-empty { min-height: 44px; background: transparent; transition: all 0.2s; }
+        .desk-attend-empty { min-height: 48px; background: transparent; transition: all 0.2s; }
 
         @media (min-width: 768px) { 
-            .desk-attend { min-height: 64px; border-radius: 12px; padding: 4px; }
-            .desk-attend-empty { min-height: 64px; }
+            .desk-attend { min-height: 80px; border-radius: 12px; padding: 4px; } /* PC 세로 높이 증가 */
+            .desk-attend-empty { min-height: 80px; }
         }
 
         /* 📸 사진 모드 활성화 시 커지는 속성 */
-        .photo-mode .desk-attend { min-height: 110px; border-radius: 8px; padding: 4px; } 
-        .photo-mode .desk-attend-empty { min-height: 110px; }
+        .photo-mode .desk-attend { min-height: 120px; border-radius: 8px; padding: 4px; } 
+        .photo-mode .desk-attend-empty { min-height: 120px; }
         @media (min-width: 768px) {
-            .photo-mode .desk-attend { min-height: 200px; padding: 6px; border-radius: 16px; }
-            .photo-mode .desk-attend-empty { min-height: 200px; }
+            .photo-mode .desk-attend { min-height: 220px; padding: 6px; border-radius: 16px; }
+            .photo-mode .desk-attend-empty { min-height: 220px; }
         }
 
         /* 사진 영역 (기본 숨김) */
-        .student-photo-wrapper { display: none; width: 100%; height: 60px; margin-bottom: 4px; }
-        @media (min-width: 768px) { .student-photo-wrapper { height: 120px; margin-bottom: 8px; } }
+        .student-photo-wrapper { display: none; width: 100%; height: 70px; margin-bottom: 4px; }
+        @media (min-width: 768px) { .student-photo-wrapper { height: 130px; margin-bottom: 8px; } }
         
         .photo-mode .student-photo-wrapper.has-img { display: block; }
         .photo-mode .student-photo-wrapper.no-img { display: flex; }
@@ -71,11 +70,11 @@
         .card-present { background-color: #ffffff; border-color: #e2e8f0; }
         .card-absent  { background-color: #fef2f2; border-color: #f87171; color: #b91c1c; }
         .card-late    { background-color: #fffbeb; border-color: #fbbf24; color: #b45309; }
-        .student-card-attend { cursor: pointer; transition: all 0.2s; user-select: none; box-shadow: 0 2px 4px rgba(0,0,0,0.05); width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;}
+        .student-card-attend { cursor: pointer; transition: all 0.2s; user-select: none; box-shadow: 0 2px 4px rgba(0,0,0,0.05); width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .student-card-attend:active { transform: scale(0.95); }
 
         /* 세팅판 드래그 카드 */
-        .student-card-seat { cursor: grab; user-select: none; -webkit-user-select: none; touch-action: none; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .student-card-seat { cursor: grab; user-select: none; -webkit-user-select: none; touch-action: none; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;}
         #waitingList.over { background-color: #f0fdf4 !important; outline: 2px dashed #22c55e; outline-offset: -2px; }
         
         #ghost { position: fixed; pointer-events: none; z-index: 9999; opacity: 0.88; transform: rotate(2deg) scale(1.05); box-shadow: 0 8px 24px rgba(0,0,0,0.18); display: none; }
@@ -84,9 +83,9 @@
         .tab-panel { display: none; }
         .tab-panel.active { display: block; }
         
-        /* 가로 스크롤 시 숨겨진 영역 확보 */
+        /* 🌟 가로 스크롤 시 숨겨진 영역 확보 (500px로 대폭 늘려 모바일 텍스트 잘림 및 사진 찌그러짐 방지) */
         .classroom-scroll-wrapper { width: 100%; overflow-x: auto; padding-bottom: 10px; }
-        .classroom-min-width { min-width: 320px; }
+        .classroom-min-width { min-width: 500px; }
         @media (min-width: 768px) { .classroom-min-width { min-width: 600px; } }
     </style>
 </head>
@@ -125,11 +124,11 @@
         </div>
     </div>
 
-    <div id="panelAttend" class="tab-panel active pb-24 md:pb-0">
+    <div id="panelAttend" class="tab-panel active">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
             
-            <div class="lg:col-span-2 bg-white border-2 border-slate-100 rounded-xl md:rounded-3xl p-4 md:p-6 flex flex-col">
-                <div class="flex flex-col xl:flex-row justify-between items-center mb-4 gap-3">
+            <div class="lg:col-span-2 bg-white border-2 border-slate-100 rounded-xl md:rounded-3xl p-4 md:p-6 flex flex-col h-full">
+                <div class="flex flex-col xl:flex-row justify-between items-center mb-4 gap-3 shrink-0">
                     <h2 class="text-lg md:text-xl font-bold text-slate-700 text-center xl:text-left w-full xl:w-auto">
                         학생 출석판 <span class="block xl:inline text-[11px] md:text-sm font-normal text-slate-400 xl:ml-2">(터치 시 상태 변경)</span>
                     </h2>
@@ -146,33 +145,34 @@
                     </div>
                 </div>
                 
-                <div class="classroom-scroll-wrapper flex-1">
-                    <div id="boardArea" class="flex flex-col gap-2 md:gap-4 transition-all duration-300 classroom-min-width">
-                        <div id="board" class="bg-emerald-800 text-white text-center py-2 md:py-4 rounded-lg md:rounded-2xl font-black text-sm md:text-xl shadow-inner mb-1">칠 판 (교탁)</div>
-                        <div id="classroomGrid" class="flex flex-col gap-1 md:gap-4"></div>
+                <div class="classroom-scroll-wrapper flex-1 flex flex-col">
+                    <div id="boardArea" class="flex flex-col gap-2 md:gap-4 transition-all duration-300 classroom-min-width flex-1 justify-between">
+                        <div id="board" class="bg-emerald-800 text-white text-center py-2 md:py-4 rounded-lg md:rounded-2xl font-black text-sm md:text-xl shadow-inner shrink-0">칠 판 (교탁)</div>
+                        <div id="classroomGrid" class="flex flex-col gap-1 md:gap-4 flex-1"></div>
                     </div>
                 </div>
             </div>
 
-            <div class="lg:col-span-1 flex flex-col gap-4 md:gap-6">
-                <div class="bg-slate-50 border border-slate-200 rounded-2xl md:rounded-3xl p-4 md:p-6 flex flex-col h-[200px] md:h-auto md:flex-1">
+            <div class="lg:col-span-1 flex flex-col gap-4 md:gap-6 h-full">
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl md:rounded-3xl p-4 md:p-6 flex flex-col flex-1 min-h-[200px]">
                     <h2 class="text-base md:text-lg font-bold text-slate-700 mb-3">📝 수업 일지</h2>
                     <textarea id="classLog" class="flex-1 w-full p-3 md:p-5 rounded-xl md:rounded-2xl border border-slate-300 focus:border-blue-500 focus:outline-none resize-none text-sm md:text-base" placeholder="오늘의 수업 내용과 진도를 기록하세요."></textarea>
                 </div>
-                <div class="bg-red-50 border border-red-100 rounded-2xl md:rounded-3xl p-4 md:p-6 flex flex-col h-[250px] md:h-[350px]">
+                
+                <div class="bg-red-50 border border-red-100 rounded-2xl md:rounded-3xl p-4 md:p-6 flex flex-col shrink-0 h-[200px] md:h-[220px]">
                     <h2 class="text-base md:text-lg font-bold text-red-800 mb-3">🚨 특이사항 명단</h2>
                     <ul id="absenceList" class="flex-1 overflow-y-auto space-y-2 md:space-y-3 shadow-inner p-1">
                         <li class="text-xs md:text-sm text-red-400 text-center py-5 md:py-10">과목을 선택해주세요.</li>
                     </ul>
                 </div>
                 
-                <button onclick="saveDailyRecord()" id="saveAttendBtnPc" class="hidden md:block w-full bg-blue-600 text-white px-4 py-5 rounded-2xl font-black text-xl hover:bg-blue-700 transition shadow-lg">
+                <button onclick="saveDailyRecord()" id="saveAttendBtnPc" class="hidden md:block w-full bg-blue-600 text-white px-4 py-5 rounded-2xl font-black text-xl hover:bg-blue-700 transition shadow-lg mt-auto shrink-0">
                     💾 출석 및 일지 저장
                 </button>
             </div>
         </div>
 
-        <div class="fixed bottom-4 left-4 right-4 z-[100] md:hidden">
+        <div class="sticky bottom-4 z-50 md:hidden mt-6 pb-2">
             <button onclick="saveDailyRecord()" id="saveAttendBtnMobile" class="w-full bg-blue-600 text-white px-4 py-4 rounded-2xl font-black text-lg hover:bg-blue-700 transition shadow-[0_10px_25px_-5px_rgba(37,99,235,0.6)]">
                 💾 출석 및 일지 저장
             </button>
@@ -458,11 +458,11 @@ async function loadClassData() {
                     ? `<div class="student-photo-wrapper has-img"><img src="" class="student-photo" style="background:#f1f5f9;"></div>`
                     : `<div class="student-photo-wrapper no-img bg-slate-100 items-center justify-center text-slate-300 text-xl md:text-2xl font-black rounded-md border border-slate-200 w-full">${std.number}</div>`;
                 
-                // 이름이 너무 길면 잘리도록(truncate) 보호 적용
+                // 🌟 이름이 길어도 줄바꿈되거나 최소 너비에서 안전하게 보이도록 세팅
                 card.innerHTML = `${photoContent}
                     <div class="flex flex-col items-center justify-center w-full mt-0.5 md:mt-0 overflow-hidden">
                         <span class="text-[9px] md:text-[11px] opacity-60 leading-none mb-0.5 md:mb-1 whitespace-nowrap">${std.class}-${std.number}</span>
-                        <span class="text-[11px] md:text-sm font-black leading-tight truncate w-full px-0.5 text-center block" style="max-width: 100%;">${std.name}</span>
+                        <span class="text-[11px] md:text-sm font-black leading-tight w-full px-0.5 text-center break-keep" style="max-width: 100%;">${std.name}</span>
                     </div>`;
                 
                 if (photoUrl) {
@@ -521,7 +521,6 @@ async function saveDailyRecord() {
     const period  = document.getElementById('selectedPeriod').value;
     if (!subject || !period) return alert("과목과 교시를 선택하세요.");
     
-    // 🌟 PC/모바일 양쪽 버튼 모두 제어
     const btnPc = document.getElementById('saveAttendBtnPc');
     const btnMobile = document.getElementById('saveAttendBtnMobile');
     if(btnPc) { btnPc.innerText = "저장 중..."; btnPc.disabled = true; }
