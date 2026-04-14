@@ -2,77 +2,89 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>학생 명단 관리 - Class Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>if (sessionStorage.getItem("isAllowed") !== "true") location.href = "index.html";</script>
     <style>
         .drag-over { border-color: #3b82f6 !important; background-color: #eff6ff !important; }
-        .photo-preview { width: 40px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd; }
-        .no-photo { width: 40px; height: 50px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; border-radius: 4px; border: 1px dashed #cbd5e1; font-size: 18px; }
+        .photo-preview { width: 36px; height: 48px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd; }
+        @media (min-width: 768px) { .photo-preview { width: 40px; height: 50px; } }
+        .no-photo { width: 36px; height: 48px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; border-radius: 4px; border: 1px dashed #cbd5e1; font-size: 16px; }
+        @media (min-width: 768px) { .no-photo { width: 40px; height: 50px; font-size: 18px; } }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen p-6 md:p-10">
+<body class="bg-slate-50 min-h-screen p-4 md:p-6 lg:p-10 pb-24 md:pb-10">
     <div class="max-w-7xl mx-auto">
-        <header class="mb-8 flex justify-between items-end">
+        <header class="mb-6 md:mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-2 mt-2 md:mt-0">
             <div>
-                <h1 class="text-3xl font-black mb-2 text-slate-800">👥 학생 명단 및 사진 관리</h1>
-                <p class="text-slate-500 font-medium">나이스 명단 업로드 후 학생 사진을 한꺼번에 올려주세요.</p>
+                <h1 class="text-2xl md:text-3xl font-black mb-1 md:mb-2 text-slate-800">👥 학생 명단 관리</h1>
+                <p class="text-xs md:text-sm text-slate-500 font-medium">나이스 명단 업로드 후 사진을 매칭해주세요.</p>
             </div>
-            <button onclick="location.href='setup.html'" class="text-slate-500 hover:text-slate-800 font-bold underline transition">이전으로</button>
+            <button onclick="window.parent.document.querySelector('a[href=\'setup.html\']') ? window.parent.document.querySelector('a[href=\'setup.html\']').click() : location.href='setup.html'" class="hidden md:block text-slate-500 hover:text-slate-800 font-bold underline transition text-sm">
+                설정으로 이동
+            </button>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
-            <div class="lg:col-span-2 space-y-6">
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-                    <label class="block text-sm font-bold text-slate-700 mb-3">1. 대상 과목 선택</label>
-                    <select id="selectedSubject" onchange="loadStudentsForSubject()" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-slate-700 focus:border-blue-500 focus:outline-none">
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 md:gap-8">
+            
+            <div class="lg:col-span-2 space-y-5 md:space-y-6">
+                <div class="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl shadow-sm border border-slate-200">
+                    <label class="block text-xs md:text-sm font-bold text-slate-700 mb-2 md:mb-3">1. 대상 과목 선택</label>
+                    <select id="selectedSubject" onchange="loadStudentsForSubject()" class="w-full p-3 md:p-4 bg-slate-50 border-2 border-slate-100 rounded-xl md:rounded-2xl font-bold text-slate-700 focus:border-blue-500 focus:outline-none text-sm md:text-base">
                         <option value="">과목 로딩 중...</option>
                     </select>
                 </div>
 
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-                    <label class="block text-sm font-bold text-slate-700 mb-3">2. 명단 업로드 (나이스 양식)</label>
-                    <div id="dropZone" class="border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center transition hover:bg-slate-50 cursor-pointer" onclick="document.getElementById('fileInput').click()">
-                        <div class="text-4xl mb-2">📑</div>
-                        <p class="text-slate-600 font-bold text-sm">엑셀 파일을 끌어오거나 클릭</p>
+                <div class="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl shadow-sm border border-slate-200">
+                    <label class="block text-xs md:text-sm font-bold text-slate-700 mb-2 md:mb-3">2. 엑셀 명단 업로드 (나이스 양식)</label>
+                    <div id="dropZone" class="border-2 border-dashed border-slate-300 rounded-xl md:rounded-2xl p-6 md:p-8 text-center transition hover:bg-slate-50 cursor-pointer active:bg-slate-100" onclick="document.getElementById('fileInput').click()">
+                        <div class="text-3xl md:text-4xl mb-2">📑</div>
+                        <p class="text-slate-600 font-bold text-xs md:text-sm">엑셀 파일을 끌어오거나 <span class="text-blue-500 underline">터치</span></p>
                         <input type="file" id="fileInput" accept=".xlsx, .xls" class="hidden" onchange="handleFileUpload(event)">
                     </div>
                 </div>
 
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-blue-200 bg-blue-50/20">
-                    <label class="block text-sm font-bold text-blue-800 mb-3">3. 사진 일괄 매칭 (JPG/PNG 파일들)</label>
-                    <div id="photoDropZone" class="border-2 border-dashed border-blue-300 rounded-2xl p-8 text-center transition hover:bg-blue-50 cursor-pointer" onclick="document.getElementById('photoInput').click()">
-                        <div class="text-4xl mb-2">📸</div>
-                        <p class="text-blue-700 font-bold text-sm">준비한 사진 파일들을 몽땅 드래그!</p>
-                        <p class="text-[11px] text-blue-500 mt-2">※ 파일명 예시: 3104.jpg 또는 3104김도연.png<br>(학번과 이름으로 자동 매칭됩니다)</p>
+                <div class="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl shadow-sm border border-blue-200 bg-blue-50/20">
+                    <label class="block text-xs md:text-sm font-bold text-blue-800 mb-2 md:mb-3">3. 사진 일괄 매칭 (JPG/PNG)</label>
+                    <div id="photoDropZone" class="border-2 border-dashed border-blue-300 rounded-xl md:rounded-2xl p-6 md:p-8 text-center transition hover:bg-blue-50 cursor-pointer active:bg-blue-100" onclick="document.getElementById('photoInput').click()">
+                        <div class="text-3xl md:text-4xl mb-2">📸</div>
+                        <p class="text-blue-700 font-bold text-xs md:text-sm">학생 사진을 <span class="underline">터치해서 선택</span>하세요</p>
+                        <p class="text-[10px] md:text-[11px] text-blue-500 mt-2 leading-relaxed">※ 파일명 예시: 3104.jpg 또는 3104김도연.png<br>(학번과 이름으로 자동 매칭됩니다)</p>
                         <input type="file" id="photoInput" multiple accept="image/*" class="hidden" onchange="handlePhotoUpload(event)">
                     </div>
-                    <div id="uploadStatus" class="mt-3 text-xs font-bold text-center"></div>
+                    <div id="uploadStatus" class="mt-3 text-[10px] md:text-xs font-bold text-center break-keep text-blue-600"></div>
                 </div>
             </div>
 
-            <div class="lg:col-span-3 bg-white p-6 rounded-3xl shadow-sm border border-slate-200 flex flex-col h-[800px]">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-black text-slate-800">📋 학생 명단 <span id="studentCount" class="text-blue-600 ml-2">0명</span></h2>
-                    <button onclick="saveStudentsToServer()" id="saveBtn" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-blue-700 transition">💾 명단 최종 저장</button>
+            <div class="lg:col-span-3 bg-white p-4 md:p-6 rounded-2xl md:rounded-3xl shadow-sm border border-slate-200 flex flex-col h-[400px] md:h-[750px] relative">
+                <div class="flex justify-between items-center mb-3 md:mb-4">
+                    <h2 class="text-base md:text-lg font-black text-slate-800">📋 학생 명단 <span id="studentCount" class="text-blue-600 ml-1 md:ml-2">0명</span></h2>
+                    <button onclick="saveStudentsToServer()" id="saveBtnPc" class="hidden md:block bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-blue-700 transition">💾 명단 최종 저장</button>
                 </div>
 
                 <div class="flex-1 overflow-y-auto border border-slate-200 rounded-xl">
                     <table class="w-full text-center border-collapse">
                         <thead class="bg-slate-100 sticky top-0 z-10">
                             <tr>
-                                <th class="p-3 text-xs font-bold text-slate-500">사진</th>
-                                <th class="p-3 text-xs font-bold text-slate-500">학번/이름</th>
-                                <th class="p-3 text-xs font-bold text-slate-500">관리</th>
+                                <th class="p-2 md:p-3 text-[11px] md:text-xs font-bold text-slate-500">사진</th>
+                                <th class="p-2 md:p-3 text-[11px] md:text-xs font-bold text-slate-500">학번/이름</th>
+                                <th class="p-2 md:p-3 text-[11px] md:text-xs font-bold text-slate-500">관리</th>
                             </tr>
                         </thead>
                         <tbody id="studentTableBody" class="divide-y divide-slate-100">
-                            <tr><td colspan="3" class="p-10 text-slate-400">과목을 선택해주세요.</td></tr>
+                            <tr><td colspan="3" class="p-8 md:p-10 text-slate-400 text-sm md:text-base">과목을 선택해주세요.</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+        </div>
+
+        <div class="fixed bottom-4 left-4 right-4 z-50 md:hidden">
+            <button onclick="saveStudentsToServer()" id="saveBtnMobile" class="w-full bg-blue-600 text-white px-4 py-4 rounded-2xl font-black text-lg shadow-[0_10px_25px_-5px_rgba(37,99,235,0.6)] hover:bg-blue-700 transition active:scale-95 transform">
+                💾 명단 최종 저장
+            </button>
         </div>
     </div>
 
@@ -95,7 +107,7 @@
             const subject = document.getElementById('selectedSubject').value;
             if (!subject) return;
             const tbody = document.getElementById('studentTableBody');
-            tbody.innerHTML = '<tr><td colspan="3" class="p-10 font-bold animate-pulse text-blue-600">데이터 로드 중...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="3" class="p-10 text-sm font-bold animate-pulse text-blue-600">데이터 로드 중...</td></tr>';
             try {
                 const res = await fetch(`${API_URL}?type=GET_STUDENTS&subject=${encodeURIComponent(subject)}&t=${Date.now()}`);
                 currentStudents = await res.json();
@@ -112,26 +124,27 @@
 
             currentStudents.forEach((std, idx) => {
                 const photoHtml = std.사진 ? `<img src="${std.사진}" class="photo-preview mx-auto shadow-sm">` : `<div class="no-photo mx-auto">👤</div>`;
-                const displayName = std.name ? std.name : '<span class="text-red-500">(이름 인식 실패)</span>';
+                const displayName = std.name ? std.name : '<span class="text-red-500 text-xs">(인식 실패)</span>';
                 
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                        <td class="p-3">${photoHtml}</td>
-                        <td class="p-3 text-left">
-                            <div class="font-bold text-slate-800">${displayName}</div>
-                            <div class="text-[10px] text-slate-400">${std.grade || '?'}학년 ${std.class}반 ${std.number}번</div>
+                        <td class="p-2 md:p-3 w-16 md:w-20">${photoHtml}</td>
+                        <td class="p-2 md:p-3 text-left">
+                            <div class="font-bold text-slate-800 text-xs md:text-base">${displayName}</div>
+                            <div class="text-[9px] md:text-[10px] text-slate-400 mt-0.5">${std.grade || '?'}학년 ${std.class}반 ${std.number}번</div>
                         </td>
-                        <td class="p-3"><button onclick="deleteStd(${idx})" class="text-red-400 font-bold text-xs hover:text-red-600 px-2 py-1 bg-red-50 rounded">삭제</button></td>
+                        <td class="p-2 md:p-3 w-14 md:w-20">
+                            <button onclick="deleteStd(${idx})" class="text-red-400 font-bold text-[10px] md:text-xs hover:text-red-600 px-2 py-1.5 bg-red-50 rounded-lg w-full">삭제</button>
+                        </td>
                     </tr>
                 `;
             });
             
             if(currentStudents.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" class="p-10 text-slate-400">등록된 학생이 없습니다.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="3" class="p-10 text-slate-400 text-sm">등록된 학생이 없습니다.</td></tr>';
             }
         }
 
-        // 🌟 사진 매칭 및 업로드 실행 (에러 알림 포함)
         async function handlePhotoUpload(event) {
             const files = event.target.files;
             if (!files.length) return;
@@ -174,9 +187,7 @@
                 });
 
                 if (targetIdx !== -1) {
-                    statusEl.innerText = `⏳ [${file.name}] 구글 드라이브로 업로드 중...`;
-                    
-                    // 👉 통역기 함수(toBase64)를 호출해서 이미지를 글자로 바꿈!
+                    statusEl.innerText = `⏳ [${file.name}] 업로드 중...`;
                     const base64 = await toBase64(file); 
                     
                     try {
@@ -207,11 +218,11 @@
                                 failLogs.push(`[${file.name}] 백엔드 에러: ${result.msg}`);
                             }
                         } catch (e) {
-                            failLogs.push(`[${file.name}] 서버 통신 실패! 구글 스크립트 '새 버전 배포'를 다시 해주세요.`);
+                            failLogs.push(`[${file.name}] 서버 통신 실패!`);
                             break; 
                         }
                     } catch (e) {
-                        failLogs.push(`[${file.name}] 네트워크 에러: ${e.message}`);
+                        failLogs.push(`[${file.name}] 네트워크 에러`);
                         break; 
                     }
                 }
@@ -221,15 +232,14 @@
                 statusEl.innerText = `❌ 업로드 중 오류 발생`;
                 alert(`🚨 업로드 실패 알림\n\n${failLogs.join('\n')}`);
             } else if (successCount > 0) {
-                statusEl.innerText = `✅ 총 ${successCount}장의 사진 업로드 완료!`;
-                alert(`사진 업로드 완료! (${successCount}명 성공)\n\n※ 우측 상단의 [💾 명단 최종 저장] 버튼을 꼭 눌러주세요!`);
+                statusEl.innerText = `✅ 총 ${successCount}장 매칭 및 업로드 완료!`;
+                alert(`사진 업로드 완료! (${successCount}명 성공)\n\n※ 화면 하단의 [💾 명단 최종 저장] 버튼을 꼭 눌러주세요!`);
             } else {
                 statusEl.innerText = `❌ 매칭된 학생이 없습니다.`;
-                alert("사진 매칭 실패 (0명)\n엑셀의 이름과 파일명이 너무 달라 매칭을 하지 못했습니다.");
+                alert("사진 매칭 실패 (0명)\n엑셀의 이름과 파일명이 너무 달라 매칭하지 못했습니다.");
             }
         }
 
-        // 🚨 잃어버렸던 핵심 통역기 함수 부활! 🚨
         const toBase64 = file => new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -237,7 +247,6 @@
             reader.onerror = error => reject(error);
         });
 
-        // 파일 드래그 앤 드롭 세팅
         function setupDragAndDrop() {
             const zones = ['dropZone', 'photoDropZone'];
             zones.forEach(id => {
@@ -255,7 +264,6 @@
         
         function handleFileUpload(e) { processExcelFile(e.target.files[0]); }
         
-        // 엑셀 로딩 기능
         function processExcelFile(file) {
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -292,14 +300,24 @@
         
         async function saveStudentsToServer() {
             const subject = document.getElementById('selectedSubject').value;
-            if (!subject) return alert("과목 선택 필수");
-            const btn = document.getElementById('saveBtn');
-            btn.disabled = true; btn.innerText = "저장 중...";
+            if (!subject) return alert("과목을 선택해주세요.");
+            
+            // PC용 버튼과 모바일용 버튼 둘 다 상태 변경
+            const btnPc = document.getElementById('saveBtnPc');
+            const btnMobile = document.getElementById('saveBtnMobile');
+            
+            if (btnPc) { btnPc.disabled = true; btnPc.innerText = "저장 중..."; }
+            if (btnMobile) { btnMobile.disabled = true; btnMobile.innerText = "저장 중..."; }
+            
             try {
                 await fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "SAVE_STUDENTS", payload: { subject, students: currentStudents } }) });
-                alert("서버 저장 완료!");
-            } catch { alert("저장 실패"); }
-            finally { btn.disabled = false; btn.innerText = "💾 명단 최종 저장"; }
+                alert("✅ 명단이 성공적으로 저장되었습니다!");
+            } catch { 
+                alert("저장 실패. 네트워크를 확인해주세요."); 
+            } finally { 
+                if (btnPc) { btnPc.disabled = false; btnPc.innerText = "💾 명단 최종 저장"; }
+                if (btnMobile) { btnMobile.disabled = false; btnMobile.innerText = "💾 명단 최종 저장"; }
+            }
         }
     </script>
 </body>
