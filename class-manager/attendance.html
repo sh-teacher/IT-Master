@@ -177,7 +177,8 @@
                     desk.dataset.seatIndex = seatIdx;
                     const numLabel = document.createElement('span');
                     numLabel.className = 'seat-num-label';
-                    numLabel.innerText = seatIdx + 1;
+                    numLabel.dataset.seatIndex = seatIdx;  // ← 나중에 라벨 찾기 위해 추가
+                    numLabel.innerText = '';               // ← 기본값 비움
                     desk.appendChild(numLabel);
                     rowDiv.appendChild(desk);
                     seatIdx++;
@@ -247,6 +248,13 @@
                 ]);
                 const students = await sr.json();
                 const savedSeating = await seatingR.json();
+                // 🌟 좌석 라벨 적용
+                savedSeating.forEach(seat => {
+                    if (seat.seatLabel) {
+                        const label = document.querySelector(`.seat-num-label[data-seat-index="${seat.seatIndex}"]`);
+                        if (label) label.innerText = seat.seatLabel;
+                    }
+                });
                 const recordData = await recordR.json();
                 document.getElementById('classLog').value = recordData.success ? recordData.data.log : '';
                 const desks = document.querySelectorAll('.desk');
