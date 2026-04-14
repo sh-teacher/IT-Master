@@ -2,17 +2,17 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SH 교과관리시스템</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-100 flex h-screen overflow-hidden text-slate-800 relative">
 
-    <div id="loginOverlay" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center">
-        <div class="bg-white p-10 rounded-3xl shadow-2xl w-96 flex flex-col items-center">
+    <div id="loginOverlay" class="fixed inset-0 bg-slate-900 z-[60] flex items-center justify-center p-4">
+        <div class="bg-white p-8 md:p-10 rounded-3xl shadow-2xl w-full max-w-sm flex flex-col items-center">
             <div class="text-5xl mb-4">🏫</div>
-            <h2 class="text-2xl font-black text-slate-800 mb-2">SH 교과관리시스템</h2>
-            <p class="text-sm text-slate-500 mb-8">관리자 비밀번호를 입력해주세요</p>
+            <h2 class="text-xl md:text-2xl font-black text-slate-800 mb-2 text-center">SH 교과관리시스템</h2>
+            <p class="text-xs md:text-sm text-slate-500 mb-8 text-center">관리자 비밀번호를 입력해주세요</p>
             
             <input type="password" id="adminPw" placeholder="비밀번호" 
                    class="w-full p-4 bg-slate-50 border-2 border-slate-200 rounded-xl mb-4 text-center font-bold text-lg focus:border-blue-500 focus:outline-none"
@@ -25,49 +25,57 @@
         </div>
     </div>
 
-    <aside class="w-72 bg-slate-900 text-slate-300 flex flex-col h-full shadow-2xl z-20">
-        <div class="p-6 border-b border-slate-700">
-            <h1 class="text-xl font-black text-white flex items-center gap-2">
-                <span>🏫</span> SH 교과관리시스템
+    <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/50 z-30 hidden transition-opacity md:hidden"></div>
+
+    <aside id="sidebar" class="fixed md:relative inset-y-0 left-0 z-40 w-64 md:w-72 bg-slate-900 text-slate-300 flex flex-col h-full shadow-2xl transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
+        <div class="p-5 md:p-6 border-b border-slate-700 flex justify-between items-center">
+            <h1 class="text-lg md:text-xl font-black text-white flex items-center gap-2">
+                <span>🏫</span> SH 교과관리
             </h1>
+            <button onclick="toggleSidebar()" class="md:hidden text-slate-400 hover:text-white text-2xl font-bold">&times;</button>
         </div>
 
         <nav class="flex-1 overflow-y-auto p-4 space-y-2" id="menuNav">
-            <a href="dashboard.html" target="mainFrame" class="block px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition font-bold text-slate-200 bg-slate-800">
+            <a href="dashboard.html" target="mainFrame" class="menu-link block px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition font-bold text-slate-200 bg-slate-800">
                 🏠 홈 (대시보드)
             </a>
-            <a href="setup.html" target="mainFrame" class="block px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition font-bold">
+            <a href="setup.html" target="mainFrame" class="menu-link block px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition font-bold">
                 ⚙️ 교과 환경 설정
             </a>
-            <a href="students.html" target="mainFrame" class="block px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition font-bold">
+            <a href="students.html" target="mainFrame" class="menu-link block px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition font-bold">
                 👥 학생 명단 관리
             </a>
             
             <div class="pt-6 pb-2">
-                <p class="px-4 text-xs font-black text-slate-500 uppercase tracking-wider">나의 교과목 (자동 로드)</p>
+                <p class="px-4 text-[10px] md:text-xs font-black text-slate-500 uppercase tracking-wider">나의 교과목 (자동 로드)</p>
             </div>
             
             <div id="dynamicMenu" class="space-y-1">
                 </div>
         </nav>
 
-        <div class="p-4 border-t border-slate-700 text-sm text-slate-500 flex justify-between items-center">
-            <p>ⓒ 2026 SH 교과관리시스템</p>
-            <button onclick="logout()" class="hover:text-white transition">로그아웃</button>
+        <div class="p-4 border-t border-slate-700 text-xs md:text-sm text-slate-500 flex justify-between items-center">
+            <p>ⓒ 2026 SH</p>
+            <button onclick="logout()" class="hover:text-white transition font-bold">로그아웃</button>
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col h-full relative">
-        <header class="bg-white h-16 border-b border-slate-200 flex items-center justify-between px-8 shadow-sm z-10">
-            <h2 class="font-bold text-xl text-slate-700" id="headerTitle">대시보드</h2>
-            <div class="flex items-center gap-4">
-                <span class="bg-blue-50 text-blue-600 px-4 py-1.5 rounded-full font-bold text-sm tracking-wide" id="realTimeClock">
+    <main class="flex-1 flex flex-col h-full relative w-full overflow-hidden">
+        <header class="bg-white h-14 md:h-16 border-b border-slate-200 flex items-center px-4 md:px-8 shadow-sm z-10 w-full">
+            <button onclick="toggleSidebar()" class="md:hidden mr-3 text-slate-600 text-2xl focus:outline-none hover:text-blue-600 transition">
+                ☰
+            </button>
+            
+            <h2 class="font-bold text-lg md:text-xl text-slate-700 flex-1 truncate" id="headerTitle">대시보드</h2>
+            
+            <div class="flex items-center gap-2 md:gap-4 ml-2">
+                <span class="bg-blue-50 text-blue-600 px-3 md:px-4 py-1.5 rounded-full font-bold text-xs md:text-sm tracking-wide whitespace-nowrap" id="realTimeClock">
                     00:00:00
                 </span>
             </div>
         </header>
 
-        <div class="flex-1 overflow-hidden bg-slate-50 relative">
+        <div class="flex-1 w-full h-full bg-slate-50 relative overflow-hidden">
             <iframe name="mainFrame" id="mainFrame" src="" class="w-full h-full border-none"></iframe>
         </div>
     </main>
@@ -100,7 +108,6 @@
                 if(data.success) {
                     sessionStorage.setItem("isAllowed", "true");
                     document.getElementById('loginOverlay').style.display = 'none';
-                    // 로그인 성공 시 앱 초기화 실행
                     initializeApp();
                 } else {
                     alert("비밀번호가 틀렸습니다.");
@@ -109,7 +116,7 @@
             } catch(e) {
                 alert("서버와 통신할 수 없습니다.");
             } finally {
-                btn.innerText = "시스템 접속";
+                btn.innerText = "접속하기";
                 btn.disabled = false;
             }
         }
@@ -119,14 +126,24 @@
             location.reload();
         }
 
-        // 🔥 로그인 직후에 실행되는 초기화 함수
+        // 🔥 모바일용 사이드바 토글 기능
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            sidebar.classList.toggle('-translate-x-full');
+            if (sidebar.classList.contains('-translate-x-full')) {
+                overlay.classList.add('hidden');
+            } else {
+                overlay.classList.remove('hidden');
+            }
+        }
+
         async function initializeApp() {
             loadSubjectsMenu();
             
-            // 현재 수업 자동 띄우기를 시도합니다.
             const isAutoLoaded = await checkScheduleAndAutoLoad();
             
-            // 만약 현재 진행 중인 수업이 없다면, 기본으로 대시보드를 띄워줍니다!
             if (!isAutoLoaded) {
                 document.getElementById('mainFrame').src = "dashboard.html";
                 document.getElementById('headerTitle').innerText = "홈 (대시보드)";
@@ -134,13 +151,21 @@
 
             setInterval(updateClock, 1000);
             updateClock();
+            
+            // 기존 고정 메뉴들에 대해서도 클릭 이벤트 적용 (모바일 닫힘 처리)
+            attachMenuClickEvents();
         }
 
         function updateClock() {
             const now = new Date();
-            const timeString = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            // 스마트폰처럼 너비가 좁은 환경(innerWidth < 768)에서는 초를 숨기고 시:분만 표시할 수도 있지만 
+            // 여기서는 깔끔하게 나오도록 조절했습니다.
+            const isMobile = window.innerWidth < 768;
+            const timeOptions = { hour: '2-digit', minute: '2-digit', second: isMobile ? undefined : '2-digit' };
+            const timeString = now.toLocaleTimeString('ko-KR', timeOptions);
             const dateString = now.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', weekday: 'short' });
-            document.getElementById('realTimeClock').innerText = `${dateString} ${timeString}`;
+            
+            document.getElementById('realTimeClock').innerText = isMobile ? `${timeString}` : `${dateString} ${timeString}`;
         }
 
         async function loadSubjectsMenu() {
@@ -156,7 +181,6 @@
                     return;
                 }
 
-                // 📌 [추가] 교과목별 시간표 데이터 매핑
                 const scheduleData = {
                     "인공지능기초I (3-8)": "월1 수1",
                     "인공지능기초H (아름반)": "화2 목2",
@@ -166,37 +190,24 @@
                     "교육학J (3-2)": "화4 수3"
                 };
 
-                // 📌 [추가] 오늘 요일 구하기
                 const days = ['일','월','화','수','목','금','토'];
-                const todayStr = days[new Date().getDay()]; // 예: '화'
+                const todayStr = days[new Date().getDay()];
 
-                // 1. 과목 데이터에 시간표 문자열 및 오늘 교시 정보(정렬용) 추가
                 subjects.forEach(sub => {
                     sub.scheduleStr = scheduleData[sub.fullName] || "";
-                    
-                    let todayPeriod = 99; // 오늘 수업이 없는 과목은 맨 아래로 보내기 위한 기본값
-                    
-                    // 정규식을 사용해 오늘 요일이 포함되어 있으면 뒤의 숫자(교시)를 추출
-                    // (예: "금 2" 처럼 띄어쓰기가 있어도 대응할 수 있도록 \s* 추가)
+                    let todayPeriod = 99; 
                     const regex = new RegExp(todayStr + "\\s*(\\d+)");
                     const match = sub.scheduleStr.match(regex);
-                    
-                    if (match && match[1]) {
-                        todayPeriod = parseInt(match[1], 10);
-                    }
-                    
+                    if (match && match[1]) { todayPeriod = parseInt(match[1], 10); }
                     sub.todayPeriod = todayPeriod;
                 });
 
-                // 2. 오늘 진행하는 교시 순서대로 정렬 (오름차순)
                 subjects.sort((a, b) => a.todayPeriod - b.todayPeriod);
 
-                // 3. 정렬된 순서대로 메뉴 렌더링
                 subjects.forEach(sub => {
                     const groupDiv = document.createElement('div');
                     groupDiv.className = "mb-1 px-2";
                     
-                    // 오늘 수업이 있는지 여부에 따라 색상 및 뱃지 다르게 표시
                     const isToday = sub.todayPeriod !== 99;
                     const dotColor = isToday ? "bg-emerald-400" : "bg-slate-500";
                     const titleColor = isToday ? "text-emerald-300" : "text-slate-300";
@@ -211,7 +222,7 @@
                                 <span class="text-sm font-bold ${titleColor} subject-title">${sub.fullName}</span>
                                 ${badgeHtml}
                             </div>
-                            <div class="pl-4 text-xs text-slate-400 font-normal tracking-wide">
+                            <div class="pl-4 text-xs text-slate-400 font-normal tracking-wide truncate">
                                 ${sub.scheduleStr}
                             </div>
                         </a>
@@ -219,20 +230,7 @@
                     menuContainer.appendChild(groupDiv);
                 });
 
-                // 메뉴 클릭 시 활성화 디자인 처리 및 상단 헤더 텍스트 변경
-                const links = document.querySelectorAll('nav a');
-                links.forEach(link => {
-                    link.addEventListener('click', function() {
-                        if(this.classList.contains('cursor-not-allowed')) return;
-                        links.forEach(l => l.classList.remove('bg-slate-800', 'text-white'));
-                        this.classList.add('bg-slate-800', 'text-white');
-                        
-                        // 상단 대시보드 타이틀 변경 (과목명만 깔끔하게 추출)
-                        const titleSpan = this.querySelector('.subject-title');
-                        const titleText = titleSpan ? titleSpan.innerText : this.innerText.replace(/[^가-힣a-zA-Z\s]/g, '').trim();
-                        document.getElementById('headerTitle').innerText = titleText;
-                    });
-                });
+                attachMenuClickEvents();
 
             } catch (e) {
                 document.getElementById('dynamicMenu').innerHTML = '<p class="px-4 text-sm text-red-400">메뉴 로드 실패</p>';
@@ -240,7 +238,35 @@
             }
         }
 
-        // 🔥 자동 로드 판별 후 결과를 반환하도록 수정
+        // 메뉴 클릭 시 UI 처리 묶음 함수
+        function attachMenuClickEvents() {
+            const links = document.querySelectorAll('.menu-link');
+            links.forEach(link => {
+                // 이벤트 중복 방지를 위해 기존 이벤트 클리어 후 재등록
+                link.replaceWith(link.cloneNode(true));
+            });
+
+            // 클론된 노드를 다시 선택
+            const newLinks = document.querySelectorAll('.menu-link');
+            newLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if(this.classList.contains('cursor-not-allowed')) return;
+                    
+                    newLinks.forEach(l => l.classList.remove('bg-slate-800', 'text-white'));
+                    this.classList.add('bg-slate-800', 'text-white');
+                    
+                    const titleSpan = this.querySelector('.subject-title');
+                    const titleText = titleSpan ? titleSpan.innerText : this.innerText.replace(/[^가-힣a-zA-Z0-9\s()]/g, '').trim();
+                    document.getElementById('headerTitle').innerText = titleText;
+
+                    // 🌟 모바일 화면일 경우 메뉴 클릭 시 자동으로 닫히게 설정
+                    if (window.innerWidth < 768) {
+                        toggleSidebar();
+                    }
+                });
+            });
+        }
+
         async function checkScheduleAndAutoLoad() {
             try {
                 const response = await fetch(`${API_URL}?type=GET_SCHEDULE`);
@@ -258,9 +284,9 @@
                     const frame = document.getElementById('mainFrame');
                     frame.src = `attendance.html?subject=${encodeURIComponent(currentClass.subject)}`;
                     document.getElementById('headerTitle').innerText = "현재 수업: " + currentClass.subject;
-                    return true; // 수업이 있어서 화면을 바꿨다고 알려줌
+                    return true; 
                 }
-                return false; // 수업이 없음
+                return false; 
             } catch (e) { 
                 console.log("시간표 없음"); 
                 return false;
