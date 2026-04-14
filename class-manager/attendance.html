@@ -247,6 +247,7 @@ const TOTAL_SEATS = ROW_CONFIG.reduce((a, r) => a + r.desks, 0);
 let attendanceData = {}, fullSchedule = [], isTeacherView = true, isSeatTeacherView = false;
 let currentTab = 'attend';
 let currentSubject = ""; // 🌟 선택된 과목을 저장할 전역 변수
+let isPhotoView = false; // 📸 사진 모드 상태를 기억할 변수 (이 줄을 추가해주세요!)
 
 function switchTab(tab) {
     currentTab = tab;
