@@ -91,14 +91,37 @@
         .classroom-min-width { min-width: 500px; }
         @media (min-width: 768px) { .classroom-min-width { min-width: 600px; } }
         /* ── 인쇄 전용 스타일 ── */
+        /* ── 인쇄 전용 스타일 ── */
         @media print {
-            body * { visibility: hidden; } /* 전체 숨김 */
-            #reportModal, #reportModal * { visibility: visible; } /* 모달만 보임 */
-            #reportModal { position: absolute; left: 0; top: 0; width: 100%; background: white; }
-            #reportModal button { display: none; } /* 닫기/인쇄 버튼 숨김 */
-            #reportContent { height: auto !important; overflow: visible !important; }
-            .lg:overflow-y-auto { overflow: visible !important; height: auto !important; }
-            .bg-slate-900/60 { background: white !important; } /* 배경 투명하게 */
+            /* 1. 모달창을 제외한 모든 배경 화면 요소를 공간까지 완전 삭제 */
+            body > *:not(#reportModal) { display: none !important; }
+            
+            /* 2. 모달창의 수직 중앙 정렬(Flex)을 풀고, 맨 위로 붙임 */
+            #reportModal { 
+                position: relative !important; 
+                display: block !important; 
+                background: white !important; 
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            
+            /* 3. 모달 내부 껍데기의 고정 높이(90vh), 모서리 둥글기, 그림자 제거 */
+            #reportModal > div {
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                height: auto !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+            }
+
+            /* 4. 스크롤바 해제 (내용이 길어도 다음 장으로 자연스럽게 넘어가도록 설정) */
+            #reportContent, #reportContent div { 
+                height: auto !important; 
+                overflow: visible !important; 
+            }
+
+            /* 5. 인쇄/닫기 버튼 숨김 */
+            #reportModal button { display: none !important; }
         }
     </style>
 </head>
