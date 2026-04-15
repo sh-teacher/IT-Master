@@ -262,7 +262,9 @@ function switchTab(tab) {
     // 🌟 모바일 하단 저장 버튼 표시 제어 (출석 탭에서만 보이게)
     const mobSave = document.getElementById('mobileSaveWrapper');
     if(mobSave) {
-        mobSave.style.display = tab === 'attend' ? 'block' : 'none';
+        // 출석 탭: 인라인 스타일 제거해서 CSS(md:hidden)가 알아서 처리하게
+        // 좌석 탭: 강제로 none
+        mobSave.style.display = tab === 'attend' ? '' : 'none';
     }
 
     if (tab === 'seat') {
