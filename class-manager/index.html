@@ -257,7 +257,7 @@
                     
                     const titleSpan = this.querySelector('.subject-title');
                     const titleText = titleSpan ? titleSpan.innerText : this.innerText.replace(/[^가-힣a-zA-Z0-9\s()]/g, '').trim();
-                    document.getElementById('headerTitle').innerText = "titleText";
+                    document.getElementById('headerTitle').innerText = titleText;
 
                     // 🌟 모바일 화면일 경우 메뉴 클릭 시 자동으로 닫히게 설정
                     if (window.innerWidth < 768) {
