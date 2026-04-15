@@ -120,6 +120,15 @@
             </div>
         </div>
 
+        <div id="classProgressBanner" class="hidden w-full bg-blue-50 border border-blue-200 rounded-xl p-3 md:p-4 mt-2 mb-2 shadow-sm transition-all duration-500">
+            <div class="flex justify-between items-end mb-2">
+                <span id="classProgressText" class="text-xs md:text-sm font-bold text-blue-800 tracking-tight"></span>
+                <span id="classProgressTimeText" class="text-xs md:text-sm font-black text-blue-600"></span>
+            </div>
+            <div class="w-full bg-blue-200/50 rounded-full h-2 md:h-3 overflow-hidden shadow-inner">
+                <div id="classProgressBar" class="bg-blue-600 h-full rounded-full transition-all duration-1000 ease-linear" style="width: 100%;"></div>
+            </div>
+        </div>
         <div class="flex gap-1 mt-2 md:mt-4 w-full">
             <button id="tabBtnAttend" onclick="switchTab('attend')" class="flex-1 bg-blue-600 text-white px-2 py-3 rounded-t-xl md:rounded-t-2xl font-bold text-xs md:text-sm transition">📋 출석 / 일지</button>
             <button id="tabBtnSeat"   onclick="switchTab('seat')"   class="flex-1 bg-slate-100 text-slate-500 hover:bg-slate-200 px-2 py-3 rounded-t-xl md:rounded-t-2xl font-bold text-xs md:text-sm transition">🪑 좌석 세팅</button>
@@ -238,6 +247,18 @@ const ROW_CONFIG = [
 ];
 const TOTAL_SEATS = ROW_CONFIG.reduce((a, r) => a + r.desks, 0); 
 
+// 👇 추가: 학교 표준 수업 시간표 세팅 (필요 시 시간 수정 가능) 👇
+const PERIOD_TIMES = {
+    1: { start: {h:9, m:0}, end: {h:9, m:50} },
+    2: { start: {h:10, m:0}, end: {h:10, m:50} },
+    3: { start: {h:11, m:0}, end: {h:11, m:50} },
+    4: { start: {h:12, m:0}, end: {h:12, m:50} },
+    5: { start: {h:13, m:50}, end: {h:14, m:40} },
+    6: { start: {h:14, m:50}, end: {h:15, m:40} },
+    7: { start: {h:15, m:50}, end: {h:16, m:40} }
+};
+let progressInterval = null; 
+
 let attendanceData = {}, fullSchedule = [], isTeacherView = true, isSeatTeacherView = false;
 let currentTab = 'attend';
 let currentSubject = ""; 
@@ -262,6 +283,7 @@ function switchTab(tab) {
 
 function onSubjectChange() {
     updatePeriodDropdown();
+    updateClassTimer(); // 과목이 바뀔 때 타임라인 즉시 업데이트 적용
     if (currentTab === 'seat') {
         const subject = currentSubject;
         if (subject) loadSeatStudents(subject);
@@ -273,6 +295,10 @@ window.onload = async function () {
     document.getElementById('selectedDate').value = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
     updateDateTime();
     setInterval(updateDateTime, 60000);
+    
+    // 👇 타임라인 업데이트 인터벌 실행 (1초 단위 계산) 👇
+    progressInterval = setInterval(updateClassTimer, 1000);
+    
     createAttendDesks();
     createSeatDesks();
 
@@ -290,6 +316,8 @@ window.onload = async function () {
         if (targetSubject) { 
             currentSubject = targetSubject; 
             onSubjectChange(); 
+        } else {
+            updateClassTimer();
         }
     } catch { console.log("데이터 로드 실패"); }
 };
@@ -299,6 +327,81 @@ function updateDateTime() {
     const days = ['일','월','화','수','목','금','토'];
     document.getElementById('currentDateTime').innerText = `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 (${days[now.getDay()]}) ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
 }
+
+// 👇 추가: 수업 타임라인 로직 👇
+function updateClassTimer() {
+    if (!currentSubject || fullSchedule.length === 0) return;
+
+    const now = new Date();
+    const days = ['일','월','화','수','목','금','토'];
+    const todayStr = days[now.getDay()];
+
+    let activePeriod = null;
+    let periodTotalSeconds = 0;
+    let remainingSeconds = 0;
+
+    // 현재 시간을 초 단위로 변환
+    const nowSecondsTotal = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+
+    for (const [p, time] of Object.entries(PERIOD_TIMES)) {
+        const startSec = time.start.h * 3600 + time.start.m * 60;
+        const endSec = time.end.h * 3600 + time.end.m * 60;
+
+        if (nowSecondsTotal >= startSec && nowSecondsTotal <= endSec) {
+            activePeriod = parseInt(p);
+            periodTotalSeconds = endSec - startSec;
+            remainingSeconds = endSec - nowSecondsTotal;
+            break;
+        }
+    }
+
+    const banner = document.getElementById('classProgressBanner');
+    
+    if (activePeriod) {
+        // 선택한 과목이 '오늘', '해당 교시'에 배정되어 있는지 확인
+        const isMyClass = fullSchedule.some(s => s.subject === currentSubject && s.day === todayStr && s.period === activePeriod);
+        
+        if (isMyClass) {
+            banner.classList.remove('hidden');
+            
+            // 남은 시간 계산 (100%부터 줄어들게)
+            const percent = Math.max(0, Math.min(100, (remainingSeconds / periodTotalSeconds) * 100));
+            const minLeft = Math.floor(remainingSeconds / 60);
+            const secLeft = remainingSeconds % 60;
+            
+            document.getElementById('classProgressText').innerText = `🏫 [${currentSubject}] ${activePeriod}교시 진행 중`;
+            document.getElementById('classProgressTimeText').innerText = `남은 시간: ${minLeft}분 ${String(secLeft).padStart(2, '0')}초`;
+            document.getElementById('classProgressBar').style.width = `${percent}%`;
+            
+            // 5분 미만일 경우 색상을 붉은색으로 강조
+            const bar = document.getElementById('classProgressBar');
+            const timeText = document.getElementById('classProgressTimeText');
+            
+            if (minLeft < 5) {
+                bar.classList.add('bg-red-500');
+                bar.classList.remove('bg-blue-600');
+                timeText.classList.add('text-red-600');
+                timeText.classList.remove('text-blue-600');
+                banner.classList.add('border-red-200', 'bg-red-50');
+                banner.classList.remove('border-blue-200', 'bg-blue-50');
+            } else {
+                bar.classList.add('bg-blue-600');
+                bar.classList.remove('bg-red-500');
+                timeText.classList.add('text-blue-600');
+                timeText.classList.remove('text-red-600');
+                banner.classList.add('border-blue-200', 'bg-blue-50');
+                banner.classList.remove('border-red-200', 'bg-red-50');
+            }
+            return;
+        }
+    }
+    
+    // 현재 선택한 과목의 수업 시간이 아니면 배너 숨김
+    if (!banner.classList.contains('hidden')) {
+        banner.classList.add('hidden');
+    }
+}
+// 👆 타임라인 로직 끝 👆
 
 // 🌟 사진 모드 토글 (모바일 레이아웃 고정 수정 완료)
 function togglePhotoView() {
