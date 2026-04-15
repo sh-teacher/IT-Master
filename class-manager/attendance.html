@@ -415,7 +415,25 @@ function updatePeriodDropdown() {
     // 🌟 배지에는 과목명(subject)이 나타나게 설정
     const badge = document.getElementById('subjectBadge');
     if(subject) {
-        badge.innerText = subject; 
+        let scheduleText = "";
+        
+        // 전체 시간표에서 현재 과목과 일치하는 데이터만 추출
+        const matched = fullSchedule.filter(s => s.subject === subject);
+        
+        if (matched.length > 0) {
+            // 요일 순서대로 정렬 (월~금)
+            const dayOrder = { '월':1, '화':2, '수':3, '목':4, '금':5, '토':6, '일':7 };
+            matched.sort((a, b) => (dayOrder[a.day] || 9) - (dayOrder[b.day] || 9) || a.period - b.period);
+            
+            // "월1", "수1" 형태로 변환 후 중복 제거
+            const uniqSchedules = [...new Set(matched.map(s => s.day + s.period))];
+            
+            // 과목명 옆에 붙일 텍스트 생성 (예: " (월1 수1)")
+            scheduleText = ` (${uniqSchedules.join(' ')})`;
+        }
+        
+        // 과목명 뒤에 시간표 정보를 합쳐서 표시
+        badge.innerText = subject + scheduleText;
         badge.classList.remove('hidden');
     } else {
         badge.classList.add('hidden');
