@@ -200,7 +200,7 @@
     </div>
 
     <div id="panelSeat" class="tab-panel pb-10">
-        <div class="flex gap-2 mb-4 flex-wrap w-full">
+        <div class="flex gap-2 mb-4 flex-wrap w-full md:justify-end">
             <button onclick="saveSeatingToServer()" id="saveSeatBtn" class="flex-1 md:flex-none bg-blue-600 text-white px-3 md:px-6 py-2 md:py-3 rounded-lg md:rounded-xl font-bold hover:bg-blue-700 transition shadow-md text-xs md:text-sm whitespace-nowrap">
                 💾 좌석 저장
             </button>
@@ -233,13 +233,21 @@
 
 <div id="ghost" class="flex flex-col items-center justify-center bg-white rounded-lg border border-slate-200 font-bold text-slate-700"></div>
 
-<div class="bg-slate-800 text-white px-5 md:px-8 py-4 md:py-6 flex justify-between items-center">
-    <h2 class="text-lg md:text-2xl font-black">📊 <span id="reportTitle">과목</span> 누적 현황</h2>
-    <div class="flex items-center gap-3">
-        <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg font-bold text-xs md:text-sm flex items-center gap-1 transition">
-            🖨️ 인쇄하기
-        </button>
-        <button onclick="closeReportModal()" class="text-2xl md:text-3xl font-bold ml-2">&times;</button>
+<div id="reportModal" class="fixed inset-0 bg-slate-900/60 z-[300] flex items-center justify-center hidden backdrop-blur-sm p-4">
+    <div class="bg-white w-full max-w-6xl h-[90vh] md:h-[85vh] rounded-2xl md:rounded-[40px] shadow-2xl flex flex-col overflow-hidden">
+        
+        <div class="bg-slate-800 text-white px-5 md:px-8 py-4 md:py-6 flex justify-between items-center">
+            <h2 class="text-lg md:text-2xl font-black">📊 <span id="reportTitle">과목</span> 누적 현황</h2>
+            <div class="flex items-center gap-3">
+                <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg font-bold text-xs md:text-sm flex items-center gap-1 transition">
+                    🖨️ 인쇄하기
+                </button>
+                <button onclick="closeReportModal()" class="text-2xl md:text-3xl font-bold ml-2">&times;</button>
+            </div>
+        </div>
+        
+        <div id="reportContent" class="flex-1 p-4 md:p-8 bg-slate-50 overflow-hidden"></div>
+        
     </div>
 </div>
 
