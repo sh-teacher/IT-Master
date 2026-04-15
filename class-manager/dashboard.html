@@ -67,10 +67,10 @@
                 <h3 class="font-bold text-sm md:text-lg text-slate-700">3. 좌석 배치</h3>
                 <p class="text-[10px] md:text-sm text-slate-500 mt-1 md:mt-2">드래그 좌석표 세팅</p>
             </button>
-            <button onclick="location.href='attendance.html'" class="bg-emerald-50 p-4 md:p-6 rounded-2xl md:rounded-3xl shadow-sm border border-emerald-200 hover:bg-emerald-100 hover:shadow-md transition text-center flex flex-col items-center group">
+            <button onclick="goToAttendance('')" class="bg-white p-4 md:p-6 rounded-2xl md:rounded-3xl shadow-sm border border-slate-200 hover:bg-slate-100 hover:shadow-md transition text-center flex flex-col items-center group">
                 <div class="text-3xl md:text-4xl mb-2 md:mb-3 group-hover:scale-110 transition-transform">📋</div>
-                <h3 class="font-bold text-sm md:text-lg text-emerald-800">4. 출석 / 일지</h3>
-                <p class="text-[10px] md:text-sm text-emerald-600 mt-1 md:mt-2">수업 및 특이사항 기록</p>
+                <h3 class="font-bold text-sm md:text-lg text-slate-700">4. 출석 / 일지</h3>
+                <p class="text-[10px] md:text-sm text-slate-500 mt-1 md:mt-2">수업 및 특이사항 기록</p>
             </button>
         </div>
 
@@ -118,6 +118,19 @@
 
         let todayScheduleMap = {};
 
+        // 👇 추가: 출석부 이동 및 부모 창 제목 변경 전용 함수 👇
+        function goToAttendance(subject) {
+            if (window.parent && window.parent.document) {
+                const parentTitles = window.parent.document.querySelectorAll('header h1, #pageTitle, #mainTitle, .header-title');
+                parentTitles.forEach(el => { el.innerText = "출석 및 수업 일지"; });
+            }
+            if(subject) {
+                location.href = 'attendance.html?subject=' + encodeURIComponent(subject);
+            } else {
+                location.href = 'attendance.html';
+            }
+        }
+
         window.onload = async function() {
             await loadSchedule();
             updateTimelineLogic(); 
@@ -148,14 +161,14 @@
 
                 tbody.innerHTML = '';
                 for (let p = 0; p < 7; p++) {
-                    // 모바일 테이블 스크롤 시 교시(1, 2, 3...) 열이 왼쪽에 고정되도록 sticky 처리
                     let rowHtml = `<tr class="hover:bg-slate-50 transition"><td class="p-1 md:p-4 text-[10px] md:text-sm font-black text-slate-500 bg-slate-50 border-r border-slate-100 sticky left-0 z-10">${p + 1}</td>`;
                     for (let d = 0; d < 5; d++) {
                         const subject = matrix[p][d];
                         if (subject) {
+                            // 👇 수정: onclick 이벤트를 goToAttendance 함수로 변경 👇
                             rowHtml += `
                                 <td class="p-0.5 md:p-3 border-r border-slate-100 last:border-0 h-10 md:h-20">
-                                    <div onclick="location.href='attendance.html?subject=${encodeURIComponent(subject)}'" class="h-full flex items-center justify-center bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 font-bold text-[8px] md:text-sm rounded-md md:rounded-xl cursor-pointer transition shadow-sm p-0.5 md:p-2 break-keep text-center leading-tight">
+                                    <div onclick="goToAttendance('${subject}')" class="h-full flex items-center justify-center bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 font-bold text-[8px] md:text-sm rounded-md md:rounded-xl cursor-pointer transition shadow-sm p-0.5 md:p-2 break-keep text-center leading-tight">
                                         ${subject}
                                     </div>
                                 </td>`;
@@ -245,7 +258,6 @@
                 const isCurrent = (idx === currentPeriodIdx);
                 const isPassed = (currentMin >= p.eMin);
                 
-                // 모바일에서 카드가 스와이프 시 뚝뚝 끊어지며 멈추게(snap) 만듦
                 let cardClass = "timeline-card flex-1 p-3 md:p-4 rounded-xl md:rounded-2xl border-2 transition text-center shrink-0 snap-center ";
                 
                 if (isCurrent) {
@@ -256,8 +268,9 @@
                     cardClass += "bg-white border-slate-200";
                 }
 
+                // 👇 수정: onclick 이벤트를 goToAttendance 함수로 변경 👇
                 const titleHtml = subject 
-                    ? `<div class="period-title font-black text-slate-800 text-sm md:text-lg mb-1 cursor-pointer hover:text-blue-600 transition" onclick="location.href='attendance.html?subject=${encodeURIComponent(subject)}'">${subject}</div>`
+                    ? `<div class="period-title font-black text-slate-800 text-sm md:text-lg mb-1 cursor-pointer hover:text-blue-600 transition" onclick="goToAttendance('${subject}')">${subject}</div>`
                     : `<div class="period-title font-bold text-slate-400 text-sm md:text-lg mb-1">공강</div>`;
 
                 cardsEl.innerHTML += `
@@ -269,7 +282,6 @@
                 `;
             });
             
-            // 현재 활성화된 카드가 화면 중앙에 오도록 스크롤 이동 로직 추가
             setTimeout(() => {
                 const activeCard = document.querySelector('.timeline-card.is-active');
                 if (activeCard) {
