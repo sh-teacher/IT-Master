@@ -420,6 +420,11 @@ function updatePeriodDropdown() {
     } else {
         badge.classList.add('hidden');
     }
+    if (window.parent && window.parent.document) {
+        // index.html의 상단 제목 요소(h1이나 특정 ID)를 찾아 강제로 텍스트를 덮어씁니다.
+        const topTitle = window.parent.document.querySelector('header h1, #pageTitle, #mainTitle, .top-title');
+        if (topTitle) topTitle.innerText = "출석 및 수업 일지";
+    }
 
     periodSelect.innerHTML = '';
     if (!subject || !dateVal) {
