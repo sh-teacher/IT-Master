@@ -52,22 +52,22 @@
         </div>
 
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-10 md:mb-12">
-            <button onclick="location.href='setup.html'" class="bg-white p-4 md:p-6 rounded-2xl md:rounded-3xl shadow-sm border border-slate-200 hover:bg-slate-100 hover:shadow-md transition text-center flex flex-col items-center group">
+            <button onclick="goToPage('setup.html', '교과 환경 설정')" class="bg-white p-4 md:p-6 rounded-2xl md:rounded-3xl shadow-sm border border-slate-200 hover:bg-slate-100 hover:shadow-md transition text-center flex flex-col items-center group">
                 <div class="text-3xl md:text-4xl mb-2 md:mb-3 group-hover:scale-110 transition-transform">⚙️</div>
                 <h3 class="font-bold text-sm md:text-lg text-slate-700">1. 환경 설정</h3>
                 <p class="text-[10px] md:text-sm text-slate-500 mt-1 md:mt-2">과목 및 시간표 세팅</p>
             </button>
-            <button onclick="location.href='students.html'" class="bg-white p-4 md:p-6 rounded-2xl md:rounded-3xl shadow-sm border border-slate-200 hover:bg-slate-100 hover:shadow-md transition text-center flex flex-col items-center group">
+            <button onclick="goToPage('students.html', '학생 명단 관리')" class="bg-white p-4 md:p-6 rounded-2xl md:rounded-3xl shadow-sm border border-slate-200 hover:bg-slate-100 hover:shadow-md transition text-center flex flex-col items-center group">
                 <div class="text-3xl md:text-4xl mb-2 md:mb-3 group-hover:scale-110 transition-transform">👥</div>
                 <h3 class="font-bold text-sm md:text-lg text-slate-700">2. 명단 관리</h3>
                 <p class="text-[10px] md:text-sm text-slate-500 mt-1 md:mt-2">엑셀 명단 업로드</p>
             </button>
-            <button onclick="location.href='attendance.html'" class="bg-white p-4 md:p-6 rounded-2xl md:rounded-3xl shadow-sm border border-slate-200 hover:bg-slate-100 hover:shadow-md transition text-center flex flex-col items-center group">
+            <button onclick="goToPage('attendance.html?tab=seat', '좌석 배치')" class="bg-white p-4 md:p-6 rounded-2xl md:rounded-3xl shadow-sm border border-slate-200 hover:bg-slate-100 hover:shadow-md transition text-center flex flex-col items-center group">
                 <div class="text-3xl md:text-4xl mb-2 md:mb-3 group-hover:scale-110 transition-transform">🪑</div>
                 <h3 class="font-bold text-sm md:text-lg text-slate-700">3. 좌석 배치</h3>
                 <p class="text-[10px] md:text-sm text-slate-500 mt-1 md:mt-2">드래그 좌석표 세팅</p>
             </button>
-            <button onclick="goToAttendance('')" class="bg-white p-4 md:p-6 rounded-2xl md:rounded-3xl shadow-sm border border-slate-200 hover:bg-slate-100 hover:shadow-md transition text-center flex flex-col items-center group">
+            <button onclick="goToPage('attendance.html', '학생 출결확인 및 수업 일지')" class="bg-white p-4 md:p-6 rounded-2xl md:rounded-3xl shadow-sm border border-slate-200 hover:bg-slate-100 hover:shadow-md transition text-center flex flex-col items-center group">
                 <div class="text-3xl md:text-4xl mb-2 md:mb-3 group-hover:scale-110 transition-transform">📋</div>
                 <h3 class="font-bold text-sm md:text-lg text-slate-700">4. 출석 / 일지</h3>
                 <p class="text-[10px] md:text-sm text-slate-500 mt-1 md:mt-2">수업 및 특이사항 기록</p>
@@ -121,8 +121,10 @@
         // 👇 추가: 출석부 이동 및 부모 창 제목 변경 전용 함수 👇
         function goToAttendance(subject) {
             if (window.parent && window.parent.document) {
-                const parentTitles = window.parent.document.querySelectorAll('header h1, #pageTitle, #mainTitle, .header-title');
-                parentTitles.forEach(el => { el.innerText = "출석 및 수업 일지"; });
+                const titleEl = window.parent.document.getElementById('headerTitle');
+                if (titleEl) {
+                    titleEl.innerText = "학생 출결확인 및 수업 일지";
+                }
             }
             if(subject) {
                 location.href = 'attendance.html?subject=' + encodeURIComponent(subject);
@@ -288,6 +290,16 @@
                     activeCard.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                 }
             }, 500);
+        }
+        // 👇 추가: 페이지 URL과 제목을 받아서 이동 + 상단 제목 변경해주는 범용 함수 👇
+        function goToPage(url, title) {
+            if (window.parent && window.parent.document) {
+                const titleEl = window.parent.document.getElementById('headerTitle');
+                if (titleEl) {
+                    titleEl.innerText = title;
+                }
+            }
+            location.href = url;
         }
     </script>
 </body>

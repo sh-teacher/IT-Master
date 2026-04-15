@@ -302,16 +302,22 @@ window.onload = async function () {
     createAttendDesks();
     createSeatDesks();
 
-    // 초기 로딩 시 모바일 하단 버튼 세팅
-    switchTab('attend');
+    // 👇 수정: URL 파라미터를 읽어서 자동으로 탭을 바꿔주는 로직 👇
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetTab = urlParams.get('tab');
+    const targetSubject = urlParams.get('subject');
+
+    // 꼬리표가 'seat'이면 좌석 탭을, 아니면 기본 출석 탭을 엽니다.
+    if (targetTab === 'seat') {
+        switchTab('seat');
+    } else {
+        switchTab('attend');
+    }
 
     try {
         const ts = Date.now();
         const schRes = await fetch(`${API_URL}?type=GET_SCHEDULE&t=${ts}`);
         fullSchedule = await schRes.json();
-        
-        const urlParams = new URLSearchParams(window.location.search);
-        const targetSubject = urlParams.get('subject');
         
         if (targetSubject) { 
             currentSubject = targetSubject; 
