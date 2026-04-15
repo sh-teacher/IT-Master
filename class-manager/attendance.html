@@ -304,6 +304,7 @@ let attendanceData = {}, fullSchedule = [], isTeacherView = true, isSeatTeacherV
 let currentTab = 'attend';
 let currentSubject = ""; 
 let isPhotoView = false; 
+let currentLoadId = 0;
 
 function switchTab(tab) {
     currentTab = tab;
@@ -665,9 +666,13 @@ async function loadClassData() {
     const targetDate = document.getElementById('selectedDate').value;
     const period = document.getElementById('selectedPeriod').value;
     if (!subject || !targetDate || !period) return;
-    attendanceData = {};
+    
+    // 👇 레이스 컨디션(중복 로드) 방지용 고유 번호표 발급
+    const loadId = ++currentLoadId; 
+
     document.getElementById('classLog').value = '데이터 불러오는 중...';
 
+    // 로딩 시작 시 책상을 일단 비워둠
     document.querySelectorAll('.desk-attend').forEach(d => {
         const label = d.querySelector('.seat-num-label');
         d.innerHTML = '';
@@ -681,9 +686,23 @@ async function loadClassData() {
             fetch(`${API_URL}?type=GET_SEATING&subject=${encodeURIComponent(subject)}&t=${ts}`),
             fetch(`${API_URL}?type=GET_DAILY_RECORD&subject=${encodeURIComponent(subject)}&date=${targetDate}&period=${period}&t=${ts}`)
         ]);
+        
         const students = await sr.json();
         const savedSeating = await seatingR.json();
         const recordData = await recordR.json();
+
+        // 👇 핵심 방어 로직: 내가 가장 마지막에 요청한 번호표가 아니면, 화면에 그리지 않고 즉시 종료!
+        if (loadId !== currentLoadId) return;
+
+        attendanceData = {}; 
+        
+        // 데이터가 도착해서 화면에 그리기 직전에, 혹시 모를 찌꺼기를 막기 위해 한 번 더 깨끗하게 지움
+        document.querySelectorAll('.desk-attend').forEach(d => {
+            const label = d.querySelector('.seat-num-label');
+            d.innerHTML = '';
+            if (label) { label.innerText = ''; d.appendChild(label); }
+        });
+
         document.getElementById('classLog').value = recordData.success ? recordData.data.log : '';
 
         savedSeating.forEach(seat => {
