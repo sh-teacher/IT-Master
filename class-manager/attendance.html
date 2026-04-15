@@ -415,7 +415,7 @@ function updatePeriodDropdown() {
     // 🌟 상단 배지에 과목명 표시 (기존 타이틀 덮어쓰기 방지)
     const badge = document.getElementById('subjectBadge');
     if(subject) {
-        badge.innerText = "출석 및 수업 일지";
+        badge.innerText = subject;
         badge.classList.remove('hidden');
     } else {
         badge.classList.add('hidden');
