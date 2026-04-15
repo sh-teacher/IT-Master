@@ -8,13 +8,12 @@
     <script>if (sessionStorage.getItem("isAllowed") !== "true") location.href = "index.html";</script>
     <style>
         /* ── 공통 ── */
-        /* minmax(0, 1fr)를 주어 내부 텍스트가 길어도 그리드가 터지지 않도록 고정 */
         .row-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
         @media (min-width: 768px) { .row-grid { gap: 10px; } }
 
         /* ── 출석판 책상 (기본: 텍스트(이름) 모드) ── */
         .desk-attend {
-            min-height: 48px; /* 모바일 극대화 압축 */
+            min-height: 48px;
             border: 2px dashed #cbd5e1; border-radius: 6px;
             display: flex; align-items: center; justify-content: center;
             padding: 2px; background: #f8fafc; position: relative;
@@ -24,11 +23,11 @@
         .desk-attend-empty { min-height: 48px; background: transparent; transition: all 0.2s; }
 
         @media (min-width: 768px) { 
-            .desk-attend { min-height: 90px; border-radius: 12px; padding: 4px; } /* 🌟 PC 세로 살짝 늘림 */
+            .desk-attend { min-height: 90px; border-radius: 12px; padding: 4px; } 
             .desk-attend-empty { min-height: 90px; }
         }
 
-        /* 📸 사진 모드 활성화 시 커지는 속성 (PC에서는 가로로 넓어지므로 세로 억제) */
+        /* 📸 사진 모드 활성화 시 커지는 속성 */
         .photo-mode .desk-attend { min-height: 120px; border-radius: 8px; padding: 4px; } 
         .photo-mode .desk-attend-empty { min-height: 120px; }
         @media (min-width: 768px) {
@@ -36,14 +35,13 @@
             .photo-mode .desk-attend-empty { min-height: 200px; }
         }
 
-        /* 사진 영역 (기본 숨김) */
+        /* 사진 영역 */
         .student-photo-wrapper { display: none; width: 100%; height: 70px; margin-bottom: 4px; }
         @media (min-width: 768px) { .student-photo-wrapper { height: 130px; margin-bottom: 8px; } }
         
         .photo-mode .student-photo-wrapper.has-img { display: block; }
         .photo-mode .student-photo-wrapper.no-img { display: flex; }
         
-        /* 🌟 사진 모드일 때 사진 크기 대폭 확대 */
         @media (min-width: 768px) {
             .photo-mode .student-photo-wrapper { height: 150px; } 
         }
@@ -89,19 +87,21 @@
         .tab-panel { display: none; }
         .tab-panel.active { display: block; }
         
-        /* 🌟 가로 스크롤 최소 너비 확보 (이름이 잘리는 현상 방지) */
         .classroom-scroll-wrapper { width: 100%; overflow-x: auto; padding-bottom: 10px; }
         .classroom-min-width { min-width: 500px; }
         @media (min-width: 768px) { .classroom-min-width { min-width: 600px; } }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen p-3 md:p-6 lg:p-10 pb-0">
+<body class="bg-slate-50 min-h-screen p-3 md:p-6 lg:p-10 pb-28 md:pb-0 relative">
 <div class="max-w-7xl mx-auto bg-white p-4 md:p-8 rounded-2xl md:rounded-3xl shadow-sm border border-slate-200 relative">
 
     <div class="flex flex-col gap-4 mb-4 md:mb-6 border-b border-slate-200 pb-4 md:pb-6">
         <div class="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-4">
             <div class="min-w-0 flex-1 w-full text-center xl:text-left">
-                <h1 id="mainTitle" class="text-2xl md:text-3xl font-black text-slate-800">📋 출석 및 수업 일지</h1>
+                <h1 class="text-2xl md:text-3xl font-black text-slate-800 flex items-center justify-center xl:justify-start gap-3 flex-wrap">
+                    📋 출석 및 수업 일지
+                    <span id="subjectBadge" class="hidden text-sm md:text-lg bg-blue-100 text-blue-800 px-3 py-1.5 rounded-full font-bold shadow-sm"></span>
+                </h1>
                 <p class="text-slate-500 mt-1 md:mt-2 font-medium text-sm md:text-base" id="currentDateTime">불러오는 중...</p>
             </div>
             
@@ -115,7 +115,6 @@
                     <option value="">교시</option>
                 </select>
                 <div class="flex w-full md:w-auto gap-2">
-                    <button onclick="autoLoadCurrentClass(this)" class="flex-1 md:flex-none bg-emerald-100 text-emerald-700 px-3 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl font-bold hover:bg-emerald-200 transition text-xs md:text-sm whitespace-nowrap">⏰ 현재</button>
                     <button onclick="openReportModal()" class="flex-1 md:flex-none bg-indigo-100 text-indigo-700 px-3 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl font-bold hover:bg-indigo-200 transition text-xs md:text-sm whitespace-nowrap">📊 통계</button>
                 </div>
             </div>
@@ -127,7 +126,7 @@
         </div>
     </div>
 
-    <div id="panelAttend" class="tab-panel active pb-24 md:pb-0">
+    <div id="panelAttend" class="tab-panel active">
         
         <div id="attendLayoutContainer" class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
             
@@ -160,7 +159,7 @@
 
             <div id="rightPanelWrapper" class="lg:col-span-1 flex flex-col gap-4 md:gap-6 h-full transition-all duration-300">
                 <div id="rightPanelInner" class="flex flex-col gap-4 md:gap-6 flex-1 w-full">
-                    <div id="logArea" class="bg-slate-50 border border-slate-200 rounded-2xl md:rounded-3xl p-4 md:p-6 flex flex-col flex-1 md:flex-[2] md:min-h-[200px]">
+                    <div id="logArea" class="bg-slate-50 border border-slate-200 rounded-2xl md:rounded-3xl p-4 md:p-6 flex flex-col flex-1 min-h-[200px] md:min-h-[200px] md:flex-[2]">
                         <h2 class="text-base md:text-lg font-bold text-slate-700 mb-3">📝 수업 일지</h2>
                         <textarea id="classLog" class="flex-1 w-full p-3 md:p-5 rounded-xl md:rounded-2xl border border-slate-300 focus:border-blue-500 focus:outline-none resize-none text-sm md:text-base" placeholder="오늘의 수업 내용과 진도를 기록하세요."></textarea>
                     </div>
@@ -178,12 +177,6 @@
                 </button>
             </div>
 
-        </div>
-
-        <div class="fixed bottom-4 left-4 right-4 z-[200] md:hidden">
-            <button onclick="saveDailyRecord()" id="saveAttendBtnMobile" class="w-full bg-blue-600 text-white px-4 py-4 rounded-2xl font-black text-lg hover:bg-blue-700 transition shadow-[0_10px_25px_-5px_rgba(37,99,235,0.6)] border border-blue-400">
-                💾 출석 및 일지 저장
-            </button>
         </div>
     </div>
 
@@ -231,6 +224,12 @@
     </div>
 </div>
 
+<div id="mobileSaveWrapper" class="fixed bottom-0 left-0 right-0 p-4 bg-white/95 backdrop-blur shadow-[0_-4px_10px_rgba(0,0,0,0.05)] border-t border-slate-200 z-[9999] md:hidden">
+    <button onclick="saveDailyRecord()" id="saveAttendBtnMobile" class="w-full bg-blue-600 text-white px-4 py-4 rounded-2xl font-black text-lg hover:bg-blue-700 transition shadow-lg">
+        💾 출석 및 일지 저장
+    </button>
+</div>
+
 <script>
 // ==========================================
 // 공통 로직
@@ -246,8 +245,8 @@ const TOTAL_SEATS = ROW_CONFIG.reduce((a, r) => a + r.desks, 0);
 
 let attendanceData = {}, fullSchedule = [], isTeacherView = true, isSeatTeacherView = false;
 let currentTab = 'attend';
-let currentSubject = ""; // 🌟 선택된 과목을 저장할 전역 변수
-let isPhotoView = false; // 📸 사진 모드 상태를 기억할 변수 (이 줄을 추가해주세요!)
+let currentSubject = ""; 
+let isPhotoView = false; 
 
 function switchTab(tab) {
     currentTab = tab;
@@ -259,6 +258,12 @@ function switchTab(tab) {
     
     document.getElementById('tabBtnAttend').className = tab === 'attend' ? activeClass : inactiveClass;
     document.getElementById('tabBtnSeat').className = tab === 'seat' ? activeClass : inactiveClass;
+
+    // 🌟 모바일 하단 저장 버튼 표시 제어 (출석 탭에서만 보이게)
+    const mobSave = document.getElementById('mobileSaveWrapper');
+    if(mobSave) {
+        mobSave.style.display = tab === 'attend' ? 'block' : 'none';
+    }
 
     if (tab === 'seat') {
         const subject = currentSubject;
@@ -282,13 +287,14 @@ window.onload = async function () {
     createAttendDesks();
     createSeatDesks();
 
+    // 초기 로딩 시 모바일 하단 버튼 세팅
+    switchTab('attend');
+
     try {
         const ts = Date.now();
-        // 불필요한 과목 불러오기 통신 제거 (성능 향상)
         const schRes = await fetch(`${API_URL}?type=GET_SCHEDULE&t=${ts}`);
         fullSchedule = await schRes.json();
         
-        // URL에서 과목명을 읽어와서 세팅
         const urlParams = new URLSearchParams(window.location.search);
         const targetSubject = urlParams.get('subject');
         
@@ -305,13 +311,12 @@ function updateDateTime() {
     document.getElementById('currentDateTime').innerText = `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 (${days[now.getDay()]}) ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
 }
 
-// 🌟 사진 모드 토글 (레이아웃 전면 개편)
+// 🌟 사진 모드 토글 (모바일 레이아웃 고정 수정 완료)
 function togglePhotoView() {
     isPhotoView = !isPhotoView;
     const grid = document.getElementById('classroomGrid');
     const btn = document.getElementById('photoToggleBtn');
     
-    // 레이아웃 변경 대상 요소들
     const layoutContainer = document.getElementById('attendLayoutContainer');
     const boardWrapper = document.getElementById('attendBoardWrapper');
     const rightPanel = document.getElementById('rightPanelWrapper');
@@ -324,7 +329,7 @@ function togglePhotoView() {
         btn.className = "flex-1 md:flex-none bg-blue-600 text-white px-3 py-2 md:px-4 md:py-2.5 rounded-lg md:rounded-xl font-bold text-xs shadow-md transition";
         btn.innerHTML = "📝 이름 모드";
         
-        // PC 레이아웃 가로 확장 (3/3 차지)
+        // PC 넓게 펼치기
         layoutContainer.classList.remove('lg:grid-cols-3');
         layoutContainer.classList.add('lg:grid-cols-1');
         
@@ -334,22 +339,21 @@ function togglePhotoView() {
         rightPanel.classList.remove('lg:col-span-1');
         rightPanel.classList.add('lg:col-span-1');
         
-        // 일지와 명단을 가로로 나란히 배치 (출석판 아래)
-        rightInner.classList.remove('flex-col');
+        // 🌟 데스크탑(lg)에서만 가로 배치. 모바일은 flex-col 유지
         rightInner.classList.add('lg:flex-row');
         
-        logArea.classList.remove('md:flex-[2]', 'md:min-h-[300px]');
-        logArea.classList.add('md:flex-1', 'md:min-h-[300px]');
+        logArea.classList.remove('md:flex-[2]');
+        logArea.classList.add('lg:flex-1');
         
-        issueArea.classList.remove('shrink-0', 'md:h-[250px]');
-        issueArea.classList.add('md:flex-1', 'md:min-h-[250px]');
+        issueArea.classList.remove('shrink-0');
+        issueArea.classList.add('lg:flex-1');
         
     } else {
         grid.classList.remove('photo-mode');
         btn.className = "flex-1 md:flex-none bg-slate-100 text-slate-600 px-3 py-2 md:px-4 md:py-2.5 rounded-lg md:rounded-xl font-bold text-xs shadow-md border border-slate-200 transition";
         btn.innerHTML = "🖼️ 사진 모드";
         
-        // PC 레이아웃 원복 (2/3, 1/3 분할)
+        // PC 레이아웃 원복
         layoutContainer.classList.remove('lg:grid-cols-1');
         layoutContainer.classList.add('lg:grid-cols-3');
         
@@ -359,15 +363,14 @@ function togglePhotoView() {
         rightPanel.classList.remove('lg:col-span-1');
         rightPanel.classList.add('lg:col-span-1');
         
-        // 일지와 명단 세로 배치 원복
+        // 🌟 데스크탑 가로 배치 제거 (원래대로)
         rightInner.classList.remove('lg:flex-row');
-        rightInner.classList.add('flex-col');
         
-        logArea.classList.remove('md:flex-1', 'md:min-h-[250px]');
-        logArea.classList.add('md:flex-[2]', 'md:min-h-[200px]');
+        logArea.classList.remove('lg:flex-1');
+        logArea.classList.add('md:flex-[2]');
         
-        issueArea.classList.remove('md:flex-1', 'md:min-h-[250px]');
-        issueArea.classList.add('shrink-0', 'md:h-[400px]');
+        issueArea.classList.remove('lg:flex-1');
+        issueArea.classList.add('shrink-0');
     }
 }
 
@@ -408,7 +411,16 @@ function updatePeriodDropdown() {
     const dateVal = document.getElementById('selectedDate').value;
     const periodSelect = document.getElementById('selectedPeriod');
     const showAll = document.getElementById('showAllPeriods').checked;
-    document.getElementById('mainTitle').innerText = subject ? `📋 ${subject}` : `📋 출석 및 수업 일지`;
+    
+    // 🌟 상단 배지에 과목명 표시 (기존 타이틀 덮어쓰기 방지)
+    const badge = document.getElementById('subjectBadge');
+    if(subject) {
+        badge.innerText = subject;
+        badge.classList.remove('hidden');
+    } else {
+        badge.classList.add('hidden');
+    }
+
     periodSelect.innerHTML = '';
     if (!subject || !dateVal) {
         periodSelect.innerHTML = '<option value="">과목/날짜</option>';
@@ -513,7 +525,6 @@ async function loadClassData() {
                     ? `<div class="student-photo-wrapper has-img"><img src="" class="student-photo" style="background:#f1f5f9;"></div>`
                     : `<div class="student-photo-wrapper no-img bg-slate-100 items-center justify-center text-slate-300 text-xl md:text-3xl font-black rounded-md border border-slate-200 w-full">${std.number}</div>`;
                 
-                // 🌟 가로 크기를 넘으면 자동으로 줄여주는 방어 로직 (truncate)
                 card.innerHTML = `${photoContent}
                     <div class="flex flex-col items-center justify-center w-full mt-0.5 md:mt-0 overflow-hidden">
                         <span class="text-[9px] md:text-[11px] opacity-60 leading-none mb-0.5 md:mb-1 whitespace-nowrap">${std.class}-${std.number}</span>
@@ -576,7 +587,6 @@ async function saveDailyRecord() {
     const period  = document.getElementById('selectedPeriod').value;
     if (!subject || !period) return alert("과목과 교시를 선택하세요.");
     
-    // 🌟 PC/모바일 양쪽 버튼 모두 제어
     const btnPc = document.getElementById('saveAttendBtnPc');
     const btnMobile = document.getElementById('saveAttendBtnMobile');
     if(btnPc) { btnPc.innerText = "저장 중..."; btnPc.disabled = true; }
@@ -597,32 +607,6 @@ async function saveDailyRecord() {
     finally { 
         if(btnPc) { btnPc.innerText = "💾 출석 및 일지 저장"; btnPc.disabled = false; }
         if(btnMobile) { btnMobile.innerText = "💾 출석 및 일지 저장"; btnMobile.disabled = false; }
-    }
-}
-
-function autoLoadCurrentClass(btn) {
-    const now = new Date();
-    const time = now.getHours() * 100 + now.getMinutes();
-    let currentPeriod = 0;
-    if      (time >= 830  && time < 945)  currentPeriod = 1;
-    else if (time >= 945  && time < 1045) currentPeriod = 2;
-    else if (time >= 1045 && time < 1145) currentPeriod = 3;
-    else if (time >= 1145 && time < 1235) currentPeriod = 4;
-    else if (time >= 1325 && time < 1435) currentPeriod = 5;
-    else if (time >= 1435 && time < 1525) currentPeriod = 6;
-    else if (time >= 1525 && time <= 1630) currentPeriod = 7;
-    if (currentPeriod === 0) { alert("진행 중인 수업 시간이 아닙니다."); return; }
-    const days = ['일','월','화','수','목','금','토'];
-    const todayStr = days[now.getDay()];
-    const currentClassInfo = fullSchedule.find(s => s.day === todayStr && parseInt(s.period) === currentPeriod);
-    if (currentClassInfo) {
-        currentSubject = currentClassInfo.subject;
-        updatePeriodDropdown();
-        document.getElementById('selectedPeriod').value = currentClassInfo.period;
-        loadClassData();
-        if (btn) { const t = btn.innerText; btn.innerText = "✅ 완료!"; setTimeout(() => btn.innerText = t, 1500); }
-    } else {
-        alert(`${currentPeriod}교시 수업을 찾을 수 없습니다.`);
     }
 }
 
