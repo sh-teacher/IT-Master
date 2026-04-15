@@ -284,16 +284,21 @@
                     newLinks.forEach(l => l.classList.remove('bg-slate-800', 'text-white'));
                     this.classList.add('bg-slate-800', 'text-white');
                     
-                    const titleSpan = this.querySelector('.subject-title');
-                    const titleText = titleSpan ? titleSpan.innerText : this.innerText.replace(/[^가-힣a-zA-Z0-9\s()]/g, '').trim();
+                    // ✅ 수정: href로 페이지 구분하여 헤더 제목 설정
+                    const pageUrl = this.getAttribute('href') || '';
                     if (pageUrl.includes("attendance.html")) {
-                        // attendance.html (출석부)로 이동할 때만 제목을 고정!
-                        document.getElementById('headerTitle').innerText = "출석 및 수업 일지";
+                        document.getElementById('headerTitle').innerText = "학생 출결확인 및 수업 일지";
+                    } else if (pageUrl.includes("dashboard.html")) {
+                        document.getElementById('headerTitle').innerText = "홈 (대시보드)";
+                    } else if (pageUrl.includes("setup.html")) {
+                        document.getElementById('headerTitle').innerText = "교과 환경 설정";
+                    } else if (pageUrl.includes("students.html")) {
+                        document.getElementById('headerTitle').innerText = "학생 명단 관리";
                     } else {
-                        // 그 외의 다른 메뉴일 때는 원래 전달받은 제목(또는 과목명)을 그대로 띄움!
-                        document.getElementById('headerTitle').innerText = subject; 
+                        const titleSpan = this.querySelector('.subject-title');
+                        document.getElementById('headerTitle').innerText = titleSpan ? titleSpan.innerText : this.innerText.trim();
                     }
-                    // 🌟 모바일 화면일 경우 메뉴 클릭 시 자동으로 닫히게 설정
+
                     if (window.innerWidth < 768) {
                         toggleSidebar();
                     }
