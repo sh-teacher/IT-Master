@@ -633,12 +633,14 @@ function applyAttendView() {
     const boardArea = document.getElementById('boardArea');
     const rows = [...document.querySelectorAll('#classroomGrid .row-grid')];
     if (isTeacherView) {
+        // 현재 교사 위치일 때 -> "학생 시점으로" 변경 안내
         btn.className = "flex-1 md:flex-none bg-violet-600 text-white px-3 py-2 md:px-4 md:py-2.5 rounded-lg md:rounded-xl font-bold text-xs shadow-md transition";
-        btn.innerHTML = "🧑‍🏫 교사 위치";
+        btn.innerHTML = "🧑‍🎓 학생 시점으로";
         boardArea.style.flexDirection = 'column-reverse';
     } else {
+        // 현재 학생 시점일 때 -> "교사 위치로" 변경 안내
         btn.className = "flex-1 md:flex-none bg-slate-100 text-slate-600 px-3 py-2 md:px-4 md:py-2.5 rounded-lg md:rounded-xl font-bold text-xs shadow-md border border-slate-200 transition";
-        btn.innerHTML = "🧑‍🎓 학생 시점";
+        btn.innerHTML = "🧑‍🏫 교사 위치로";
         boardArea.style.flexDirection = 'column';
     }
     rows.forEach((row, i) => {
@@ -927,15 +929,16 @@ async function saveSeatingToServer() {
     finally { btn.innerText = "💾 좌석 저장"; btn.disabled = false; }
 }
 
+// 👇 좌석 세팅판(탭 2) 시점 전환 로직 교체
 function toggleTeacherViewSeat() {
     isSeatTeacherView = !isSeatTeacherView;
     const btn = document.getElementById('teacherBtn');
     if (isSeatTeacherView) {
         btn.className = "flex-1 md:flex-none bg-violet-600 text-white px-3 md:px-5 py-2 md:py-3 rounded-lg md:rounded-xl font-bold hover:bg-violet-700 transition text-xs md:text-sm";
-        btn.innerText = '🧑‍🏫 학생시점으로';
+        btn.innerText = '🧑‍🎓 학생 시점으로';
     } else {
         btn.className = "flex-1 md:flex-none bg-violet-100 text-violet-700 px-3 md:px-5 py-2 md:py-3 rounded-lg md:rounded-xl font-bold hover:bg-violet-200 transition text-xs md:text-sm";
-        btn.innerText = '🧑‍🏫 교사위치';
+        btn.innerText = '🧑‍🏫 교사 위치로';
     }
     const rows = [...document.querySelectorAll('#seatClassroomGrid .row-grid')];
     rows.forEach(row => {
