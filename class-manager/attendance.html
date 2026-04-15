@@ -90,6 +90,16 @@
         .classroom-scroll-wrapper { width: 100%; overflow-x: auto; padding-bottom: 10px; }
         .classroom-min-width { min-width: 500px; }
         @media (min-width: 768px) { .classroom-min-width { min-width: 600px; } }
+        /* ── 인쇄 전용 스타일 ── */
+        @media print {
+            body * { visibility: hidden; } /* 전체 숨김 */
+            #reportModal, #reportModal * { visibility: visible; } /* 모달만 보임 */
+            #reportModal { position: absolute; left: 0; top: 0; width: 100%; background: white; }
+            #reportModal button { display: none; } /* 닫기/인쇄 버튼 숨김 */
+            #reportContent { height: auto !important; overflow: visible !important; }
+            .lg:overflow-y-auto { overflow: visible !important; height: auto !important; }
+            .bg-slate-900/60 { background: white !important; } /* 배경 투명하게 */
+        }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen p-3 md:p-6 lg:p-10 pb-28 md:pb-0 relative">
@@ -223,13 +233,13 @@
 
 <div id="ghost" class="flex flex-col items-center justify-center bg-white rounded-lg border border-slate-200 font-bold text-slate-700"></div>
 
-<div id="reportModal" class="fixed inset-0 bg-slate-900/60 z-[300] flex items-center justify-center hidden backdrop-blur-sm p-4">
-    <div class="bg-white w-full max-w-6xl h-[90vh] md:h-[85vh] rounded-2xl md:rounded-[40px] shadow-2xl flex flex-col overflow-hidden">
-        <div class="bg-slate-800 text-white px-5 md:px-8 py-4 md:py-6 flex justify-between items-center">
-            <h2 class="text-lg md:text-2xl font-black">📊 <span id="reportTitle">과목</span> 누적 현황</h2>
-            <button onclick="closeReportModal()" class="text-2xl md:text-3xl font-bold">&times;</button>
-        </div>
-        <div id="reportContent" class="flex-1 p-4 md:p-8 bg-slate-50 overflow-hidden"></div>
+<div class="bg-slate-800 text-white px-5 md:px-8 py-4 md:py-6 flex justify-between items-center">
+    <h2 class="text-lg md:text-2xl font-black">📊 <span id="reportTitle">과목</span> 누적 현황</h2>
+    <div class="flex items-center gap-3">
+        <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg font-bold text-xs md:text-sm flex items-center gap-1 transition">
+            🖨️ 인쇄하기
+        </button>
+        <button onclick="closeReportModal()" class="text-2xl md:text-3xl font-bold ml-2">&times;</button>
     </div>
 </div>
 
@@ -1006,24 +1016,82 @@ async function openReportModal() {
 function closeReportModal() { document.getElementById('reportModal').classList.add('hidden'); }
 function renderReport(records) {
     const stats = {};
+    const days = ['일', '월', '화', '수', '목', '금', '토'];
+    
     let logsHTML = '<div class="space-y-3 md:space-y-4">';
+    
+    // 데이터를 날짜/교시 순으로 정렬
+    records.sort((a, b) => new Date(a.date) - new Date(b.date) || a.period - b.period);
+
     records.forEach(r => {
-        logsHTML += `<div class="bg-white p-4 md:p-5 rounded-xl md:rounded-2xl border shadow-sm"><div class="font-black text-sm md:text-base mb-1 md:mb-2">${r.date} <span class="text-blue-500">${r.period}교시</span></div><p class="text-xs md:text-sm text-slate-600 whitespace-pre-wrap">${r.log || '내용 없음'}</p></div>`;
+        const dateObj = new Date(r.date);
+        const dayName = days[dateObj.getDay()];
+        const fullDateStr = `${r.date} (${dayName})`;
+
+        // 1. 수업 일지 히스토리 생성
+        logsHTML += `
+            <div class="bg-white p-4 md:p-5 rounded-xl md:rounded-2xl border shadow-sm">
+                <div class="flex justify-between items-center mb-1 md:mb-2">
+                    <span class="font-black text-sm md:text-base text-slate-800">${fullDateStr}</span>
+                    <span class="text-blue-600 font-bold text-xs md:text-sm">${r.period}교시 수업</span>
+                </div>
+                <p class="text-xs md:text-sm text-slate-600 whitespace-pre-wrap border-t pt-2">${r.log || '기록된 내용이 없습니다.'}</p>
+            </div>`;
+
+        // 2. 누적 통계 데이터 가공
         r.issues.forEach(i => {
             const k = getStudentKey(i);
             if (!stats[k]) stats[k] = { ...i, absent: 0, late: 0, memos: [] };
             if (i.status === 'absent') stats[k].absent++; else stats[k].late++;
-            stats[k].memos.push(`<div class="text-[10px] md:text-[11px] font-medium">[${r.date.slice(5)}] ${i.status==='absent'?'❌':'⚠️'} ${i.memo||'사유없음'}</div>`);
+            
+            // 학생별 상세 히스토리에 날짜, 요일, 교시 추가
+            stats[k].memos.push(`
+                <div class="flex justify-between text-[10px] md:text-[11px] font-medium py-1 border-b border-slate-50 last:border-0">
+                    <span class="text-slate-500">${fullDateStr} ${r.period}교시</span>
+                    <span class="${i.status==='absent'?'text-red-500':'text-amber-600'}">
+                        ${i.status==='absent'?'❌ 결석':'⚠️ 지각'} (${i.memo || '사유없음'})
+                    </span>
+                </div>`);
         });
     });
     logsHTML += '</div>';
+
+    // 3. 학생별 누적 현황 UI 생성
     let studentsHTML = '<div class="grid grid-cols-1 xl:grid-cols-2 gap-3 md:gap-4">';
     Object.values(stats).sort((a,b)=>a.class-b.class||a.number-b.number).forEach(s => {
-        studentsHTML += `<div class="bg-white p-3 md:p-4 rounded-xl md:rounded-2xl border shadow-sm"><div class="flex justify-between font-bold text-xs md:text-sm"><span>${s.class}-${s.number} ${s.name}</span><div class="flex flex-col text-[9px] md:text-[10px]">${s.absent?`<span class="text-red-600">결석 ${s.absent}</span>`:''}${s.late?`<span class="text-amber-600">지각 ${s.late}</span>`:''}</div></div><div class="mt-2 space-y-1 border-t pt-2">${s.memos.join('')}</div></div>`;
+        studentsHTML += `
+            <div class="bg-white p-3 md:p-4 rounded-xl md:rounded-2xl border shadow-sm">
+                <div class="flex justify-between items-start font-bold text-xs md:text-sm mb-2">
+                    <span class="text-slate-800">${s.class}반 ${s.number}번 ${s.name}</span>
+                    <div class="flex gap-2 text-[10px] md:text-[11px]">
+                        ${s.absent ? `<span class="bg-red-50 text-red-600 px-2 py-0.5 rounded">결석 ${s.absent}회</span>` : ''}
+                        ${s.late ? `<span class="bg-amber-50 text-amber-600 px-2 py-0.5 rounded">지각 ${s.late}회</span>` : ''}
+                    </div>
+                </div>
+                <div class="mt-2 bg-slate-50/50 p-2 rounded-lg space-y-0.5">
+                    ${s.memos.join('')}
+                </div>
+            </div>`;
     });
     studentsHTML += '</div>';
     
-    document.getElementById('reportContent').innerHTML = `<div class="flex flex-col lg:grid lg:grid-cols-2 gap-6 md:gap-8 h-full overflow-y-auto lg:overflow-hidden"><div class="flex flex-col lg:overflow-hidden"><h3 class="font-black mb-3 md:mb-4 text-sm md:text-base">📅 수업 일지 히스토리</h3><div class="lg:overflow-y-auto flex-1">${logsHTML}</div></div><div class="flex flex-col lg:overflow-hidden mt-4 lg:mt-0"><h3 class="font-black text-red-800 mb-3 md:mb-4 text-sm md:text-base">🚨 누적 통계</h3><div class="bg-slate-100 p-3 md:p-4 rounded-xl md:rounded-2xl lg:overflow-y-auto flex-1">${studentsHTML}</div></div></div>`;
+    document.getElementById('reportContent').innerHTML = `
+        <div class="flex flex-col lg:grid lg:grid-cols-2 gap-6 md:gap-8 h-full overflow-y-auto lg:overflow-hidden p-1">
+            <div class="flex flex-col lg:overflow-hidden">
+                <h3 class="font-black mb-3 md:mb-4 text-sm md:text-base flex items-center gap-2">
+                    <span class="bg-slate-800 text-white w-5 h-5 rounded flex items-center justify-center text-[10px]">1</span>
+                    📅 수업 일지 히스토리
+                </h3>
+                <div class="lg:overflow-y-auto flex-1 pr-2">${logsHTML}</div>
+            </div>
+            <div class="flex flex-col lg:overflow-hidden mt-4 lg:mt-0">
+                <h3 class="font-black text-red-800 mb-3 md:mb-4 text-sm md:text-base flex items-center gap-2">
+                    <span class="bg-red-800 text-white w-5 h-5 rounded flex items-center justify-center text-[10px]">2</span>
+                    🚨 결석/지각 누적 통계
+                </h3>
+                <div class="bg-slate-100 p-3 md:p-4 rounded-xl md:rounded-2xl lg:overflow-y-auto flex-1">${studentsHTML}</div>
+            </div>
+        </div>`;
 }
 </script>
 </body>
