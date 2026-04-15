@@ -257,8 +257,13 @@
                     
                     const titleSpan = this.querySelector('.subject-title');
                     const titleText = titleSpan ? titleSpan.innerText : this.innerText.replace(/[^가-힣a-zA-Z0-9\s()]/g, '').trim();
-                    document.getElementById('headerTitle').innerText = "출석 및 수업 일지";
-
+                    if (pageUrl.includes("attendance.html")) {
+                        // attendance.html (출석부)로 이동할 때만 제목을 고정!
+                        document.getElementById('headerTitle').innerText = "출석 및 수업 일지";
+                    } else {
+                        // 그 외의 다른 메뉴일 때는 원래 전달받은 제목(또는 과목명)을 그대로 띄움!
+                        document.getElementById('headerTitle').innerText = title; 
+                    }
                     // 🌟 모바일 화면일 경우 메뉴 클릭 시 자동으로 닫히게 설정
                     if (window.innerWidth < 768) {
                         toggleSidebar();
