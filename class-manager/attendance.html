@@ -192,9 +192,9 @@
                 </div>
                 
                 <div class="classroom-scroll-wrapper flex-1 flex flex-col">
-                    <div id="boardArea" class="flex flex-col gap-2 md:gap-4 transition-all duration-300 classroom-min-width flex-1 justify-between">
+                    <div id="boardArea" class="flex flex-col gap-2 md:gap-4 transition-all duration-300 classroom-min-width flex-1">
                         <div id="board" class="bg-emerald-800 text-white text-center py-2 md:py-4 rounded-lg md:rounded-2xl font-black text-sm md:text-xl shadow-inner shrink-0">칠 판 (교탁)</div>
-                        <div id="classroomGrid" class="flex flex-col gap-1 md:gap-4 flex-1"></div>
+                        <div id="classroomGrid" class="flex flex-col gap-1 md:gap-4"></div>
                     </div>
                 </div>
             </div>
@@ -214,7 +214,7 @@
                     </div>
                 </div>
                 
-                <button onclick="saveDailyRecord()" id="saveAttendBtnPc" class="block w-full bg-blue-600 text-white px-4 py-5 rounded-2xl font-black text-xl hover:bg-blue-700 transition shadow-lg mt-4 shrink-0">
+                <button onclick="saveDailyRecord()" id="saveAttendBtnPc" class="block w-full bg-blue-600 text-white px-4 py-3 md:py-4 rounded-xl font-bold text-sm md:text-base hover:bg-blue-700 transition shadow-md mt-4 shrink-0">
                     💾 출석 및 일지 저장
                 </button>
             </div>
@@ -633,15 +633,15 @@ function applyAttendView() {
     const boardArea = document.getElementById('boardArea');
     const rows = [...document.querySelectorAll('#classroomGrid .row-grid')];
     if (isTeacherView) {
-        // 현재 교사 위치일 때 -> "학생 시점으로" 변경 안내
         btn.className = "flex-1 md:flex-none bg-violet-600 text-white px-3 py-2 md:px-4 md:py-2.5 rounded-lg md:rounded-xl font-bold text-xs shadow-md transition";
         btn.innerHTML = "🧑‍🎓 학생 시점으로";
         boardArea.style.flexDirection = 'column-reverse';
+        boardArea.style.justifyContent = 'flex-end'; // 👈 교탁을 출석판 바로 아래로 바짝 붙임
     } else {
-        // 현재 학생 시점일 때 -> "교사 위치로" 변경 안내
         btn.className = "flex-1 md:flex-none bg-slate-100 text-slate-600 px-3 py-2 md:px-4 md:py-2.5 rounded-lg md:rounded-xl font-bold text-xs shadow-md border border-slate-200 transition";
         btn.innerHTML = "🧑‍🏫 교사 위치로";
         boardArea.style.flexDirection = 'column';
+        boardArea.style.justifyContent = 'flex-start'; // 👈 교탁을 맨 위로 붙임
     }
     rows.forEach((row, i) => {
         row.style.order = isTeacherView ? (rows.length - 1 - i) : i;
