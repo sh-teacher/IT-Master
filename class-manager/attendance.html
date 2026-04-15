@@ -415,7 +415,7 @@ function updatePeriodDropdown() {
     // 🌟 배지에는 과목명(subject)이 나타나게 설정
     const badge = document.getElementById('subjectBadge');
     if(subject) {
-        badge.innerText = subject; // <--- 이 부분을 subject 로 수정
+        badge.innerText = subject; 
         badge.classList.remove('hidden');
     } else {
         badge.classList.add('hidden');
