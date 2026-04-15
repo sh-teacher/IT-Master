@@ -62,12 +62,13 @@
                 <h3 class="font-bold text-sm md:text-lg text-slate-700">2. 명단 관리</h3>
                 <p class="text-[10px] md:text-sm text-slate-500 mt-1 md:mt-2">엑셀 명단 업로드</p>
             </button>
-            <button onclick="goToPage('attendance.html?tab=seat', '좌석 배치')" class="bg-white p-4 md:p-6 rounded-2xl md:rounded-3xl shadow-sm border border-slate-200 hover:bg-slate-100 hover:shadow-md transition text-center flex flex-col items-center group">
+            <button onclick="smartGoTo('seat')" class="bg-white p-4 md:p-6 rounded-2xl md:rounded-3xl shadow-sm border border-slate-200 hover:bg-slate-100 hover:shadow-md transition text-center flex flex-col items-center group">
                 <div class="text-3xl md:text-4xl mb-2 md:mb-3 group-hover:scale-110 transition-transform">🪑</div>
                 <h3 class="font-bold text-sm md:text-lg text-slate-700">3. 좌석 배치</h3>
                 <p class="text-[10px] md:text-sm text-slate-500 mt-1 md:mt-2">드래그 좌석표 세팅</p>
             </button>
-            <button onclick="goToPage('attendance.html', '학생 출결확인 및 수업 일지')" class="bg-white p-4 md:p-6 rounded-2xl md:rounded-3xl shadow-sm border border-slate-200 hover:bg-slate-100 hover:shadow-md transition text-center flex flex-col items-center group">
+            
+            <button onclick="smartGoTo('attend')" class="bg-white p-4 md:p-6 rounded-2xl md:rounded-3xl shadow-sm border border-slate-200 hover:bg-slate-100 hover:shadow-md transition text-center flex flex-col items-center group">
                 <div class="text-3xl md:text-4xl mb-2 md:mb-3 group-hover:scale-110 transition-transform">📋</div>
                 <h3 class="font-bold text-sm md:text-lg text-slate-700">4. 출석 / 일지</h3>
                 <p class="text-[10px] md:text-sm text-slate-500 mt-1 md:mt-2">수업 및 특이사항 기록</p>
@@ -300,6 +301,51 @@
                 }
             }
             location.href = url;
+        }
+        // 👇 추가: 스마트 연결 함수 (현재/다음 수업으로 자동 이동) 👇
+        function smartGoTo(tabName) {
+            const now = new Date();
+            const currentMin = now.getHours() * 60 + now.getMinutes();
+            let targetSubject = null;
+
+            // 1. 현재 진행 중인 수업이 있는지 먼저 확인
+            for (let i = 0; i < PERIODS.length; i++) {
+                const p = PERIODS[i];
+                if (currentMin >= p.sMin && currentMin < p.eMin && todayScheduleMap[p.id]) {
+                    targetSubject = todayScheduleMap[p.id];
+                    break;
+                }
+            }
+
+            // 2. 현재 수업이 없다면, '오늘 남은 다음 수업' 중 가장 빠른 것을 찾기
+            if (!targetSubject) {
+                for (let i = 0; i < PERIODS.length; i++) {
+                    const p = PERIODS[i];
+                    if (currentMin < p.sMin && todayScheduleMap[p.id]) {
+                        targetSubject = todayScheduleMap[p.id];
+                        break;
+                    }
+                }
+            }
+
+            // 3. 목적지가 정해졌다면 바로 이동!
+            if (targetSubject) {
+                const pageTitle = (tabName === 'seat') ? '좌석 배치' : '학생 출결확인 및 수업 일지';
+                let url = `attendance.html?subject=${encodeURIComponent(targetSubject)}`;
+                if (tabName === 'seat') url += '&tab=seat';
+                
+                goToPage(url, pageTitle);
+            } 
+            // 4. 오늘 수업이 아예 없거나 모두 끝났다면 알림 후 시간표로 자동 스크롤
+            else {
+                alert("현재 진행 중이거나 예정된 수업이 없습니다.\n아래 시간표에서 이동할 과목을 직접 클릭해 주세요!");
+                
+                // 부드럽게 아래 시간표 영역으로 화면 스크롤
+                const timetableBody = document.getElementById('timetableBody');
+                if (timetableBody) {
+                    timetableBody.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
         }
     </script>
 </body>
