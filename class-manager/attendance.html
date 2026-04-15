@@ -296,22 +296,22 @@ window.onload = async function () {
     updateDateTime();
     setInterval(updateDateTime, 60000);
     
-    // 👇 타임라인 업데이트 인터벌 실행 (1초 단위 계산) 👇
+    // 타임라인 업데이트 인터벌 실행 (1초 단위 계산)
     progressInterval = setInterval(updateClassTimer, 1000);
     
     createAttendDesks();
     createSeatDesks();
 
-    // 👇 수정: URL 파라미터를 읽어서 자동으로 탭을 바꿔주는 로직 👇
+    // URL 파라미터를 읽어옵니다.
     const urlParams = new URLSearchParams(window.location.search);
     const targetTab = urlParams.get('tab');
     const targetSubject = urlParams.get('subject');
 
-    // 꼬리표가 'seat'이면 좌석 탭을, 아니면 기본 출석 탭을 엽니다.
+    // 명시적인 꼬리표(?tab=seat)가 있으면 무조건 해당 탭을 엽니다.
     if (targetTab === 'seat') {
         switchTab('seat');
     } else {
-        switchTab('attend');
+        switchTab('attend'); // 기본은 출석 탭
     }
 
     try {
@@ -322,6 +322,24 @@ window.onload = async function () {
         if (targetSubject) { 
             currentSubject = targetSubject; 
             onSubjectChange(); 
+            
+            // 👇 추가: 메뉴 클릭으로 들어왔을 때(targetTab이 없을 때) 좌석이 비어있는지 확인 👇
+            if (!targetTab) {
+                fetch(`${API_URL}?type=GET_SEATING&subject=${encodeURIComponent(currentSubject)}&t=${ts}`)
+                    .then(res => res.json())
+                    .then(seatingData => {
+                        // 저장된 좌석 데이터 중 실제 학생 이름이 1명이라도 있는지 검사
+                        const hasStudent = seatingData.some(seat => seat.name && seat.name !== '__EMPTY__' && seat.name.trim() !== '');
+                        
+                        if (!hasStudent) {
+                            // 1명도 세팅되어 있지 않다면 즉시 '좌석 세팅' 탭으로 스위치!
+                            switchTab('seat');
+                        }
+                    })
+                    .catch(e => console.log("좌석 확인 실패", e));
+            }
+            // 👆 추가 로직 끝 👆
+
         } else {
             updateClassTimer();
         }
