@@ -5,6 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SH 교과관리시스템</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+    /* 깜박이는 효과 애니메이션 */
+    @keyframes pulse-live {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(0.95); }
+    }
+    
+    /* 🔥수업중 텍스트 배지 디자인 */
+    .live-class-badge {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 900;
+        color: #ef4444; /* 강렬한 빨간색 */
+        background-color: rgba(239, 68, 68, 0.15); /* 투명한 빨간 배경 */
+        border: 1px solid #ef4444;
+        padding: 2px 6px;
+        border-radius: 8px;
+        margin-left: 8px;
+        animation: pulse-live 1.5s infinite; /* 애니메이션 적용 */
+        vertical-align: middle;
+    }
+
+    /* 현재 수업중인 메뉴 전체에 강조 효과 (왼쪽 테두리 선) */
+    .live-class-active {
+        border-left: 4px solid #ef4444 !important;
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        transition: all 0.3s ease;
+    }
+</style>
 </head>
 <body class="bg-slate-100 flex h-screen overflow-hidden text-slate-800 relative">
 
@@ -297,6 +326,59 @@
                 return false;
             }
         }
+        function highlightCurrentClass() {
+            // 1. 현재 시간 및 요일 확인
+            const now = new Date();
+            const days = ['일','월','화','수','목','금','토'];
+            const todayStr = days[now.getDay()];
+            const time = now.getHours() * 100 + now.getMinutes();
+
+            // 2. 출석부 기준 현재 교시 계산
+            let currentPeriod = 0;
+            if      (time >= 830  && time < 945)  currentPeriod = 1;
+            else if (time >= 945  && time < 1045) currentPeriod = 2;
+            else if (time >= 1045 && time < 1145) currentPeriod = 3;
+            else if (time >= 1145 && time < 1235) currentPeriod = 4;
+            else if (time >= 1325 && time < 1435) currentPeriod = 5;
+            else if (time >= 1435 && time < 1525) currentPeriod = 6;
+            else if (time >= 1525 && time <= 1630) currentPeriod = 7;
+
+            // 3. 기존에 추가된 '수업중' 하이라이트 싹 지우기 (초기화)
+            document.querySelectorAll('.live-class-badge').forEach(el => el.remove());
+            document.querySelectorAll('.live-class-active').forEach(el => el.classList.remove('live-class-active'));
+
+            // 쉬는 시간이나 방과후면 여기서 멈춤
+            if (currentPeriod === 0) return; 
+
+            const targetString = todayStr + currentPeriod; // 예: "수3"
+
+            // 4. 왼쪽 사이드바 메뉴 텍스트 중 "수3" 같은 텍스트가 있는지 찾기
+            // 가장 안쪽의 텍스트 요소(span, div, p 등)를 모두 탐색합니다.
+            const menuElements = document.querySelectorAll('div, span, p'); 
+
+            menuElements.forEach(el => {
+                // 자식 태그가 없는 순수 텍스트 태그이면서, 텍스트에 "수3"이 포함되어 있고, 너무 긴 문장이 아닐 때 (메뉴 항목 판별)
+                if (el.children.length === 0 && el.innerText.includes(targetString) && el.innerText.length < 30) {
+                    
+                    // 메뉴를 감싸는 부모 태그(li나 a 태그 등)에 강조 배경/테두리 추가
+                    const parentMenu = el.closest('li') || el.closest('a') || el.parentElement;
+                    if (parentMenu && !parentMenu.classList.contains('live-class-active')) {
+                        parentMenu.classList.add('live-class-active');
+                    }
+
+                    // "월1 수3" 텍스트 바로 옆에 깜박이는 배지 덧붙이기
+                    if (!el.querySelector('.live-class-badge')) {
+                        const badge = document.createElement('span');
+                        badge.className = 'live-class-badge';
+                        badge.innerText = '🔥수업중!';
+                        el.appendChild(badge);
+                    }
+                }
+            });
+        }
+        // 최초 실행 후, 1분(60000ms)마다 백그라운드에서 시간을 체크하여 알아서 업데이트되도록 설정
+        setTimeout(highlightCurrentClass, 1500); // 메뉴가 렌더링될 시간 1.5초 대기 후 최초 실행
+        setInterval(highlightCurrentClass, 60000); 
     </script>
 </body>
 </html>
