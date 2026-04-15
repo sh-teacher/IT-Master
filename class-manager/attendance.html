@@ -427,7 +427,7 @@ function updateClassTimer() {
 }
 // 👆 타임라인 로직 끝 👆
 
-// 🌟 사진 모드 토글 (모바일 레이아웃 고정 및 높이 균형 수정 완료)
+// 🌟 사진 모드 토글 (모바일 레이아웃 고정 및 가로 배치 시 높이 확보 완료)
 function togglePhotoView() {
     isPhotoView = !isPhotoView;
     const grid = document.getElementById('classroomGrid');
@@ -455,14 +455,14 @@ function togglePhotoView() {
         rightPanel.classList.remove('lg:col-span-1');
         rightPanel.classList.add('lg:col-span-1');
         
-        // 🌟 데스크탑(lg)에서 가로 배치 & 높이 제한 해제 (균형 맞추기)
+        // 🌟 데스크탑(lg)에서 가로 배치 & 충분한 세로 높이(350px) 강제 확보
         rightInner.classList.add('lg:flex-row');
         
         logArea.classList.remove('md:min-h-[350px]');
-        logArea.classList.add('lg:flex-1');
+        logArea.classList.add('lg:flex-1', 'lg:min-h-[350px]');
         
         issueArea.classList.remove('shrink-0', 'md:h-[250px]');
-        issueArea.classList.add('lg:flex-1');
+        issueArea.classList.add('lg:flex-1', 'lg:min-h-[350px]');
         
     } else {
         grid.classList.remove('photo-mode');
@@ -479,13 +479,13 @@ function togglePhotoView() {
         rightPanel.classList.remove('lg:col-span-1');
         rightPanel.classList.add('lg:col-span-1');
         
-        // 🌟 이름 모드: 원래대로 세로 배치 & 높이 다시 적용
+        // 🌟 이름 모드: 원래대로 세로 배치 & 각자 다른 높이로 원복
         rightInner.classList.remove('lg:flex-row');
         
-        logArea.classList.remove('lg:flex-1');
+        logArea.classList.remove('lg:flex-1', 'lg:min-h-[350px]');
         logArea.classList.add('md:min-h-[350px]');
         
-        issueArea.classList.remove('lg:flex-1');
+        issueArea.classList.remove('lg:flex-1', 'lg:min-h-[350px]');
         issueArea.classList.add('shrink-0', 'md:h-[250px]');
     }
 }
