@@ -78,15 +78,15 @@
             <h2 class="text-xl md:text-2xl font-black text-slate-800 mb-4 md:mb-6 flex items-center gap-2">🗓️ 나의 주간 시간표</h2>
             <div class="bg-white rounded-2xl md:rounded-3xl shadow-sm border border-slate-200 overflow-hidden w-full">
                 <div class="w-full overflow-x-auto no-scrollbar">
-                    <table class="w-full text-center border-collapse min-w-[500px]">
+                    <table class="w-full text-center border-collapse">
                         <thead class="bg-slate-100 border-b border-slate-200">
                             <tr>
-                                <th class="p-3 md:p-4 text-xs md:text-sm font-black text-slate-500 w-12 md:w-16 border-r border-slate-200 sticky left-0 bg-slate-100 z-10">교시</th>
-                                <th class="p-3 md:p-4 text-xs md:text-sm font-black text-slate-700 w-1/5 border-r border-slate-200">월요일</th>
-                                <th class="p-3 md:p-4 text-xs md:text-sm font-black text-slate-700 w-1/5 border-r border-slate-200">화요일</th>
-                                <th class="p-3 md:p-4 text-xs md:text-sm font-black text-slate-700 w-1/5 border-r border-slate-200">수요일</th>
-                                <th class="p-3 md:p-4 text-xs md:text-sm font-black text-slate-700 w-1/5 border-r border-slate-200">목요일</th>
-                                <th class="p-3 md:p-4 text-xs md:text-sm font-black text-slate-700 w-1/5">금요일</th>
+                                <th class="p-1.5 md:p-4 text-[10px] md:text-sm font-black text-slate-500 w-8 md:w-16 border-r border-slate-200 sticky left-0 bg-slate-100 z-10">교시</th>
+                                <th class="p-1.5 md:p-4 text-[9px] md:text-sm font-black text-slate-700 border-r border-slate-200">월</th>
+                                <th class="p-1.5 md:p-4 text-[9px] md:text-sm font-black text-slate-700 border-r border-slate-200">화</th>
+                                <th class="p-1.5 md:p-4 text-[9px] md:text-sm font-black text-slate-700 border-r border-slate-200">수</th>
+                                <th class="p-1.5 md:p-4 text-[9px] md:text-sm font-black text-slate-700 border-r border-slate-200">목</th>
+                                <th class="p-1.5 md:p-4 text-[9px] md:text-sm font-black text-slate-700">금</th>
                             </tr>
                         </thead>
                         <tbody id="timetableBody" class="divide-y divide-slate-100">
@@ -149,18 +149,18 @@
                 tbody.innerHTML = '';
                 for (let p = 0; p < 7; p++) {
                     // 모바일 테이블 스크롤 시 교시(1, 2, 3...) 열이 왼쪽에 고정되도록 sticky 처리
-                    let rowHtml = `<tr class="hover:bg-slate-50 transition"><td class="p-2 md:p-4 text-xs md:text-sm font-black text-slate-500 bg-slate-50 border-r border-slate-100 sticky left-0 z-10">${p + 1}</td>`;
+                    let rowHtml = `<tr class="hover:bg-slate-50 transition"><td class="p-1 md:p-4 text-[10px] md:text-sm font-black text-slate-500 bg-slate-50 border-r border-slate-100 sticky left-0 z-10">${p + 1}</td>`;
                     for (let d = 0; d < 5; d++) {
                         const subject = matrix[p][d];
                         if (subject) {
                             rowHtml += `
-                                <td class="p-1.5 md:p-3 border-r border-slate-100 last:border-0 h-16 md:h-20">
-                                    <div onclick="location.href='attendance.html?subject=${encodeURIComponent(subject)}'" class="h-full flex items-center justify-center bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 font-bold text-[10px] md:text-sm rounded-lg md:rounded-xl cursor-pointer transition shadow-sm p-1 md:p-2 break-keep text-center leading-tight">
+                                <td class="p-0.5 md:p-3 border-r border-slate-100 last:border-0 h-10 md:h-20">
+                                    <div onclick="location.href='attendance.html?subject=${encodeURIComponent(subject)}'" class="h-full flex items-center justify-center bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 font-bold text-[8px] md:text-sm rounded-md md:rounded-xl cursor-pointer transition shadow-sm p-0.5 md:p-2 break-keep text-center leading-tight">
                                         ${subject}
                                     </div>
                                 </td>`;
                         } else {
-                            rowHtml += `<td class="p-2 md:p-4 border-r border-slate-100 last:border-0 h-16 md:h-20"></td>`;
+                            rowHtml += `<td class="p-0.5 md:p-4 border-r border-slate-100 last:border-0 h-10 md:h-20"></td>`;
                         }
                     }
                     rowHtml += `</tr>`;
