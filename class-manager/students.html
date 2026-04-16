@@ -134,7 +134,8 @@
             currentStudents.sort((a,b) => (a.grade-b.grade || a.class-b.class || a.number-b.number));
 
             currentStudents.forEach((std, idx) => {
-                const photoHtml = std.사진 ? `<img src="${std.사진}" class="photo-preview mx-auto shadow-sm">` : `<div class="no-photo mx-auto">👤</div>`;
+                const photoUrl = convertGoogleDriveUrl(std.사진);
+                const photoHtml = photoUrl ? `<img src="${photoUrl}" class="photo-preview mx-auto shadow-sm">` : `<div class="no-photo mx-auto">👤</div>`;
                 const displayName = std.name ? std.name : '<span class="text-red-500 text-xs">(인식 실패)</span>';
                 
                 tbody.innerHTML += `
