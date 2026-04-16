@@ -296,7 +296,7 @@
                     // ✅ 수정: href로 페이지 구분하여 헤더 제목 설정
                     const pageUrl = this.getAttribute('href') || '';
                     if (pageUrl.includes("attendance.html")) {
-                        document.getElementById('headerTitle').innerText = "학생 출결확인 및 수업 일지";
+                        document.getElementById('headerTitle').innerText = "출결/수업 일지";
                     } else if (pageUrl.includes("dashboard.html")) {
                         document.getElementById('headerTitle').innerText = "홈 (대시보드)";
                     } else if (pageUrl.includes("setup.html")) {
