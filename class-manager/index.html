@@ -187,14 +187,22 @@
 
         function updateClock() {
             const now = new Date();
-            // 스마트폰처럼 너비가 좁은 환경(innerWidth < 768)에서는 초를 숨기고 시:분만 표시할 수도 있지만 
-            // 여기서는 깔끔하게 나오도록 조절했습니다.
             const isMobile = window.innerWidth < 768;
-            const timeOptions = { hour: '2-digit', minute: '2-digit', second: isMobile ? undefined : '2-digit' };
-            const timeString = now.toLocaleTimeString('ko-KR', timeOptions);
-            const dateString = now.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', weekday: 'short' });
             
-            document.getElementById('realTimeClock').innerText = isMobile ? `${timeString}` : `${dateString} ${timeString}`;
+            // 모바일과 PC 모두 시간, 분, 초를 표시하도록 설정
+            const timeString = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            
+            if (isMobile) {
+                // 모바일용 날짜 형식: "16(목)"
+                const days = ['일','월','화','수','목','금','토'];
+                const mobileDateStr = `${now.getDate()}(${days[now.getDay()]})`;
+                
+                document.getElementById('realTimeClock').innerText = `${mobileDateStr} ${timeString}`;
+            } else {
+                // PC용 날짜 형식: "4월 16일 (목)"
+                const dateString = now.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', weekday: 'short' });
+                document.getElementById('realTimeClock').innerText = `${dateString} ${timeString}`;
+            }
         }
 
         async function loadSubjectsMenu() {
