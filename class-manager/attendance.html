@@ -752,7 +752,10 @@ async function loadClassData() {
                     attendanceData[key].status = issue.status;
                     attendanceData[key].memo = issue.memo;
                     const card = [...document.querySelectorAll('.student-card-attend')].find(c => c.innerHTML.includes(issue.name));
-                    if (card) card.className = card.className.replace(/card-\w+/, `card-${issue.status}`);
+                    if (card) {
+                        card.classList.remove('card-present', 'card-absent', 'card-late');
+                        card.classList.add(`card-${issue.status}`);
+                    }
                 }
             });
         }
