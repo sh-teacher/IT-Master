@@ -260,6 +260,7 @@
                 });
 
                 attachMenuClickEvents();
+                highlightCurrentClass();
 
             } catch (e) {
                 document.getElementById('dynamicMenu').innerHTML = '<p class="px-4 text-sm text-red-400">메뉴 로드 실패</p>';
@@ -382,7 +383,6 @@
             });
         }
         // 최초 실행 후, 1분(60000ms)마다 백그라운드에서 시간을 체크하여 알아서 업데이트되도록 설정
-        setTimeout(highlightCurrentClass, 500); // 메뉴가 렌더링될 시간 1.5초 대기 후 최초 실행
         setInterval(highlightCurrentClass, 60000); 
     </script>
 </body>
