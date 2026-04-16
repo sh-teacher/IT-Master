@@ -135,7 +135,9 @@
 
             currentStudents.forEach((std, idx) => {
                 const photoUrl = convertGoogleDriveUrl(std.사진);
-                const photoHtml = photoUrl ? `<img src="${photoUrl}" class="photo-preview mx-auto shadow-sm">` : `<div class="no-photo mx-auto">👤</div>`;
+                const photoHtml = photoUrl 
+                    ? `<img id="photo_${std.class}_${std.number}" class="photo-preview mx-auto shadow-sm" style="background:#f1f5f9;">` 
+                    : `<div class="no-photo mx-auto">👤</div>`;
                 const displayName = std.name ? std.name : '<span class="text-red-500 text-xs">(인식 실패)</span>';
                 
                 tbody.innerHTML += `
@@ -155,6 +157,15 @@
             if(currentStudents.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="3" class="p-10 text-slate-400 text-sm">등록된 학생이 없습니다.</td></tr>';
             }
+            // renderTable() 함수 맨 끝에 추가
+            currentStudents.forEach(std => {
+                const photoUrl = convertGoogleDriveUrl(std.사진);
+                if (!photoUrl) return;
+                fetch(photoUrl).then(r => r.text()).then(base64 => {
+                    const img = document.getElementById(`photo_${std.class}_${std.number}`);
+                    if (img) img.src = `data:image/jpeg;base64,${base64}`;
+                }).catch(() => {});
+            });
         }
 
         async function handlePhotoUpload(event) {
