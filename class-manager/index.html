@@ -249,14 +249,14 @@
                     const dotColor = isToday ? "bg-emerald-400" : "bg-slate-500";
                     const titleColor = isToday ? "text-emerald-300" : "text-slate-300";
                     const badgeHtml = isToday 
-                        ? `<span class="ml-auto text-[10px] bg-slate-700 text-emerald-300 px-1.5 py-0.5 rounded-md font-bold">${sub.todayPeriod}교시</span>` 
+                        ? `<span class="ml-auto shrink-0 whitespace-nowrap text-[10px] bg-slate-700 text-emerald-300 px-1.5 py-0.5 rounded-md font-bold">${sub.todayPeriod}교시</span>` 
                         : "";
 
                     groupDiv.innerHTML = `
                         <a href="attendance.html?subject=${encodeURIComponent(sub.fullName)}" target="mainFrame" class="menu-link block py-2 px-3 rounded-xl hover:bg-slate-800 transition">
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="w-2 h-2 rounded-full ${dotColor}"></span>
-                                <span class="text-sm font-bold ${titleColor} subject-title">${sub.fullName}</span>
+                            <div class="flex items-center gap-2 mb-1 overflow-hidden">
+                                <span class="w-2 h-2 rounded-full shrink-0 ${dotColor}"></span>
+                                <span class="text-sm font-bold ${titleColor} subject-title truncate flex-1">${sub.fullName}</span>
                                 ${badgeHtml}
                             </div>
                             <div class="pl-4 text-xs text-slate-400 font-normal tracking-wide truncate">
