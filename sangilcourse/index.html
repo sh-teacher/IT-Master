@@ -303,7 +303,7 @@
             <th>교사ID</th>
             <th>이름</th>
             <th>과목명</th>
-            <th>요일</th>
+            <th>대상반</th> <th>요일</th>
             <th>교시</th>
           </tr>
         </thead>
@@ -315,7 +315,7 @@
           <td>${item.teacherId}</td>
           <td><strong>${item.teacherName}</strong></td>
           <td style="text-align:left; padding-left:15px;">${item.subject}</td>
-          <td>${item.day}</td>
+          <td>${item.targetClass}</td> <td>${item.day}</td>
           <td>${item.period}</td>
         </tr>`;
       });
