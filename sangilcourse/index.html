@@ -218,7 +218,7 @@
       }
     }
 
-    // 대시보드 HTML 조립
+    // 🌟 대시보드 HTML 조립 함수 (수정본: 대상반 줄바꿈 및 너비 고정 지원)
     function buildDashboardHTML(mySchedule) {
       const contentArea = document.getElementById('contentArea');
       
@@ -228,6 +228,7 @@
       
       const times = ["08:45 ~ 09:35", "09:45 ~ 10:35", "10:45 ~ 11:35", "11:45 ~ 12:35", "13:35 ~ 14:25", "14:35 ~ 15:25", "15:40 ~ 16:30"];
 
+      // 1. 오늘의 타임라인 생성
       let timelineHTML = "";
       if (todayNum === 0 || todayNum === 6) {
         timelineHTML = `<div style="padding: 20px; color:#666;">주말은 수업이 없습니다. 푹 쉬세요! ☕</div>`;
@@ -235,11 +236,14 @@
         timelineHTML += `<div class="timeline">`;
         for (let period = 1; period <= 7; period++) {
           const classData = mySchedule.find(s => s.day === todayStr && s.period == period);
+          
           if (classData) {
+            // ✨ 타임라인은 옆으로 길게 (예: 현대사회와 윤리c (2-3))
+            const displayTitle = classData.targetClass ? `${classData.subject} (${classData.targetClass})` : classData.subject;
             timelineHTML += `
               <div class="timeline-item">
                 <div class="timeline-time">${period}교시 (${times[period-1]})</div>
-                <div class="timeline-title">${classData.subject}</div>
+                <div class="timeline-title">${displayTitle}</div>
               </div>`;
           } else {
             timelineHTML += `
@@ -252,16 +256,16 @@
         timelineHTML += `</div>`;
       }
 
-      // 2. 주간 시간표 표(Table) 생성 (수정본)
+      // 2. 주간 시간표 표(Table) 생성
       let tableHTML = `<table class="schedule-table"><thead><tr><th>교시</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th></tr></thead><tbody>`;
       for (let period = 1; period <= 7; period++) {
         tableHTML += `<tr><td><strong>${period}</strong></td>`;
         ["월", "화", "수", "목", "금"].forEach(day => {
           const classData = mySchedule.find(s => s.day === day && s.period == period);
           if (classData) {
-            // ✨ 핵심: 괄호 앞의 띄어쓰기 유무와 상관없이 무조건 줄바꿈(<br>) 처리
-            const shortSubj = classData.subject.replace(/\s*\(/g, "<br>(");
-            tableHTML += `<td class="has-class">${shortSubj}</td>`;
+            // ✨ 표 안에서는 줄바꿈 (예: 현대사회와 윤리c<br>(2-3))
+            const tableTitle = classData.targetClass ? `${classData.subject}<br>(${classData.targetClass})` : classData.subject;
+            tableHTML += `<td class="has-class">${tableTitle}</td>`;
           } else {
             tableHTML += `<td></td>`;
           }
@@ -270,6 +274,7 @@
       }
       tableHTML += `</tbody></table>`;
 
+      // 3. 최종 HTML 꽂아넣기
       contentArea.innerHTML = `
         <h2 style="color: #0056b3; display:flex; align-items:center; gap:8px;">🏫 상일여고 교과관리시스템</h2>
         <p style="color: #666; margin-top: 5px;">출석부를 들고 다니지 말고, 빠르고 스마트하게 수업을 기록하세요.</p>
