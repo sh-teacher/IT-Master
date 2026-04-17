@@ -181,12 +181,13 @@
 
         <h3>📋 현재 등록된 나이스 데이터 (검색 가능)</h3>
         
+        // renderAdminConfig 함수 내 filterArea 부분을 아래와 같이 수정
         <div id="filterArea" style="display: none; gap: 10px; flex-wrap: wrap; margin-top: 15px; padding: 10px; background: #eef2f5; border-radius: 6px;">
           <select id="filterSem" onchange="applyFilters()" style="padding:5px;"><option value="">전체 학기</option></select>
           <select id="filterId" onchange="applyFilters()" style="padding:5px;"><option value="">전체 ID</option></select>
           <select id="filterName" onchange="applyFilters()" style="padding:5px;"><option value="">전체 이름</option></select>
           <select id="filterSubject" onchange="applyFilters()" style="padding:5px;"><option value="">전체 과목명</option></select>
-          <select id="filterDay" onchange="applyFilters()" style="padding:5px;"><option value="">전체 요일</option></select>
+          <select id="filterTargetClass" onchange="applyFilters()" style="padding:5px;"><option value="">전체 대상반</option></select> <select id="filterDay" onchange="applyFilters()" style="padding:5px;"><option value="">전체 요일</option></select>
           <select id="filterPeriod" onchange="applyFilters()" style="padding:5px;"><option value="">전체 교시</option></select>
           <button onclick="resetFilters()" style="padding:5px 10px; background:white; border:1px solid #ccc; cursor:pointer; border-radius:4px;">초기화</button>
           <span id="dataCount" style="margin-left:auto; align-self:center; font-weight:bold; color:#0056b3;"></span>
@@ -232,13 +233,13 @@
     }
 
     // 🌟 중복 없는 값들을 추출해서 드롭다운(<select>)에 옵션 추가하기
+    // populateFilterOptions 함수 내 옵션 추가
     function populateFilterOptions() {
-      // 값 추출 및 중복 제거(Set) 후 정렬
       const getUnique = (key) => [...new Set(allNeisData.map(item => key === 'sem' ? `${item.year}-${item.semester}` : item[key]))].sort();
 
       const fillSelect = (id, array) => {
         const select = document.getElementById(id);
-        // 기본값("전체") 하나만 남기고 싹 비움
+        if(!select) return;
         select.innerHTML = select.options[0].outerHTML; 
         array.forEach(value => {
           if(value) select.innerHTML += `<option value="${value}">${value}</option>`;
@@ -249,40 +250,41 @@
       fillSelect('filterId', getUnique('teacherId'));
       fillSelect('filterName', getUnique('teacherName'));
       fillSelect('filterSubject', getUnique('subject'));
-      // 요일과 교시는 정해진 순서대로 강제 지정
+      fillSelect('filterTargetClass', getUnique('targetClass')); // ✨ 추가
       fillSelect('filterDay', ['월', '화', '수', '목', '금', '토', '일']); 
       fillSelect('filterPeriod', [1, 2, 3, 4, 5, 6, 7, 8]);
     }
 
-    // 🌟 필터 조건에 맞춰서 데이터 걸러내기 (드롭다운 바꿀 때마다 실행)
+    // applyFilters 함수 내 조건 추가
     function applyFilters() {
       const fSem = document.getElementById('filterSem').value;
       const fId = document.getElementById('filterId').value;
       const fName = document.getElementById('filterName').value;
       const fSubj = document.getElementById('filterSubject').value;
+      const fTClass = document.getElementById('filterTargetClass').value; // ✨ 추가
       const fDay = document.getElementById('filterDay').value;
       const fPer = document.getElementById('filterPeriod').value;
 
-      // 선택한 조건에 모두 맞는 데이터만 filtered 배열에 남김
       const filtered = allNeisData.filter(item => {
         const semStr = `${item.year}-${item.semester}`;
         return (!fSem || semStr === fSem) &&
-               (!fId || item.teacherId === fId) &&
-               (!fName || item.teacherName === fName) &&
-               (!fSubj || item.subject === fSubj) &&
-               (!fDay || item.day === fDay) &&
-               (!fPer || String(item.period) === String(fPer));
+              (!fId || item.teacherId === fId) &&
+              (!fName || item.teacherName === fName) &&
+              (!fSubj || item.subject === fSubj) &&
+              (!fTClass || item.targetClass === fTClass) && // ✨ 추가
+              (!fDay || item.day === fDay) &&
+              (!fPer || String(item.period) === String(fPer));
       });
 
-      // 걸러진 개수 표시 및 화면 그리기
       document.getElementById('dataCount').innerText = `총 ${filtered.length}건`;
       renderNeisTable(filtered);
     }
 
-    // 🌟 필터 초기화 버튼
+    // resetFilters 함수 수정
     function resetFilters() {
-      ['filterSem', 'filterId', 'filterName', 'filterSubject', 'filterDay', 'filterPeriod'].forEach(id => {
-        document.getElementById(id).value = "";
+      ['filterSem', 'filterId', 'filterName', 'filterSubject', 'filterTargetClass', 'filterDay', 'filterPeriod'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.value = "";
       });
       applyFilters();
     }
