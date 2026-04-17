@@ -176,9 +176,9 @@
           <div id="loadingNeis" style="display:none; margin-top:15px; color:#0056b3; font-weight:bold;">처리 중... ⏳</div>
         </div>
 
-        <h3>📋 현재 등록된 나이스 데이터 (최근 50건)</h3>
-        <div id="neisDataContainer" style="margin-top:10px; overflow-x:auto;">
-          데이터를 불러오는 중...
+        <h3>📋 현재 등록된 나이스 데이터 (전체)</h3>
+        <div id="neisDataContainer" style="margin-top:10px; max-height: 400px; overflow-y: auto; border: 1px solid #ccc; border-radius: 4px;">
+          <div style="padding: 15px;">데이터를 불러오는 중...</div>
         </div>
       `;
       
@@ -187,6 +187,7 @@
     }
 
     // 🌟 서버에서 나이스 데이터를 가져와서 표로 그리는 함수
+    // 🌟 서버에서 나이스 데이터를 가져와서 표로 그리는 함수 (수정본)
     async function fetchNeisData() {
       const container = document.getElementById('neisDataContainer');
       
@@ -199,16 +200,16 @@
 
         if (result.success) {
           if (result.data.length === 0) {
-            container.innerHTML = "<p style='color:#666;'>등록된 데이터가 없습니다.</p>";
+            container.innerHTML = "<p style='color:#666; padding: 15px;'>등록된 데이터가 없습니다.</p>";
             return;
           }
 
-          // 최신순으로 보여주기 위해 뒤집거나 상위 50개만 표시 (데이터가 너무 많으면 느려질 수 있음)
-          const displayData = result.data.slice(-50).reverse(); 
+          // ✨ 핵심 변경: .slice(-50)을 지워서 전체 데이터를 다 가져옵니다! 
+          // (최근에 올린 데이터가 위로 오도록 reverse()만 남겨둠)
+          const displayData = result.data.reverse(); 
 
-          let html = `<table class="neis-table">
-            <thead>
-              <tr>
+          let html = `<table class="neis-table" style="border:none; margin-top:0;">
+            <thead style="position: sticky; top: 0; z-index: 1;"> <tr>
                 <th>학년도-학기</th>
                 <th>교사ID</th>
                 <th>요일</th>
@@ -231,10 +232,10 @@
           html += `</tbody></table>`;
           container.innerHTML = html;
         } else {
-          container.innerHTML = "데이터를 불러오지 못했습니다.";
+          container.innerHTML = "<p style='padding: 15px;'>데이터를 불러오지 못했습니다.</p>";
         }
       } catch (e) {
-        container.innerHTML = "서버 통신 에러가 발생했습니다.";
+        container.innerHTML = "<p style='padding: 15px;'>서버 통신 에러가 발생했습니다.</p>";
       }
     }
 
