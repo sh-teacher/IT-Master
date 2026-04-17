@@ -142,7 +142,7 @@
       }
     }
     // ----------------------------------------
-    // CSV 파일 읽기 및 데이터 분석 로직
+    // CSV 파일 읽기 및 데이터 분석 로직 (인덱스 수정됨)
     // ----------------------------------------
     function processCSVData() {
       const year = document.getElementById('setYear').value.trim();
@@ -162,7 +162,6 @@
       const file = fileInput.files[0];
       const reader = new FileReader();
 
-      // 파일 읽기가 완료되었을 때 실행될 로직
       reader.onload = function(e) {
         const rawData = e.target.result;
         const rows = rawData.split('\n');
@@ -170,14 +169,13 @@
         const days = ["월", "화", "수", "목", "금", "토", "일"];
 
         rows.forEach(row => {
-          // CSV는 쉼표(,)로 열을 분리합니다.
           const cols = row.split(','); 
           
-          // 올려주신 CSV 구조상 cols[1]에 순번(숫자)이 들어갑니다. 숫자가 아니면 무시 (헤더 등)
-          if (!cols[1] || isNaN(cols[1].trim()) || cols[1].trim() === "") return;
+          // ✨ 수정됨: 올려주신 CSV 구조상 cols[0]에 순번(숫자)이 들어갑니다.
+          if (!cols[0] || isNaN(cols[0].trim()) || cols[0].trim() === "") return;
 
-          // cols[2]에 아이디와 이름이 있습니다. (예: kmj048070(강민주))
-          const teacherRaw = cols[2] ? cols[2].trim() : ""; 
+          // ✨ 수정됨: cols[1]에 아이디와 이름이 있습니다. (예: kmj048070(강민주))
+          const teacherRaw = cols[1] ? cols[1].trim() : ""; 
           const idMatch = teacherRaw.match(/(.+)\((.+)\)/); 
           if (!idMatch) return; 
           
@@ -186,8 +184,8 @@
 
           const subjectsMap = {}; 
 
-          // 3번 인덱스(월1)부터 반복하여 시간표 파싱
-          for (let i = 3; i < cols.length; i++) {
+          // ✨ 수정됨: 2번 인덱스(월1)부터 반복하여 시간표 파싱
+          for (let i = 2; i < cols.length; i++) {
             const cellData = cols[i] ? cols[i].trim() : "";
             if (!cellData) continue; 
 
@@ -200,7 +198,7 @@
               const targetClass = `${grade}-${classNum}`;
 
               // 요일 및 교시 계산
-              const timeIndex = i - 3; 
+              const timeIndex = i - 2; // 수정됨
               const dayIdx = Math.floor(timeIndex / 12); 
               const period = (timeIndex % 12) + 1; 
 
@@ -235,13 +233,12 @@
           return;
         }
 
-        // 백엔드로 전송 (기존에 작성해둔 sendBulkDataToServer 함수 그대로 사용)
+        // 백엔드로 전송
         sendBulkDataToServer(year, semester, result);
       };
 
-      // 나이스 시스템 특성상 한글 깨짐을 방지하기 위해 EUC-KR로 읽어들입니다.
-      // (만약 한글이 깨지면 'euc-kr' 대신 'utf-8'로 변경하면 됩니다)
-      reader.readAsText(file, "utf-8"); 
+      // 한글 깨짐 방지용 euc-kr
+      reader.readAsText(file, "euc-kr"); 
     }
 
     // 추출된 데이터를 백엔드로 전송하는 함수
