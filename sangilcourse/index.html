@@ -157,7 +157,7 @@
     // 🌟 전역 변수: 서버에서 가져온 전체 데이터를 임시 저장해둠 (초고속 필터링용)
     let allNeisData = [];
 
-    // 🌟 학기/과목 설정 화면 (필터 드롭다운 UI 추가)
+    // 🌟 학기/과목 설정 화면 (다운로드 안내 멘트 추가)
     function renderAdminConfig() {
       const contentArea = document.getElementById('contentArea');
       contentArea.innerHTML = `
@@ -170,22 +170,32 @@
             <label style="margin-left:15px;">학기: </label>
             <input type="text" id="setSemester" value="1" style="padding:5px; width:50px;">
           </div>
+
+          <div style="margin-bottom:15px; padding:12px; background-color:#e6f0fa; border-radius:6px; border-left:4px solid #0056b3; font-size:14px; color:#333; line-height:1.5;">
+            <strong>💡 나이스(NEIS) 엑셀 파일 다운로드 방법</strong><br>
+            나이스 메뉴 ➔ <strong>[학적]</strong> ➔ <strong>[전체 시간표조회]</strong> ➔ <strong>[전체교사]</strong> 화면에서 조회 후 엑셀 데이터를 다운로드하여 업로드해 주세요.
+          </div>
+
           <div style="margin-bottom:15px;">
             <input type="file" id="excelFileInput" accept=".xlsx, .xls">
           </div>
+          
           <button onclick="processExcelData()" style="padding:10px 20px; background:#0056b3; color:white; border:none; border-radius:4px; cursor:pointer;">
             엑셀 데이터 분석 및 업로드
           </button>
+          
           <div id="loadingNeis" style="display:none; margin-top:15px; color:#0056b3; font-weight:bold;">처리 중... ⏳</div>
         </div>
 
         <h3>📋 현재 등록된 나이스 데이터 (검색 가능)</h3>
+        
         <div id="filterArea" style="display: none; gap: 10px; flex-wrap: wrap; margin-top: 15px; padding: 10px; background: #eef2f5; border-radius: 6px;">
           <select id="filterSem" onchange="applyFilters()" style="padding:5px;"><option value="">전체 학기</option></select>
           <select id="filterId" onchange="applyFilters()" style="padding:5px;"><option value="">전체 ID</option></select>
           <select id="filterName" onchange="applyFilters()" style="padding:5px;"><option value="">전체 이름</option></select>
           <select id="filterSubject" onchange="applyFilters()" style="padding:5px;"><option value="">전체 과목명</option></select>
-          <select id="filterTargetClass" onchange="applyFilters()" style="padding:5px;"><option value="">전체 대상반</option></select> <select id="filterDay" onchange="applyFilters()" style="padding:5px;"><option value="">전체 요일</option></select>
+          <select id="filterTargetClass" onchange="applyFilters()" style="padding:5px;"><option value="">전체 대상반</option></select>
+          <select id="filterDay" onchange="applyFilters()" style="padding:5px;"><option value="">전체 요일</option></select>
           <select id="filterPeriod" onchange="applyFilters()" style="padding:5px;"><option value="">전체 교시</option></select>
           <button onclick="resetFilters()" style="padding:5px 10px; background:white; border:1px solid #ccc; cursor:pointer; border-radius:4px;">초기화</button>
           <span id="dataCount" style="margin-left:auto; align-self:center; font-weight:bold; color:#0056b3;"></span>
