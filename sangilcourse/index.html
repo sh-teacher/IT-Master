@@ -154,7 +154,10 @@
       }
     }
 
-    // 🌟 학기/과목 설정 화면 (업로드 폼 + 아래에 데이터 표 추가)
+    // 🌟 전역 변수: 서버에서 가져온 전체 데이터를 임시 저장해둠 (초고속 필터링용)
+    let allNeisData = [];
+
+    // 🌟 학기/과목 설정 화면 (필터 드롭다운 UI 추가)
     function renderAdminConfig() {
       const contentArea = document.getElementById('contentArea');
       contentArea.innerHTML = `
@@ -176,21 +179,30 @@
           <div id="loadingNeis" style="display:none; margin-top:15px; color:#0056b3; font-weight:bold;">처리 중... ⏳</div>
         </div>
 
-        <h3>📋 현재 등록된 나이스 데이터 (전체)</h3>
+        <h3>📋 현재 등록된 나이스 데이터 (검색 가능)</h3>
+        
+        <div id="filterArea" style="display: none; gap: 10px; flex-wrap: wrap; margin-top: 15px; padding: 10px; background: #eef2f5; border-radius: 6px;">
+          <select id="filterSem" onchange="applyFilters()" style="padding:5px;"><option value="">전체 학기</option></select>
+          <select id="filterId" onchange="applyFilters()" style="padding:5px;"><option value="">전체 ID</option></select>
+          <select id="filterName" onchange="applyFilters()" style="padding:5px;"><option value="">전체 이름</option></select>
+          <select id="filterSubject" onchange="applyFilters()" style="padding:5px;"><option value="">전체 과목명</option></select>
+          <select id="filterDay" onchange="applyFilters()" style="padding:5px;"><option value="">전체 요일</option></select>
+          <select id="filterPeriod" onchange="applyFilters()" style="padding:5px;"><option value="">전체 교시</option></select>
+          <button onclick="resetFilters()" style="padding:5px 10px; background:white; border:1px solid #ccc; cursor:pointer; border-radius:4px;">초기화</button>
+          <span id="dataCount" style="margin-left:auto; align-self:center; font-weight:bold; color:#0056b3;"></span>
+        </div>
+
         <div id="neisDataContainer" style="margin-top:10px; max-height: 400px; overflow-y: auto; border: 1px solid #ccc; border-radius: 4px;">
           <div style="padding: 15px;">데이터를 불러오는 중...</div>
         </div>
       `;
       
-      // 화면이 그려진 직후 데이터를 불러옵니다.
-      fetchNeisData();
+      fetchNeisData(); // 화면이 그려진 후 통신 시작
     }
 
-    // 🌟 서버에서 나이스 데이터를 가져와서 표로 그리는 함수
-    // 🌟 서버에서 나이스 데이터를 가져와서 표로 그리는 함수 (수정본)
+    // 🌟 서버에서 데이터 가져오기 (1회만 실행)
     async function fetchNeisData() {
       const container = document.getElementById('neisDataContainer');
-      
       try {
         const response = await fetch(API_URL, {
           method: "POST",
@@ -199,49 +211,117 @@
         const result = await response.json();
 
         if (result.success) {
-          if (result.data.length === 0) {
+          // 배열에 원본 데이터 저장 (최근 데이터가 위로 오게 뒤집기)
+          allNeisData = result.data.reverse(); 
+
+          if (allNeisData.length === 0) {
             container.innerHTML = "<p style='color:#666; padding: 15px;'>등록된 데이터가 없습니다.</p>";
             return;
           }
 
-          // ✨ 핵심 변경: .slice(-50)을 지워서 전체 데이터를 다 가져옵니다! 
-          // (최근에 올린 데이터가 위로 오도록 reverse()만 남겨둠)
-          const displayData = result.data.reverse(); 
-
-          // ✨ 표 헤더(제목 줄) 순서 변경
-          let html = `<table class="neis-table" style="border:none; margin-top:0;">
-            <thead style="position: sticky; top: 0; z-index: 1;">
-              <tr>
-                <th>학년도-학기</th>
-                <th>교사ID</th>
-                <th>이름</th>
-                <th>과목명</th>
-                <th>요일</th>
-                <th>교시</th>
-              </tr>
-            </thead>
-            <tbody>`;
-          
-          // ✨ 표 내용 순서 변경
-          displayData.forEach(item => {
-            html += `<tr>
-              <td>${item.year}-${item.semester}</td>
-              <td>${item.teacherId}</td>
-              <td><strong>${item.teacherName}</strong></td>
-              <td style="text-align:left; padding-left:15px;">${item.subject}</td>
-              <td>${item.day}</td>
-              <td>${item.period}</td>
-            </tr>`;
-          });
-
-          html += `</tbody></table>`;
-          container.innerHTML = html;
+          // 데이터가 있으면 필터 메뉴를 보이고, 옵션들을 채워 넣음
+          document.getElementById('filterArea').style.display = 'flex';
+          populateFilterOptions();
+          applyFilters(); // 최초 전체 리스트 그리기
         } else {
           container.innerHTML = "<p style='padding: 15px;'>데이터를 불러오지 못했습니다.</p>";
         }
       } catch (e) {
         container.innerHTML = "<p style='padding: 15px;'>서버 통신 에러가 발생했습니다.</p>";
       }
+    }
+
+    // 🌟 중복 없는 값들을 추출해서 드롭다운(<select>)에 옵션 추가하기
+    function populateFilterOptions() {
+      // 값 추출 및 중복 제거(Set) 후 정렬
+      const getUnique = (key) => [...new Set(allNeisData.map(item => key === 'sem' ? `${item.year}-${item.semester}` : item[key]))].sort();
+
+      const fillSelect = (id, array) => {
+        const select = document.getElementById(id);
+        // 기본값("전체") 하나만 남기고 싹 비움
+        select.innerHTML = select.options[0].outerHTML; 
+        array.forEach(value => {
+          if(value) select.innerHTML += `<option value="${value}">${value}</option>`;
+        });
+      };
+
+      fillSelect('filterSem', getUnique('sem'));
+      fillSelect('filterId', getUnique('teacherId'));
+      fillSelect('filterName', getUnique('teacherName'));
+      fillSelect('filterSubject', getUnique('subject'));
+      // 요일과 교시는 정해진 순서대로 강제 지정
+      fillSelect('filterDay', ['월', '화', '수', '목', '금', '토', '일']); 
+      fillSelect('filterPeriod', [1, 2, 3, 4, 5, 6, 7, 8]);
+    }
+
+    // 🌟 필터 조건에 맞춰서 데이터 걸러내기 (드롭다운 바꿀 때마다 실행)
+    function applyFilters() {
+      const fSem = document.getElementById('filterSem').value;
+      const fId = document.getElementById('filterId').value;
+      const fName = document.getElementById('filterName').value;
+      const fSubj = document.getElementById('filterSubject').value;
+      const fDay = document.getElementById('filterDay').value;
+      const fPer = document.getElementById('filterPeriod').value;
+
+      // 선택한 조건에 모두 맞는 데이터만 filtered 배열에 남김
+      const filtered = allNeisData.filter(item => {
+        const semStr = `${item.year}-${item.semester}`;
+        return (!fSem || semStr === fSem) &&
+               (!fId || item.teacherId === fId) &&
+               (!fName || item.teacherName === fName) &&
+               (!fSubj || item.subject === fSubj) &&
+               (!fDay || item.day === fDay) &&
+               (!fPer || String(item.period) === String(fPer));
+      });
+
+      // 걸러진 개수 표시 및 화면 그리기
+      document.getElementById('dataCount').innerText = `총 ${filtered.length}건`;
+      renderNeisTable(filtered);
+    }
+
+    // 🌟 필터 초기화 버튼
+    function resetFilters() {
+      ['filterSem', 'filterId', 'filterName', 'filterSubject', 'filterDay', 'filterPeriod'].forEach(id => {
+        document.getElementById(id).value = "";
+      });
+      applyFilters();
+    }
+
+    // 🌟 실제로 화면에 표(HTML)를 그려주는 함수
+    function renderNeisTable(displayData) {
+      const container = document.getElementById('neisDataContainer');
+      
+      if (displayData.length === 0) {
+        container.innerHTML = "<p style='padding: 15px;'>검색 조건에 맞는 데이터가 없습니다.</p>";
+        return;
+      }
+
+      let html = `<table class="neis-table" style="border:none; margin-top:0;">
+        <thead style="position: sticky; top: 0; z-index: 1;">
+          <tr>
+            <th>학년도-학기</th>
+            <th>교사ID</th>
+            <th>이름</th>
+            <th>과목명</th>
+            <th>요일</th>
+            <th>교시</th>
+          </tr>
+        </thead>
+        <tbody>`;
+      
+      displayData.forEach(item => {
+        html += `<tr>
+          <td>${item.year}-${item.semester}</td>
+          <td>${item.teacherId}</td>
+          <td><strong>${item.teacherName}</strong></td>
+          <td style="text-align:left; padding-left:15px;">${item.subject}</td>
+          <td>${item.day}</td>
+          <td>${item.period}</td>
+        </tr>`;
+      });
+
+      html += `</tbody></table>`;
+      container.innerHTML = html;
     }
 
     // 🌟 대시보드 통신 및 화면 그리기 (캐싱 적용)
