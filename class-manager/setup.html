@@ -106,10 +106,11 @@
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbxUgpimLYy_9K_vZjbxJYtImA4fcz3ZZxfXPvy9WlYXLv1dY-yBA6yrtHeybyAo1v_Vpg/exec";
 
-        window.onload = () => {
+        window.onload = async () => {
             document.getElementById('scheduleSlots').innerHTML = getSlotHTML();
-            loadConfig();
-            loadAllData();
+            // 설정을 먼저 불러오고 나서, 데이터를 불러와야 타이밍이 꼬이지 않습니다.
+            await loadConfig(); 
+            await loadAllData();
         };
 
         // --- UI 컨트롤 ---
@@ -151,6 +152,10 @@
             try {
                 await fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "SAVE_CONFIG", payload: payload }) });
                 alert("학년도와 학기가 성공적으로 저장되었습니다!");
+                
+                // 🌟 학기를 바꿨으니 그 학기에 맞는 리스트를 다시 불러오도록 추가!
+                await loadAllData(); 
+                
             } catch (e) { alert("저장 실패: " + e.message); } 
             finally { btn.disabled = false; btn.innerText = "학기 정보 저장"; }
         }
