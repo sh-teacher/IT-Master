@@ -142,7 +142,7 @@
       }
     }
     // ----------------------------------------
-    // CSV 파일 읽기 및 데이터 분석 로직 (UTF-8 & 초강력 탐색)
+    // CSV 파일 읽기 및 데이터 분석 로직 (EUC-KR 적용)
     // ----------------------------------------
     function processCSVData() {
       const year = document.getElementById('setYear').value.trim();
@@ -179,7 +179,7 @@
             if (!cols[i]) continue;
             let cell = cols[i].replace(/"/g, '').trim(); 
             
-            // 아이디에 특수기호(-, _, .)가 있어도 찾을 수 있도록 정규식 강화
+            // 아이디 찾기
             let idMatch = cell.match(/([a-zA-Z0-9_.-]+)\((.+?)\)/);
             if (idMatch) {
               teacherId = idMatch[1].trim();
@@ -197,7 +197,7 @@
             let cellData = cols[i] ? cols[i].replace(/"/g, '').trim() : "";
             if (!cellData) continue; 
 
-            // 띄어쓰기가 불규칙해도 "O학년 OOO(O)" 형태면 무조건 잡아냄
+            // 과목 찾기
             const cellMatch = cellData.match(/(\d+)\s*학년\s*(.+?)\s*\((\d+)\)/);
             if (cellMatch) {
               const grade = cellMatch[1];
@@ -244,8 +244,8 @@
         sendBulkDataToServer(year, semester, result);
       };
 
-      // ✨ [문제 해결의 핵심!] euc-kr을 utf-8로 변경했습니다.
-      reader.readAsText(file, "utf-8"); 
+      // ✨ [여기!] 윈도우 엑셀 기본 방식인 euc-kr 로 한글을 완벽하게 읽어옵니다.
+      reader.readAsText(file, "euc-kr"); 
     }
 
     // 추출된 데이터를 백엔드로 전송하는 함수
