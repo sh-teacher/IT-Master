@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>상일여고 교과관리시스템 - 로그인</title>
+  <style>
+    /* 기본 초기화 및 폰트 설정 */
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', 'Malgun Gothic', sans-serif; }
+    body { background-color: #f4f7fa; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    
+    /* 컨테이너 스타일 */
+    .container { background-color: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+    .header { text-align: center; margin-bottom: 30px; }
+    .header h1 { font-size: 24px; color: #333; margin-bottom: 10px; }
+    .header p { font-size: 14px; color: #666; }
+    
+    /* 입력 폼 스타일 */
+    .input-group { margin-bottom: 20px; }
+    .input-group label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: bold; color: #555; }
+    .input-group input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 15px; transition: border-color 0.3s; }
+    .input-group input:focus { border-color: #0056b3; outline: none; }
+    
+    /* 버튼 스타일 */
+    .btn { width: 100%; padding: 14px; background-color: #0056b3; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background-color 0.3s; }
+    .btn:hover { background-color: #004494; }
+    .btn:disabled { background-color: #a0c4e8; cursor: not-allowed; }
+
+    /* 화면 전환용 클래스 */
+    .hidden { display: none !important; }
+    
+    /* 로딩 표시용 */
+    #loading { text-align: center; color: #0056b3; font-weight: bold; margin-top: 10px; font-size: 14px; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h1>상일여고 교과관리시스템</h1>
+      <p id="sub-title">교직원 로그인을 진행해주세요.</p>
+    </div>
+
+    <div id="login-view">
+      <div class="input-group">
+        <label for="userId">아이디</label>
+        <input type="text" id="userId" placeholder="아이디를 입력하세요">
+      </div>
+      <div class="input-group">
+        <label for="userPw">비밀번호</label>
+        <input type="password" id="userPw" placeholder="비밀번호를 입력하세요">
+      </div>
+      <button class="btn" id="loginBtn" onclick="attemptLogin()">로그인</button>
+    </div>
+
+    <div id="pw-change-view" class="hidden">
+      <div class="input-group">
+        <label for="newPw">새 비밀번호</label>
+        <input type="password" id="newPw" placeholder="새로운 비밀번호를 입력하세요">
+      </div>
+      <div class="input-group">
+        <label for="newPwConfirm">새 비밀번호 확인</label>
+        <input type="password" id="newPwConfirm" placeholder="비밀번호를 다시 입력하세요">
+      </div>
+      <button class="btn" id="changePwBtn" onclick="attemptChangePassword()">비밀번호 변경</button>
+      <button class="btn" style="background-color: #888; margin-top: 10px;" onclick="cancelChange()">취소</button>
+    </div>
+
+    <div id="loading" class="hidden">처리 중입니다...</div>
+  </div>
+
+  <script>
+    // 알려주신 API 주소 (그대로 유지)
+    const API_URL = "https://script.google.com/macros/s/AKfycbzfIY0Fs4S1EjSSNI2kZfrFgtSqipG_u_KDCkdT8Vy1LjrIwB7k_1awE_psCNw0VQGg/exec";
+    
+    // 비밀번호 변경 시 기존 비밀번호(초기비번)를 서버에 보내기 위해 임시 저장할 변수
+    let tempId = "";
+    let tempOldPw = "";
+
+    // 1. 로그인 시도 함수
+    async function attemptLogin() {
+      const id = document.getElementById('userId').value.trim();
+      const pw = document.getElementById('userPw').value.trim();
+
+      if (!id || !pw) {
+        alert("아이디와 비밀번호를 모두 입력해주세요.");
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            type: "LOGIN",
+            payload: { id: id, pw: pw }
+          })
+        });
+        
+        const result = await response.json();
+        setLoading(false);
+
+        if (result.success) {
+          // 비밀번호 변경이 필요한 경우 (초기 비밀번호 상태)
+          if (result.requirePasswordChange) {
+            alert(result.msg); // "초기 비밀번호입니다. 변경이 필요합니다."
+            tempId = id;
+            tempOldPw = pw;
+            showPasswordChangeView();
+          } 
+          // 정상 로그인 성공인 경우
+          else {
+            // 브라우저 세션에 로그인 정보 저장 (창을 닫으면 지워짐)
+            sessionStorage.setItem("userInfo", JSON.stringify(result.userInfo));
+            alert(result.userInfo.name + " 선생님 환영합니다!");
+            
+            // 메인 대시보드 페이지로 이동 (index.html 등 실제 파일명으로 수정하세요)
+            window.location.href = "index.html"; 
+          }
+        } else {
+          alert(result.msg); // "아이디 또는 비밀번호가 틀렸습니다."
+        }
+      } catch (error) {
+        setLoading(false);
+        alert("서버 통신 중 오류가 발생했습니다.");
+        console.error(error);
+      }
+    }
+
+    // 2. 비밀번호 변경 시도 함수
+    async function attemptChangePassword() {
+      const newPw = document.getElementById('newPw').value.trim();
+      const newPwConfirm = document.getElementById('newPwConfirm').value.trim();
+
+      if (!newPw || !newPwConfirm) {
+        alert("새 비밀번호를 모두 입력해주세요.");
+        return;
+      }
+      if (newPw !== newPwConfirm) {
+        alert("새 비밀번호가 서로 일치하지 않습니다.");
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            type: "CHANGE_PASSWORD",
+            payload: { id: tempId, oldPw: tempOldPw, newPw: newPw }
+          })
+        });
+        
+        const result = await response.json();
+        setLoading(false);
+
+        if (result.success) {
+          alert(result.msg);
+          // 변경 완료 후 페이지 새로고침하여 다시 로그인하도록 유도
+          window.location.reload(); 
+        } else {
+          alert(result.msg);
+        }
+      } catch (error) {
+        setLoading(false);
+        alert("비밀번호 변경 중 오류가 발생했습니다.");
+        console.error(error);
+      }
+    }
+
+    // ----------------------------------------
+    // 화면 제어 유틸리티 함수들
+    // ----------------------------------------
+    function showPasswordChangeView() {
+      document.getElementById('login-view').classList.add('hidden');
+      document.getElementById('pw-change-view').classList.remove('hidden');
+      document.getElementById('sub-title').innerText = "보안을 위해 비밀번호를 변경해주세요.";
+    }
+
+    function cancelChange() {
+      document.getElementById('login-view').classList.remove('hidden');
+      document.getElementById('pw-change-view').classList.add('hidden');
+      document.getElementById('sub-title').innerText = "교직원 로그인을 진행해주세요.";
+      document.getElementById('newPw').value = "";
+      document.getElementById('newPwConfirm').value = "";
+      tempId = "";
+      tempOldPw = "";
+    }
+
+    function setLoading(isLoading) {
+      const loadingDiv = document.getElementById('loading');
+      const loginBtn = document.getElementById('loginBtn');
+      const changeBtn = document.getElementById('changePwBtn');
+      
+      if (isLoading) {
+        loadingDiv.classList.remove('hidden');
+        loginBtn.disabled = true;
+        changeBtn.disabled = true;
+      } else {
+        loadingDiv.classList.add('hidden');
+        loginBtn.disabled = false;
+        changeBtn.disabled = false;
+      }
+    }
+
+    // 엔터키 로그인 지원
+    document.getElementById('userPw').addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') attemptLogin();
+    });
+  </script>
+</body>
+</html>
