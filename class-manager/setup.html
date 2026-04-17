@@ -174,26 +174,27 @@
             btn.innerText = "일괄 등록 진행 중...";
 
             try {
+                const year = document.getElementById('year').value;
+                const semester = document.getElementById('semester').value;
+
+                // 1. 과목 저장 (이건 이미 수정하셨던 부분)
                 await fetch(API_URL, {
                     method: 'POST',
-                    body: JSON.stringify({ 
-                        type: "ADD_SUBJECT", 
-                        payload: { 
-                            name: name, 
-                            target: target,
-                            year: document.getElementById('year').value, // 현재 입력된 학년도 포함
-                            semester: document.getElementById('semester').value // 현재 입력된 학기 포함
-                        } 
-                    })
+                    body: JSON.stringify({ type: "ADD_SUBJECT", payload: { name: name, target: target, year: year, semester: semester } })
                 });
 
                 const fullName = `${name} (${target})`;
+                
+                // 2. 시간표 저장 부분 수정! (year, semester 파라미터 추가)
                 const schedulePromises = Array.from(slots).map(slot => {
                     const day = slot.querySelector('.sch-day').value;
                     const period = slot.querySelector('.sch-period').value;
                     return fetch(API_URL, {
                         method: 'POST',
-                        body: JSON.stringify({ type: "ADD_SCHEDULE", payload: { day: day, period: period, subject: fullName } })
+                        body: JSON.stringify({ 
+                            type: "ADD_SCHEDULE", 
+                            payload: { year: year, semester: semester, day: day, period: period, subject: fullName } 
+                        })
                     });
                 });
 
@@ -223,7 +224,7 @@
                 const [subRes, schRes] = await Promise.all([
                     // 주소 뒤에 학년도와 학기 파라미터를 붙입니다.
                     fetch(`${API_URL}?type=GET_SUBJECTS&year=${year}&semester=${semester}`),
-                    fetch(API_URL + "?type=GET_SCHEDULE")
+                    fetch(`${API_URL}?type=GET_SCHEDULE&year=${year}&semester=${semester}`)
                 ]);
                 
                 const subjects = await subRes.json();
