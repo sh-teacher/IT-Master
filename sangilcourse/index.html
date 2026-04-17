@@ -142,7 +142,7 @@
       }
     }
     // ----------------------------------------
-    // CSV 파일 읽기 및 데이터 분석 로직 (초강력 자동탐색 버전)
+    // CSV 파일 읽기 및 데이터 분석 로직 (UTF-8 & 초강력 탐색)
     // ----------------------------------------
     function processCSVData() {
       const year = document.getElementById('setYear').value.trim();
@@ -175,40 +175,36 @@
           let teacherName = "";
           let startIndex = -1;
 
-          // 1. 교사 정보가 있는 칸을 '자동'으로 찾습니다. (칸이 밀려도 상관없음)
           for (let i = 0; i < cols.length; i++) {
             if (!cols[i]) continue;
-            let cell = cols[i].replace(/"/g, '').trim(); // 따옴표 제거
+            let cell = cols[i].replace(/"/g, '').trim(); 
             
-            // "아이디(이름)" 패턴 찾기 (예: kmj048070(강민주))
-            let idMatch = cell.match(/^([a-zA-Z0-9]+)\((.+?)\)$/);
+            // 아이디에 특수기호(-, _, .)가 있어도 찾을 수 있도록 정규식 강화
+            let idMatch = cell.match(/([a-zA-Z0-9_.-]+)\((.+?)\)/);
             if (idMatch) {
               teacherId = idMatch[1].trim();
               teacherName = idMatch[2].trim();
-              startIndex = i + 1; // 선생님 이름 바로 다음 칸부터 시간표 시작!
+              startIndex = i + 1; 
               break;
             }
           }
 
-          // 이 줄에 선생님 정보가 없으면 빈 줄이므로 패스
           if (startIndex === -1) return; 
 
           const subjectsMap = {}; 
 
-          // 2. 찾은 위치부터 시간표 파싱
           for (let i = startIndex; i < cols.length; i++) {
             let cellData = cols[i] ? cols[i].replace(/"/g, '').trim() : "";
             if (!cellData) continue; 
 
-            // "1학년 통합사회1(1)" -> 띄어쓰기가 불규칙해도 찾아내도록 정규식 강화
-            const cellMatch = cellData.match(/(\d+)\s*학년\s*(.+?)\((\d+)\)/);
+            // 띄어쓰기가 불규칙해도 "O학년 OOO(O)" 형태면 무조건 잡아냄
+            const cellMatch = cellData.match(/(\d+)\s*학년\s*(.+?)\s*\((\d+)\)/);
             if (cellMatch) {
               const grade = cellMatch[1];
               const subjectName = cellMatch[2].trim();
               const classNum = cellMatch[3];
               const targetClass = `${grade}-${classNum}`;
 
-              // 요일 및 교시 계산
               const timeIndex = i - startIndex; 
               const dayIdx = Math.floor(timeIndex / 12); 
               const period = (timeIndex % 12) + 1; 
@@ -239,9 +235,8 @@
           }
         });
 
-        // 결과 확인
         if (result.length === 0) {
-          alert("분석된 데이터가 없습니다. 한글이 깨졌을 수 있습니다. 코드 맨 아래의 euc-kr을 utf-8로 바꿔보세요.");
+          alert("분석된 데이터가 없습니다. CSV 파일이 맞는지 확인해 주세요.");
           return;
         }
 
@@ -249,8 +244,7 @@
         sendBulkDataToServer(year, semester, result);
       };
 
-      // 🚨 중요: 여기서 한글 파일을 읽어들입니다. 
-      // 엑셀에서 바로 저장한 경우 보통 "euc-kr"이지만, 시스템에서 다운받은 경우 "utf-8"일 수 있습니다.
+      // ✨ [문제 해결의 핵심!] euc-kr을 utf-8로 변경했습니다.
       reader.readAsText(file, "utf-8"); 
     }
 
