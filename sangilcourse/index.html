@@ -115,7 +115,26 @@
         contentArea.innerHTML = `<h2>출결 및 수업일지</h2><p style="margin-top: 10px;">오늘의 출석 체크 및 수업 기록을 남깁니다.</p>`;
       } 
       else if (menuId === 'adminConfig') {
-        contentArea.innerHTML = `<h2 style="color: #d32f2f;">⚙️ 학기 및 과목 설정 (관리자)</h2><p style="margin-top: 10px;">새로운 학년도 설정, 과목 일괄 등록 기능이 들어갈 자리입니다.</p>`;
+        contentArea.innerHTML = `
+          <h2 style="color: #d32f2f;">⚙️ 학기 및 나이스(NEIS) 연동 설정</h2>
+          
+          <div style="margin-top: 20px;">
+            <label><strong>1. 학년도 및 학기 설정</strong></label>
+            <div style="margin-top: 5px;">
+              <input type="text" id="setYear" placeholder="예: 2026" style="padding: 8px; width: 100px; border: 1px solid #ccc; border-radius: 4px;"> 년도
+              <input type="text" id="setSemester" placeholder="예: 1" style="padding: 8px; width: 60px; margin-left: 10px; border: 1px solid #ccc; border-radius: 4px;"> 학기
+            </div>
+          </div>
+
+          <div style="margin-top: 30px;">
+            <label><strong>2. 나이스 과목/시간표 일괄 등록 (엑셀 복사/붙여넣기)</strong></label>
+            <p style="font-size: 13px; color: #666; margin-bottom: 10px;">나이스에서 다운받은 엑셀을 열고, <strong>'순번 1번 선생님'부터 맨 끝줄까지 표 전체를 드래그하여 복사(Ctrl+C)</strong>한 후 아래 빈칸에 붙여넣기(Ctrl+V) 하세요.</p>
+            <textarea id="neisDataInput" rows="12" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 13px; line-height: 1.5;" placeholder="여기에 엑셀 데이터를 붙여넣으세요..."></textarea>
+            
+            <button style="background-color: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 15px;" onclick="processNeisData()">데이터 분석 및 서버 등록</button>
+            <div id="loadingNeis" style="display: none; color: #0056b3; font-weight: bold; margin-top: 10px;">열심히 데이터를 분석하고 등록하는 중입니다... 잠시만 기다려주세요! ⏳</div>
+          </div>
+        `;
       }
       else {
         contentArea.innerHTML = `<h2>준비 중인 기능입니다.</h2>`;
@@ -256,6 +275,127 @@
     }
     // 화면이 켜지자마자 권한 체크 실행
     window.onload = checkAuth;
+
+    
+    // ----------------------------------------
+    // 나이스(NEIS) 엑셀 데이터 분석 및 전송 로직
+    // ----------------------------------------
+    function processNeisData() {
+      const year = document.getElementById('setYear').value.trim();
+      const semester = document.getElementById('setSemester').value.trim();
+      const rawData = document.getElementById('neisDataInput').value.trim();
+
+      if (!year || !semester) {
+        alert("학년도와 학기를 먼저 입력해주세요. (예: 2026, 1)");
+        return;
+      }
+      if (!rawData) {
+        alert("엑셀 데이터를 텍스트 박스에 붙여넣어 주세요.");
+        return;
+      }
+
+      const rows = rawData.split('\n');
+      const result = [];
+      const days = ["월", "화", "수", "목", "금", "토", "일"];
+
+      rows.forEach(row => {
+        const cols = row.split('\t'); 
+        
+        // 첫 번째 열이 '숫자(순번)'가 아니면 건너뜁니다 (엑셀의 헤더행 등 무시)
+        if (!cols[0] || isNaN(cols[0].trim())) return;
+
+        // 아이디와 이름 분리 (예: kmj048070(강민주))
+        const teacherRaw = cols[1] ? cols[1].trim() : ""; 
+        const idMatch = teacherRaw.match(/(.+)\((.+)\)/); 
+        if (!idMatch) return; 
+        
+        const teacherId = idMatch[1].trim(); 
+        const teacherName = idMatch[2].trim(); 
+
+        const subjectsMap = {}; 
+
+        // 2번 인덱스(월1)부터 반복하여 시간표 파싱
+        for (let i = 2; i < cols.length; i++) {
+          const cellData = cols[i] ? cols[i].trim() : "";
+          if (!cellData) continue; 
+
+          // 예: "1학년 통합사회1(1)" -> 학년, 과목, 반 추출
+          const cellMatch = cellData.match(/(\d+)학년\s+(.+?)\((\d+)\)/);
+          if (cellMatch) {
+            const grade = cellMatch[1];
+            const subjectName = cellMatch[2];
+            const classNum = cellMatch[3];
+            const targetClass = `${grade}-${classNum}`;
+
+            // 요일 및 교시 계산 (엑셀 열 인덱스 기준)
+            const timeIndex = i - 2; 
+            const dayIdx = Math.floor(timeIndex / 12); 
+            const period = (timeIndex % 12) + 1; 
+
+            if (dayIdx >= days.length) continue; 
+            const day = days[dayIdx];
+
+            const subjectKey = `${subjectName}_${targetClass}`;
+            if (!subjectsMap[subjectKey]) {
+              subjectsMap[subjectKey] = {
+                subject: subjectName,
+                targetClass: targetClass,
+                schedules: []
+              };
+            }
+            subjectsMap[subjectKey].schedules.push({ day: day, period: period });
+          }
+        }
+
+        // 완성된 한 명의 데이터를 배열에 넣기
+        for (let key in subjectsMap) {
+          result.push({
+            teacherId: teacherId,
+            teacherName: teacherName,
+            subject: subjectsMap[key].subject,
+            targetClass: subjectsMap[key].targetClass,
+            schedules: subjectsMap[key].schedules
+          });
+        }
+      });
+
+      if (result.length === 0) {
+        alert("분석된 데이터가 없습니다. 복사한 영역이 맞는지 확인해주세요.");
+        return;
+      }
+
+      // 백엔드로 쏘기
+      sendBulkDataToServer(year, semester, result);
+    }
+
+    async function sendBulkDataToServer(year, semester, parsedData) {
+      document.getElementById('loadingNeis').style.display = 'block'; // 로딩바 켜기
+
+      try {
+        // 주의: 상단에서 선언한 API_URL을 그대로 사용합니다. (없다면 상단에 const API_URL = "내주소"; 추가 필요)
+        const response = await fetch("https://script.google.com/macros/s/AKfycbzfIY0Fs4S1EjSSNI2kZfrFgtSqipG_u_KDCkdT8ర్ణVy1LjrIwB7k_1awE_psCNw0VQGg/exec", {
+          method: "POST",
+          body: JSON.stringify({
+            type: "BULK_UPLOAD_NEIS",
+            payload: { year: year, semester: semester, data: parsedData }
+          })
+        });
+        
+        const resResult = await response.json();
+        document.getElementById('loadingNeis').style.display = 'none'; // 로딩바 끄기
+
+        if (resResult.success) {
+          alert("✅ " + resResult.msg);
+          document.getElementById('neisDataInput').value = ""; 
+        } else {
+          alert("서버 오류: " + resResult.msg);
+        }
+      } catch (error) {
+        document.getElementById('loadingNeis').style.display = 'none';
+        alert("서버 통신 중 오류가 발생했습니다.");
+        console.error(error);
+      }
+    }
   </script>
 </body>
 </html>
