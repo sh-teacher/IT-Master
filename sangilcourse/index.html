@@ -157,7 +157,7 @@
     // 🌟 전역 변수: 서버에서 가져온 전체 데이터를 임시 저장해둠 (초고속 필터링용)
     let allNeisData = [];
 
-    // 🌟 학기/과목 설정 화면 (다운로드 안내 멘트 추가)
+    // 🌟 학기/과목 설정 화면
     function renderAdminConfig() {
       const contentArea = document.getElementById('contentArea');
       contentArea.innerHTML = `
@@ -170,137 +170,122 @@
             <label style="margin-left:15px;">학기: </label>
             <input type="text" id="setSemester" value="1" style="padding:5px; width:50px;">
           </div>
-
           <div style="margin-bottom:15px; padding:12px; background-color:#e6f0fa; border-radius:6px; border-left:4px solid #0056b3; font-size:14px; color:#333; line-height:1.5;">
             <strong>💡 나이스(NEIS) 엑셀 파일 다운로드 방법</strong><br>
             나이스 메뉴 ➔ <strong>[학적]</strong> ➔ <strong>[전체 시간표조회]</strong> ➔ <strong>[전체교사]</strong> 화면에서 조회 후 엑셀 데이터를 다운로드하여 업로드해 주세요.
           </div>
-
           <div style="margin-bottom:15px;">
             <input type="file" id="excelFileInput" accept=".xlsx, .xls">
           </div>
-          
           <button onclick="processExcelData()" style="padding:10px 20px; background:#0056b3; color:white; border:none; border-radius:4px; cursor:pointer;">
             엑셀 데이터 분석 및 업로드
           </button>
-          
           <div id="loadingNeis" style="display:none; margin-top:15px; color:#0056b3; font-weight:bold;">처리 중... ⏳</div>
         </div>
 
-        <h3>📋 현재 등록된 나이스 데이터 (검색 가능)</h3>
+        <h3>📋 등록된 나이스 데이터 조회</h3>
         
         <div id="filterArea" style="display: none; gap: 10px; flex-wrap: wrap; margin-top: 15px; padding: 10px; background: #eef2f5; border-radius: 6px;">
-          <select id="filterSem" onchange="applyFilters()" style="padding:5px;"><option value="">전체 학기</option></select>
-          <select id="filterId" onchange="applyFilters()" style="padding:5px;"><option value="">전체 ID</option></select>
-          <select id="filterName" onchange="applyFilters()" style="padding:5px;"><option value="">전체 이름</option></select>
-          <select id="filterSubject" onchange="applyFilters()" style="padding:5px;"><option value="">전체 과목명</option></select>
-          <select id="filterTargetClass" onchange="applyFilters()" style="padding:5px;"><option value="">전체 대상반</option></select>
-          <select id="filterDay" onchange="applyFilters()" style="padding:5px;"><option value="">전체 요일</option></select>
-          <select id="filterPeriod" onchange="applyFilters()" style="padding:5px;"><option value="">전체 교시</option></select>
-          <button onclick="resetFilters()" style="padding:5px 10px; background:white; border:1px solid #ccc; cursor:pointer; border-radius:4px;">초기화</button>
+          <select id="filterSem" style="padding:5px;"><option value="">전체 학기</option></select>
+          <select id="filterId" style="padding:5px;"><option value="">전체 ID</option></select>
+          <select id="filterName" style="padding:5px;"><option value="">전체 이름</option></select>
+          <select id="filterSubject" style="padding:5px;"><option value="">전체 과목명</option></select>
+          <select id="filterTargetClass" style="padding:5px;"><option value="">전체 대상반</option></select>
+          <select id="filterDay" style="padding:5px;"><option value="">전체 요일</option></select>
+          <select id="filterPeriod" style="padding:5px;"><option value="">전체 교시</option></select>
+          
+          <button onclick="executeSearch()" style="padding:6px 15px; background:#0056b3; color:white; font-weight:bold; border:none; cursor:pointer; border-radius:4px;">🔍 조회</button>
+          <button onclick="resetFilters()" style="padding:6px 15px; background:white; border:1px solid #ccc; cursor:pointer; border-radius:4px;">초기화</button>
+          
           <span id="dataCount" style="margin-left:auto; align-self:center; font-weight:bold; color:#0056b3;"></span>
         </div>
 
         <div id="neisDataContainer" style="margin-top:10px; max-height: 400px; overflow-y: auto; border: 1px solid #ccc; border-radius: 4px;">
-          <div style="padding: 15px;">데이터를 불러오는 중...</div>
+          <div style="padding: 15px;">검색 옵션을 불러오는 중... ⏳</div>
         </div>
       `;
       
-      fetchNeisData(); // 화면이 그려진 후 통신 시작
+      loadFilterOptions(); // 화면 로드 시 드롭다운 옵션만 가볍게 가져옴
     }
 
-    // 🌟 서버에서 데이터 가져오기 (1회만 실행)
-    async function fetchNeisData() {
-      const container = document.getElementById('neisDataContainer');
+    // 🌟 1. 서버에서 드롭다운 옵션(필터 항목)만 가져오기
+    async function loadFilterOptions() {
       try {
         const response = await fetch(API_URL, {
           method: "POST",
-          body: JSON.stringify({ type: "GET_NEIS_DATA" })
+          body: JSON.stringify({ type: "GET_NEIS_FILTERS" })
         });
         const result = await response.json();
 
         if (result.success) {
-          // 배열에 원본 데이터 저장 (최근 데이터가 위로 오게 뒤집기)
-          allNeisData = result.data.reverse(); 
-
-          if (allNeisData.length === 0) {
-            container.innerHTML = "<p style='color:#666; padding: 15px;'>등록된 데이터가 없습니다.</p>";
-            return;
-          }
-
-          // 데이터가 있으면 필터 메뉴를 보이고, 옵션들을 채워 넣음
           document.getElementById('filterArea').style.display = 'flex';
-          populateFilterOptions();
-          applyFilters(); // 최초 전체 리스트 그리기
-        } else {
-          container.innerHTML = "<p style='padding: 15px;'>데이터를 불러오지 못했습니다.</p>";
+          document.getElementById('neisDataContainer').innerHTML = "<div style='padding:15px; color:#666;'>조건을 선택하고 [조회] 버튼을 눌러주세요.</div>";
+          
+          const d = result.data;
+          const fillSelect = (id, arr) => {
+            const sel = document.getElementById(id);
+            arr.forEach(val => { if(val) sel.innerHTML += `<option value="${val}">${val}</option>`; });
+          };
+
+          fillSelect('filterSem', d.sem);
+          fillSelect('filterId', d.id);
+          fillSelect('filterName', d.name);
+          fillSelect('filterSubject', d.subj);
+          fillSelect('filterTargetClass', d.tClass);
+          fillSelect('filterDay', ['월', '화', '수', '목', '금', '토', '일']); 
+          fillSelect('filterPeriod', [1, 2, 3, 4, 5, 6, 7, 8]);
         }
       } catch (e) {
-        container.innerHTML = "<p style='padding: 15px;'>서버 통신 에러가 발생했습니다.</p>";
+        document.getElementById('neisDataContainer').innerHTML = "<div style='padding:15px; color:red;'>옵션 로드 실패</div>";
       }
     }
 
-    // 🌟 중복 없는 값들을 추출해서 드롭다운(<select>)에 옵션 추가하기
-    // populateFilterOptions 함수 내 옵션 추가
-    function populateFilterOptions() {
-      const getUnique = (key) => [...new Set(allNeisData.map(item => key === 'sem' ? `${item.year}-${item.semester}` : item[key]))].sort();
+    // 🌟 2. [조회] 버튼 클릭 시 실행: 선택된 조건을 서버로 보내고 결과 받기
+    async function executeSearch() {
+      const container = document.getElementById('neisDataContainer');
+      container.innerHTML = "<div style='padding:15px; font-weight:bold; color:#0056b3;'>데이터 검색 중... ⏳</div>";
 
-      const fillSelect = (id, array) => {
-        const select = document.getElementById(id);
-        if(!select) return;
-        select.innerHTML = select.options[0].outerHTML; 
-        array.forEach(value => {
-          if(value) select.innerHTML += `<option value="${value}">${value}</option>`;
-        });
+      // 사용자가 선택한 값 모으기
+      const payload = {
+        fSem: document.getElementById('filterSem').value,
+        fId: document.getElementById('filterId').value,
+        fName: document.getElementById('filterName').value,
+        fSubj: document.getElementById('filterSubject').value,
+        fTClass: document.getElementById('filterTargetClass').value,
+        fDay: document.getElementById('filterDay').value,
+        fPer: document.getElementById('filterPeriod').value
       };
 
-      fillSelect('filterSem', getUnique('sem'));
-      fillSelect('filterId', getUnique('teacherId'));
-      fillSelect('filterName', getUnique('teacherName'));
-      fillSelect('filterSubject', getUnique('subject'));
-      fillSelect('filterTargetClass', getUnique('targetClass')); // ✨ 추가
-      fillSelect('filterDay', ['월', '화', '수', '목', '금', '토', '일']); 
-      fillSelect('filterPeriod', [1, 2, 3, 4, 5, 6, 7, 8]);
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify({ type: "SEARCH_NEIS_DATA", payload: payload })
+        });
+        const result = await response.json();
+
+        if (result.success) {
+          document.getElementById('dataCount').innerText = `총 ${result.data.length}건`;
+          renderNeisTable(result.data);
+        } else {
+          container.innerHTML = `<div style='padding:15px; color:red;'>${result.msg}</div>`;
+        }
+      } catch (e) {
+        container.innerHTML = "<div style='padding:15px; color:red;'>서버 통신 에러가 발생했습니다.</div>";
+      }
     }
 
-    // applyFilters 함수 내 조건 추가
-    function applyFilters() {
-      const fSem = document.getElementById('filterSem').value;
-      const fId = document.getElementById('filterId').value;
-      const fName = document.getElementById('filterName').value;
-      const fSubj = document.getElementById('filterSubject').value;
-      const fTClass = document.getElementById('filterTargetClass').value; // ✨ 추가
-      const fDay = document.getElementById('filterDay').value;
-      const fPer = document.getElementById('filterPeriod').value;
-
-      const filtered = allNeisData.filter(item => {
-        const semStr = `${item.year}-${item.semester}`;
-        return (!fSem || semStr === fSem) &&
-              (!fId || item.teacherId === fId) &&
-              (!fName || item.teacherName === fName) &&
-              (!fSubj || item.subject === fSubj) &&
-              (!fTClass || item.targetClass === fTClass) && // ✨ 추가
-              (!fDay || item.day === fDay) &&
-              (!fPer || String(item.period) === String(fPer));
-      });
-
-      document.getElementById('dataCount').innerText = `총 ${filtered.length}건`;
-      renderNeisTable(filtered);
-    }
-
-    // resetFilters 함수 수정
+    // 🌟 필터 초기화 버튼
     function resetFilters() {
       ['filterSem', 'filterId', 'filterName', 'filterSubject', 'filterTargetClass', 'filterDay', 'filterPeriod'].forEach(id => {
-        const el = document.getElementById(id);
-        if(el) el.value = "";
+        document.getElementById(id).value = "";
       });
-      applyFilters();
+      document.getElementById('dataCount').innerText = "";
+      document.getElementById('neisDataContainer').innerHTML = "<div style='padding:15px; color:#666;'>조건을 선택하고 [조회] 버튼을 눌러주세요.</div>";
     }
 
-    // 🌟 실제로 화면에 표(HTML)를 그려주는 함수
+    // 🌟 표 그리기
     function renderNeisTable(displayData) {
       const container = document.getElementById('neisDataContainer');
-      
       if (displayData.length === 0) {
         container.innerHTML = "<p style='padding: 15px;'>검색 조건에 맞는 데이터가 없습니다.</p>";
         return;
@@ -313,7 +298,8 @@
             <th>교사ID</th>
             <th>이름</th>
             <th>과목명</th>
-            <th>대상반</th> <th>요일</th>
+            <th>대상반</th>
+            <th>요일</th>
             <th>교시</th>
           </tr>
         </thead>
@@ -325,7 +311,8 @@
           <td>${item.teacherId}</td>
           <td><strong>${item.teacherName}</strong></td>
           <td style="text-align:left; padding-left:15px;">${item.subject}</td>
-          <td>${item.targetClass}</td> <td>${item.day}</td>
+          <td>${item.targetClass}</td>
+          <td>${item.day}</td>
           <td>${item.period}</td>
         </tr>`;
       });
