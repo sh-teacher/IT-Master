@@ -208,24 +208,29 @@
           // (최근에 올린 데이터가 위로 오도록 reverse()만 남겨둠)
           const displayData = result.data.reverse(); 
 
+          // ✨ 표 헤더(제목 줄) 순서 변경
           let html = `<table class="neis-table" style="border:none; margin-top:0;">
-            <thead style="position: sticky; top: 0; z-index: 1;"> <tr>
+            <thead style="position: sticky; top: 0; z-index: 1;">
+              <tr>
                 <th>학년도-학기</th>
                 <th>교사ID</th>
+                <th>이름</th>
+                <th>과목명</th>
                 <th>요일</th>
                 <th>교시</th>
-                <th>과목명</th>
               </tr>
             </thead>
             <tbody>`;
           
+          // ✨ 표 내용 순서 변경
           displayData.forEach(item => {
             html += `<tr>
               <td>${item.year}-${item.semester}</td>
               <td>${item.teacherId}</td>
+              <td><strong>${item.teacherName}</strong></td>
+              <td style="text-align:left; padding-left:15px;">${item.subject}</td>
               <td>${item.day}</td>
               <td>${item.period}</td>
-              <td style="text-align:left; padding-left:15px;">${item.subject}</td>
             </tr>`;
           });
 
