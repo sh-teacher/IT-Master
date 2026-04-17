@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>상일여고 교과관리시스템</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     /* 기본 초기화 */
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', 'Malgun Gothic', sans-serif; }
@@ -127,13 +128,13 @@
           </div>
 
           <div style="margin-top: 30px;">
-            <label><strong>2. 나이스 과목/시간표 일괄 등록 (CSV 파일 업로드)</strong></label>
-            <p style="font-size: 13px; color: #666; margin-bottom: 10px;">나이스에서 다운받은 엑셀 파일을 <strong>CSV(쉼표로 분리)</strong> 형식으로 저장한 후 업로드해 주세요.</p>
+            <label><strong>2. 나이스 과목/시간표 일괄 등록 (Excel 원본 파일)</strong></label>
+            <p style="font-size: 13px; color: #e91e63; font-weight: bold; margin-bottom: 10px;">🚨 CSV로 변환할 필요 없습니다! 나이스에서 다운받은 엑셀(.xlsx) 원본을 그대로 올려주세요.</p>
             
-            <input type="file" id="csvFileInput" accept=".csv" style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; width: 100%; background-color: #f9f9f9; margin-bottom: 15px;">
+            <input type="file" id="excelFileInput" accept=".xlsx, .xls" style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; width: 100%; background-color: #f9f9f9; margin-bottom: 15px;">
             
-            <button style="background-color: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer;" onclick="processCSVData()">파일 분석 및 서버 등록</button>
-            <div id="loadingNeis" style="display: none; color: #0056b3; font-weight: bold; margin-top: 10px;">열심히 파일을 분석하고 등록하는 중입니다... 잠시만 기다려주세요! ⏳</div>
+            <button style="background-color: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer;" onclick="processExcelData()">엑셀 분석 및 서버 등록</button>
+            <div id="loadingNeis" style="display: none; color: #0056b3; font-weight: bold; margin-top: 10px;">열심히 엑셀을 분석하고 등록하는 중입니다... 잠시만 기다려주세요! ⏳</div>
           </div>
         `;
       }
@@ -142,20 +143,19 @@
       }
     }
     // ----------------------------------------
-    // CSV 파일 읽기 및 데이터 분석 로직 (EUC-KR 적용)
+    // 원본 엑셀(.xlsx) 파일 직접 읽기 및 데이터 분석 로직
     // ----------------------------------------
-    function processCSVData() {
+    function processExcelData() {
       const year = document.getElementById('setYear').value.trim();
       const semester = document.getElementById('setSemester').value.trim();
-      const fileInput = document.getElementById('csvFileInput');
+      const fileInput = document.getElementById('excelFileInput');
 
       if (!year || !semester) {
-        alert("학년도와 학기를 먼저 입력해주세요. (예: 2026, 1)");
+        alert("학년도와 학기를 먼저 입력해주세요.");
         return;
       }
-      
       if (fileInput.files.length === 0) {
-        alert("업로드할 CSV 파일을 선택해 주세요.");
+        alert("업로드할 엑셀 파일을 선택해 주세요.");
         return;
       }
 
@@ -163,89 +163,102 @@
       const reader = new FileReader();
 
       reader.onload = function(e) {
-        const rawData = e.target.result;
-        const rows = rawData.split('\n');
-        const result = [];
-        const days = ["월", "화", "수", "목", "금", "토", "일"];
-
-        rows.forEach(row => {
-          const cols = row.split(','); 
+        try {
+          // 1. 첨부된 파일을 엑셀 데이터로 완벽하게 읽어옵니다.
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, {type: 'array'});
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
           
-          let teacherId = "";
-          let teacherName = "";
-          let startIndex = -1;
+          // 2. 엑셀의 격자구조를 2차원 배열로 완벽 변환 (인코딩, 쉼표 오류 원천 차단!)
+          const rows = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+          
+          const result = [];
+          const days = ["월", "화", "수", "목", "금", "토", "일"];
 
-          for (let i = 0; i < cols.length; i++) {
-            if (!cols[i]) continue;
-            let cell = cols[i].replace(/"/g, '').trim(); 
+          rows.forEach(cols => {
+            if (!cols || cols.length === 0) return;
             
-            // 아이디 찾기
-            let idMatch = cell.match(/([a-zA-Z0-9_.-]+)\((.+?)\)/);
-            if (idMatch) {
-              teacherId = idMatch[1].trim();
-              teacherName = idMatch[2].trim();
-              startIndex = i + 1; 
-              break;
-            }
-          }
+            let teacherId = "";
+            let teacherName = "";
+            let startIndex = -1;
 
-          if (startIndex === -1) return; 
-
-          const subjectsMap = {}; 
-
-          for (let i = startIndex; i < cols.length; i++) {
-            let cellData = cols[i] ? cols[i].replace(/"/g, '').trim() : "";
-            if (!cellData) continue; 
-
-            // 과목 찾기
-            const cellMatch = cellData.match(/(\d+)\s*학년\s*(.+?)\s*\((\d+)\)/);
-            if (cellMatch) {
-              const grade = cellMatch[1];
-              const subjectName = cellMatch[2].trim();
-              const classNum = cellMatch[3];
-              const targetClass = `${grade}-${classNum}`;
-
-              const timeIndex = i - startIndex; 
-              const dayIdx = Math.floor(timeIndex / 12); 
-              const period = (timeIndex % 12) + 1; 
-
-              if (dayIdx >= days.length) continue; 
-              const day = days[dayIdx];
-
-              const subjectKey = `${subjectName}_${targetClass}`;
-              if (!subjectsMap[subjectKey]) {
-                subjectsMap[subjectKey] = {
-                  subject: subjectName,
-                  targetClass: targetClass,
-                  schedules: []
-                };
+            // 교사 정보(아이디) 칸 자동 탐색
+            for (let i = 0; i < cols.length; i++) {
+              if (!cols[i]) continue;
+              let cell = String(cols[i]).trim();
+              
+              let idMatch = cell.match(/([a-zA-Z0-9_.-]+)\((.+?)\)/);
+              if (idMatch) {
+                teacherId = idMatch[1].trim();
+                teacherName = idMatch[2].trim();
+                startIndex = i + 1; 
+                break;
               }
-              subjectsMap[subjectKey].schedules.push({ day: day, period: period });
             }
+
+            if (startIndex === -1) return;
+
+            const subjectsMap = {};
+
+            // 시간표 파싱
+            for (let i = startIndex; i < cols.length; i++) {
+              let cellData = cols[i] ? String(cols[i]).trim() : "";
+              if (!cellData) continue;
+
+              const cellMatch = cellData.match(/(\d+)\s*학년\s*(.+?)\s*\((\d+)\)/);
+              if (cellMatch) {
+                const grade = cellMatch[1];
+                const subjectName = cellMatch[2].trim();
+                const classNum = cellMatch[3];
+                const targetClass = `${grade}-${classNum}`;
+
+                const timeIndex = i - startIndex;
+                const dayIdx = Math.floor(timeIndex / 12);
+                const period = (timeIndex % 12) + 1;
+
+                if (dayIdx >= days.length) continue;
+                const day = days[dayIdx];
+
+                const subjectKey = `${subjectName}_${targetClass}`;
+                if (!subjectsMap[subjectKey]) {
+                  subjectsMap[subjectKey] = {
+                    subject: subjectName,
+                    targetClass: targetClass,
+                    schedules: []
+                  };
+                }
+                subjectsMap[subjectKey].schedules.push({ day: day, period: period });
+              }
+            }
+
+            for (let key in subjectsMap) {
+              result.push({
+                teacherId: teacherId,
+                teacherName: teacherName,
+                subject: subjectsMap[key].subject,
+                targetClass: subjectsMap[key].targetClass,
+                schedules: subjectsMap[key].schedules
+              });
+            }
+          });
+
+          if (result.length === 0) {
+            alert("분석된 데이터가 없습니다. 나이스 양식이 맞는지 확인해주세요.");
+            return;
           }
 
-          for (let key in subjectsMap) {
-            result.push({
-              teacherId: teacherId,
-              teacherName: teacherName,
-              subject: subjectsMap[key].subject,
-              targetClass: subjectsMap[key].targetClass,
-              schedules: subjectsMap[key].schedules
-            });
-          }
-        });
+          // 백엔드로 전송 (기존 통신 함수 활용)
+          sendBulkDataToServer(year, semester, result);
 
-        if (result.length === 0) {
-          alert("분석된 데이터가 없습니다. CSV 파일이 맞는지 확인해 주세요.");
-          return;
+        } catch (err) {
+          console.error(err);
+          alert("파일 판독 중 오류가 발생했습니다. 원본 엑셀(.xlsx) 파일이 맞는지 확인해주세요.");
         }
-
-        // 백엔드로 전송
-        sendBulkDataToServer(year, semester, result);
       };
 
-      // ✨ [여기!] 윈도우 엑셀 기본 방식인 euc-kr 로 한글을 완벽하게 읽어옵니다.
-      reader.readAsText(file, "euc-kr"); 
+      // 바이너리(엑셀 원본) 데이터로 읽어들이기
+      reader.readAsArrayBuffer(file);
     }
 
     // 추출된 데이터를 백엔드로 전송하는 함수
