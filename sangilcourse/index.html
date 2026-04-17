@@ -138,7 +138,13 @@
       } 
       // 🌟 여기에 학기/과목 설정(adminConfig) 조건 추가
       else if (menuId === 'adminConfig') {
-        renderAdminConfig(); 
+      // 🌟 보안 추가: 실제 권한이 관리자인지 한 번 더 확인
+      const userInfoStr = sessionStorage.getItem("userInfo");
+      const userInfo = userInfoStr ? JSON.parse(userInfoStr) : null;
+      
+      if (!userInfo || userInfo.role !== "관리자") {
+        alert("접근 권한이 없습니다. 관리자에게 문의하세요.");
+        return; // 실행 중단
       }
       else if (menuId === 'adminUsers') {
         contentArea.innerHTML = `<h2>교직원 권한 관리</h2><p>준비 중...</p>`;
