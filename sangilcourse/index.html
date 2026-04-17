@@ -127,12 +127,13 @@
           </div>
 
           <div style="margin-top: 30px;">
-            <label><strong>2. 나이스 과목/시간표 일괄 등록 (엑셀 복사/붙여넣기)</strong></label>
-            <p style="font-size: 13px; color: #666; margin-bottom: 10px;">나이스에서 다운받은 엑셀을 열고, <strong>'순번 1번 선생님'부터 맨 끝줄까지 표 전체를 드래그하여 복사(Ctrl+C)</strong>한 후 아래 빈칸에 붙여넣기(Ctrl+V) 하세요.</p>
-            <textarea id="neisDataInput" rows="12" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 13px; line-height: 1.5;" placeholder="여기에 엑셀 데이터를 붙여넣으세요..."></textarea>
+            <label><strong>2. 나이스 과목/시간표 일괄 등록 (CSV 파일 업로드)</strong></label>
+            <p style="font-size: 13px; color: #666; margin-bottom: 10px;">나이스에서 다운받은 엑셀 파일을 <strong>CSV(쉼표로 분리)</strong> 형식으로 저장한 후 업로드해 주세요.</p>
             
-            <button style="background-color: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 15px;" onclick="processNeisData()">데이터 분석 및 서버 등록</button>
-            <div id="loadingNeis" style="display: none; color: #0056b3; font-weight: bold; margin-top: 10px;">열심히 데이터를 분석하고 등록하는 중입니다... 잠시만 기다려주세요! ⏳</div>
+            <input type="file" id="csvFileInput" accept=".csv" style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; width: 100%; background-color: #f9f9f9; margin-bottom: 15px;">
+            
+            <button style="background-color: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer;" onclick="processCSVData()">파일 분석 및 서버 등록</button>
+            <div id="loadingNeis" style="display: none; color: #0056b3; font-weight: bold; margin-top: 10px;">열심히 파일을 분석하고 등록하는 중입니다... 잠시만 기다려주세요! ⏳</div>
           </div>
         `;
       }
@@ -140,105 +141,107 @@
         contentArea.innerHTML = `<h2>준비 중인 기능입니다.</h2>`;
       }
     }
-    // 나이스 엑셀 데이터(복사/붙여넣기)를 분석하는 함수
-    function processNeisData() {
+    // ----------------------------------------
+    // CSV 파일 읽기 및 데이터 분석 로직
+    // ----------------------------------------
+    function processCSVData() {
       const year = document.getElementById('setYear').value.trim();
       const semester = document.getElementById('setSemester').value.trim();
-      const rawData = document.getElementById('neisDataInput').value.trim();
+      const fileInput = document.getElementById('csvFileInput');
 
       if (!year || !semester) {
         alert("학년도와 학기를 먼저 입력해주세요. (예: 2026, 1)");
         return;
       }
-      if (!rawData) {
-        alert("엑셀 데이터를 텍스트 박스에 붙여넣어 주세요.");
+      
+      if (fileInput.files.length === 0) {
+        alert("업로드할 CSV 파일을 선택해 주세요.");
         return;
       }
 
-      // 1. 엔터 단위로 줄을 쪼갭니다 (교사 1명 = 1줄)
-      const rows = rawData.split('\n');
-      const result = [];
-      
-      // 요일 및 교시 인덱스 맵핑 (월1~12, 화1~12 ...)
-      // 엑셀에서 복사했을 때 첫 열(순번)이 0, 교사명이 1, 월1이 2, 월2가 3... 이런 식입니다.
-      const days = ["월", "화", "수", "목", "금", "토", "일"];
+      const file = fileInput.files[0];
+      const reader = new FileReader();
 
-      rows.forEach(row => {
-        // 엑셀에서 복사한 데이터는 탭(\t)으로 열이 구분됩니다.
-        const cols = row.split('\t'); 
-        
-        // 순번(숫자)으로 시작하지 않는 줄(헤더 등)은 건너뜁니다.
-        if (!cols[0] || isNaN(cols[0].trim())) return;
+      // 파일 읽기가 완료되었을 때 실행될 로직
+      reader.onload = function(e) {
+        const rawData = e.target.result;
+        const rows = rawData.split('\n');
+        const result = [];
+        const days = ["월", "화", "수", "목", "금", "토", "일"];
 
-        // 2. 교사 아이디와 이름 분리 (예: kmj048070(강민주))
-        const teacherRaw = cols[1].trim(); 
-        const idMatch = teacherRaw.match(/(.+)\((.+)\)/); // 괄호 기준 분리
-        if (!idMatch) return; 
-        
-        const teacherId = idMatch[1].trim(); // kmj048070
-        const teacherName = idMatch[2].trim(); // 강민주
+        rows.forEach(row => {
+          // CSV는 쉼표(,)로 열을 분리합니다.
+          const cols = row.split(','); 
+          
+          // 올려주신 CSV 구조상 cols[1]에 순번(숫자)이 들어갑니다. 숫자가 아니면 무시 (헤더 등)
+          if (!cols[1] || isNaN(cols[1].trim()) || cols[1].trim() === "") return;
 
-        const subjectsMap = {}; // 중복 과목을 하나로 합치기 위한 맵
+          // cols[2]에 아이디와 이름이 있습니다. (예: kmj048070(강민주))
+          const teacherRaw = cols[2] ? cols[2].trim() : ""; 
+          const idMatch = teacherRaw.match(/(.+)\((.+)\)/); 
+          if (!idMatch) return; 
+          
+          const teacherId = idMatch[1].trim(); 
+          const teacherName = idMatch[2].trim(); 
 
-        // 3. 시간표 데이터 순회 (인덱스 2번부터 시간표 시작)
-        for (let i = 2; i < cols.length; i++) {
-          const cellData = cols[i] ? cols[i].trim() : "";
-          if (!cellData) continue; // 빈 시간표(공강)는 패스
+          const subjectsMap = {}; 
 
-          // 데이터 파싱 (예: "1학년 통합사회1(1)")
-          // 정규식: (숫자)학년 (과목명)((숫자))
-          const cellMatch = cellData.match(/(\d+)학년\s+(.+?)\((\d+)\)/);
-          if (cellMatch) {
-            const grade = cellMatch[1];
-            const subjectName = cellMatch[2];
-            const classNum = cellMatch[3];
-            const targetClass = `${grade}-${classNum}`; // "1-1" 형태로 변환
+          // 3번 인덱스(월1)부터 반복하여 시간표 파싱
+          for (let i = 3; i < cols.length; i++) {
+            const cellData = cols[i] ? cols[i].trim() : "";
+            if (!cellData) continue; 
 
-            // 요일과 교시 계산
-            const timeIndex = i - 2; // 0부터 시작
-            const dayIdx = Math.floor(timeIndex / 12); // 하루에 12교시 기준
-            const period = (timeIndex % 12) + 1; // 1~12교시
+            // 예: "1학년 통합사회1(1)" -> 정규식으로 추출
+            const cellMatch = cellData.match(/(\d+)학년\s+(.+?)\((\d+)\)/);
+            if (cellMatch) {
+              const grade = cellMatch[1];
+              const subjectName = cellMatch[2];
+              const classNum = cellMatch[3];
+              const targetClass = `${grade}-${classNum}`;
 
-            if (dayIdx >= days.length) continue; // 일요일을 넘어가면 무시
-            const day = days[dayIdx];
+              // 요일 및 교시 계산
+              const timeIndex = i - 3; 
+              const dayIdx = Math.floor(timeIndex / 12); 
+              const period = (timeIndex % 12) + 1; 
 
-            // 식별용 고유 키 생성 (예: "통합사회1_1-1")
-            const subjectKey = `${subjectName}_${targetClass}`;
+              if (dayIdx >= days.length) continue; 
+              const day = days[dayIdx];
 
-            if (!subjectsMap[subjectKey]) {
-              subjectsMap[subjectKey] = {
-                subject: subjectName,
-                targetClass: targetClass,
-                schedules: []
-              };
+              const subjectKey = `${subjectName}_${targetClass}`;
+              if (!subjectsMap[subjectKey]) {
+                subjectsMap[subjectKey] = {
+                  subject: subjectName,
+                  targetClass: targetClass,
+                  schedules: []
+                };
+              }
+              subjectsMap[subjectKey].schedules.push({ day: day, period: period });
             }
-            
-            // 해당 과목에 시간표(요일/교시) 추가
-            subjectsMap[subjectKey].schedules.push({ day: day, period: period });
           }
+
+          for (let key in subjectsMap) {
+            result.push({
+              teacherId: teacherId,
+              teacherName: teacherName,
+              subject: subjectsMap[key].subject,
+              targetClass: subjectsMap[key].targetClass,
+              schedules: subjectsMap[key].schedules
+            });
+          }
+        });
+
+        if (result.length === 0) {
+          alert("분석된 데이터가 없습니다. 나이스 엑셀 형식이 맞는지 확인해주세요.");
+          return;
         }
 
-        // 4. 추출된 데이터를 결과 배열에 넣기
-        for (let key in subjectsMap) {
-          result.push({
-            teacherId: teacherId,
-            teacherName: teacherName, // 나중에 교사 자동 회원가입에 사용
-            subject: subjectsMap[key].subject,
-            targetClass: subjectsMap[key].targetClass,
-            schedules: subjectsMap[key].schedules
-          });
-        }
-      });
+        // 백엔드로 전송 (기존에 작성해둔 sendBulkDataToServer 함수 그대로 사용)
+        sendBulkDataToServer(year, semester, result);
+      };
 
-      console.log("분석 완료 데이터:", result); // F12 개발자 도구에서 분석 결과 확인용
-      
-      if (result.length === 0) {
-        alert("분석된 데이터가 없습니다. 복사한 영역이 맞는지 확인해주세요.");
-        return;
-      }
-
-      // 5. 서버(Apps Script)로 전송
-      sendBulkDataToServer(year, semester, result);
+      // 나이스 시스템 특성상 한글 깨짐을 방지하기 위해 EUC-KR로 읽어들입니다.
+      // (만약 한글이 깨지면 'euc-kr' 대신 'utf-8'로 변경하면 됩니다)
+      reader.readAsText(file, "utf-8"); 
     }
 
     // 추출된 데이터를 백엔드로 전송하는 함수
@@ -276,7 +279,7 @@
     // 화면이 켜지자마자 권한 체크 실행
     window.onload = checkAuth;
 
-    
+
     // ----------------------------------------
     // 나이스(NEIS) 엑셀 데이터 분석 및 전송 로직
     // ----------------------------------------
