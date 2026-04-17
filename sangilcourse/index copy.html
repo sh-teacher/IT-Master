@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>상일여고 교과관리시스템</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+    /* 깜박이는 효과 애니메이션 */
+    @keyframes pulse-live {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(0.95); }
+    }
+    
+    /* 🔥수업중 텍스트 배지 디자인 */
+    .live-class-badge {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 900;
+        color: #ef4444; /* 강렬한 빨간색 */
+        background-color: rgba(239, 68, 68, 0.15); /* 투명한 빨간 배경 */
+        border: 1px solid #ef4444;
+        padding: 2px 6px;
+        border-radius: 8px;
+        margin-left: 8px;
+        animation: pulse-live 1.5s infinite; /* 애니메이션 적용 */
+        vertical-align: middle;
+    }
+
+    /* 현재 수업중인 메뉴 전체에 강조 효과 (왼쪽 테두리 선) */
+    .live-class-active {
+        border-left: 4px solid #ef4444 !important;
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        transition: all 0.3s ease;
+    }
+</style>
+</head>
+<body class="bg-slate-100 flex h-[100dvh] overflow-hidden text-slate-800 relative">
+
+    <div id="loginOverlay" class="fixed inset-0 bg-slate-900 z-[60] flex items-center justify-center p-4">
+        <div class="bg-white p-8 md:p-10 rounded-3xl shadow-2xl w-full max-w-sm flex flex-col items-center">
+            <div class="text-5xl mb-4">🏫</div>
+            <h2 class="text-xl md:text-2xl font-black text-slate-800 mb-2 text-center">상일여고 교과관리시스템</h2>
+            <p class="text-xs md:text-sm text-slate-500 mb-8 text-center">관리자 비밀번호를 입력해주세요</p>
+            
+            <input type="password" id="adminPw" placeholder="비밀번호" 
+                   class="w-full p-4 bg-slate-50 border-2 border-slate-200 rounded-xl mb-4 text-center font-bold text-lg focus:border-blue-500 focus:outline-none"
+                   onkeypress="if(event.key==='Enter') checkLogin()">
+            
+            <button onclick="checkLogin()" id="loginBtn" 
+                    class="w-full bg-blue-600 text-white px-6 py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition shadow-md">
+                접속하기
+            </button>
+        </div>
+    </div>
+
+    <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/50 z-30 hidden transition-opacity md:hidden"></div>
+
+    <aside id="sidebar" class="fixed md:relative inset-y-0 left-0 z-40 w-64 md:w-72 bg-slate-900 text-slate-300 flex flex-col h-full shadow-2xl transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
+        <div class="p-5 md:p-6 border-b border-slate-700 flex justify-between items-center">
+            <h1 class="text-lg md:text-xl font-black text-white flex items-center gap-2">
+                <span>🏫</span> 상일여고 교과관리시스템
+            </h1>
+            <button onclick="toggleSidebar()" class="md:hidden text-slate-400 hover:text-white text-2xl font-bold">&times;</button>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto p-4 space-y-2" id="menuNav">
+            <a href="dashboard.html" target="mainFrame" class="menu-link block px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition font-bold text-slate-200 bg-slate-800">
+                🏠 홈
+            </a>
+            <a href="setup.html" target="mainFrame" class="menu-link block px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition font-bold">
+                ⚙️ 교과 환경 설정
+            </a>
+            <a href="students.html" target="mainFrame" class="menu-link block px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition font-bold">
+                👥 학생 명단 관리
+            </a>
+            
+            <div class="pt-6 pb-2">
+                <p class="px-4 text-[10px] md:text-xs font-black text-slate-500 uppercase tracking-wider">나의 교과목 (자동 로드)</p>
+            </div>
+            
+            <div id="dynamicMenu" class="space-y-1">
+                </div>
+        </nav>
+
+        <div class="p-4 border-t border-slate-700 text-xs md:text-sm text-slate-500 flex justify-between items-center">
+            <p>ⓒ 2026 Sunghwan</p>
+            <button onclick="logout()" class="hover:text-white transition font-bold">로그아웃</button>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-full relative w-full overflow-hidden">
+        <header class="bg-white h-14 md:h-16 border-b border-slate-200 flex items-center px-4 md:px-8 shadow-sm z-10 w-full">
+            <button onclick="toggleSidebar()" class="md:hidden mr-3 text-slate-600 text-2xl focus:outline-none hover:text-blue-600 transition">
+                ☰
+            </button>
+            
+            <h2 class="font-bold text-lg md:text-xl text-slate-700 flex-1 truncate" id="headerTitle">대시보드</h2>
+            
+            <div class="flex items-center gap-2 md:gap-4 ml-2">
+                <span class="bg-blue-50 text-blue-600 px-3 md:px-4 py-1.5 rounded-full font-bold text-xs md:text-sm tracking-wide whitespace-nowrap" id="realTimeClock">
+                    00:00:00
+                </span>
+            </div>
+        </header>
+
+        <div class="flex-1 w-full h-full bg-slate-50 relative overflow-hidden">
+            <iframe name="mainFrame" id="mainFrame" src="" class="w-full h-full border-none"></iframe>
+        </div>
+    </main>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbzfIY0Fs4S1EjSSNI2kZfrFgtSqipG_u_KDCkdT8Vy1LjrIwB7k_1awE_psCNw0VQGg/exec";
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem("isAllowed") === "true") {
+                document.getElementById('loginOverlay').style.display = 'none';
+                initializeApp();
+            }
+        });
+
+        async function checkLogin() {
+            const pw = document.getElementById('adminPw').value;
+            const btn = document.getElementById('loginBtn');
+            if(!pw) return alert("비밀번호를 입력하세요!");
+
+            btn.innerText = "확인 중...";
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ type: "CHECK_PW", payload: { password: pw } })
+                });
+                const data = await response.json();
+                
+                if(data.success) {
+                    sessionStorage.setItem("isAllowed", "true");
+                    document.getElementById('loginOverlay').style.display = 'none';
+                    initializeApp();
+                } else {
+                    alert("비밀번호가 틀렸습니다.");
+                    document.getElementById('adminPw').value = "";
+                }
+            } catch(e) {
+                alert("서버와 통신할 수 없습니다.");
+            } finally {
+                btn.innerText = "접속하기";
+                btn.disabled = false;
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem("isAllowed");
+            location.reload();
+        }
+
+        // 🔥 모바일용 사이드바 토글 기능
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            sidebar.classList.toggle('-translate-x-full');
+            if (sidebar.classList.contains('-translate-x-full')) {
+                overlay.classList.add('hidden');
+            } else {
+                overlay.classList.remove('hidden');
+            }
+        }
+
+        async function initializeApp() {
+            loadSubjectsMenu();
+            
+            const isAutoLoaded = await checkScheduleAndAutoLoad();
+            
+            if (!isAutoLoaded) {
+                document.getElementById('mainFrame').src = "dashboard.html";
+                document.getElementById('headerTitle').innerText = "홈 (대시보드)";
+            }
+
+            setInterval(updateClock, 1000);
+            updateClock();
+            
+            // 기존 고정 메뉴들에 대해서도 클릭 이벤트 적용 (모바일 닫힘 처리)
+            attachMenuClickEvents();
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const isMobile = window.innerWidth < 768;
+            
+            // 모바일과 PC 모두 시간, 분, 초를 표시하도록 설정
+            const timeString = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            
+            if (isMobile) {
+                // 모바일용 날짜 형식: "16(목)"
+                const days = ['일','월','화','수','목','금','토'];
+                const mobileDateStr = `${now.getDate()}(${days[now.getDay()]})`;
+                
+                document.getElementById('realTimeClock').innerText = `${mobileDateStr} ${timeString}`;
+            } else {
+                // PC용 날짜 형식: "4월 16일 (목)"
+                const dateString = now.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', weekday: 'short' });
+                document.getElementById('realTimeClock').innerText = `${dateString} ${timeString}`;
+            }
+        }
+
+        async function loadSubjectsMenu() {
+            try {
+                const response = await fetch(`${API_URL}?type=GET_SUBJECTS`);
+                const subjects = await response.json();
+                const menuContainer = document.getElementById('dynamicMenu');
+                
+                menuContainer.innerHTML = ''; 
+
+                if (subjects.length === 0) {
+                    menuContainer.innerHTML = '<p class="px-4 text-sm text-slate-500">등록된 과목이 없습니다.</p>';
+                    return;
+                }
+
+                const scheduleData = {
+                    "인공지능기초I (3-8)": "월1 수1",
+                    "인공지능기초H (아름실)": "화2 목2",
+                    "정보A (2-6)": "화7 목6 금2",
+                    "정보B (아름실)": "월4 목5 금6",
+                    "정보E (2-2)": "화1 수2 목3",
+                    "교육학J (3-2)": "화4 수3"
+                };
+
+                const days = ['일','월','화','수','목','금','토'];
+                const todayStr = days[new Date().getDay()];
+
+                subjects.forEach(sub => {
+                    sub.scheduleStr = scheduleData[sub.fullName] || "";
+                    let todayPeriod = 99; 
+                    const regex = new RegExp(todayStr + "\\s*(\\d+)");
+                    const match = sub.scheduleStr.match(regex);
+                    if (match && match[1]) { todayPeriod = parseInt(match[1], 10); }
+                    sub.todayPeriod = todayPeriod;
+                });
+
+                subjects.sort((a, b) => a.todayPeriod - b.todayPeriod);
+
+                subjects.forEach(sub => {
+                    const groupDiv = document.createElement('div');
+                    groupDiv.className = "mb-1 px-2";
+                    
+                    const isToday = sub.todayPeriod !== 99;
+                    const dotColor = isToday ? "bg-emerald-400" : "bg-slate-500";
+                    const titleColor = isToday ? "text-emerald-300" : "text-slate-300";
+                    const badgeHtml = isToday 
+                        ? `<span class="ml-auto shrink-0 whitespace-nowrap text-[10px] bg-slate-700 text-emerald-300 px-1.5 py-0.5 rounded-md font-bold">${sub.todayPeriod}교시</span>` 
+                        : "";
+
+                    groupDiv.innerHTML = `
+                        <a href="attendance.html?subject=${encodeURIComponent(sub.fullName)}" target="mainFrame" class="menu-link block py-2 px-3 rounded-xl hover:bg-slate-800 transition">
+                            <div class="flex items-center gap-2 mb-1 overflow-hidden">
+                                <span class="w-2 h-2 rounded-full shrink-0 ${dotColor}"></span>
+                                <span class="text-sm font-bold ${titleColor} subject-title truncate flex-1">${sub.fullName}</span>
+                                ${badgeHtml}
+                            </div>
+                            <div class="pl-4 text-xs text-slate-400 font-normal tracking-wide truncate">
+                                ${sub.scheduleStr}
+                            </div>
+                        </a>
+                    `;
+                    menuContainer.appendChild(groupDiv);
+                });
+
+                attachMenuClickEvents();
+                highlightCurrentClass();
+
+            } catch (e) {
+                document.getElementById('dynamicMenu').innerHTML = '<p class="px-4 text-sm text-red-400">메뉴 로드 실패</p>';
+                console.error(e);
+            }
+        }
+
+        // 메뉴 클릭 시 UI 처리 묶음 함수
+        function attachMenuClickEvents() {
+            const links = document.querySelectorAll('.menu-link');
+            links.forEach(link => {
+                // 이벤트 중복 방지를 위해 기존 이벤트 클리어 후 재등록
+                link.replaceWith(link.cloneNode(true));
+            });
+
+            // 클론된 노드를 다시 선택
+            const newLinks = document.querySelectorAll('.menu-link');
+            newLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if(this.classList.contains('cursor-not-allowed')) return;
+                    
+                    newLinks.forEach(l => l.classList.remove('bg-slate-800', 'text-white'));
+                    this.classList.add('bg-slate-800', 'text-white');
+                    
+                    // ✅ 수정: href로 페이지 구분하여 헤더 제목 설정
+                    const pageUrl = this.getAttribute('href') || '';
+                    if (pageUrl.includes("attendance.html")) {
+                        document.getElementById('headerTitle').innerText = "출결/수업 일지";
+                    } else if (pageUrl.includes("dashboard.html")) {
+                        document.getElementById('headerTitle').innerText = "홈 (대시보드)";
+                    } else if (pageUrl.includes("setup.html")) {
+                        document.getElementById('headerTitle').innerText = "교과 환경 설정";
+                    } else if (pageUrl.includes("students.html")) {
+                        document.getElementById('headerTitle').innerText = "학생 명단 관리";
+                    } else {
+                        const titleSpan = this.querySelector('.subject-title');
+                        document.getElementById('headerTitle').innerText = titleSpan ? titleSpan.innerText : this.innerText.trim();
+                    }
+
+                    if (window.innerWidth < 768) {
+                        toggleSidebar();
+                    }
+                });
+            });
+        }
+
+        async function checkScheduleAndAutoLoad() {
+            try {
+                const response = await fetch(`${API_URL}?type=GET_SCHEDULE`);
+                const schedule = await response.json();
+                const now = new Date();
+                const days = ['일','월','화','수','목','금','토'];
+                const currentDay = days[now.getDay()];
+                const currentTime = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+
+                const currentClass = schedule.find(s => 
+                    s.day === currentDay && currentTime >= s.start && currentTime <= s.end
+                );
+
+                if (currentClass) {
+                    const frame = document.getElementById('mainFrame');
+                    frame.src = `attendance.html?subject=${encodeURIComponent(currentClass.subject)}`;
+                    document.getElementById('headerTitle').innerText = "현재 수업: " + currentClass.subject;
+                    return true; 
+                }
+                return false; 
+            } catch (e) { 
+                console.log("시간표 없음"); 
+                return false;
+            }
+        }
+        function highlightCurrentClass() {
+            // 1. 현재 시간 및 요일 확인
+            const now = new Date();
+            const days = ['일','월','화','수','목','금','토'];
+            const todayStr = days[now.getDay()];
+            const time = now.getHours() * 100 + now.getMinutes();
+
+            // 2. 실제 학교 종소리 시간에 맞춰 교시 계산 (쉬는 시간엔 배지가 꺼짐)
+            let currentPeriod = 0;
+            if      (time >= 845  && time < 935)  currentPeriod = 1; // 09:00 ~ 09:49
+            else if (time >= 945 && time < 1035) currentPeriod = 2; // 10:00 ~ 10:49
+            else if (time >= 1040 && time < 1135) currentPeriod = 3; // 11:00 ~ 11:49
+            else if (time >= 1145 && time < 1235) currentPeriod = 4; // 12:00 ~ 12:49
+            else if (time >= 1335 && time < 1425) currentPeriod = 5; // 13:50 ~ 14:39
+            else if (time >= 1435 && time < 1525) currentPeriod = 6; // 14:50 ~ 15:39
+            else if (time >= 1540 && time < 1630) currentPeriod = 7; // 15:50 ~ 16:39
+
+            // 3. 기존에 추가된 '수업중' 하이라이트 싹 지우기 (초기화)
+            document.querySelectorAll('.live-class-badge').forEach(el => el.remove());
+            document.querySelectorAll('.live-class-active').forEach(el => el.classList.remove('live-class-active'));
+
+            // 쉬는 시간이나 방과후면 여기서 멈춤
+            if (currentPeriod === 0) return; 
+
+            const targetString = todayStr + currentPeriod; // 예: "수3"
+
+            // 4. 왼쪽 사이드바 메뉴 텍스트 중 "수3" 같은 텍스트가 있는지 찾기
+            // 가장 안쪽의 텍스트 요소(span, div, p 등)를 모두 탐색합니다.
+            const menuElements = document.querySelectorAll('div, span, p'); 
+
+            menuElements.forEach(el => {
+                // 자식 태그가 없는 순수 텍스트 태그이면서, 텍스트에 "수3"이 포함되어 있고, 너무 긴 문장이 아닐 때 (메뉴 항목 판별)
+                if (el.children.length === 0 && el.innerText.includes(targetString) && el.innerText.length < 30) {
+                    
+                    // 메뉴를 감싸는 부모 태그(li나 a 태그 등)에 강조 배경/테두리 추가
+                    const parentMenu = el.closest('li') || el.closest('a') || el.parentElement;
+                    if (parentMenu && !parentMenu.classList.contains('live-class-active')) {
+                        parentMenu.classList.add('live-class-active');
+                    }
+
+                    // "월1 수3" 텍스트 바로 옆에 깜박이는 배지 덧붙이기
+                    if (!el.querySelector('.live-class-badge')) {
+                        const badge = document.createElement('span');
+                        badge.className = 'live-class-badge';
+                        badge.innerText = '🔥수업중!';
+                        el.appendChild(badge);
+                    }
+                }
+            });
+        }
+        // 최초 실행 후, 1분(60000ms)마다 백그라운드에서 시간을 체크하여 알아서 업데이트되도록 설정
+        setInterval(highlightCurrentClass, 60000); 
+    </script>
+</body>
+</html>
