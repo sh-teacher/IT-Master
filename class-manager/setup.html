@@ -108,6 +108,7 @@
 
         window.onload = () => {
             document.getElementById('scheduleSlots').innerHTML = getSlotHTML();
+            loadConfig();
             loadAllData();
         };
 
@@ -249,6 +250,21 @@
             } catch (e) {
                 console.error(e);
                 document.getElementById('subjectTableBody').innerHTML = '<tr><td colspan="3" class="p-6 text-center text-red-400 text-xs md:text-sm">데이터를 불러오지 못했습니다.</td></tr>';
+            }
+        }
+        async function loadConfig() {
+            try {
+                // 서버에 설정값을 요청 (type=GET_CONFIG)
+                const res = await fetch(API_URL + "?type=GET_CONFIG"); 
+                const config = await res.json();
+                
+                // 가져온 값이 있다면 화면의 input과 select 값을 업데이트
+                if (config && config.year && config.semester) {
+                    document.getElementById('year').value = config.year;
+                    document.getElementById('semester').value = config.semester;
+                }
+            } catch (e) {
+                console.error("학기 정보를 불러오지 못했습니다.", e);
             }
         }
     </script>
