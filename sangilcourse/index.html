@@ -67,23 +67,23 @@
   </div>
 
   <script>
+    // ✨ 올바른 API 주소 최상단 배치
+    const API_URL = "https://script.google.com/macros/s/AKfycbzfIY0Fs4S1EjSSNI2kZfrFgtSqipG_u_KDCkdT8Vy1LjrIwB7k_1awE_psCNw0VQGg/exec";
+
     // 1. 페이지 로드 시 즉시 실행되는 권한 체크 함수
     function checkAuth() {
       const userInfoStr = sessionStorage.getItem("userInfo");
       
-      // 로그인이 안 되어 있다면 튕겨냄
       if (!userInfoStr) {
         alert("로그인이 필요한 서비스입니다.");
         window.location.replace("login.html");
         return;
       }
 
-      // 로그인 정보가 있다면 파싱해서 화면에 이름과 권한 표시
       const userInfo = JSON.parse(userInfoStr);
       document.getElementById('userNameDisplay').innerText = userInfo.name;
       document.getElementById('userRoleDisplay').innerText = userInfo.role;
 
-      // 🌟 [핵심] 사용자의 권한이 '관리자'인 경우에만 관리자 메뉴 활성화
       if (userInfo.role === "관리자") {
         document.querySelectorAll('.admin-menu').forEach(el => el.classList.add('visible'));
       }
@@ -92,20 +92,18 @@
     // 2. 로그아웃 함수
     function logout() {
       if (confirm("로그아웃 하시겠습니까?")) {
-        sessionStorage.removeItem("userInfo"); // 세션 데이터 삭제
-        window.location.replace("login.html"); // 로그인 페이지로 이동
+        sessionStorage.removeItem("userInfo"); 
+        window.location.replace("login.html"); 
       }
     }
 
-    // 3. 메뉴 이동 함수 (SPA 방식: 페이지 이동 없이 내용만 바꿈)
+    // 3. 메뉴 이동 함수
     function loadMenu(menuId, btnElement) {
-      // 버튼 활성화(파란색) 효과 변경
       document.querySelectorAll('.sidebar button').forEach(btn => btn.classList.remove('active'));
       btnElement.classList.add('active');
 
       const contentArea = document.getElementById('contentArea');
 
-      // 각 메뉴에 맞는 화면 렌더링 (추후 여기에 실제 기능 컴포넌트를 붙일 예정입니다)
       if (menuId === 'dashboard') {
         contentArea.innerHTML = `<h2>대시보드</h2><p style="margin-top: 10px;">공지사항이나 오늘의 일정을 보여줄 수 있습니다.</p>`;
       } 
@@ -142,9 +140,8 @@
         contentArea.innerHTML = `<h2>준비 중인 기능입니다.</h2>`;
       }
     }
-    // ----------------------------------------
-    // 원본 엑셀(.xlsx) 파일 직접 읽기 및 데이터 분석 로직
-    // ----------------------------------------
+
+    // 4. 원본 엑셀(.xlsx) 파일 직접 읽기 및 데이터 분석 로직
     function processExcelData() {
       const year = document.getElementById('setYear').value.trim();
       const semester = document.getElementById('setSemester').value.trim();
@@ -164,13 +161,11 @@
 
       reader.onload = function(e) {
         try {
-          // 1. 첨부된 파일을 엑셀 데이터로 완벽하게 읽어옵니다.
           const data = new Uint8Array(e.target.result);
           const workbook = XLSX.read(data, {type: 'array'});
           const firstSheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[firstSheetName];
           
-          // 2. 엑셀의 격자구조를 2차원 배열로 완벽 변환 (인코딩, 쉼표 오류 원천 차단!)
           const rows = XLSX.utils.sheet_to_json(worksheet, {header: 1});
           
           const result = [];
@@ -183,7 +178,6 @@
             let teacherName = "";
             let startIndex = -1;
 
-            // 교사 정보(아이디) 칸 자동 탐색
             for (let i = 0; i < cols.length; i++) {
               if (!cols[i]) continue;
               let cell = String(cols[i]).trim();
@@ -201,7 +195,6 @@
 
             const subjectsMap = {};
 
-            // 시간표 파싱
             for (let i = startIndex; i < cols.length; i++) {
               let cellData = cols[i] ? String(cols[i]).trim() : "";
               if (!cellData) continue;
@@ -248,7 +241,7 @@
             return;
           }
 
-          // 백엔드로 전송 (기존 통신 함수 활용)
+          // 백엔드로 전송
           sendBulkDataToServer(year, semester, result);
 
         } catch (err) {
@@ -257,13 +250,12 @@
         }
       };
 
-      // 바이너리(엑셀 원본) 데이터로 읽어들이기
       reader.readAsArrayBuffer(file);
     }
 
-    // 추출된 데이터를 백엔드로 전송하는 함수
+    // 5. 추출된 데이터를 백엔드로 전송하는 단일 함수
     async function sendBulkDataToServer(year, semester, parsedData) {
-      setLoading(true); // 아까 만들어둔 로딩 화면 표시
+      document.getElementById('loadingNeis').style.display = 'block'; 
 
       try {
         const response = await fetch(API_URL, {
@@ -279,136 +271,13 @@
         });
         
         const resResult = await response.json();
-        setLoading(false);
+        document.getElementById('loadingNeis').style.display = 'none'; 
 
         if (resResult.success) {
           alert("✅ 나이스 데이터가 성공적으로 분석 및 연동되었습니다!");
-          document.getElementById('neisDataInput').value = ""; // 텍스트박스 비우기
+          document.getElementById('excelFileInput').value = ""; // 초기화 기능도 정상 작동하도록 수정
         } else {
           alert("데이터 연동 중 오류: " + resResult.msg);
-        }
-      } catch (error) {
-        setLoading(false);
-        alert("서버 통신 중 오류가 발생했습니다.");
-        console.error(error);
-      }
-    }
-    // 화면이 켜지자마자 권한 체크 실행
-    window.onload = checkAuth;
-
-
-    // ----------------------------------------
-    // 나이스(NEIS) 엑셀 데이터 분석 및 전송 로직
-    // ----------------------------------------
-    function processNeisData() {
-      const year = document.getElementById('setYear').value.trim();
-      const semester = document.getElementById('setSemester').value.trim();
-      const rawData = document.getElementById('neisDataInput').value.trim();
-
-      if (!year || !semester) {
-        alert("학년도와 학기를 먼저 입력해주세요. (예: 2026, 1)");
-        return;
-      }
-      if (!rawData) {
-        alert("엑셀 데이터를 텍스트 박스에 붙여넣어 주세요.");
-        return;
-      }
-
-      const rows = rawData.split('\n');
-      const result = [];
-      const days = ["월", "화", "수", "목", "금", "토", "일"];
-
-      rows.forEach(row => {
-        const cols = row.split('\t'); 
-        
-        // 첫 번째 열이 '숫자(순번)'가 아니면 건너뜁니다 (엑셀의 헤더행 등 무시)
-        if (!cols[0] || isNaN(cols[0].trim())) return;
-
-        // 아이디와 이름 분리 (예: kmj048070(강민주))
-        const teacherRaw = cols[1] ? cols[1].trim() : ""; 
-        const idMatch = teacherRaw.match(/(.+)\((.+)\)/); 
-        if (!idMatch) return; 
-        
-        const teacherId = idMatch[1].trim(); 
-        const teacherName = idMatch[2].trim(); 
-
-        const subjectsMap = {}; 
-
-        // 2번 인덱스(월1)부터 반복하여 시간표 파싱
-        for (let i = 2; i < cols.length; i++) {
-          const cellData = cols[i] ? cols[i].trim() : "";
-          if (!cellData) continue; 
-
-          // 예: "1학년 통합사회1(1)" -> 학년, 과목, 반 추출
-          const cellMatch = cellData.match(/(\d+)학년\s+(.+?)\((\d+)\)/);
-          if (cellMatch) {
-            const grade = cellMatch[1];
-            const subjectName = cellMatch[2];
-            const classNum = cellMatch[3];
-            const targetClass = `${grade}-${classNum}`;
-
-            // 요일 및 교시 계산 (엑셀 열 인덱스 기준)
-            const timeIndex = i - 2; 
-            const dayIdx = Math.floor(timeIndex / 12); 
-            const period = (timeIndex % 12) + 1; 
-
-            if (dayIdx >= days.length) continue; 
-            const day = days[dayIdx];
-
-            const subjectKey = `${subjectName}_${targetClass}`;
-            if (!subjectsMap[subjectKey]) {
-              subjectsMap[subjectKey] = {
-                subject: subjectName,
-                targetClass: targetClass,
-                schedules: []
-              };
-            }
-            subjectsMap[subjectKey].schedules.push({ day: day, period: period });
-          }
-        }
-
-        // 완성된 한 명의 데이터를 배열에 넣기
-        for (let key in subjectsMap) {
-          result.push({
-            teacherId: teacherId,
-            teacherName: teacherName,
-            subject: subjectsMap[key].subject,
-            targetClass: subjectsMap[key].targetClass,
-            schedules: subjectsMap[key].schedules
-          });
-        }
-      });
-
-      if (result.length === 0) {
-        alert("분석된 데이터가 없습니다. 복사한 영역이 맞는지 확인해주세요.");
-        return;
-      }
-
-      // 백엔드로 쏘기
-      sendBulkDataToServer(year, semester, result);
-    }
-
-    async function sendBulkDataToServer(year, semester, parsedData) {
-      document.getElementById('loadingNeis').style.display = 'block'; // 로딩바 켜기
-
-      try {
-        // 주의: 상단에서 선언한 API_URL을 그대로 사용합니다. (없다면 상단에 const API_URL = "내주소"; 추가 필요)
-        const response = await fetch("https://script.google.com/macros/s/AKfycbzfIY0Fs4S1EjSSNI2kZfrFgtSqipG_u_KDCkdT8ర్ణVy1LjrIwB7k_1awE_psCNw0VQGg/exec", {
-          method: "POST",
-          body: JSON.stringify({
-            type: "BULK_UPLOAD_NEIS",
-            payload: { year: year, semester: semester, data: parsedData }
-          })
-        });
-        
-        const resResult = await response.json();
-        document.getElementById('loadingNeis').style.display = 'none'; // 로딩바 끄기
-
-        if (resResult.success) {
-          alert("✅ " + resResult.msg);
-          document.getElementById('neisDataInput').value = ""; 
-        } else {
-          alert("서버 오류: " + resResult.msg);
         }
       } catch (error) {
         document.getElementById('loadingNeis').style.display = 'none';
@@ -416,6 +285,10 @@
         console.error(error);
       }
     }
+
+    // 화면이 켜지자마자 권한 체크 실행
+    window.onload = checkAuth;
+
   </script>
 </body>
 </html>
