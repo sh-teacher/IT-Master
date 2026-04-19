@@ -228,7 +228,9 @@ const PERIOD_TIMES = {
     4: { start: {h:11, m:45}, end: {h:12, m:35} },
     5: { start: {h:13, m:35}, end: {h:14, m:25} },
     6: { start: {h:14, m:35}, end: {h:15, m:25} },
-    7: { start: {h:15, m:40}, end: {h:16, m:30} }
+    7: { start: {h:15, m:40}, end: {h:16, m:30} },
+    8: { start: {h:16, m:40}, end: {h:17, m:30} }, // 8교시 추가
+    9: { start: {h:17, m:40}, end: {h:18, m:30} }  // 9교시 추가
 };
 let progressInterval = null; 
 
@@ -388,7 +390,7 @@ function updatePeriodDropdown() {
     
     periodSelect.disabled = false;
     if (showAll) {
-        for (let i = 1; i <= 7; i++) periodSelect.innerHTML += `<option value="${i}">${i}교시</option>`;
+        for (let i = 1; i <= 9; i++) periodSelect.innerHTML += `<option value="${i}">${i}교시</option>`;
     } else if (matchedPeriods.length > 0) {
         matchedPeriods.sort((a, b) => a.period - b.period).forEach(p => periodSelect.innerHTML += `<option value="${p.period}">${p.period}교시</option>`);
     } else {
