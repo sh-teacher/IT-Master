@@ -140,11 +140,37 @@
         iframeArea.style.display = 'block';
         iframeArea.src = `attendance.html?subject=${encodeURIComponent(extraParam)}`;
       }
-      // ✨ 확실하게 setup.html이 불리도록 보장하는 부분입니다! ✨
+      // ✨ 선생님의 오리지널 나이스 연동 UI 복원! ✨
       else if (menuId === 'adminConfig') {
-        contentArea.style.display = 'none';
-        iframeArea.style.display = 'block';
-        iframeArea.src = 'setup.html';
+        iframeArea.style.display = 'none';
+        contentArea.style.display = 'block';
+        contentArea.innerHTML = `
+          <div class="content-card">
+            <h2 style="color: #0056b3; margin-bottom: 10px;">⚙️ 학기/과목 설정 (나이스 연동)</h2>
+            <p style="color: #666; margin-bottom: 20px;">나이스에서 다운로드한 전체 시간표 엑셀(.xlsx) 파일을 업로드하여 학기 정보와 교사별 과목을 자동 세팅합니다.</p>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef;">
+              <div style="margin-bottom: 15px;">
+                <label style="font-weight:bold; margin-right:10px;">학년도: <input type="number" id="setYear" value="${new Date().getFullYear()}" style="padding:8px; border:1px solid #ddd; border-radius:4px; width:100px;"></label>
+                <label style="font-weight:bold;">학기: 
+                  <select id="setSemester" style="padding:8px; border:1px solid #ddd; border-radius:4px;">
+                    <option value="1">1학기</option>
+                    <option value="2">2학기</option>
+                  </select>
+                </label>
+              </div>
+              <div style="margin-bottom: 15px;">
+                <label style="font-weight:bold; display:block; margin-bottom:8px;">나이스 엑셀 파일 업로드:</label>
+                <input type="file" id="excelFileInput" accept=".xlsx" style="padding: 10px; width: 100%; border: 1px dashed #bbb; border-radius: 4px; background: white;">
+              </div>
+              <button onclick="processExcelData()" style="background:#0056b3; color:white; border:none; padding:12px 20px; font-weight:bold; border-radius:6px; cursor:pointer; width:100%;">엑셀 데이터 분석 및 서버 연동 실행</button>
+              
+              <div id="loadingNeis" style="display:none; color:#d32f2f; margin-top:15px; font-weight:bold; text-align:center;">
+                데이터를 분석하고 서버와 연동 중입니다. 잠시만 기다려주세요... ⏳
+              </div>
+            </div>
+          </div>
+        `;
       }
       else {
         iframeArea.style.display = 'none';
@@ -153,6 +179,162 @@
       }
     }
 
+    // ==========================================
+    // 🌟 선생님의 오리지널 나이스 데이터 분석 로직 완벽 복원
+    // ==========================================
+    function processExcelData() {
+      const year = document.getElementById('setYear').value.trim();
+      const semester = document.getElementById('setSemester').value.trim();
+      const fileInput = document.getElementById('excelFileInput');
+
+      if (!year || !semester) {
+        alert("학년도와 학기를 먼저 입력해주세요.");
+        return;
+      }
+      if (fileInput.files.length === 0) {
+        alert("업로드할 엑셀 파일을 선택해 주세요.");
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, {type: 'array'});
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          
+          const rows = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+          
+          const result = [];
+          const days = ["월", "화", "수", "목", "금", "토", "일"];
+
+          rows.forEach(cols => {
+            if (!cols || cols.length === 0) return;
+            
+            let teacherId = "";
+            let teacherName = "";
+            let startIndex = -1;
+
+            for (let i = 0; i < cols.length; i++) {
+              if (!cols[i]) continue;
+              let cell = String(cols[i]).trim();
+              
+              let idMatch = cell.match(/([a-zA-Z0-9_.-]+)\((.+?)\)/);
+              if (idMatch) {
+                teacherId = idMatch[1].trim();
+                teacherName = idMatch[2].trim();
+                startIndex = i + 1; 
+                break;
+              }
+            }
+
+            if (startIndex === -1) return;
+
+            const subjectsMap = {};
+
+            for (let i = startIndex; i < cols.length; i++) {
+              let cellData = cols[i] ? String(cols[i]).trim() : "";
+              if (!cellData) continue;
+
+              const cellMatch = cellData.match(/(\d+)\s*학년\s*(.+?)\s*\(([^)]+)\)/);
+              if (cellMatch) {
+                const grade = cellMatch[1];
+                const subjectName = cellMatch[2].trim();
+                const classNum = cellMatch[3].trim(); 
+
+                let targetClass = "";
+                if (!isNaN(classNum)) {
+                  targetClass = `${grade}-${classNum}`;
+                } else {
+                  targetClass = classNum;
+                }
+
+                const timeIndex = i - startIndex;
+                const dayIdx = Math.floor(timeIndex / 12);
+                const period = (timeIndex % 12) + 1;
+
+                if (dayIdx >= days.length) continue;
+                const day = days[dayIdx];
+
+                const subjectKey = `${subjectName}_${targetClass}`;
+                if (!subjectsMap[subjectKey]) {
+                  subjectsMap[subjectKey] = {
+                    subject: subjectName,
+                    targetClass: targetClass,
+                    schedules: []
+                  };
+                }
+                subjectsMap[subjectKey].schedules.push({ day: day, period: period });
+              }
+            }
+
+            for (let key in subjectsMap) {
+              result.push({
+                teacherId: teacherId,
+                teacherName: teacherName,
+                subject: subjectsMap[key].subject,
+                targetClass: subjectsMap[key].targetClass,
+                schedules: subjectsMap[key].schedules
+              });
+            }
+          });
+
+          if (result.length === 0) {
+            alert("분석된 데이터가 없습니다. 나이스 양식이 맞는지 확인해주세요.");
+            return;
+          }
+
+          sendBulkDataToServer(year, semester, result);
+
+        } catch (err) {
+          console.error(err);
+          alert("파일 판독 중 오류가 발생했습니다. 원본 엑셀(.xlsx) 파일이 맞는지 확인해주세요.");
+        }
+      };
+
+      reader.readAsArrayBuffer(file);
+    }
+
+    // 서버로 데이터 전송
+    async function sendBulkDataToServer(year, semester, parsedData) {
+      document.getElementById('loadingNeis').style.display = 'block'; 
+
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            type: "BULK_UPLOAD_NEIS",
+            payload: {
+              year: year,
+              semester: semester,
+              data: parsedData
+            }
+          })
+        });
+        
+        const resResult = await response.json();
+        document.getElementById('loadingNeis').style.display = 'none'; 
+
+        if (resResult.success) {
+          alert("✅ 나이스 데이터가 성공적으로 분석 및 연동되었습니다!");
+          document.getElementById('excelFileInput').value = ""; 
+        } else {
+          alert("데이터 연동 중 오류: " + resResult.msg);
+        }
+      } catch (error) {
+        document.getElementById('loadingNeis').style.display = 'none';
+        alert("서버 통신 중 오류가 발생했습니다.");
+        console.error(error);
+      }
+    }
+
+
+    // ==========================================
+    // 대시보드 데이터 통신 및 렌더링
+    // ==========================================
     async function renderDashboard() {
       const userInfo = checkAuth();
       if(!userInfo) return;

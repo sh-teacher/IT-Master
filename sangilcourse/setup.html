@@ -1,276 +1,579 @@
 <!DOCTYPE html>
+
 <html lang="ko">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>시스템 설정 - 상일여고 교과관리</title>
+
+    <title>시스템 설정 - Class Manager</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
+
     <script>
-        // 상일여고 전용 세션 체크 (iframe 안에서 실행되므로 부모 창을 이동시킴)
-        if (!sessionStorage.getItem("userInfo")) {
-            alert("로그인이 만료되었거나 권한이 없습니다.");
-            window.parent.location.href = "login.html";
+
+        if (sessionStorage.getItem("isAllowed") !== "true") {
+
+            alert("인증이 필요합니다.");
+
+            location.href = "index.html";
+
         }
+
     </script>
+
     <style>
+
         /* 가로 스크롤바 숨기기 (모바일 터치 스와이프용) */
+
         .no-scrollbar::-webkit-scrollbar { display: none; }
+
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; touch-action: pan-x; }
+
     </style>
+
 </head>
-<body class="bg-white min-h-screen p-4 md:p-8 pb-15 md:pb-10">
-    <div class="max-w-5xl mx-auto w-full">
-        
+
+<body class="bg-slate-50 min-h-screen p-4 md:p-8 pb-15 md:pb-10">
+
+    <div class="max-w-5xl mx-auto">
+
+       
+
         <header class="mb-6 md:mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-2 md:gap-0 mt-2 md:mt-0">
+
             <div>
-                <h1 class="text-2xl md:text-3xl font-black text-slate-800">⚙️ 학기 및 과목 설정</h1>
+
+                <h1 class="text-2xl md:text-3xl font-black text-slate-800">⚙️ 교과 환경 설정</h1>
+
                 <p class="text-xs md:text-sm text-slate-500 font-medium mt-1">학년도, 학기, 담당 과목 및 시간표를 일괄 관리합니다.</p>
+
             </div>
+
+            <button onclick="window.parent.logout ? window.parent.logout() : location.href='index.html'" class="hidden md:block text-sm text-slate-400 underline hover:text-slate-600">로그아웃</button>
+
         </header>
 
+
+
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-            
+
+           
+
             <div class="space-y-6">
-                <section class="bg-slate-50 p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200">
+
+                <section class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200">
+
                     <h2 class="text-base md:text-lg font-bold mb-4 flex items-center gap-2">📅 학기 정보</h2>
+
                     <div class="space-y-4">
+
                         <div>
+
                             <label class="block text-xs font-bold text-slate-400 mb-1">학년도</label>
-                            <input type="number" id="year" class="w-full p-2.5 md:p-3 bg-white border border-slate-300 rounded-xl focus:outline-blue-500 text-sm md:text-base" value="2026">
+
+                            <input type="number" id="year" class="w-full p-2.5 md:p-3 bg-slate-50 border rounded-xl focus:outline-blue-500 text-sm md:text-base" value="2026">
+
                         </div>
+
                         <div>
+
                             <label class="block text-xs font-bold text-slate-400 mb-1">학기</label>
-                            <select id="semester" class="w-full p-2.5 md:p-3 bg-white border border-slate-300 rounded-xl focus:outline-blue-500 text-sm md:text-base">
+
+                            <select id="semester" class="w-full p-2.5 md:p-3 bg-slate-50 border rounded-xl focus:outline-blue-500 text-sm md:text-base">
+
                                 <option value="1">1학기</option>
+
                                 <option value="2">2학기</option>
+
                             </select>
+
                         </div>
+
                         <button onclick="saveConfig()" id="btnConfig" class="w-full bg-slate-800 text-white p-3 rounded-xl font-bold hover:bg-black transition text-sm md:text-base shadow-md">학기 정보 저장</button>
+
                     </div>
+
                 </section>
+
             </div>
+
+
 
             <div class="lg:col-span-2 space-y-6">
-                
-                <section class="bg-blue-50 p-5 md:p-6 rounded-2xl shadow-sm border border-blue-200">
-                    <h2 class="text-base md:text-lg font-bold mb-4 md:mb-5 flex items-center gap-2 text-blue-800">📚 과목 및 시간표 수동 등록</h2>
-                    
+
+               
+
+                <section class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-blue-200 bg-blue-50/30">
+
+                    <h2 class="text-base md:text-lg font-bold mb-4 md:mb-5 flex items-center gap-2 text-blue-800">📚 과목 및 시간표 일괄 등록</h2>
+
+                   
+
                     <div class="flex flex-col md:flex-row gap-3 mb-4 md:mb-5">
+
                         <input type="text" id="subjectName" class="w-full md:flex-1 p-3 md:p-3 bg-white border border-slate-200 rounded-xl focus:border-blue-500 focus:outline-none text-sm md:text-base" placeholder="과목명 (예: 정보A)">
+
                         <input type="text" id="targetClass" class="w-full md:w-1/3 p-3 md:p-3 bg-white border border-slate-200 rounded-xl focus:border-blue-500 focus:outline-none text-sm md:text-base" placeholder="대상반 (예: 2-1)">
+
                     </div>
+
+
 
                     <div class="bg-white p-3 md:p-4 rounded-xl border border-slate-200 mb-4 md:mb-5">
+
                         <div class="flex justify-between items-center mb-3">
+
                             <label class="block text-xs md:text-sm font-bold text-slate-600">수업 시간 세팅</label>
+
                             <button onclick="addSlot()" class="text-[10px] md:text-xs bg-slate-100 text-slate-600 font-bold px-3 py-1.5 rounded-lg hover:bg-slate-200 transition">+ 시간 추가</button>
+
                         </div>
-                        <div id="scheduleSlots" class="space-y-2"></div>
+
+                        <div id="scheduleSlots" class="space-y-2">
+
+                            </div>
+
                     </div>
+
+
 
                     <button onclick="saveSubjectAndSchedule()" id="btnSubmitAll" class="w-full bg-blue-600 text-white py-3 md:py-4 rounded-xl font-black text-base md:text-lg hover:bg-blue-700 transition shadow-md">
+
                         과목 및 시간표 일괄 등록
+
                     </button>
+
                 </section>
 
-                <section class="bg-slate-50 p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200">
+
+
+                <section class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200">
+
                     <h2 class="text-base md:text-lg font-bold mb-3 md:mb-4 flex items-center gap-2 text-slate-700">📊 전체 등록 현황</h2>
-                    <div class="overflow-hidden rounded-xl border border-slate-200 w-full bg-white">
+
+                    <div class="overflow-hidden rounded-xl border border-slate-200 w-full">
+
                         <div class="w-full overflow-x-auto no-scrollbar">
-                            <table class="w-full text-left border-collapse min-w-[350px] md:min-w-full">
+
+                            <table class="w-full text-left border-collapse bg-white min-w-[350px] md:min-w-full">
+
                                 <thead class="bg-slate-100">
+
                                     <tr>
+
                                         <th class="p-2 md:p-3 text-xs md:text-sm font-black text-slate-600 border-b border-slate-200 whitespace-nowrap">과목명</th>
+
                                         <th class="p-2 md:p-3 text-xs md:text-sm font-black text-slate-600 border-b border-slate-200 whitespace-nowrap">대상반</th>
+
                                         <th class="p-2 md:p-3 text-xs md:text-sm font-black text-slate-600 border-b border-slate-200 whitespace-nowrap">시간표</th>
+
                                     </tr>
+
                                 </thead>
+
                                 <tbody id="subjectTableBody" class="divide-y divide-slate-100">
+
                                     <tr><td colspan="3" class="p-6 text-center text-slate-400 text-xs md:text-sm">데이터를 불러오는 중입니다...</td></tr>
+
                                 </tbody>
+
                             </table>
+
                         </div>
+
                     </div>
+
                 </section>
+
+
+
+                <div class="flex justify-center md:justify-end pt-2 md:pt-4">
+
+                    <button onclick="location.href='students.html'" class="w-full md:w-auto bg-slate-800 text-white px-6 md:px-8 py-3.5 md:py-4 rounded-xl md:rounded-2xl font-black shadow-lg hover:bg-black transition transform active:scale-95 text-sm md:text-base">
+
+                        학생 명단 등록하러 가기 ➡️
+
+                    </button>
+
+                </div>
 
             </div>
+
         </div>
+
     </div>
 
+
+
     <script>
-        // 상일여고 API 주소로 통합 교체
+
         const API_URL = "https://script.google.com/macros/s/AKfycbzfIY0Fs4S1EjSSNI2kZfrFgtSqipG_u_KDCkdT8Vy1LjrIwB7k_1awE_psCNw0VQGg/exec";
 
+
+
         window.onload = async () => {
+
             document.getElementById('scheduleSlots').innerHTML = getSlotHTML();
-            await loadConfig(); 
+
+            // 설정을 먼저 불러오고 나서, 데이터를 불러와야 타이밍이 꼬이지 않습니다.
+
+            await loadConfig();
+
             await loadAllData();
+
         };
 
+
+
         // --- UI 컨트롤 ---
+
         function getSlotHTML() {
+
+            // 모바일에 맞게 p-2 등 패딩과 텍스트 크기 조절
+
             return `
+
                 <div class="flex gap-1.5 md:gap-2 items-center slot-row">
+
                     <select class="sch-day flex-1 p-2 md:p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-400 font-medium text-slate-700 text-xs md:text-sm">
+
                         <option value="월">월요일</option>
+
                         <option value="화">화요일</option>
+
                         <option value="수">수요일</option>
+
                         <option value="목">목요일</option>
+
                         <option value="금">금요일</option>
+
                     </select>
+
                     <select class="sch-period flex-1 p-2 md:p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-400 font-medium text-slate-700 text-xs md:text-sm">
+
                         <option value="1">1교시</option>
+
                         <option value="2">2교시</option>
+
                         <option value="3">3교시</option>
+
                         <option value="4">4교시</option>
+
                         <option value="5">5교시</option>
+
                         <option value="6">6교시</option>
+
                         <option value="7">7교시</option>
+
                     </select>
+
                     <button onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 p-2 md:p-2.5 rounded-lg font-bold transition px-3 md:px-4 text-xs md:text-sm" title="삭제">X</button>
+
                 </div>
+
             `;
+
         }
+
+
 
         function addSlot() {
+
             const container = document.getElementById('scheduleSlots');
+
             container.insertAdjacentHTML('beforeend', getSlotHTML());
+
         }
+
+
 
         // --- 데이터 처리 ---
+
         async function saveConfig() {
+
             const btn = document.getElementById('btnConfig');
+
             const payload = { year: document.getElementById('year').value, semester: document.getElementById('semester').value };
+
             btn.disabled = true; btn.innerText = "저장 중...";
+
             try {
+
                 await fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "SAVE_CONFIG", payload: payload }) });
+
                 alert("학년도와 학기가 성공적으로 저장되었습니다!");
-                await loadAllData(); 
-            } catch (e) { alert("저장 실패: " + e.message); } 
-            finally { btn.disabled = false; btn.innerText = "학기 정보 저장"; }
-        }
 
-        async function saveSubjectAndSchedule() {
-            const btn = document.getElementById('btnSubmitAll');
-            const name = document.getElementById('subjectName').value.trim();
-            const target = document.getElementById('targetClass').value.trim();
+               
 
-            if(!name || !target) return alert("과목명과 대상반을 정확히 입력해주세요.");
-
-            const slots = document.querySelectorAll('.slot-row');
-            if(slots.length === 0) return alert("최소 1개 이상의 수업 시간을 추가해주세요.");
-
-            btn.disabled = true;
-            btn.innerText = "일괄 등록 진행 중...";
-
-            try {
-                const year = document.getElementById('year').value;
-                const semester = document.getElementById('semester').value;
-
-                await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ type: "ADD_SUBJECT", payload: { name: name, target: target, year: year, semester: semester } })
-                });
-
-                const fullName = `${name} (${target})`;
-                
-                const schedulePromises = Array.from(slots).map(slot => {
-                    const day = slot.querySelector('.sch-day').value;
-                    const period = slot.querySelector('.sch-period').value;
-                    return fetch(API_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({ 
-                            type: "ADD_SCHEDULE", 
-                            payload: { year: year, semester: semester, day: day, period: period, subject: fullName } 
-                        })
-                    });
-                });
-
-                await Promise.all(schedulePromises);
-
-                alert(`✅ [${fullName}] 과목과 ${slots.length}개의 시간표가 성공적으로 일괄 등록되었습니다!`);
-                
-                document.getElementById('subjectName').value = "";
-                document.getElementById('targetClass').value = "";
-                document.getElementById('scheduleSlots').innerHTML = getSlotHTML();
+                // 🌟 학기를 바꿨으니 그 학기에 맞는 리스트를 다시 불러오도록 추가!
 
                 await loadAllData();
 
-            } catch (e) {
-                alert("등록 중 오류 발생: " + e.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "과목 및 시간표 일괄 등록";
-            }
+               
+
+            } catch (e) { alert("저장 실패: " + e.message); }
+
+            finally { btn.disabled = false; btn.innerText = "학기 정보 저장"; }
+
         }
 
-        async function loadAllData() {
-            const year = document.getElementById('year').value;
-            const semester = document.getElementById('semester').value;
+
+
+        async function saveSubjectAndSchedule() {
+
+            const btn = document.getElementById('btnSubmitAll');
+
+            const name = document.getElementById('subjectName').value.trim();
+
+            const target = document.getElementById('targetClass').value.trim();
+
+
+
+            if(!name || !target) return alert("과목명과 대상반을 정확히 입력해주세요.");
+
+
+
+            const slots = document.querySelectorAll('.slot-row');
+
+            if(slots.length === 0) return alert("최소 1개 이상의 수업 시간을 추가해주세요.");
+
+
+
+            btn.disabled = true;
+
+            btn.innerText = "일괄 등록 진행 중...";
+
+
 
             try {
-                const [subRes, schRes] = await Promise.all([
-                    fetch(`${API_URL}?type=GET_SUBJECTS&year=${year}&semester=${semester}`),
-                    fetch(`${API_URL}?type=GET_SCHEDULE&year=${year}&semester=${semester}`)
-                ]);
-                
-                const subjects = await subRes.json();
-                const schedules = await schRes.json();
-                
-                const tbody = document.getElementById('subjectTableBody');
-                tbody.innerHTML = '';
 
-                if (subjects.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="3" class="p-6 text-center text-slate-400 text-xs md:text-sm">등록된 과목이 없습니다.</td></tr>';
-                    return;
-                }
+                const year = document.getElementById('year').value;
 
-                const schMap = {};
-                schedules.forEach(s => {
-                    if (!schMap[s.subject]) schMap[s.subject] = [];
-                    schMap[s.subject].push(`${s.day}${s.period}`);
+                const semester = document.getElementById('semester').value;
+
+
+
+                // 1. 과목 저장 (이건 이미 수정하셨던 부분)
+
+                await fetch(API_URL, {
+
+                    method: 'POST',
+
+                    body: JSON.stringify({ type: "ADD_SUBJECT", payload: { name: name, target: target, year: year, semester: semester } })
+
                 });
 
-                subjects.forEach(sub => {
-                    const timesArray = schMap[sub.fullName] || [];
-                    
-                    const dayOrder = { '월':1, '화':2, '수':3, '목':4, '금':5 };
-                    timesArray.sort((a, b) => {
-                        const dayA = dayOrder[a.charAt(0)] || 9;
-                        const dayB = dayOrder[b.charAt(0)] || 9;
-                        if (dayA !== dayB) return dayA - dayB;
-                        return parseInt(a.charAt(1)) - parseInt(b.charAt(1));
+
+
+                const fullName = `${name} (${target})`;
+
+               
+
+                // 2. 시간표 저장 부분 수정! (year, semester 파라미터 추가)
+
+                const schedulePromises = Array.from(slots).map(slot => {
+
+                    const day = slot.querySelector('.sch-day').value;
+
+                    const period = slot.querySelector('.sch-period').value;
+
+                    return fetch(API_URL, {
+
+                        method: 'POST',
+
+                        body: JSON.stringify({
+
+                            type: "ADD_SCHEDULE",
+
+                            payload: { year: year, semester: semester, day: day, period: period, subject: fullName }
+
+                        })
+
                     });
+
+                });
+
+
+
+                await Promise.all(schedulePromises);
+
+
+
+                alert(`✅ [${fullName}] 과목과 ${slots.length}개의 시간표가 성공적으로 일괄 등록되었습니다!`);
+
+               
+
+                document.getElementById('subjectName').value = "";
+
+                document.getElementById('targetClass').value = "";
+
+                document.getElementById('scheduleSlots').innerHTML = getSlotHTML();
+
+
+
+                await loadAllData();
+
+
+
+            } catch (e) {
+
+                alert("등록 중 오류 발생: " + e.message);
+
+            } finally {
+
+                btn.disabled = false;
+
+                btn.innerText = "과목 및 시간표 일괄 등록";
+
+            }
+
+        }
+
+
+
+        async function loadAllData() {
+
+            const year = document.getElementById('year').value;
+
+            const semester = document.getElementById('semester').value;
+
+
+
+            try {
+
+                const [subRes, schRes] = await Promise.all([
+
+                    // 주소 뒤에 학년도와 학기 파라미터를 붙입니다.
+
+                    fetch(`${API_URL}?type=GET_SUBJECTS&year=${year}&semester=${semester}`),
+
+                    fetch(`${API_URL}?type=GET_SCHEDULE&year=${year}&semester=${semester}`)
+
+                ]);
+
+               
+
+                const subjects = await subRes.json();
+
+                const schedules = await schRes.json();
+
+               
+
+                const tbody = document.getElementById('subjectTableBody');
+
+                tbody.innerHTML = '';
+
+
+
+                if (subjects.length === 0) {
+
+                    tbody.innerHTML = '<tr><td colspan="3" class="p-6 text-center text-slate-400 text-xs md:text-sm">등록된 과목이 없습니다.</td></tr>';
+
+                    return;
+
+                }
+
+
+
+                const schMap = {};
+
+                schedules.forEach(s => {
+
+                    if (!schMap[s.subject]) schMap[s.subject] = [];
+
+                    schMap[s.subject].push(`${s.day}${s.period}`);
+
+                });
+
+
+
+                subjects.forEach(sub => {
+
+                    const timesArray = schMap[sub.fullName] || [];
+
+                   
+
+                    const dayOrder = { '월':1, '화':2, '수':3, '목':4, '금':5 };
+
+                    timesArray.sort((a, b) => {
+
+                        const dayA = dayOrder[a.charAt(0)] || 9;
+
+                        const dayB = dayOrder[b.charAt(0)] || 9;
+
+                        if (dayA !== dayB) return dayA - dayB;
+
+                        return parseInt(a.charAt(1)) - parseInt(b.charAt(1));
+
+                    });
+
+
 
                     const timesText = timesArray.length > 0 ? timesArray.join(', ') : '<span class="text-red-400 text-[10px] md:text-xs">미등록</span>';
 
+
+
                     tbody.innerHTML += `
+
                         <tr class="hover:bg-slate-50 transition">
+
                             <td class="p-2 md:p-4 text-xs md:text-sm font-bold text-slate-700 whitespace-nowrap break-keep">${sub.name}</td>
+
                             <td class="p-2 md:p-4 text-xs md:text-sm font-medium text-slate-500 whitespace-nowrap">${sub.target}</td>
+
                             <td class="p-2 md:p-4 text-xs md:text-sm font-black text-blue-600 whitespace-nowrap">${timesText}</td>
+
                         </tr>
+
                     `;
+
                 });
+
             } catch (e) {
+
                 console.error(e);
+
                 document.getElementById('subjectTableBody').innerHTML = '<tr><td colspan="3" class="p-6 text-center text-red-400 text-xs md:text-sm">데이터를 불러오지 못했습니다.</td></tr>';
+
             }
+
         }
 
         async function loadConfig() {
+
             try {
-                const res = await fetch(API_URL + "?type=GET_CONFIG"); 
+
+                // 서버에 설정값을 요청 (type=GET_CONFIG)
+
+                const res = await fetch(API_URL + "?type=GET_CONFIG");
+
                 const config = await res.json();
-                
+
+               
+
+                // 가져온 값이 있다면 화면의 input과 select 값을 업데이트
+
                 if (config && config.year && config.semester) {
+
                     document.getElementById('year').value = config.year;
+
                     document.getElementById('semester').value = config.semester;
+
                 }
+
             } catch (e) {
+
                 console.error("학기 정보를 불러오지 못했습니다.", e);
+
             }
+
         }
+
     </script>
+
 </body>
+
 </html>
