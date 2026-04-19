@@ -4,6 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>상일여고 교과관리시스템</title>
+
+  <script>
+    if (!sessionStorage.getItem("userInfo")) {
+      window.location.replace("login.html");
+    }
+  </script>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>  
   <style>
     /* 기본 초기화 */

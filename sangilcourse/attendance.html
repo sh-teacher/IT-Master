@@ -6,11 +6,10 @@
     <title>상일여고 출석 및 수업 일지</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        // ✨ 팝업창 없이 즉시 부모 창을 로그인 페이지로 넘깁니다.
-        if (!sessionStorage.getItem("userInfo")) {
-            window.parent.location.replace("login.html");
-        }
-    </script>
+    if (!sessionStorage.getItem("userInfo")) {
+      window.parent.location.replace("login.html");
+    }
+  </script>
     <style>
         /* ── 공통 ── */
         .row-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
