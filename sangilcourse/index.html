@@ -158,7 +158,6 @@
     function checkAuth() {
       const userInfoStr = sessionStorage.getItem("userInfo");
       if (!userInfoStr) {
-        alert("로그인이 필요한 서비스입니다.");
         window.location.replace("login.html");
         return null;
       }
