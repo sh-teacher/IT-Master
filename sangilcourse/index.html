@@ -515,21 +515,50 @@
             const [startDate, endDate] = termVal ? termVal.split('|') : ["", ""];
             
             if(subject || targetClass) {
-                if(!subject || !targetClass) { alert("과목명과 대상반을 모두 입력해주세요."); hasError = true; } 
-                else if(!startDate || !endDate) { alert("수업의 운영기간을 목록에서 선택해주세요. (선택할 기간이 없다면 관리자에게 문의하세요)"); hasError = true; } 
-                else { extraData.push({ day: row.querySelector('.ec-day').value, period: parseInt(row.querySelector('.ec-period').value), subject, targetClass, startDate, endDate }); }
+                if(!subject || !targetClass) { 
+                    alert("과목명과 대상반을 모두 입력해주세요."); 
+                    hasError = true; 
+                } 
+                else if(!startDate || !endDate) { 
+                    alert("수업의 운영기간을 목록에서 선택해주세요. (선택할 기간이 없다면 관리자에게 문의하세요)"); 
+                    hasError = true; 
+                } 
+                else { 
+                    extraData.push({ day: row.querySelector('.ec-day').value, period: parseInt(row.querySelector('.ec-period').value), subject, targetClass, startDate, endDate }); 
+                }
             }
         });
 
         if (hasError) return;
         if(!sysConfig || !sysConfig.year) return alert("시스템 설정에서 현재 학기 정보가 지정되지 않았습니다.");
 
-        const btnSave = document.getElementById('btnSaveExtra'); btnSave.innerText = "저장 중..."; btnSave.disabled = true;
+        const btnSave = document.getElementById('btnSaveExtra'); 
+        btnSave.innerText = "저장 중..."; 
+        btnSave.disabled = true;
 
         try {
-            const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({ type: "SAVE_EXTRA_SCHEDULE", payload: { teacherId: userInfo.id, year: sysConfig.year, semester: sysConfig.semester, extraData: extraData } }) });
-            if((await res.json()).success) { alert("저장되었습니다!"); closeExtraClassModal(); renderDashboard(); } else alert("저장 실패");
-        } catch (e) { alert("오류 발생"); } finally { btnSave.innerText = "저장하기"; btnSave.disabled = false; }
+            const res = await fetch(API_URL, { 
+                method: "POST", 
+                body: JSON.stringify({ 
+                    type: "SAVE_EXTRA_SCHEDULE", 
+                    payload: { teacherId: userInfo.id, year: sysConfig.year, semester: sysConfig.semester, extraData: extraData } 
+                }) 
+            });
+            const json = await res.json();
+            
+            if(json.success) { 
+                alert("저장되었습니다!"); 
+                closeExtraClassModal(); 
+                renderDashboard(); 
+            } else {
+                alert("저장 실패: " + json.msg);
+            }
+        } catch (e) { 
+            alert("오류 발생: " + e.message); 
+        } finally { 
+            btnSave.innerText = "저장하기"; 
+            btnSave.disabled = false; 
+        }
     }
 
     function highlightCurrentClass() {
