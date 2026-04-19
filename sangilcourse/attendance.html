@@ -221,16 +221,18 @@ const ROW_CONFIG = [
     { desks: 7, empty: 0 },
 ];
 const TOTAL_SEATS = ROW_CONFIG.reduce((a, r) => a + r.desks, 0); 
-const PERIOD_TIMES = {
-    1: { start: {h:8, m:45}, end: {h:9, m:35} },
-    2: { start: {h:9, m:45}, end: {h:10, m:35} },
-    3: { start: {h:10, m:45}, end: {h:11, m:35} },
-    4: { start: {h:11, m:45}, end: {h:12, m:35} },
-    5: { start: {h:13, m:35}, end: {h:14, m:25} },
-    6: { start: {h:14, m:35}, end: {h:15, m:25} },
-    7: { start: {h:15, m:40}, end: {h:16, m:30} },
-    8: { start: {h:16, m:40}, end: {h:17, m:30} }, // 8교시 추가
-    9: { start: {h:17, m:40}, end: {h:18, m:30} }  // 9교시 추가
+
+// ✨ 관리자가 설정하지 않았을 때 사용할 기본 시간표 (1~9교시)
+const DEFAULT_TIMES = {
+    1: { start: "08:45", end: "09:35" },
+    2: { start: "09:45", end: "10:35" },
+    3: { start: "10:45", end: "11:35" },
+    4: { start: "11:45", end: "12:35" },
+    5: { start: "13:35", end: "14:25" },
+    6: { start: "14:35", end: "15:25" },
+    7: { start: "15:40", end: "16:30" },
+    8: { start: "16:40", end: "17:30" },
+    9: { start: "17:40", end: "18:30" }
 };
 let progressInterval = null; 
 
@@ -239,6 +241,7 @@ let currentTab = 'attend';
 let currentSubject = ""; 
 let isPhotoView = false; 
 let currentLoadId = 0;
+let sysConfig = null; // ✨ 백엔드에서 받은 환경설정(기간, 다이나믹 시간) 보관
 
 function switchTab(tab) {
     currentTab = tab;
@@ -275,7 +278,7 @@ window.onload = async function () {
 
     try {
         const userInfo = JSON.parse(sessionStorage.getItem("userInfo"));
-        // 교사 본인의 스케줄만 가져옵니다.
+        // 교사 본인의 스케줄과 서버 설정을 가져옵니다.
         const schRes = await fetch(API_URL, {
             method: 'POST',
             body: JSON.stringify({ type: "GET_DASHBOARD", payload: { teacherId: userInfo.id } })
@@ -283,6 +286,7 @@ window.onload = async function () {
         const schData = await schRes.json();
         if(schData.success) {
             fullSchedule = schData.schedule;
+            sysConfig = schData.config; // ✨ Config 로드
             if(currentSubject) onSubjectChange();
         }
     } catch { console.log("데이터 로드 실패"); }
@@ -299,18 +303,28 @@ function updateDateTime() {
     document.getElementById('currentDateTime').innerText = `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 (${days[now.getDay()]}) ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
 }
 
+// ✨ 다이나믹하게 관리자 지정 시간으로 바 차오르기 로직
 function updateClassTimer() {
     if (!currentSubject || fullSchedule.length === 0) return;
     const now = new Date();
     const todayStr = ['일','월','화','수','목','금','토'][now.getDay()];
+    
     let activePeriod = null, periodTotalSeconds = 0, remainingSeconds = 0;
     const nowSecondsTotal = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+    
+    const pTimes = (sysConfig && sysConfig.periodTimes) ? sysConfig.periodTimes : DEFAULT_TIMES;
 
-    for (const [p, time] of Object.entries(PERIOD_TIMES)) {
-        const startSec = time.start.h * 3600 + time.start.m * 60;
-        const endSec = time.end.h * 3600 + time.end.m * 60;
+    for (let p = 1; p <= 9; p++) {
+        const timeData = pTimes[p];
+        if(!timeData || !timeData.start || !timeData.end) continue;
+        
+        const [sh, sm] = timeData.start.split(':').map(Number);
+        const [eh, em] = timeData.end.split(':').map(Number);
+        const startSec = sh * 3600 + sm * 60;
+        const endSec = eh * 3600 + em * 60;
+        
         if (nowSecondsTotal >= startSec && nowSecondsTotal <= endSec) {
-            activePeriod = parseInt(p);
+            activePeriod = p;
             periodTotalSeconds = endSec - startSec;
             remainingSeconds = endSec - nowSecondsTotal;
             break;
@@ -319,7 +333,8 @@ function updateClassTimer() {
 
     const banner = document.getElementById('classProgressBanner');
     if (activePeriod) {
-        const isMyClass = fullSchedule.some(s => s.subject === currentSubject && s.day === todayStr && s.period === activePeriod);
+        // 출석부에서는 파라미터로 넘어온 currentSubject (fullName 또는 subject)를 비교합니다.
+        const isMyClass = fullSchedule.some(s => (s.fullName === currentSubject || s.subject === currentSubject) && s.day === todayStr && s.period == activePeriod);
         if (isMyClass) {
             banner.classList.remove('hidden');
             const percent = Math.max(0, Math.min(100, (remainingSeconds / periodTotalSeconds) * 100));
@@ -328,7 +343,20 @@ function updateClassTimer() {
             
             document.getElementById('classProgressText').innerText = `🏫 [${currentSubject}] ${activePeriod}교시 진행 중`;
             document.getElementById('classProgressTimeText').innerText = `남은 시간: ${minLeft}분 ${String(secLeft).padStart(2, '0')}초`;
-            document.getElementById('classProgressBar').style.width = `${percent}%`;
+            
+            const bar = document.getElementById('classProgressBar');
+            bar.style.width = `${percent}%`;
+            
+            const timeText = document.getElementById('classProgressTimeText');
+            if (minLeft < 5) {
+                bar.classList.add('bg-red-500'); bar.classList.remove('bg-blue-600');
+                timeText.classList.add('text-red-600'); timeText.classList.remove('text-blue-600');
+                banner.classList.add('border-red-200', 'bg-red-50'); banner.classList.remove('border-blue-200', 'bg-blue-50');
+            } else {
+                bar.classList.add('bg-blue-600'); bar.classList.remove('bg-red-500');
+                timeText.classList.add('text-blue-600'); timeText.classList.remove('text-red-600');
+                banner.classList.add('border-blue-200', 'bg-blue-50'); banner.classList.remove('border-red-200', 'bg-red-50');
+            }
             return;
         }
     }
@@ -386,9 +414,11 @@ function updatePeriodDropdown() {
     }
     const dateObj = new Date(dateVal);
     const dayStr = ['일','월','화','수','목','금','토'][dateObj.getDay()];
-    const matchedPeriods = fullSchedule.filter(s => s.subject === subject && s.day === dayStr);
+    // fullName이 매칭되거나 순수 subject가 매칭되는 경우
+    const matchedPeriods = fullSchedule.filter(s => (s.fullName === subject || s.subject === subject) && s.day === dayStr);
     
     periodSelect.disabled = false;
+    // ✨ 드롭다운도 1교시~9교시까지 확장 지원
     if (showAll) {
         for (let i = 1; i <= 9; i++) periodSelect.innerHTML += `<option value="${i}">${i}교시</option>`;
     } else if (matchedPeriods.length > 0) {
@@ -436,7 +466,6 @@ async function loadClassData() {
     });
 
     try {
-        // 상일여고 API 규격에 맞춰 POST 요청으로 수정!
         const [sr, seatingR, recordR] = await Promise.all([
             fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "GET_STUDENTS", payload: { subject } }) }),
             fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "GET_SEATING", payload: { subject } }) }),
@@ -630,7 +659,7 @@ function makeSeatCard(std) {
     return card;
 }
 
-// (DnD 함수들은 동일하게 작동하므로 지면상 축약 방지 위해 위에서 그대로 차용)
+// DnD 로직 
 function initDrag(clientX, clientY, card) {
     const rect = card.getBoundingClientRect(); dnd.card = card; dnd.active = false; dnd.startX = clientX; dnd.startY = clientY;
     dnd.offsetX = clientX - rect.left; dnd.offsetY = clientY - rect.top;
