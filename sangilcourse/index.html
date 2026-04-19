@@ -118,7 +118,6 @@
     let myScheduleData = [];
     let sysConfig = null;
 
-    // 만약 관리자가 시간을 세팅하지 않았을 때 사용할 기본 시간표
     const DEFAULT_TIMES = {
         1: { start: "08:45", end: "09:35" }, 2: { start: "09:45", end: "10:35" },
         3: { start: "10:45", end: "11:35" }, 4: { start: "11:45", end: "12:35" },
@@ -140,6 +139,17 @@
       if (isNaN(d.getTime())) return dateStr; 
       const days = ['일','월','화','수','목','금','토'];
       return `${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}(${days[d.getDay()]})`;
+    }
+
+    // ✨ 긴 날짜 포맷을 <input type="date">에 맞게 YYYY-MM-DD로 변환하는 함수
+    function formatForInputDate(dateStr) {
+      if (!dateStr) return "";
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr; 
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
     }
 
     function checkAuth() {
@@ -192,7 +202,6 @@
         iframeArea.style.display = 'none';
         contentArea.style.display = 'block';
         
-        // ✨ 관리자 화면 UI (1~9교시 시간 세팅 그리드 추가)
         let periodInputsHTML = '';
         for(let i=1; i<=9; i++) {
           periodInputsHTML += `
@@ -283,8 +292,10 @@
         if (config) {
           if(config.year) document.getElementById('setYear').value = config.year;
           if(config.semester) document.getElementById('setSemester').value = config.semester;
-          if(config.startDate) document.getElementById('setStartDate').value = config.startDate;
-          if(config.endDate) document.getElementById('setEndDate').value = config.endDate;
+          
+          // ✨ 날짜 포맷 변환해서 세팅
+          if(config.startDate) document.getElementById('setStartDate').value = formatForInputDate(config.startDate);
+          if(config.endDate) document.getElementById('setEndDate').value = formatForInputDate(config.endDate);
           
           if(config.periodTimes) {
             for(let i=1; i<=9; i++) {
@@ -297,7 +308,6 @@
       } catch (e) { console.log(e); }
     }
 
-    // ✨ 통합 환경설정 저장 (시간표 포함)
     async function saveAdminConfig() {
       const periodTimes = {};
       for(let i=1; i<=9; i++){
@@ -501,7 +511,6 @@
       const todayNum = new Date().getDay(); 
       const todayStr = days[todayNum]; 
 
-      // ✨ 관리자가 세팅한 동적 시간 배열 생성
       const times = [];
       const pTimes = (sysConfig && sysConfig.periodTimes) ? sysConfig.periodTimes : DEFAULT_TIMES;
       for(let i=1; i<=9; i++) {
@@ -514,7 +523,7 @@
       if (sysConfig && sysConfig.startDate && sysConfig.endDate) {
           const startFmt = formatDateString(sysConfig.startDate);
           const endFmt = formatDateString(sysConfig.endDate);
-          operationText = `<span style="font-size:13px; color:#e91e63; margin-left:10px; font-weight:bold;">[운영기간 ${startFmt}~${endFmt}]</span>`;
+          operationText = `<span style="font-size:13px; color:#e91e63; margin-left:10px; font-weight:bold;">[운영기간: ${startFmt} ~ ${endFmt}]</span>`;
           
           const todayD = new Date(); todayD.setHours(0,0,0,0);
           const sD = new Date(sysConfig.startDate); const eD = new Date(sysConfig.endDate);
@@ -643,7 +652,6 @@
         } catch (e) { alert("서버 통신 오류가 발생했습니다."); }
     }
 
-    // ✨ 동적 시간표 기반 불타는 수업중 배지 계산
     function highlightCurrentClass() {
       const userInfo = JSON.parse(sessionStorage.getItem("userInfo"));
       if (!userInfo || userInfo.role === "관리자") return; 
@@ -651,10 +659,9 @@
       const now = new Date();
       const days = ['일','월','화','수','목','금','토'];
       const todayStr = days[now.getDay()];
-      
       const nowTimeStr = String(now.getHours()).padStart(2, '0') + ":" + String(now.getMinutes()).padStart(2, '0');
-      let currentPeriod = 0;
       
+      let currentPeriod = 0;
       const pTimes = (sysConfig && sysConfig.periodTimes) ? sysConfig.periodTimes : DEFAULT_TIMES;
 
       for (let p = 1; p <= 9; p++) {
