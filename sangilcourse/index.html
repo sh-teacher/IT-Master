@@ -141,7 +141,6 @@
       return `${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}(${days[d.getDay()]})`;
     }
 
-    // ✨ 긴 날짜 포맷을 <input type="date">에 맞게 YYYY-MM-DD로 변환하는 함수
     function formatForInputDate(dateStr) {
       if (!dateStr) return "";
       const d = new Date(dateStr);
@@ -214,46 +213,57 @@
             </div>`;
         }
 
+        // ✨ 시스템 적용 학기(sysYear)와 데이터 업로드 학기(uploadYear)를 완전히 분리!
         contentArea.innerHTML = `
           <div class="content-card" style="margin-bottom: 20px;">
-            <h2 style="color: #0056b3; margin-bottom: 10px;">⚙️ 학기 운영 및 일과 시간 설정</h2>
+            <h2 style="color: #0056b3; margin-bottom: 10px;">⚙️ 시스템 환경 설정 (현재 적용 학기)</h2>
             <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef;">
-              <h3 style="color: #333; margin-bottom: 10px; font-size: 15px;">📅 학기 운영 기간</h3>
+              <h3 style="color: #333; margin-bottom: 10px; font-size: 15px;">📅 시스템 활성 학기 및 운영 기간</h3>
+              <p style="font-size:12px; color:#d32f2f; margin-bottom:15px; font-weight:bold;">※ 아래 설정된 학기 데이터만 선생님들께 보여지며, 기간 내에만 타임라인이 작동합니다.</p>
+              
               <div style="display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;">
-                <label style="font-weight:bold;">시작일: <input type="date" id="setStartDate" style="padding:8px; border:1px solid #ddd; border-radius:4px;"></label>
-                <label style="font-weight:bold;">종료일: <input type="date" id="setEndDate" style="padding:8px; border:1px solid #ddd; border-radius:4px;"></label>
+                <label style="font-weight:bold;">학년도: <input type="number" id="sysYear" style="padding:8px; border:1px solid #ddd; border-radius:4px; width:100px;"></label>
+                <label style="font-weight:bold;">학기: 
+                  <select id="sysSemester" style="padding:8px; border:1px solid #ddd; border-radius:4px;">
+                    <option value="1">1학기</option><option value="2">2학기</option>
+                  </select>
+                </label>
+                <label style="font-weight:bold;">시작일: <input type="date" id="sysStartDate" style="padding:8px; border:1px solid #ddd; border-radius:4px;"></label>
+                <label style="font-weight:bold;">종료일: <input type="date" id="sysEndDate" style="padding:8px; border:1px solid #ddd; border-radius:4px;"></label>
               </div>
+
               <hr style="border: 0; border-top: 1px solid #ddd; margin: 20px 0;">
+              
               <h3 style="color: #333; margin-bottom: 10px; font-size: 15px;">⏰ 일과 시간(교시별) 설정</h3>
               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 15px;">
                 ${periodInputsHTML}
               </div>
-              <p style="font-size:12px; color:#666; margin-bottom:15px;">※ 이 기간과 시간에 맞춰 교사들의 메인 타임라인 상태(🔥수업중)가 작동합니다.</p>
-              <button onclick="saveAdminConfig()" style="background:#28a745; color:white; border:none; padding:12px 20px; font-weight:bold; border-radius:6px; cursor:pointer; width:100%;">환경설정 일괄 저장</button>
+              <button onclick="saveAdminConfig()" style="background:#28a745; color:white; border:none; padding:12px 20px; font-weight:bold; border-radius:6px; cursor:pointer; width:100%;">현재 환경설정 일괄 저장 (선생님 화면에 즉시 반영)</button>
             </div>
           </div>
 
           <div class="content-card">
-            <h2 style="color: #0056b3; margin-bottom: 10px;">🏫 전교 시간표 등록 (나이스 연동)</h2>
-            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef;">
+            <h2 style="color: #0056b3; margin-bottom: 10px;">🏫 나이스 시간표 사전 업로드</h2>
+            <div style="background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef;">
+              <p style="font-size:12px; color:#666; margin-bottom:15px;">※ 이곳에서 다음 학기 시간표를 미리 업로드해둘 수 있습니다. (업로드해도 위쪽 '시스템 활성 학기'를 바꾸기 전까지는 교사들에게 보이지 않습니다.)</p>
+              
               <div style="margin-bottom: 15px;">
-                <label style="font-weight:bold; margin-right:10px;">학년도: <input type="number" id="setYear" value="${new Date().getFullYear()}" style="padding:8px; border:1px solid #ddd; border-radius:4px; width:100px;"></label>
-                <label style="font-weight:bold;">학기: 
-                  <select id="setSemester" style="padding:8px; border:1px solid #ddd; border-radius:4px;">
+                <label style="font-weight:bold; margin-right:10px;">업로드 대상 학년도: <input type="number" id="uploadYear" value="${new Date().getFullYear()}" style="padding:8px; border:1px solid #ddd; border-radius:4px; width:100px;"></label>
+                <label style="font-weight:bold;">업로드 대상 학기: 
+                  <select id="uploadSemester" style="padding:8px; border:1px solid #ddd; border-radius:4px;">
                     <option value="1">1학기</option><option value="2">2학기</option>
                   </select>
                 </label>
               </div>
               <div style="margin-bottom: 15px;">
-                <label style="font-weight:bold; display:block; margin-bottom:8px;">나이스 엑셀 파일 업로드:</label>
-                <input type="file" id="excelFileInput" accept=".xlsx" style="padding: 10px; width: 100%; border: 1px dashed #bbb; border-radius: 4px; background: white;">
+                <input type="file" id="excelFileInput" accept=".xlsx" style="padding: 10px; width: 100%; border: 1px dashed #bbb; border-radius: 4px; background: #f8f9fa;">
               </div>
-              <button onclick="processExcelData()" style="background:#0056b3; color:white; border:none; padding:12px 20px; font-weight:bold; border-radius:6px; cursor:pointer; width:100%;">엑셀 데이터 분석 및 서버 연동 실행</button>
+              <button onclick="processExcelData()" style="background:#0056b3; color:white; border:none; padding:12px 20px; font-weight:bold; border-radius:6px; cursor:pointer; width:100%;">엑셀 시간표 DB 등록 실행</button>
               <div id="loadingNeis" style="display:none; color:#d32f2f; margin-top:15px; font-weight:bold; text-align:center;">데이터 연동 중... ⏳</div>
             </div>
 
             <hr style="margin: 30px 0; border: 0; border-top: 1px solid #ddd;">
-            <h3 style="color: #333; margin-bottom: 15px;">🔍 나이스 연동 데이터 검색</h3>
+            <h3 style="color: #333; margin-bottom: 15px;">🔍 전체 데이터베이스 조회</h3>
             <div style="background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef; margin-bottom: 15px;">
                 <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
                     <select id="fSem" style="padding:8px; border:1px solid #ddd; border-radius:4px;"><option value="">학년도-학기 전체</option></select>
@@ -290,12 +300,17 @@
         const res = await fetch(API_URL + "?type=GET_CONFIG"); 
         const config = await res.json();
         if (config) {
-          if(config.year) document.getElementById('setYear').value = config.year;
-          if(config.semester) document.getElementById('setSemester').value = config.semester;
-          
-          // ✨ 날짜 포맷 변환해서 세팅
-          if(config.startDate) document.getElementById('setStartDate').value = formatForInputDate(config.startDate);
-          if(config.endDate) document.getElementById('setEndDate').value = formatForInputDate(config.endDate);
+          // 시스템 활성 설정
+          if(config.year) {
+              document.getElementById('sysYear').value = config.year;
+              document.getElementById('uploadYear').value = config.year; // 기본값
+          }
+          if(config.semester) {
+              document.getElementById('sysSemester').value = config.semester;
+              document.getElementById('uploadSemester').value = config.semester; // 기본값
+          }
+          if(config.startDate) document.getElementById('sysStartDate').value = formatForInputDate(config.startDate);
+          if(config.endDate) document.getElementById('sysEndDate').value = formatForInputDate(config.endDate);
           
           if(config.periodTimes) {
             for(let i=1; i<=9; i++) {
@@ -317,20 +332,24 @@
         };
       }
 
+      // ✨ 변경된 ID 사용
       const payload = {
-        year: document.getElementById('setYear').value,
-        semester: document.getElementById('setSemester').value,
-        startDate: document.getElementById('setStartDate').value,
-        endDate: document.getElementById('setEndDate').value,
+        year: document.getElementById('sysYear').value,
+        semester: document.getElementById('sysSemester').value,
+        startDate: document.getElementById('sysStartDate').value,
+        endDate: document.getElementById('sysEndDate').value,
         periodTimes: periodTimes
       };
+
+      if(!payload.year || !payload.semester) return alert("적용할 학년도와 학기를 반드시 입력해주세요.");
+      if(!payload.startDate || !payload.endDate) return alert("시작일과 종료일을 지정해주세요.");
 
       try {
         const btn = document.querySelector('button[onclick="saveAdminConfig()"]');
         btn.innerText = "저장 중..."; btn.disabled = true;
         await fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "SAVE_CONFIG", payload: payload }) });
-        alert("환경설정이 성공적으로 일괄 저장되었습니다!");
-        btn.innerText = "환경설정 일괄 저장"; btn.disabled = false;
+        alert("환경설정이 성공적으로 일괄 저장되었습니다! 새로고침 시 모든 교사에게 즉시 반영됩니다.");
+        btn.innerText = "현재 환경설정 일괄 저장 (선생님 화면에 즉시 반영)"; btn.disabled = false;
       } catch(e) { alert("저장 실패"); }
     }
 
@@ -366,11 +385,12 @@
     }
 
     function processExcelData() {
-      const year = document.getElementById('setYear').value.trim();
-      const semester = document.getElementById('setSemester').value.trim();
+      // ✨ 업로드용 별도 ID 사용
+      const year = document.getElementById('uploadYear').value.trim();
+      const semester = document.getElementById('uploadSemester').value.trim();
       const fileInput = document.getElementById('excelFileInput');
 
-      if (!year || !semester) { alert("학년도와 학기를 먼저 입력해주세요."); return; }
+      if (!year || !semester) { alert("업로드할 학년도와 학기를 먼저 입력해주세요."); return; }
       if (fileInput.files.length === 0) { alert("업로드할 엑셀 파일을 선택해 주세요."); return; }
 
       const file = fileInput.files[0];
@@ -431,7 +451,9 @@
         const resResult = await response.json();
         document.getElementById('loadingNeis').style.display = 'none'; 
         if (resResult.success) {
-          alert("✅ 나이스 데이터가 연동되었습니다!"); document.getElementById('excelFileInput').value = ""; loadNeisFilters();
+          alert(`✅ [${year}학년도 ${semester}학기] 데이터가 독립적으로 저장되었습니다!`); 
+          document.getElementById('excelFileInput').value = ""; 
+          loadNeisFilters();
         } else alert("연동 오류: " + resResult.msg);
       } catch (error) { document.getElementById('loadingNeis').style.display = 'none'; alert("서버 통신 오류"); }
     }
