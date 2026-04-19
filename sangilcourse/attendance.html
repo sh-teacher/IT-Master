@@ -411,12 +411,22 @@ function updatePeriodDropdown() {
         return;
     }
     const dateObj = new Date(dateVal);
+    dateObj.setHours(0,0,0,0);
     const dayStr = ['일','월','화','수','목','금','토'][dateObj.getDay()];
-    // fullName이 매칭되거나 순수 subject가 매칭되는 경우
-    const matchedPeriods = fullSchedule.filter(s => (s.fullName === subject || s.subject === subject) && s.day === dayStr);
+    
+    // ✨ 핵심: 선택한 날짜가 해당 방과후 수업의 운영기간에 포함되는지 검사합니다!
+    const matchedPeriods = fullSchedule.filter(s => {
+        if (!((s.fullName === subject || s.subject === subject) && s.day === dayStr)) return false;
+        
+        if (parseInt(s.period) >= 8 && s.startDate && s.endDate) {
+            const classStart = new Date(s.startDate); classStart.setHours(0,0,0,0);
+            const classEnd = new Date(s.endDate); classEnd.setHours(23,59,59,999);
+            if (dateObj < classStart || dateObj > classEnd) return false;
+        }
+        return true;
+    });
     
     periodSelect.disabled = false;
-    // ✨ 드롭다운도 1교시~9교시까지 확장 지원
     if (showAll) {
         for (let i = 1; i <= 9; i++) periodSelect.innerHTML += `<option value="${i}">${i}교시</option>`;
     } else if (matchedPeriods.length > 0) {
