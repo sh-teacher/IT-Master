@@ -95,7 +95,7 @@
   </div>
 
   <script>
-    // 선생님의 GAS API 주소로 확인 한 번 더 해주세요!
+    // API 주소
     const API_URL = "https://script.google.com/macros/s/AKfycbzfIY0Fs4S1EjSSNI2kZfrFgtSqipG_u_KDCkdT8Vy1LjrIwB7k_1awE_psCNw0VQGg/exec";
     let myScheduleData = [];
 
@@ -122,7 +122,7 @@
       }
     }
 
-    // 메뉴 이동 제어 (대시보드 vs Iframe)
+    // 🌟 메뉴 이동 제어 🌟
     function loadMenu(menuId, btnElement, extraParam = "") {
       document.querySelectorAll('.sidebar button').forEach(btn => btn.classList.remove('active', 'live-class-active'));
       if(btnElement) btnElement.classList.add('active');
@@ -136,15 +136,15 @@
         renderDashboard(); 
       } 
       else if (menuId === 'attendance') {
-        // ✨ 핵심: 좌측 '나의 교과목'을 클릭하면 attendance.html 파일을 iframe으로 엽니다!
         contentArea.style.display = 'none';
         iframeArea.style.display = 'block';
         iframeArea.src = `attendance.html?subject=${encodeURIComponent(extraParam)}`;
       }
+      // ✨ 확실하게 setup.html이 불리도록 보장하는 부분입니다! ✨
       else if (menuId === 'adminConfig') {
-        iframeArea.style.display = 'none';
-        contentArea.style.display = 'block';
-        contentArea.innerHTML = `<div class="content-card"><h2>⚙️ 학기/과목 설정</h2><p>준비 중입니다...</p></div>`;
+        contentArea.style.display = 'none';
+        iframeArea.style.display = 'block';
+        iframeArea.src = 'setup.html';
       }
       else {
         iframeArea.style.display = 'none';
