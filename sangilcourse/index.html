@@ -49,10 +49,14 @@
     .timeline-time { font-size: 12px; color: #666; margin-bottom: 2px; }
     .timeline-title { font-weight: bold; font-size: 15px; color: #333; }
     .timeline-title.empty { color: #999; font-weight: normal; }
-    .schedule-table { width: 100%; border-collapse: collapse; margin-top: 15px; background-color: white; font-size: 13px; text-align: center; }
-    .schedule-table th, .schedule-table td { padding: 10px; border: 1px solid #ddd; }
+    
+    /* ✨ 수정됨: 주간시간표 너비 일정하게 및 레이아웃 고정 */
+    .schedule-table { width: 100%; table-layout: fixed; border-collapse: collapse; margin-top: 15px; background-color: white; font-size: 13px; text-align: center; }
+    .schedule-table th, .schedule-table td { padding: 10px; border: 1px solid #ddd; word-break: keep-all; }
     .schedule-table th { background-color: #f0f4f8; }
-    .has-class { background-color: #e6f0fa; color: #0056b3; font-weight: bold; border-radius: 4px; }
+    .schedule-table th:first-child { width: 10%; } /* 교시 열 너비 */
+    .schedule-table th:not(:first-child) { width: 18%; } /* 월~금 열 너비 동일하게 */
+    .has-class { background-color: #e6f0fa; color: #0056b3; font-weight: bold; border-radius: 4px; line-height: 1.4; }
 
     /* 🔥 수업중 애니메이션 배지 */
     @keyframes pulse-live { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.95); } }
@@ -95,7 +99,7 @@
   </div>
 
   <script>
-    // API 주소
+    // API 주소 (백엔드 통합본으로 연동됨)
     const API_URL = "https://script.google.com/macros/s/AKfycbzfIY0Fs4S1EjSSNI2kZfrFgtSqipG_u_KDCkdT8Vy1LjrIwB7k_1awE_psCNw0VQGg/exec";
     let myScheduleData = [];
 
@@ -140,7 +144,7 @@
         iframeArea.style.display = 'block';
         iframeArea.src = `attendance.html?subject=${encodeURIComponent(extraParam)}`;
       }
-      // ✨ 선생님의 오리지널 나이스 연동 UI 복원! ✨
+      // ✨ 선생님의 오리지널 나이스 연동 + 검색 기능 완벽 복원 ✨
       else if (menuId === 'adminConfig') {
         iframeArea.style.display = 'none';
         contentArea.style.display = 'block';
@@ -169,8 +173,45 @@
                 데이터를 분석하고 서버와 연동 중입니다. 잠시만 기다려주세요... ⏳
               </div>
             </div>
+
+            <hr style="margin: 30px 0; border: 0; border-top: 1px solid #ddd;">
+            
+            <h3 style="color: #333; margin-bottom: 15px;">🔍 나이스 연동 데이터 검색</h3>
+            <div style="background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef; margin-bottom: 15px;">
+                <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
+                    <select id="fSem" style="padding:8px; border:1px solid #ddd; border-radius:4px;"><option value="">학년도-학기 전체</option></select>
+                    <select id="fName" style="padding:8px; border:1px solid #ddd; border-radius:4px;"><option value="">교사명 전체</option></select>
+                    <select id="fSubj" style="padding:8px; border:1px solid #ddd; border-radius:4px;"><option value="">과목명 전체</option></select>
+                    <select id="fTClass" style="padding:8px; border:1px solid #ddd; border-radius:4px;"><option value="">대상반 전체</option></select>
+                    <select id="fDay" style="padding:8px; border:1px solid #ddd; border-radius:4px;">
+                        <option value="">요일 전체</option><option value="월">월</option><option value="화">화</option><option value="수">수</option><option value="목">목</option><option value="금">금</option>
+                    </select>
+                </div>
+                <button onclick="searchNeisDataCall()" style="background:#28a745; color:white; border:none; padding:10px 20px; font-weight:bold; border-radius:6px; cursor:pointer;">조회하기</button>
+            </div>
+            
+            <div style="overflow-x: auto; background: white; border: 1px solid #e9ecef; border-radius: 8px;">
+                <table class="schedule-table" style="margin-top:0; border:none; font-size: 13px; white-space: nowrap;">
+                    <thead>
+                        <tr>
+                            <th style="width: 12%;">학년도</th>
+                            <th style="width: 10%;">학기</th>
+                            <th style="width: 18%;">교사명(ID)</th>
+                            <th style="width: 20%;">과목명</th>
+                            <th style="width: 15%;">대상반</th>
+                            <th style="width: 10%;">요일</th>
+                            <th style="width: 15%;">교시</th>
+                        </tr>
+                    </thead>
+                    <tbody id="searchResultBody">
+                        <tr><td colspan="7" style="color:#999; padding: 20px;">검색 조건을 선택하고 조회버튼을 눌러주세요.</td></tr>
+                    </tbody>
+                </table>
+            </div>
           </div>
         `;
+        // 필터 드롭다운 채우기
+        loadNeisFilters();
       }
       else {
         iframeArea.style.display = 'none';
@@ -180,7 +221,75 @@
     }
 
     // ==========================================
-    // 🌟 선생님의 오리지널 나이스 데이터 분석 로직 완벽 복원
+    // 🌟 검색 필터 및 데이터 조회 로직 (부활)
+    // ==========================================
+    async function loadNeisFilters() {
+      try {
+        const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({ type: "GET_NEIS_FILTERS" }) });
+        const r = await res.json();
+        if(r.success && r.data) {
+          const populate = (id, arr) => {
+            const el = document.getElementById(id);
+            if(!el) return;
+            arr.forEach(val => el.innerHTML += `<option value="${val}">${val}</option>`);
+          };
+          populate('fSem', r.data.sem);
+          populate('fName', r.data.name);
+          populate('fSubj', r.data.subj);
+          populate('fTClass', r.data.tClass);
+        }
+      } catch(e) { console.error("필터 로드 에러", e); }
+    }
+
+    async function searchNeisDataCall() {
+      const btn = document.querySelector('button[onclick="searchNeisDataCall()"]');
+      const tbody = document.getElementById('searchResultBody');
+      
+      btn.innerText = "조회 중..."; 
+      btn.disabled = true;
+      tbody.innerHTML = '<tr><td colspan="7" style="padding: 20px;">데이터를 불러오는 중입니다... ⏳</td></tr>';
+      
+      try {
+        const payload = {
+          fSem: document.getElementById('fSem').value,
+          fName: document.getElementById('fName').value,
+          fSubj: document.getElementById('fSubj').value,
+          fTClass: document.getElementById('fTClass').value,
+          fDay: document.getElementById('fDay').value
+        };
+        const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({ type: "SEARCH_NEIS_DATA", payload: payload }) });
+        const r = await res.json();
+        
+        if(r.success) {
+          if(r.data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="padding: 20px;">조건에 맞는 데이터가 없습니다.</td></tr>';
+          } else {
+            tbody.innerHTML = r.data.map(d => `
+              <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 10px;">${d.year}</td>
+                <td style="padding: 10px;">${d.semester}</td>
+                <td style="padding: 10px; font-weight: bold; color: #0056b3;">${d.teacherName}<br><span style="font-size:11px; color:#666;">(${d.teacherId})</span></td>
+                <td style="padding: 10px;">${d.subject}</td>
+                <td style="padding: 10px;">${d.targetClass}</td>
+                <td style="padding: 10px;">${d.day}</td>
+                <td style="padding: 10px;">${d.period}교시</td>
+              </tr>
+            `).join('');
+          }
+        } else {
+          tbody.innerHTML = `<tr><td colspan="7" style="color:red; padding: 20px;">검색 실패: ${r.msg}</td></tr>`;
+        }
+      } catch(e) {
+        tbody.innerHTML = '<tr><td colspan="7" style="color:red; padding: 20px;">서버 통신 오류가 발생했습니다.</td></tr>';
+      } finally {
+        btn.innerText = "조회하기"; 
+        btn.disabled = false;
+      }
+    }
+
+
+    // ==========================================
+    // 🌟 오리지널 나이스 엑셀 업로드 로직 (유지)
     // ==========================================
     function processExcelData() {
       const year = document.getElementById('setYear').value.trim();
@@ -298,7 +407,6 @@
       reader.readAsArrayBuffer(file);
     }
 
-    // 서버로 데이터 전송
     async function sendBulkDataToServer(year, semester, parsedData) {
       document.getElementById('loadingNeis').style.display = 'block'; 
 
@@ -321,6 +429,8 @@
         if (resResult.success) {
           alert("✅ 나이스 데이터가 성공적으로 분석 및 연동되었습니다!");
           document.getElementById('excelFileInput').value = ""; 
+          // 업로드 완료 시 필터 목록도 갱신
+          loadNeisFilters();
         } else {
           alert("데이터 연동 중 오류: " + resResult.msg);
         }
@@ -403,7 +513,7 @@
             timelineHTML += `
               <div class="timeline-item">
                 <div class="timeline-time">${period}교시 (${times[period-1]})</div>
-                <div class="timeline-title" style="color:#0056b3;">${classData.subject}</div>
+                <div class="timeline-title" style="color:#0056b3;">${classData.subject} <span style="font-size:12px; font-weight:normal; color:#666;">(${classData.targetClass})</span></div>
               </div>`;
           } else {
             timelineHTML += `
@@ -416,13 +526,16 @@
         timelineHTML += `</div>`;
       }
 
+      // ✨ 수정됨: 주간시간표 대상반 괄호 표시 추가 ✨
       let tableHTML = `<table class="schedule-table"><thead><tr><th>교시</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th></tr></thead><tbody>`;
       for (let period = 1; period <= 7; period++) {
         tableHTML += `<tr><td><strong>${period}</strong></td>`;
         ["월", "화", "수", "목", "금"].forEach(day => {
           const classData = mySchedule.find(s => s.day === day && s.period == period);
           if (classData) {
-            tableHTML += `<td class="has-class cursor-pointer" onclick="document.querySelector('.subject-btn[data-subject=\\'${classData.subject}\\']').click()">${classData.subject}</td>`;
+            tableHTML += `<td class="has-class cursor-pointer" onclick="document.querySelector('.subject-btn[data-subject=\\'${classData.subject}\\']').click()">
+                ${classData.subject}<br><span style="font-size:11px; font-weight:normal; color:#555;">(${classData.targetClass})</span>
+            </td>`;
           } else {
             tableHTML += `<td></td>`;
           }
