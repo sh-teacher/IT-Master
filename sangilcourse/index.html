@@ -6,9 +6,11 @@
   <title>상일여고 교과관리시스템</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>  
   <style>
+    /* 기본 초기화 */
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', 'Malgun Gothic', sans-serif; }
     body { background-color: #f4f7fa; color: #333; overflow: hidden; }
     
+    /* 상단 헤더 */
     header { background-color: #0056b3; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 10; position: relative; }
     header h1 { font-size: 20px; margin: 0; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; }
     header h1:hover { opacity: 0.8; }
@@ -18,6 +20,7 @@
     .btn-logout { background-color: white; color: #0056b3; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: background-color 0.2s; }
     .btn-logout:hover { background-color: #e0e0e0; }
 
+    /* 전체 레이아웃 */
     .container { display: flex; height: calc(100vh - 60px); }
     .sidebar { width: 240px; background-color: #fff; border-right: 1px solid #ddd; padding: 20px 10px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
     .sidebar button { display: block; width: 100%; padding: 12px 15px; text-align: left; cursor: pointer; border: 1px solid transparent; border-radius: 6px; background-color: transparent; font-size: 15px; transition: all 0.2s; }
@@ -51,8 +54,8 @@
     .schedule-table { width: 100%; table-layout: fixed; border-collapse: collapse; margin-top: 15px; background-color: white; font-size: 13px; text-align: center; }
     .schedule-table th, .schedule-table td { padding: 10px; border: 1px solid #ddd; word-break: keep-all; }
     .schedule-table th { background-color: #f0f4f8; }
-    .schedule-table th:first-child { width: 10%; } 
-    .schedule-table th:not(:first-child) { width: 18%; } 
+    .schedule-table th:first-child { width: 12%; } 
+    .schedule-table th:not(:first-child) { width: 17.6%; } 
     .has-class { background-color: #e6f0fa; color: #0056b3; font-weight: bold; border-radius: 4px; line-height: 1.4; }
 
     .quick-menus { display: flex; gap: 20px; margin-top: 20px; }
@@ -65,6 +68,7 @@
     @keyframes pulse-live { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.95); } }
     .live-class-badge { font-size: 11px; font-weight: 900; color: #d32f2f; background-color: rgba(211, 47, 47, 0.15); border: 1px solid #d32f2f; padding: 2px 6px; border-radius: 8px; animation: pulse-live 1.5s infinite; margin-left: 5px; }
 
+    /* 방과후 설정 모달창 */
     #extraClassModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:999; align-items:center; justify-content:center; }
     .modal-box { background:white; padding:25px; border-radius:12px; width:500px; max-width:90%; max-height:80vh; overflow-y:auto; box-shadow:0 10px 25px rgba(0,0,0,0.2); }
   </style>
@@ -102,7 +106,7 @@
       <div class="modal-box">
           <h2 style="color:#0056b3; margin-bottom:10px; font-size:18px; display:flex; align-items:center; gap:8px;">🕒 방과후/보충 (8~9교시) 설정</h2>
           <p style="font-size:13px; color:#666; margin-bottom:20px; background:#f0f4f8; padding:10px; border-radius:6px;">
-            등록하신 수업은 주간 시간표와 좌측 메뉴에 즉시 반영됩니다. 불필요한 줄은 X 버튼으로 삭제하세요.
+            등록하신 수업은 주간 시간표와 좌측 메뉴에 즉시 반영됩니다. 8, 9교시를 모두 비우면 시간표에서 해당 칸이 사라집니다.
           </p>
           <div id="extraClassList" style="display:flex; flex-direction:column; gap:10px; margin-bottom:15px;"></div>
           <button onclick="addExtraClassRow()" style="width:100%; padding:10px; background:#f8f9fa; border:1px dashed #0056b3; color:#0056b3; border-radius:6px; font-weight:bold; cursor:pointer; margin-bottom:20px;">+ 새로운 수업 추가</button>
@@ -213,14 +217,11 @@
             </div>`;
         }
 
-        // ✨ 시스템 적용 학기(sysYear)와 데이터 업로드 학기(uploadYear)를 완전히 분리!
         contentArea.innerHTML = `
           <div class="content-card" style="margin-bottom: 20px;">
             <h2 style="color: #0056b3; margin-bottom: 10px;">⚙️ 시스템 환경 설정 (현재 적용 학기)</h2>
             <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef;">
               <h3 style="color: #333; margin-bottom: 10px; font-size: 15px;">📅 시스템 활성 학기 및 운영 기간</h3>
-              <p style="font-size:12px; color:#d32f2f; margin-bottom:15px; font-weight:bold;">※ 아래 설정된 학기 데이터만 선생님들께 보여지며, 기간 내에만 타임라인이 작동합니다.</p>
-              
               <div style="display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap;">
                 <label style="font-weight:bold;">학년도: <input type="number" id="sysYear" style="padding:8px; border:1px solid #ddd; border-radius:4px; width:100px;"></label>
                 <label style="font-weight:bold;">학기: 
@@ -231,9 +232,7 @@
                 <label style="font-weight:bold;">시작일: <input type="date" id="sysStartDate" style="padding:8px; border:1px solid #ddd; border-radius:4px;"></label>
                 <label style="font-weight:bold;">종료일: <input type="date" id="sysEndDate" style="padding:8px; border:1px solid #ddd; border-radius:4px;"></label>
               </div>
-
               <hr style="border: 0; border-top: 1px solid #ddd; margin: 20px 0;">
-              
               <h3 style="color: #333; margin-bottom: 10px; font-size: 15px;">⏰ 일과 시간(교시별) 설정</h3>
               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 15px;">
                 ${periodInputsHTML}
@@ -241,12 +240,9 @@
               <button onclick="saveAdminConfig()" style="background:#28a745; color:white; border:none; padding:12px 20px; font-weight:bold; border-radius:6px; cursor:pointer; width:100%;">현재 환경설정 일괄 저장 (선생님 화면에 즉시 반영)</button>
             </div>
           </div>
-
           <div class="content-card">
             <h2 style="color: #0056b3; margin-bottom: 10px;">🏫 나이스 시간표 사전 업로드</h2>
             <div style="background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef;">
-              <p style="font-size:12px; color:#666; margin-bottom:15px;">※ 이곳에서 다음 학기 시간표를 미리 업로드해둘 수 있습니다. (업로드해도 위쪽 '시스템 활성 학기'를 바꾸기 전까지는 교사들에게 보이지 않습니다.)</p>
-              
               <div style="margin-bottom: 15px;">
                 <label style="font-weight:bold; margin-right:10px;">업로드 대상 학년도: <input type="number" id="uploadYear" value="${new Date().getFullYear()}" style="padding:8px; border:1px solid #ddd; border-radius:4px; width:100px;"></label>
                 <label style="font-weight:bold;">업로드 대상 학기: 
@@ -260,29 +256,6 @@
               </div>
               <button onclick="processExcelData()" style="background:#0056b3; color:white; border:none; padding:12px 20px; font-weight:bold; border-radius:6px; cursor:pointer; width:100%;">엑셀 시간표 DB 등록 실행</button>
               <div id="loadingNeis" style="display:none; color:#d32f2f; margin-top:15px; font-weight:bold; text-align:center;">데이터 연동 중... ⏳</div>
-            </div>
-
-            <hr style="margin: 30px 0; border: 0; border-top: 1px solid #ddd;">
-            <h3 style="color: #333; margin-bottom: 15px;">🔍 전체 데이터베이스 조회</h3>
-            <div style="background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef; margin-bottom: 15px;">
-                <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
-                    <select id="fSem" style="padding:8px; border:1px solid #ddd; border-radius:4px;"><option value="">학년도-학기 전체</option></select>
-                    <select id="fName" style="padding:8px; border:1px solid #ddd; border-radius:4px;"><option value="">교사명 전체</option></select>
-                    <select id="fSubj" style="padding:8px; border:1px solid #ddd; border-radius:4px;"><option value="">과목명 전체</option></select>
-                    <select id="fTClass" style="padding:8px; border:1px solid #ddd; border-radius:4px;"><option value="">대상반 전체</option></select>
-                    <select id="fDay" style="padding:8px; border:1px solid #ddd; border-radius:4px;">
-                        <option value="">요일 전체</option><option value="월">월</option><option value="화">화</option><option value="수">수</option><option value="목">목</option><option value="금">금</option>
-                    </select>
-                </div>
-                <button onclick="searchNeisDataCall()" style="background:#28a745; color:white; border:none; padding:10px 20px; font-weight:bold; border-radius:6px; cursor:pointer;">조회하기</button>
-            </div>
-            <div style="overflow-x: auto; background: white; border: 1px solid #e9ecef; border-radius: 8px;">
-                <table class="schedule-table" style="margin-top:0; border:none; font-size: 13px; white-space: nowrap;">
-                    <thead>
-                        <tr><th style="width: 12%;">학년도</th><th style="width: 10%;">학기</th><th style="width: 18%;">교사명(ID)</th><th style="width: 20%;">과목명</th><th style="width: 15%;">대상반</th><th style="width: 10%;">요일</th><th style="width: 15%;">교시</th></tr>
-                    </thead>
-                    <tbody id="searchResultBody"><tr><td colspan="7" style="color:#999; padding: 20px;">검색 조건을 선택하고 조회버튼을 눌러주세요.</td></tr></tbody>
-                </table>
             </div>
           </div>
         `;
@@ -300,18 +273,10 @@
         const res = await fetch(API_URL + "?type=GET_CONFIG"); 
         const config = await res.json();
         if (config) {
-          // 시스템 활성 설정
-          if(config.year) {
-              document.getElementById('sysYear').value = config.year;
-              document.getElementById('uploadYear').value = config.year; // 기본값
-          }
-          if(config.semester) {
-              document.getElementById('sysSemester').value = config.semester;
-              document.getElementById('uploadSemester').value = config.semester; // 기본값
-          }
+          if(config.year) { document.getElementById('sysYear').value = config.year; document.getElementById('uploadYear').value = config.year; }
+          if(config.semester) { document.getElementById('sysSemester').value = config.semester; document.getElementById('uploadSemester').value = config.semester; }
           if(config.startDate) document.getElementById('sysStartDate').value = formatForInputDate(config.startDate);
           if(config.endDate) document.getElementById('sysEndDate').value = formatForInputDate(config.endDate);
-          
           if(config.periodTimes) {
             for(let i=1; i<=9; i++) {
               if(document.getElementById('pStart'+i)) document.getElementById('pStart'+i).value = config.periodTimes[i].start || DEFAULT_TIMES[i].start;
@@ -319,81 +284,33 @@
             }
           }
         }
-        loadNeisFilters();
       } catch (e) { console.log(e); }
     }
 
     async function saveAdminConfig() {
       const periodTimes = {};
       for(let i=1; i<=9; i++){
-        periodTimes[i] = {
-          start: document.getElementById('pStart'+i).value,
-          end: document.getElementById('pEnd'+i).value
-        };
+        periodTimes[i] = { start: document.getElementById('pStart'+i).value, end: document.getElementById('pEnd'+i).value };
       }
-
-      // ✨ 변경된 ID 사용
       const payload = {
-        year: document.getElementById('sysYear').value,
-        semester: document.getElementById('sysSemester').value,
-        startDate: document.getElementById('sysStartDate').value,
-        endDate: document.getElementById('sysEndDate').value,
+        year: document.getElementById('sysYear').value, semester: document.getElementById('sysSemester').value,
+        startDate: document.getElementById('sysStartDate').value, endDate: document.getElementById('sysEndDate').value,
         periodTimes: periodTimes
       };
-
-      if(!payload.year || !payload.semester) return alert("적용할 학년도와 학기를 반드시 입력해주세요.");
-      if(!payload.startDate || !payload.endDate) return alert("시작일과 종료일을 지정해주세요.");
-
       try {
         const btn = document.querySelector('button[onclick="saveAdminConfig()"]');
         btn.innerText = "저장 중..."; btn.disabled = true;
         await fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "SAVE_CONFIG", payload: payload }) });
-        alert("환경설정이 성공적으로 일괄 저장되었습니다! 새로고침 시 모든 교사에게 즉시 반영됩니다.");
+        alert("저장되었습니다!");
         btn.innerText = "현재 환경설정 일괄 저장 (선생님 화면에 즉시 반영)"; btn.disabled = false;
       } catch(e) { alert("저장 실패"); }
     }
 
-    async function loadNeisFilters() {
-      try {
-        const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({ type: "GET_NEIS_FILTERS" }) });
-        const r = await res.json();
-        if(r.success && r.data) {
-          const populate = (id, arr) => { const el = document.getElementById(id); if(el) arr.forEach(val => el.innerHTML += `<option value="${val}">${val}</option>`); };
-          populate('fSem', r.data.sem); populate('fName', r.data.name); populate('fSubj', r.data.subj); populate('fTClass', r.data.tClass);
-        }
-      } catch(e) { console.error(e); }
-    }
-
-    async function searchNeisDataCall() {
-      const btn = document.querySelector('button[onclick="searchNeisDataCall()"]');
-      const tbody = document.getElementById('searchResultBody');
-      btn.innerText = "조회 중..."; btn.disabled = true;
-      tbody.innerHTML = '<tr><td colspan="7" style="padding: 20px;">데이터 로딩 중... ⏳</td></tr>';
-      try {
-        const payload = {
-          fSem: document.getElementById('fSem').value, fName: document.getElementById('fName').value,
-          fSubj: document.getElementById('fSubj').value, fTClass: document.getElementById('fTClass').value, fDay: document.getElementById('fDay').value
-        };
-        const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({ type: "SEARCH_NEIS_DATA", payload: payload }) });
-        const r = await res.json();
-        if(r.success) {
-          if(r.data.length === 0) tbody.innerHTML = '<tr><td colspan="7" style="padding: 20px;">조건에 맞는 데이터가 없습니다.</td></tr>';
-          else tbody.innerHTML = r.data.map(d => `<tr style="border-bottom: 1px solid #eee;"><td style="padding: 10px;">${d.year}</td><td style="padding: 10px;">${d.semester}</td><td style="padding: 10px; font-weight: bold; color: #0056b3;">${d.teacherName}<br><span style="font-size:11px; color:#666;">(${d.teacherId})</span></td><td style="padding: 10px;">${d.subject}</td><td style="padding: 10px;">${d.targetClass}</td><td style="padding: 10px;">${d.day}</td><td style="padding: 10px;">${d.period}교시</td></tr>`).join('');
-        } else tbody.innerHTML = `<tr><td colspan="7" style="color:red; padding: 20px;">검색 실패</td></tr>`;
-      } catch(e) { tbody.innerHTML = '<tr><td colspan="7" style="color:red; padding: 20px;">서버 오류 발생</td></tr>'; } 
-      finally { btn.innerText = "조회하기"; btn.disabled = false; }
-    }
-
     function processExcelData() {
-      // ✨ 업로드용 별도 ID 사용
       const year = document.getElementById('uploadYear').value.trim();
       const semester = document.getElementById('uploadSemester').value.trim();
       const fileInput = document.getElementById('excelFileInput');
-
-      if (!year || !semester) { alert("업로드할 학년도와 학기를 먼저 입력해주세요."); return; }
-      if (fileInput.files.length === 0) { alert("업로드할 엑셀 파일을 선택해 주세요."); return; }
-
-      const file = fileInput.files[0];
+      if (fileInput.files.length === 0) return alert("파일을 선택하세요.");
       const reader = new FileReader();
       reader.onload = function(e) {
         try {
@@ -401,329 +318,218 @@
           const workbook = XLSX.read(data, {type: 'array'});
           const worksheet = workbook.Sheets[workbook.SheetNames[0]];
           const rows = XLSX.utils.sheet_to_json(worksheet, {header: 1});
-          
           const result = [];
-          const days = ["월", "화", "수", "목", "금", "토", "일"];
-
           rows.forEach(cols => {
             if (!cols || cols.length === 0) return;
-            let teacherId = ""; let teacherName = ""; let startIndex = -1;
+            let teacherId = "", teacherName = "", startIndex = -1;
             for (let i = 0; i < cols.length; i++) {
-              if (!cols[i]) continue;
-              let idMatch = String(cols[i]).trim().match(/([a-zA-Z0-9_.-]+)\((.+?)\)/);
+              let idMatch = String(cols[i] || "").trim().match(/([a-zA-Z0-9_.-]+)\((.+?)\)/);
               if (idMatch) { teacherId = idMatch[1].trim(); teacherName = idMatch[2].trim(); startIndex = i + 1; break; }
             }
             if (startIndex === -1) return;
             const subjectsMap = {};
-
             for (let i = startIndex; i < cols.length; i++) {
-              let cellData = cols[i] ? String(cols[i]).trim() : "";
-              if (!cellData) continue;
-              const cellMatch = cellData.match(/(\d+)\s*학년\s*(.+?)\s*\(([^)]+)\)/);
+              let cellMatch = String(cols[i] || "").trim().match(/(\d+)\s*학년\s*(.+?)\s*\(([^)]+)\)/);
               if (cellMatch) {
-                const grade = cellMatch[1]; const subjectName = cellMatch[2].trim(); const classNum = cellMatch[3].trim(); 
-                let targetClass = !isNaN(classNum) ? `${grade}-${classNum}` : classNum;
-                const timeIndex = i - startIndex;
-                const dayIdx = Math.floor(timeIndex / 12); const period = (timeIndex % 12) + 1;
-
-                if (dayIdx >= days.length) continue;
-                const day = days[dayIdx];
-                const subjectKey = `${subjectName}_${targetClass}`;
-                if (!subjectsMap[subjectKey]) subjectsMap[subjectKey] = { subject: subjectName, targetClass: targetClass, schedules: [] };
-                subjectsMap[subjectKey].schedules.push({ day: day, period: period });
+                const dayIdx = Math.floor((i - startIndex) / 12); const period = ((i - startIndex) % 12) + 1;
+                const day = ["월","화","수","목","금","토","일"][dayIdx]; if(!day) continue;
+                let targetClass = !isNaN(cellMatch[3]) ? `${cellMatch[1]}-${cellMatch[3]}` : cellMatch[3];
+                const key = `${cellMatch[2]}_${targetClass}`;
+                if (!subjectsMap[key]) subjectsMap[key] = { subject: cellMatch[2], targetClass: targetClass, schedules: [] };
+                subjectsMap[key].schedules.push({ day, period });
               }
             }
-            for (let key in subjectsMap) {
-              result.push({ teacherId: teacherId, teacherName: teacherName, subject: subjectsMap[key].subject, targetClass: subjectsMap[key].targetClass, schedules: subjectsMap[key].schedules });
-            }
+            for (let key in subjectsMap) result.push({ teacherId, teacherName, subject: subjectsMap[key].subject, targetClass: subjectsMap[key].targetClass, schedules: subjectsMap[key].schedules });
           });
-          if (result.length === 0) { alert("분석된 데이터가 없습니다. 나이스 양식을 확인하세요."); return; }
           sendBulkDataToServer(year, semester, result);
-        } catch (err) { alert("엑셀 파일 판독 오류"); }
+        } catch (err) { alert("오류 발생"); }
       };
-      reader.readAsArrayBuffer(file);
+      reader.readAsArrayBuffer(fileInput.files[0]);
     }
 
     async function sendBulkDataToServer(year, semester, parsedData) {
       document.getElementById('loadingNeis').style.display = 'block'; 
       try {
-        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ type: "BULK_UPLOAD_NEIS", payload: { year: year, semester: semester, data: parsedData } }) });
-        const resResult = await response.json();
+        const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ type: "BULK_UPLOAD_NEIS", payload: { year, semester, data: parsedData } }) });
+        const res = await response.json();
         document.getElementById('loadingNeis').style.display = 'none'; 
-        if (resResult.success) {
-          alert(`✅ [${year}학년도 ${semester}학기] 데이터가 독립적으로 저장되었습니다!`); 
-          document.getElementById('excelFileInput').value = ""; 
-          loadNeisFilters();
-        } else alert("연동 오류: " + resResult.msg);
-      } catch (error) { document.getElementById('loadingNeis').style.display = 'none'; alert("서버 통신 오류"); }
+        if (res.success) alert("연동되었습니다!");
+      } catch (e) { document.getElementById('loadingNeis').style.display = 'none'; }
     }
 
     async function renderDashboard() {
-      const userInfo = checkAuth();
-      if(!userInfo) return;
+      const userInfo = checkAuth(); if(!userInfo) return;
       const contentArea = document.getElementById('contentArea');
-
       if (userInfo.role === "관리자") {
         contentArea.innerHTML = `
-          <div class="content-card mb-4" style="margin-bottom: 20px;">
-              <h2 style="color: #d32f2f; display:flex; align-items:center; gap:8px;">🏫 상일여고 교과관리시스템 (관리자 모드)</h2>
-              <p style="color: #666; margin-top: 5px;">시스템 관리자 계정으로 접속하셨습니다. 원하시는 관리 업무를 선택해 주세요.</p>
-          </div>
+          <div class="content-card mb-4"><h2 style="color: #d32f2f;">🏫 상일여고 교과관리시스템 (관리자)</h2><p>원하시는 업무를 선택해 주세요.</p></div>
           <div class="quick-menus">
-              <div class="quick-card" onclick="document.getElementById('adminBtn1').click()">
-                  <span class="quick-icon">⚙️</span>
-                  <div class="quick-title">학기/일과 설정</div>
-                  <div class="quick-desc">운영기간 및 교시 시간 세팅, 나이스 연동</div>
-              </div>
-              <div class="quick-card" onclick="document.getElementById('adminBtn2').click()">
-                  <span class="quick-icon">👥</span>
-                  <div class="quick-title">교직원 권한 관리</div>
-                  <div class="quick-desc">선생님 계정 생성 및 권한 설정</div>
-              </div>
-          </div>
-        `;
+              <div class="quick-card" onclick="document.getElementById('adminBtn1').click()"><span class="quick-icon">⚙️</span><div class="quick-title">학기/일과 설정</div></div>
+              <div class="quick-card" onclick="document.getElementById('adminBtn2').click()"><span class="quick-icon">👥</span><div class="quick-title">교직원 권한 관리</div></div>
+          </div>`;
         return; 
       }
-
-      document.getElementById('dynamicSubjectMenu').innerHTML = '<div style="padding: 10px 15px; font-size: 12px; color: #999;">로딩 중...</div>';
       try {
         const response = await fetch(API_URL, { method: "POST", body: JSON.stringify({ type: "GET_DASHBOARD", payload: { teacherId: userInfo.id } }) });
         const result = await response.json();
         if(result.success) {
-          myScheduleData = result.schedule;
-          sysConfig = result.config; 
-          buildDashboardHTML(myScheduleData);
-          buildSidebarSubjects(myScheduleData); 
-        } else { contentArea.innerHTML = `<div style="color:red; padding:20px;">데이터를 불러오지 못했습니다: ${result.msg}</div>`; }
-      } catch (e) { contentArea.innerHTML = `<div style="color:red; padding:20px;">서버 통신 에러가 발생했습니다.</div>`; }
+          myScheduleData = result.schedule; sysConfig = result.config;
+          buildDashboardHTML(myScheduleData); buildSidebarSubjects(myScheduleData); 
+        }
+      } catch (e) { console.log(e); }
     }
 
     function buildSidebarSubjects(mySchedule) {
       const menuContainer = document.getElementById('dynamicSubjectMenu');
       menuContainer.innerHTML = '';
-      
       const grouped = {};
       mySchedule.forEach(item => {
-        if (!grouped[item.fullName]) { grouped[item.fullName] = { fullName: item.fullName, times: [] }; }
+        if (!grouped[item.fullName]) grouped[item.fullName] = { fullName: item.fullName, times: [] };
         grouped[item.fullName].times.push(`${item.day}${item.period}`);
       });
-
       const uniqueSubjects = Object.values(grouped);
-      if(uniqueSubjects.length === 0) return menuContainer.innerHTML = '<div style="padding: 10px 15px; font-size: 13px; color: #999;">배정된 과목이 없습니다.</div>';
-
-      const dayOrder = { '월':1, '화':2, '수':3, '목':4, '금':5, '토':6, '일':7 };
+      if(uniqueSubjects.length === 0) return menuContainer.innerHTML = '<div style="padding:15px; color:#999; font-size:12px;">과목 없음</div>';
       uniqueSubjects.forEach(s => {
-        s.times.sort((a, b) => {
+        s.times.sort((a,b) => {
+            const dayOrder = { '월':1,'화':2,'수':3,'목':4,'금':5 };
             const dayA = dayOrder[a.charAt(0)] || 9; const dayB = dayOrder[b.charAt(0)] || 9;
-            if (dayA !== dayB) return dayA - dayB; return parseInt(a.charAt(1)) - parseInt(b.charAt(1));
+            return (dayA !== dayB) ? dayA - dayB : parseInt(a.slice(1)) - parseInt(b.slice(1));
         });
-        const scheduleStr = s.times.join(' ');
         const btn = document.createElement('button');
         btn.className = 'subject-btn'; btn.dataset.subject = s.fullName;
-        btn.innerHTML = `<div class="subject-btn-top"><span class="subj-name">${s.fullName}</span></div><div class="subject-btn-bottom">${scheduleStr}</div>`;
+        btn.innerHTML = `<div class="subject-btn-top"><span>${s.fullName}</span></div><div class="subject-btn-bottom">${s.times.join(' ')}</div>`;
         btn.onclick = function() { loadMenu('attendance', this, s.fullName); };
         menuContainer.appendChild(btn);
       });
-      highlightCurrentClass(); 
+      highlightCurrentClass();
     }
 
+    // ✨ 가변형 대시보드 그리기 (8, 9교시 유무 체크)
     function buildDashboardHTML(mySchedule) {
       const contentArea = document.getElementById('contentArea');
       const days = ["일", "월", "화", "수", "목", "금", "토"];
-      const todayNum = new Date().getDay(); 
-      const todayStr = days[todayNum]; 
+      const todayNum = new Date().getDay(); const todayStr = days[todayNum]; 
 
-      const times = [];
+      // ✨ 데이터 체크: 8교시나 9교시가 하나라도 있는지 확인
+      let maxPeriod = 7;
+      if (mySchedule.some(s => parseInt(s.period) === 8)) maxPeriod = 8;
+      if (mySchedule.some(s => parseInt(s.period) === 9)) maxPeriod = 9;
+
       const pTimes = (sysConfig && sysConfig.periodTimes) ? sysConfig.periodTimes : DEFAULT_TIMES;
-      for(let i=1; i<=9; i++) {
-        if (pTimes[i] && pTimes[i].start) times.push(`${pTimes[i].start} ~ ${pTimes[i].end}`);
-        else times.push(DEFAULT_TIMES[i].start + " ~ " + DEFAULT_TIMES[i].end);
-      }
+      const timeTexts = [];
+      for(let i=1; i<=maxPeriod; i++) timeTexts.push((pTimes[i] && pTimes[i].start) ? `${pTimes[i].start}~${pTimes[i].end}` : "");
 
-      let operationText = "";
-      let isOperating = true;
+      let operationText = ""; let isOperating = true;
       if (sysConfig && sysConfig.startDate && sysConfig.endDate) {
-          const startFmt = formatDateString(sysConfig.startDate);
-          const endFmt = formatDateString(sysConfig.endDate);
-          operationText = `<span style="font-size:13px; color:#e91e63; margin-left:10px; font-weight:bold;">[운영기간: ${startFmt} ~ ${endFmt}]</span>`;
-          
+          const startFmt = formatDateString(sysConfig.startDate); const endFmt = formatDateString(sysConfig.endDate);
+          operationText = `<span style="font-size:13px; color:#e91e63; font-weight:bold; margin-left:10px;">[운영기간: ${startFmt} ~ ${endFmt}]</span>`;
           const todayD = new Date(); todayD.setHours(0,0,0,0);
-          const sD = new Date(sysConfig.startDate); const eD = new Date(sysConfig.endDate);
-          if (todayD < sD || todayD > eD) isOperating = false;
+          if (todayD < new Date(sysConfig.startDate) || todayD > new Date(sysConfig.endDate)) isOperating = false;
       }
 
       let timelineHTML = "";
-      if (!isOperating) {
-        timelineHTML = `<div style="padding: 20px; color:#d32f2f; font-weight:bold;">현재는 학기 운영 기간이 아닙니다.</div>`;
-      } else if (todayNum === 0 || todayNum === 6) {
-        timelineHTML = `<div style="padding: 20px; color:#666;">주말은 수업이 없습니다. 푹 쉬세요! ☕</div>`;
-      } else {
-        timelineHTML += `<div class="timeline">`;
-        for (let period = 1; period <= 9; period++) {
+      if (!isOperating) timelineHTML = `<div style="padding:20px; color:#d32f2f; font-weight:bold;">현재는 학기 운영 기간이 아닙니다.</div>`;
+      else if (todayNum === 0 || todayNum === 6) timelineHTML = `<div style="padding:20px; color:#666;">주말은 수업이 없습니다. 푹 쉬세요! ☕</div>`;
+      else {
+        timelineHTML = `<div class="timeline">`;
+        for (let period = 1; period <= maxPeriod; period++) {
           const classData = mySchedule.find(s => s.day === todayStr && s.period == period);
           if (classData) {
             let targetClassHtml = classData.targetClass ? ` <span style="font-size:12px; font-weight:normal; color:#666;">(${classData.targetClass})</span>` : "";
-            timelineHTML += `<div class="timeline-item"><div class="timeline-time">${period}교시 (${times[period-1]})</div><div class="timeline-title" style="color:#0056b3;">${classData.subject}${targetClassHtml}</div></div>`;
+            timelineHTML += `<div class="timeline-item"><div class="timeline-time">${period}교시 (${timeTexts[period-1]})</div><div class="timeline-title" style="color:#0056b3;">${classData.subject}${targetClassHtml}</div></div>`;
           } else {
-            timelineHTML += `<div class="timeline-item empty"><div class="timeline-time">${period}교시 (${times[period-1]})</div><div class="timeline-title empty">공강</div></div>`;
+            timelineHTML += `<div class="timeline-item empty"><div class="timeline-time">${period}교시 (${timeTexts[period-1]})</div><div class="timeline-title empty">공강</div></div>`;
           }
         }
         timelineHTML += `</div>`;
       }
 
       let tableHTML = `<table class="schedule-table"><thead><tr><th>교시</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th></tr></thead><tbody>`;
-      for (let period = 1; period <= 9; period++) {
+      for (let period = 1; period <= maxPeriod; period++) {
         tableHTML += `<tr><td><strong>${period}</strong></td>`;
         ["월", "화", "수", "목", "금"].forEach(day => {
           const classData = mySchedule.find(s => s.day === day && s.period == period);
           if (classData) {
             let targetClassHtml = classData.targetClass ? `<br><span style="font-size:11px; font-weight:normal; color:#555;">(${classData.targetClass})</span>` : "";
             tableHTML += `<td class="has-class cursor-pointer" onclick="document.querySelector('.subject-btn[data-subject=\\'${classData.fullName}\\']').click()">${classData.subject}${targetClassHtml}</td>`;
-          } else {
-            tableHTML += `<td></td>`;
-          }
+          } else tableHTML += `<td></td>`;
         });
         tableHTML += `</tr>`;
       }
       tableHTML += `</tbody></table>`;
 
       contentArea.innerHTML = `
-        <div class="content-card mb-4" style="margin-bottom: 20px;">
-            <h2 style="color: #0056b3; display:flex; align-items:center; gap:8px;">🏫 상일여고 교과관리시스템</h2>
-            <p style="color: #666; margin-top: 5px;">좌측 나의 교과목을 클릭하여 출석표 및 좌석 배치도를 관리하세요. ${operationText}</p>
-        </div>
+        <div class="content-card mb-4"><h2 style="color: #0056b3;">🏫 상일여고 교과관리시스템</h2><p>수업을 클릭하여 출석 및 일지를 관리하세요. ${operationText}</p></div>
         <div class="dashboard-grid mt-4">
-          <div>
-            <div class="content-card">
-              <h3 style="margin-bottom: 15px; color:#333;">🏃 오늘의 수업 타임라인 (${todayStr}요일)</h3>
-              ${timelineHTML}
-            </div>
-          </div>
+          <div class="content-card"><h3>🏃 오늘의 타임라인 (${todayStr})</h3>${timelineHTML}</div>
           <div class="content-card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
-                <h3 style="color:#333; margin:0;">🗓️ 나의 주간 시간표 (1~9교시)</h3>
-                <button onclick="openExtraClassModal()" style="background:#fff; border:1px solid #0056b3; color:#0056b3; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:12px;">+ 방과후(8~9교시) 관리</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="margin:0;">🗓️ 주간 시간표 (1~${maxPeriod}교시)</h3>
+                <button onclick="openExtraClassModal()" style="border:1px solid #0056b3; color:#0056b3; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:12px; background:white;">+ 방과후(8~9교시) 관리</button>
             </div>
             ${tableHTML}
           </div>
-        </div>
-      `;
+        </div>`;
     }
 
     function openExtraClassModal() {
         document.getElementById('extraClassModal').style.display = 'flex';
-        const container = document.getElementById('extraClassList');
-        container.innerHTML = '';
-        const extraClasses = myScheduleData.filter(s => parseInt(s.period) === 8 || parseInt(s.period) === 9);
-        
+        const container = document.getElementById('extraClassList'); container.innerHTML = '';
+        const extraClasses = myScheduleData.filter(s => parseInt(s.period) >= 8);
         if (extraClasses.length === 0) addExtraClassRow(); 
         else extraClasses.forEach(c => addExtraClassRow(c.day, c.period, c.subject, c.targetClass));
     }
     function closeExtraClassModal() { document.getElementById('extraClassModal').style.display = 'none'; }
-    
     function addExtraClassRow(day = '월', period = 8, subject = '', targetClass = '') {
-        const container = document.getElementById('extraClassList');
-        const row = document.createElement('div');
-        row.className = 'extra-class-row';
-        row.style.display = 'flex'; row.style.gap = '8px';
-        row.innerHTML = `
-            <select class="ec-day" style="padding:8px; border:1px solid #ddd; border-radius:4px;">
-                ${['월','화','수','목','금'].map(d => `<option value="${d}" ${d===day?'selected':''}>${d}</option>`).join('')}
-            </select>
-            <select class="ec-period" style="padding:8px; border:1px solid #ddd; border-radius:4px;">
-                <option value="8" ${period==8?'selected':''}>8교시</option><option value="9" ${period==9?'selected':''}>9교시</option>
-            </select>
-            <input type="text" class="ec-subject" placeholder="과목명 (예: 보충A)" value="${subject}" style="flex:1; padding:8px; border:1px solid #ddd; border-radius:4px;">
-            <input type="text" class="ec-target" placeholder="대상 (예: 2-1)" value="${targetClass}" style="width:80px; padding:8px; border:1px solid #ddd; border-radius:4px;">
-            <button onclick="this.parentElement.remove()" style="padding:8px; background:#ffebee; color:#d32f2f; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">X</button>
-        `;
-        container.appendChild(row);
+        const row = document.createElement('div'); row.className = 'extra-class-row'; row.style.display = 'flex'; row.style.gap = '8px';
+        row.innerHTML = `<select class="ec-day" style="padding:8px; border:1px solid #ddd; border-radius:4px;">${['월','화','수','목','금'].map(d => `<option value="${d}" ${d===day?'selected':''}>${d}</option>`).join('')}</select>
+            <select class="ec-period" style="padding:8px; border:1px solid #ddd; border-radius:4px;"><option value="8" ${period==8?'selected':''}>8교시</option><option value="9" ${period==9?'selected':''}>9교시</option></select>
+            <input type="text" class="ec-subject" placeholder="과목" value="${subject}" style="flex:1; padding:8px; border:1px solid #ddd; border-radius:4px;">
+            <input type="text" class="ec-target" placeholder="반" value="${targetClass}" style="width:70px; padding:8px; border:1px solid #ddd; border-radius:4px;">
+            <button onclick="this.parentElement.remove()" style="padding:8px; background:#ffebee; color:#d32f2f; border:none; border-radius:4px; cursor:pointer;">X</button>`;
+        document.getElementById('extraClassList').appendChild(row);
     }
 
     async function saveExtraClass() {
-        const userInfo = checkAuth(); if(!userInfo) return;
+        const userInfo = JSON.parse(sessionStorage.getItem("userInfo"));
         const rows = document.querySelectorAll('.extra-class-row');
-        const extraData = []; let hasError = false;
-
+        const extraData = [];
         rows.forEach(row => {
-            const day = row.querySelector('.ec-day').value;
-            const period = parseInt(row.querySelector('.ec-period').value);
             const subject = row.querySelector('.ec-subject').value.trim();
             const targetClass = row.querySelector('.ec-target').value.trim();
-            if(subject || targetClass) {
-                if(!subject || !targetClass) hasError = true;
-                else extraData.push({ day, period, subject, targetClass });
-            }
+            if(subject && targetClass) extraData.push({ day: row.querySelector('.ec-day').value, period: parseInt(row.querySelector('.ec-period').value), subject, targetClass });
         });
-
-        if (hasError) return alert("과목명과 대상반을 모두 입력하거나, 불필요한 줄은 X 버튼으로 삭제해주세요.");
-        if(!sysConfig || !sysConfig.year) return alert("학기 설정 정보가 없습니다. 관리자 메뉴에서 학기 정보를 저장해주세요.");
-
+        if(!sysConfig || !sysConfig.year) return alert("학기 설정이 필요합니다.");
         try {
-            const res = await fetch(API_URL, {
-                method: "POST",
-                body: JSON.stringify({ type: "SAVE_EXTRA_SCHEDULE", payload: { teacherId: userInfo.id, year: sysConfig.year, semester: sysConfig.semester, extraData: extraData } })
-            });
-            const result = await res.json();
-            if(result.success) {
-                alert("방과후/보충 수업이 성공적으로 저장되었습니다!");
-                closeExtraClassModal();
-                document.getElementById('contentArea').innerHTML = `<div style="text-align:center; padding: 50px;">시간표 갱신 중... ⏳</div>`;
-                renderDashboard(); 
-            } else alert("저장 실패: " + result.msg);
-        } catch (e) { alert("서버 통신 오류가 발생했습니다."); }
+            const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({ type: "SAVE_EXTRA_SCHEDULE", payload: { teacherId: userInfo.id, year: sysConfig.year, semester: sysConfig.semester, extraData } }) });
+            if((await res.json()).success) { alert("저장되었습니다!"); closeExtraClassModal(); renderDashboard(); }
+        } catch (e) { alert("오류 발생"); }
     }
 
     function highlightCurrentClass() {
       const userInfo = JSON.parse(sessionStorage.getItem("userInfo"));
       if (!userInfo || userInfo.role === "관리자") return; 
-
       const now = new Date();
-      const days = ['일','월','화','수','목','금','토'];
-      const todayStr = days[now.getDay()];
+      const todayStr = ['일','월','화','수','목','금','토'][now.getDay()];
       const nowTimeStr = String(now.getHours()).padStart(2, '0') + ":" + String(now.getMinutes()).padStart(2, '0');
-      
       let currentPeriod = 0;
       const pTimes = (sysConfig && sysConfig.periodTimes) ? sysConfig.periodTimes : DEFAULT_TIMES;
-
-      for (let p = 1; p <= 9; p++) {
-          const timeData = pTimes[p];
-          if(!timeData || !timeData.start || !timeData.end) continue;
-          if (nowTimeStr >= timeData.start && nowTimeStr <= timeData.end) {
-              currentPeriod = p; break;
-          }
-      }
-
+      for (let p = 1; p <= 9; p++) { if (pTimes[p] && nowTimeStr >= pTimes[p].start && nowTimeStr <= pTimes[p].end) { currentPeriod = p; break; } }
       document.querySelectorAll('.live-class-badge').forEach(el => el.remove());
-      if (currentPeriod === 0 || myScheduleData.length === 0) return; 
-
       const currentClass = myScheduleData.find(s => s.day === todayStr && s.period == currentPeriod);
-      
       if (currentClass) {
-        const menuBtns = document.querySelectorAll('.subject-btn');
-        menuBtns.forEach(btn => {
-          if (btn.dataset.subject === currentClass.fullName) {
-            const topRow = btn.querySelector('.subject-btn-top');
-            if (topRow && !topRow.querySelector('.live-class-badge')) {
-              const badge = document.createElement('span');
-              badge.className = 'live-class-badge';
-              badge.innerText = '🔥수업중!';
-              topRow.appendChild(badge);
-            }
-          }
-        });
+        const btn = document.querySelector(`.subject-btn[data-subject='${currentClass.fullName}']`);
+        if (btn) {
+          const badge = document.createElement('span'); badge.className = 'live-class-badge'; badge.innerText = '🔥수업중!';
+          btn.querySelector('.subject-btn-top').appendChild(badge);
+        }
       }
     }
 
     window.onload = function() {
-      setInterval(updateRealTimeClock, 1000);
-      updateRealTimeClock();
-      if(checkAuth()) {
-        const firstBtn = document.querySelector('.sidebar .menu-base');
-        loadMenu('dashboard', firstBtn); 
-      }
+      setInterval(updateRealTimeClock, 1000); updateRealTimeClock();
+      if(checkAuth()) loadMenu('dashboard', document.querySelector('.sidebar .menu-base')); 
     };
-    
     setInterval(highlightCurrentClass, 60000);
   </script>
 </body>
