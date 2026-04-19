@@ -13,7 +13,7 @@
     /* 상단 헤더 */
     header { background-color: #0056b3; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 10; position: relative; }
     header h1 { font-size: 20px; margin: 0; cursor: pointer; transition: opacity 0.2s; }
-    header h1:hover { opacity: 0.8; } /* 제목 로고에 마우스 올리면 클릭 가능한 느낌 주기 */
+    header h1:hover { opacity: 0.8; }
     .user-info { font-size: 15px; display: flex; align-items: center; gap: 15px; }
     .btn-logout { background-color: white; color: #0056b3; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: background-color 0.2s; }
     .btn-logout:hover { background-color: #e0e0e0; }
@@ -30,7 +30,7 @@
     .sidebar-title { font-size: 12px; font-weight: bold; color: #999; padding: 10px 15px 5px; margin-top: 10px; }
     .subject-btn { font-size: 14px !important; padding: 10px 15px !important; display: flex !important; justify-content: space-between; align-items: center; }
 
-    /* 관리자 전용 메뉴 스타일 */
+    /* ✨ 확실하게 일반교사에게 숨기는 CSS 우선순위 강제 적용 ✨ */
     .sidebar button.admin-menu { display: none !important; }
     .sidebar button.admin-menu.visible { display: block !important; background-color: #fff0f0; color: #d32f2f; }
     .sidebar button.admin-menu.visible:hover { background-color: #ffebee; border-color: #ffcdd2; }
@@ -111,6 +111,7 @@
       document.getElementById('userNameDisplay').innerText = userInfo.name;
       document.getElementById('userRoleDisplay').innerText = userInfo.role;
       
+      // 관리자 권한 확인 후 클래스 부여
       if (userInfo.role === "관리자") {
         document.querySelectorAll('.admin-menu').forEach(el => el.classList.add('visible'));
       }
@@ -124,9 +125,7 @@
       }
     }
 
-    // 🌟 메뉴 이동 제어 (답답함 해소용 즉시 피드백 추가) 🌟
     function loadMenu(menuId, btnElement, extraParam = "") {
-      // 제목(로고) 클릭 시 btnElement가 undefined일 수 있으므로 예외처리
       document.querySelectorAll('.sidebar button').forEach(btn => btn.classList.remove('active', 'live-class-active'));
       if(btnElement) btnElement.classList.add('active');
 
@@ -136,7 +135,6 @@
       if (menuId === 'dashboard') {
         iframeArea.style.display = 'none';
         contentArea.style.display = 'block';
-        // ✨ 대시보드 클릭 즉시 기존 화면을 밀어내고 로딩바를 띄워서 답답함을 완벽히 제거!
         contentArea.innerHTML = `<div style="text-align:center; padding: 50px; font-size: 16px;">데이터를 불러오는 중입니다... ⏳</div>`;
         renderDashboard(); 
       } 
@@ -389,8 +387,6 @@
       if(!userInfo) return;
 
       const contentArea = document.getElementById('contentArea');
-      // ✨ 바로 위 loadMenu에서 "로딩 중" 메시지를 띄워두었기 때문에 
-      // 여기서 불필요하게 한 번 더 빈 칸을 체크하는 코드를 삭제했습니다.
 
       try {
         const response = await fetch(API_URL, {
@@ -418,7 +414,6 @@
       const uniqueSubjects = [...new Map(mySchedule.map(item => [item.fullName, item])).values()];
 
       if(uniqueSubjects.length === 0) {
-        // 관리자가 수업 배정이 없더라도 대시보드를 보는 데는 지장이 없도록 빈 화면 안내만 띄웁니다.
         menuContainer.innerHTML = '<div style="padding: 10px 15px; font-size: 13px; color: #999;">배정된 과목이 없습니다.</div>';
         return;
       }
