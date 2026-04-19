@@ -28,12 +28,10 @@
     .sidebar button.active { background-color: #e6f0fa; color: #0056b3; font-weight: bold; border-color: #cce0f5; }
     
     .sidebar-title { font-size: 12px; font-weight: bold; color: #999; padding: 10px 15px 5px; margin-top: 10px; }
-    
-    /* ✨ 수정됨: 나의 교과목 버튼을 두 줄(과목명, 시간표)로 예쁘게 배치 */
     .subject-btn { font-size: 14px !important; padding: 10px 15px !important; display: flex !important; flex-direction: column; align-items: flex-start; gap: 4px; }
     .subject-btn-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
     .subject-btn-bottom { font-size: 11px; color: #888; font-weight: normal; }
-    .sidebar button.active .subject-btn-bottom { color: #0056b3; opacity: 0.8; } /* 선택됐을 때 아래 글씨도 파랗게 */
+    .sidebar button.active .subject-btn-bottom { color: #0056b3; opacity: 0.8; }
 
     /* 관리자 메뉴 숨김 처리 */
     .sidebar button.admin-menu { display: none !important; }
@@ -56,6 +54,7 @@
     .timeline-title { font-weight: bold; font-size: 15px; color: #333; }
     .timeline-title.empty { color: #999; font-weight: normal; }
     
+    /* 너비 고정된 주간시간표 */
     .schedule-table { width: 100%; table-layout: fixed; border-collapse: collapse; margin-top: 15px; background-color: white; font-size: 13px; text-align: center; }
     .schedule-table th, .schedule-table td { padding: 10px; border: 1px solid #ddd; word-break: keep-all; }
     .schedule-table th { background-color: #f0f4f8; }
@@ -90,12 +89,10 @@
     <nav class="sidebar">
       <button onclick="loadMenu('dashboard', this)" class="active menu-base">🏠 대시보드</button>
       
-      <div id="sidebarSubjectTitle" class="sidebar-title">📚 나의 교과목</div>
-      <div id="dynamicSubjectMenu">
-        <div style="padding: 10px 15px; font-size: 12px; color: #999;">로딩 중...</div>
-      </div>
+      <div id="sidebarSubjectTitle" class="sidebar-title" style="display:none;">📚 나의 교과목</div>
+      <div id="dynamicSubjectMenu" style="display:none;"></div>
+      <hr id="sidebarDivider" style="border: 0; border-top: 1px solid #ddd; margin: 10px 0; display:none;">
 
-      <hr id="sidebarDivider" style="border: 0; border-top: 1px solid #ddd; margin: 10px 0;">
       <button id="adminBtn1" class="admin-menu menu-base" onclick="loadMenu('adminConfig', this)">⚙️ 학기/과목 설정</button>
       <button id="adminBtn2" class="admin-menu menu-base" onclick="loadMenu('adminUsers', this)">👥 교직원 권한 관리</button>
     </nav>
@@ -107,10 +104,10 @@
   </div>
 
   <script>
-    // API 주소
     const API_URL = "https://script.google.com/macros/s/AKfycbzfIY0Fs4S1EjSSNI2kZfrFgtSqipG_u_KDCkdT8Vy1LjrIwB7k_1awE_psCNw0VQGg/exec";
     let myScheduleData = [];
 
+    // ✨ 페이지 로드 시 즉시 권한을 체크하고 불필요한 UI 숨김 처리
     function checkAuth() {
       const userInfoStr = sessionStorage.getItem("userInfo");
       if (!userInfoStr) {
@@ -124,6 +121,11 @@
       
       if (userInfo.role === "관리자") {
         document.querySelectorAll('.admin-menu').forEach(el => el.classList.add('visible'));
+      } else {
+        // 일반 교사일 경우에만 교과목 메뉴 보이기
+        document.getElementById('sidebarSubjectTitle').style.display = 'block';
+        document.getElementById('dynamicSubjectMenu').style.display = 'block';
+        document.getElementById('sidebarDivider').style.display = 'block';
       }
       return userInfo;
     }
@@ -145,7 +147,6 @@
       if (menuId === 'dashboard') {
         iframeArea.style.display = 'none';
         contentArea.style.display = 'block';
-        contentArea.innerHTML = `<div style="text-align:center; padding: 50px; font-size: 16px;">데이터를 불러오는 중입니다... ⏳</div>`;
         renderDashboard(); 
       } 
       else if (menuId === 'attendance') {
@@ -392,11 +393,39 @@
       }
     }
 
+    // ✨ 핵심 수정: 관리자 권한일 경우 서버 통신 없이 즉시 종료!
     async function renderDashboard() {
       const userInfo = checkAuth();
       if(!userInfo) return;
 
       const contentArea = document.getElementById('contentArea');
+
+      // 관리자는 로딩/서버 통신을 아예 스킵하고 퀵 메뉴만 띄웁니다!
+      if (userInfo.role === "관리자") {
+        contentArea.innerHTML = `
+          <div class="content-card mb-4" style="margin-bottom: 20px;">
+              <h2 style="color: #d32f2f; display:flex; align-items:center; gap:8px;">🏫 상일여고 교과관리시스템 (관리자 모드)</h2>
+              <p style="color: #666; margin-top: 5px;">시스템 관리자 계정으로 접속하셨습니다. 원하시는 관리 업무를 선택해 주세요.</p>
+          </div>
+          <div class="quick-menus">
+              <div class="quick-card" onclick="document.getElementById('adminBtn1').click()">
+                  <span class="quick-icon">⚙️</span>
+                  <div class="quick-title">학기/과목 설정</div>
+                  <div class="quick-desc">나이스 데이터 연동 및 전교 시간표 조회</div>
+              </div>
+              <div class="quick-card" onclick="document.getElementById('adminBtn2').click()">
+                  <span class="quick-icon">👥</span>
+                  <div class="quick-title">교직원 권한 관리</div>
+                  <div class="quick-desc">선생님 계정 생성 및 권한 설정</div>
+              </div>
+          </div>
+        `;
+        return; // 여기서 로직 완전 종료!
+      }
+
+      // 일반 교사는 정상적으로 데이터를 로딩합니다.
+      document.getElementById('dynamicSubjectMenu').innerHTML = '<div style="padding: 10px 15px; font-size: 12px; color: #999;">로딩 중...</div>';
+      contentArea.innerHTML = `<div style="text-align:center; padding: 50px; font-size: 16px;">데이터를 불러오는 중입니다... ⏳</div>`;
 
       try {
         const response = await fetch(API_URL, {
@@ -417,27 +446,10 @@
       }
     }
 
-    // ✨ 핵심: 과목명 + 하단 시간표 결합 로직
     function buildSidebarSubjects(mySchedule) {
-      const userInfo = JSON.parse(sessionStorage.getItem("userInfo"));
       const menuContainer = document.getElementById('dynamicSubjectMenu');
-      const titleContainer = document.getElementById('sidebarSubjectTitle');
-      const divider = document.getElementById('sidebarDivider');
-
-      if (userInfo.role === "관리자") {
-        if(titleContainer) titleContainer.style.display = 'none';
-        if(menuContainer) menuContainer.style.display = 'none';
-        if(divider) divider.style.display = 'none';
-        return; 
-      }
-
-      if(titleContainer) titleContainer.style.display = 'block';
-      if(menuContainer) menuContainer.style.display = 'block';
-      if(divider) divider.style.display = 'block';
-
       menuContainer.innerHTML = '';
-
-      // fullName 기준으로 그룹화하여 시간표 문자열 만들기
+      
       const grouped = {};
       mySchedule.forEach(item => {
         if (!grouped[item.fullName]) {
@@ -467,7 +479,6 @@
         const btn = document.createElement('button');
         btn.className = 'subject-btn';
         btn.dataset.subject = s.fullName;
-        // ✨ 위에는 과목명, 아래에는 시간표 텍스트 추가
         btn.innerHTML = `
             <div class="subject-btn-top">
                 <span class="subj-name">${s.fullName}</span>
@@ -483,30 +494,8 @@
 
     function buildDashboardHTML(mySchedule) {
       const contentArea = document.getElementById('contentArea');
-      const userInfo = JSON.parse(sessionStorage.getItem("userInfo"));
-
-      if (userInfo.role === "관리자") {
-        contentArea.innerHTML = `
-          <div class="content-card mb-4" style="margin-bottom: 20px;">
-              <h2 style="color: #d32f2f; display:flex; align-items:center; gap:8px;">🏫 상일여고 교과관리시스템 (관리자 모드)</h2>
-              <p style="color: #666; margin-top: 5px;">시스템 관리자 계정으로 접속하셨습니다. 원하시는 관리 업무를 선택해 주세요.</p>
-          </div>
-          <div class="quick-menus">
-              <div class="quick-card" onclick="document.getElementById('adminBtn1').click()">
-                  <span class="quick-icon">⚙️</span>
-                  <div class="quick-title">학기/과목 설정</div>
-                  <div class="quick-desc">나이스 데이터 연동 및 전교 시간표 조회</div>
-              </div>
-              <div class="quick-card" onclick="document.getElementById('adminBtn2').click()">
-                  <span class="quick-icon">👥</span>
-                  <div class="quick-title">교직원 권한 관리</div>
-                  <div class="quick-desc">선생님 계정 생성 및 권한 설정</div>
-              </div>
-          </div>
-        `;
-        return;
-      }
-
+      
+      // 관리자는 이미 위에서 return 되었으므로 여기는 무조건 교사 영역입니다.
       const days = ["일", "월", "화", "수", "목", "금", "토"];
       const todayNum = new Date().getDay(); 
       const todayStr = days[todayNum]; 
@@ -603,7 +592,6 @@
         const menuBtns = document.querySelectorAll('.subject-btn');
         menuBtns.forEach(btn => {
           if (btn.dataset.subject === currentClass.fullName) {
-            // ✨ 상단 div 영역(subject-btn-top)에 불타는 배지 추가
             const topRow = btn.querySelector('.subject-btn-top');
             if (topRow && !topRow.querySelector('.live-class-badge')) {
               const badge = document.createElement('span');
