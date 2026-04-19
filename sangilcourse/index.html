@@ -510,10 +510,21 @@
         for (let period = 1; period <= 7; period++) {
           const classData = mySchedule.find(s => s.day === todayStr && s.period == period);
           if (classData) {
+            // ✨ 여기서 "정보A (2-6)"을 "정보A"와 "2-6"으로 분리합니다!
+            let rawSubject = classData.subject;
+            let subjName = rawSubject;
+            let targetClass = "";
+            let match = rawSubject.match(/(.+?)\s*\(([^)]+)\)$/);
+            if (match) {
+              subjName = match[1].trim();
+              targetClass = match[2].trim();
+            }
+            let timelineTargetHtml = targetClass ? ` <span style="font-size:12px; font-weight:normal; color:#666;">(${targetClass})</span>` : "";
+
             timelineHTML += `
               <div class="timeline-item">
                 <div class="timeline-time">${period}교시 (${times[period-1]})</div>
-                <div class="timeline-title" style="color:#0056b3;">${classData.subject} <span style="font-size:12px; font-weight:normal; color:#666;">(${classData.targetClass})</span></div>
+                <div class="timeline-title" style="color:#0056b3;">${subjName}${timelineTargetHtml}</div>
               </div>`;
           } else {
             timelineHTML += `
@@ -526,15 +537,26 @@
         timelineHTML += `</div>`;
       }
 
-      // ✨ 수정됨: 주간시간표 대상반 괄호 표시 추가 ✨
+      // ✨ 주간시간표 대상반 괄호 표시 및 너비 고정 적용
       let tableHTML = `<table class="schedule-table"><thead><tr><th>교시</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th></tr></thead><tbody>`;
       for (let period = 1; period <= 7; period++) {
         tableHTML += `<tr><td><strong>${period}</strong></td>`;
         ["월", "화", "수", "목", "금"].forEach(day => {
           const classData = mySchedule.find(s => s.day === day && s.period == period);
           if (classData) {
-            tableHTML += `<td class="has-class cursor-pointer" onclick="document.querySelector('.subject-btn[data-subject=\\'${classData.subject}\\']').click()">
-                ${classData.subject}<br><span style="font-size:11px; font-weight:normal; color:#555;">(${classData.targetClass})</span>
+            // ✨ 여기서도 분리해서 예쁘게 줄바꿈 처리!
+            let rawSubject = classData.subject;
+            let subjName = rawSubject;
+            let targetClass = "";
+            let match = rawSubject.match(/(.+?)\s*\(([^)]+)\)$/);
+            if (match) {
+              subjName = match[1].trim();
+              targetClass = match[2].trim();
+            }
+            let targetClassHtml = targetClass ? `<br><span style="font-size:11px; font-weight:normal; color:#555;">(${targetClass})</span>` : "";
+
+            tableHTML += `<td class="has-class cursor-pointer" onclick="document.querySelector('.subject-btn[data-subject=\\'${rawSubject}\\']').click()">
+                ${subjName}${targetClassHtml}
             </td>`;
           } else {
             tableHTML += `<td></td>`;
