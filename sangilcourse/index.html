@@ -49,11 +49,11 @@
     .timeline-title { font-weight: bold; font-size: 15px; color: #333; }
     .timeline-title.empty { color: #999; font-weight: normal; }
     
+    /* 🔥 현재 수업 강조 스타일 */
     .timeline-item.current::before { border-color: #d32f2f; background-color: #d32f2f; box-shadow: 0 0 8px rgba(211,47,47,0.5); }
     .timeline-item.current .timeline-time { color: #d32f2f; font-weight: 900; }
-    .timeline-item.current .timeline-title { color: #d32f2f; font-weight: 900; font-size: 16px; }
+    .timeline-item.current .timeline-title span { color: #d32f2f; font-weight: 900; font-size: 16px; }
 
-    /* ✨ 표 스타일 최적화 (셀 안의 내용이 무조건 세로로 쌓이도록 보호) */
     .schedule-table { width: 100%; table-layout: fixed; border-collapse: collapse; margin-top: 15px; background-color: white; font-size: 13px; text-align: center; }
     .schedule-table th, .schedule-table td { padding: 10px 4px; border: 1px solid #ddd; word-break: keep-all; vertical-align: middle; }
     .schedule-table th { background-color: #f0f4f8; padding: 10px; }
@@ -90,8 +90,7 @@
   <div class="container">
     <nav class="sidebar">
       <button onclick="loadMenu('dashboard', this)" class="active menu-base">🏠 대시보드</button>
-      <div id="sidebarSubjectTitle" class="sidebar-title" style="display:none;">📚 나의 교과목</div>
-      <div id="dynamicSubjectMenu" style="display:none;"></div>
+      <div id="dynamicSubjectMenu" style="display:none; margin-top:10px;"></div>
       <hr id="sidebarDivider" style="border: 0; border-top: 1px solid #ddd; margin: 10px 0; display:none;">
       <button id="adminBtn1" class="admin-menu menu-base" onclick="loadMenu('adminConfig', this)">⚙️ 학기/과목 설정</button>
       <button id="adminBtn2" class="admin-menu menu-base" onclick="loadMenu('adminUsers', this)">👥 교직원 권한 관리</button>
@@ -129,6 +128,13 @@
         7: { start: "15:40", end: "16:30" }, 8: { start: "16:40", end: "17:30" }, 9: { start: "17:40", end: "18:30" }
     };
 
+    // ✨ 무적의 시간 추출 함수 (1899년 귀신 텍스트 박멸)
+    function extractTime(str) {
+        if (!str) return "";
+        const match = String(str).match(/(\d{1,2}:\d{2})/);
+        return match ? match[1].padStart(5, '0') : "";
+    }
+
     function updateRealTimeClock() {
       const now = new Date(); const days = ['일','월','화','수','목','금','토'];
       document.getElementById('realTimeClock').innerText = `${now.getFullYear()}.${now.getMonth()+1}.${now.getDate()}(${days[now.getDay()]}) ${now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
@@ -152,7 +158,6 @@
       document.getElementById('userRoleDisplay').innerText = userInfo.role;
       if (userInfo.role === "관리자") document.querySelectorAll('.admin-menu').forEach(el => el.classList.add('visible'));
       else {
-        document.getElementById('sidebarSubjectTitle').style.display = 'block';
         document.getElementById('dynamicSubjectMenu').style.display = 'block';
         document.getElementById('sidebarDivider').style.display = 'block';
       }
@@ -244,8 +249,8 @@
           if(config.endDate) document.getElementById('sysEndDate').value = formatForInputDate(config.endDate);
           if(config.periodTimes) {
             for(let i=1; i<=9; i++) {
-              if(document.getElementById('pStart'+i)) document.getElementById('pStart'+i).value = config.periodTimes[i].start || DEFAULT_TIMES[i].start;
-              if(document.getElementById('pEnd'+i)) document.getElementById('pEnd'+i).value = config.periodTimes[i].end || DEFAULT_TIMES[i].end;
+              if(document.getElementById('pStart'+i)) document.getElementById('pStart'+i).value = extractTime(config.periodTimes[i].start) || extractTime(DEFAULT_TIMES[i].start);
+              if(document.getElementById('pEnd'+i)) document.getElementById('pEnd'+i).value = extractTime(config.periodTimes[i].end) || extractTime(DEFAULT_TIMES[i].end);
             }
           }
           if(config.extraConfigs && config.extraConfigs.length > 0) {
@@ -342,13 +347,37 @@
 
     function buildSidebarSubjects(activeSchedule) {
       const menuContainer = document.getElementById('dynamicSubjectMenu'); menuContainer.innerHTML = '';
+      const todayNum = new Date().getDay(); const todayStr = ["일", "월", "화", "수", "목", "금", "토"][todayNum];
+
+      const todaysClasses = activeSchedule.filter(s => s.day === todayStr).sort((a, b) => a.period - b.period);
+      if (todaysClasses.length > 0) {
+        const todayTitle = document.createElement('div');
+        todayTitle.className = 'sidebar-title'; todayTitle.style.color = '#0056b3'; todayTitle.innerText = `👇 오늘의 수업 (${todayStr})`;
+        menuContainer.appendChild(todayTitle);
+
+        todaysClasses.forEach(s => {
+          const btn = document.createElement('button');
+          btn.className = 'subject-btn today-class-btn'; btn.dataset.subject = s.fullName; btn.dataset.period = s.period;
+          btn.style.cssText = 'border-left: 3px solid #0056b3; background-color: #f4f8ff; margin-bottom: 6px; padding: 12px 15px; transition: all 0.3s;';
+          let targetClassHtml = s.targetClass ? `<div style="font-size:11px; color:#666; margin-top:2px;">(${s.targetClass})</div>` : '';
+          btn.innerHTML = `<div class="subject-btn-top" style="display:flex; justify-content:space-between; width:100%; align-items:center;"><span style="font-weight:900; color:#0056b3;">${s.period}교시</span></div><div style="font-size:13px; color:#333; margin-top:4px; font-weight:bold;">${s.subject}</div>${targetClassHtml}`;
+          btn.onclick = function() { loadMenu('attendance', this, s.fullName); };
+          menuContainer.appendChild(btn);
+        });
+        menuContainer.innerHTML += `<hr style="border:0; border-top:1px dashed #ccc; margin:15px 0 5px 0;">`;
+      }
+
+      const allTitle = document.createElement('div'); allTitle.className = 'sidebar-title'; allTitle.innerText = `📚 전체 교과목`;
+      menuContainer.appendChild(allTitle);
+
       const grouped = {};
       activeSchedule.forEach(item => {
         if (!grouped[item.fullName]) grouped[item.fullName] = { fullName: item.fullName, times: [] };
         grouped[item.fullName].times.push(`${item.day}${item.period}`);
       });
       const uniqueSubjects = Object.values(grouped);
-      if(uniqueSubjects.length === 0) return menuContainer.innerHTML = '<div style="padding:15px; color:#999; font-size:12px;">과목 없음</div>';
+      if(uniqueSubjects.length === 0) return menuContainer.innerHTML += '<div style="padding:15px; color:#999; font-size:12px;">과목 없음</div>';
+      
       uniqueSubjects.forEach(s => {
         s.times.sort((a,b) => {
             const dayOrder = { '월':1,'화':2,'수':3,'목':4,'금':5 };
@@ -372,7 +401,12 @@
       if (activeSchedule.some(s => parseInt(s.period) === 9)) maxPeriod = 9;
 
       const pTimes = (sysConfig && sysConfig.periodTimes) ? sysConfig.periodTimes : DEFAULT_TIMES;
-      const timeTexts = []; for(let i=1; i<=maxPeriod; i++) timeTexts.push((pTimes[i] && pTimes[i].start) ? `${pTimes[i].start}~${pTimes[i].end}` : "");
+      const timeTexts = []; 
+      for(let i=1; i<=maxPeriod; i++) {
+          let sT = extractTime(pTimes[i] ? pTimes[i].start : "");
+          let eT = extractTime(pTimes[i] ? pTimes[i].end : "");
+          timeTexts.push((sT && eT) ? `${sT}~${eT}` : "");
+      }
 
       let operationText = ""; let isOperating = true;
       if (sysConfig && sysConfig.startDate && sysConfig.endDate) {
@@ -389,19 +423,19 @@
         for (let period = 1; period <= maxPeriod; period++) {
           const classData = activeSchedule.find(s => s.day === todayStr && s.period == period);
           
-          // ✨ 타임라인 Flex 구조 (무조건 가로줄 나눔)
+          // ✨ 타임라인의 시간도 깔끔하게 포맷팅하여 보여주고, 과목명/대상반은 세로로 강제 정렬
           if (classData) {
-            let targetClassHtml = classData.targetClass ? `<div style="font-size:13px; font-weight:bold; color:#666; margin-top:2px;">(${classData.targetClass})</div>` : "";
+            let targetClassHtml = classData.targetClass ? `<div style="font-size:12px; font-weight:bold; color:#666; margin-top:2px;">(${classData.targetClass})</div>` : "";
             timelineHTML += `
               <div class="timeline-item" data-timeline-period="${period}">
-                <div class="timeline-time">${period}교시</div>
+                <div class="timeline-time">${period}교시 ${timeTexts[period-1] ? `(${timeTexts[period-1]})` : ""}</div>
                 <div class="timeline-title" style="display:flex; flex-direction:column;">
                   <span style="line-height:1.2;">${classData.subject}</span>
                   ${targetClassHtml}
                 </div>
               </div>`;
           } else {
-            timelineHTML += `<div class="timeline-item empty" data-timeline-period="${period}"><div class="timeline-time">${period}교시</div><div class="timeline-title empty">공강</div></div>`;
+            timelineHTML += `<div class="timeline-item empty" data-timeline-period="${period}"><div class="timeline-time">${period}교시 ${timeTexts[period-1] ? `(${timeTexts[period-1]})` : ""}</div><div class="timeline-title empty">공강</div></div>`;
           }
         }
         timelineHTML += `</div>`;
@@ -412,7 +446,7 @@
         tableHTML += `<tr><td><strong>${period}</strong></td>`;
         ["월", "화", "수", "목", "금"].forEach(day => {
           const classData = activeSchedule.find(s => s.day === day && s.period == period);
-          // ✨ 테이블 셀 Flex 구조 (무조건 위아래 배치)
+          // ✨ 표 안의 내용도 세로 배치 (flex-column) 강제 적용
           if (classData) {
             let targetClassHtml = classData.targetClass ? `<span style="font-size:11px; font-weight:normal; color:#555; margin-top:3px; letter-spacing:-0.5px;">(${classData.targetClass})</span>` : "";
             tableHTML += `
@@ -508,15 +542,34 @@
         } catch (e) { alert("오류 발생"); } finally { btnSave.innerText = "저장하기"; btnSave.disabled = false; }
     }
 
+    // ✨ 타임라인 강조 방식 완전 업그레이드 (분 단위로 안전하게 변환하여 계산)
     function highlightCurrentClass() {
       const userInfo = JSON.parse(sessionStorage.getItem("userInfo")); if (!userInfo || userInfo.role === "관리자") return; 
       const now = new Date(); const todayStr = ['일','월','화','수','목','금','토'][now.getDay()];
-      const nowTimeStr = String(now.getHours()).padStart(2, '0') + ":" + String(now.getMinutes()).padStart(2, '0');
-      let currentPeriod = 0; const pTimes = (sysConfig && sysConfig.periodTimes) ? sysConfig.periodTimes : DEFAULT_TIMES;
-      for (let p = 1; p <= 9; p++) { if (pTimes[p] && nowTimeStr >= pTimes[p].start && nowTimeStr <= pTimes[p].end) { currentPeriod = p; break; } }
+      
+      const nowMins = now.getHours() * 60 + now.getMinutes();
+      let currentPeriod = 0; 
+      const pTimes = (sysConfig && sysConfig.periodTimes) ? sysConfig.periodTimes : DEFAULT_TIMES;
+      
+      for (let p = 1; p <= 9; p++) { 
+          if (!pTimes[p]) continue;
+          let sTime = extractTime(pTimes[p].start);
+          let eTime = extractTime(pTimes[p].end);
+          if (sTime && eTime) {
+              let startMins = parseInt(sTime.split(':')[0]) * 60 + parseInt(sTime.split(':')[1]);
+              let endMins = parseInt(eTime.split(':')[0]) * 60 + parseInt(eTime.split(':')[1]);
+              if (nowMins >= startMins && nowMins <= endMins) { 
+                  currentPeriod = p; break; 
+              }
+          }
+      }
 
       document.querySelectorAll('.live-class-badge').forEach(el => el.remove());
       document.querySelectorAll('.timeline-item').forEach(el => el.classList.remove('current'));
+      document.querySelectorAll('.today-class-btn').forEach(el => {
+          el.style.backgroundColor = '#f4f8ff';
+          el.style.borderLeft = '3px solid #0056b3';
+      });
 
       if (currentPeriod === 0 || myScheduleData.length === 0) return; 
 
@@ -525,10 +578,19 @@
 
       const currentClass = myScheduleData.find(s => s.day === todayStr && s.period == currentPeriod);
       if (currentClass) {
-        const btn = document.querySelector(`.subject-btn[data-subject='${currentClass.fullName}']`);
-        if (btn) {
-          const badge = document.createElement('span'); badge.className = 'live-class-badge'; badge.innerText = '🔥수업중!';
-          btn.querySelector('.subject-btn-top').appendChild(badge);
+        const todayBtn = document.querySelector(`.today-class-btn[data-period='${currentPeriod}']`);
+        if (todayBtn) {
+            todayBtn.style.backgroundColor = '#fff0f0';
+            todayBtn.style.borderLeft = '4px solid #d32f2f';
+            const topRow = todayBtn.querySelector('.subject-btn-top');
+            const badge = document.createElement('span'); badge.className = 'live-class-badge'; badge.innerText = '🔥수업중!';
+            topRow.appendChild(badge);
+        } else {
+            const btn = document.querySelector(`.subject-btn:not(.today-class-btn)[data-subject='${currentClass.fullName}']`);
+            if (btn) {
+                const badge = document.createElement('span'); badge.className = 'live-class-badge'; badge.innerText = '🔥수업중!';
+                btn.querySelector('.subject-btn-top').appendChild(badge);
+            }
         }
       }
     }
