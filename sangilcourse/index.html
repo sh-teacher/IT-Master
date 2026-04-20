@@ -139,16 +139,31 @@
         .content-card, .timeline-wrapper { padding: 15px !important; margin-bottom: 15px; border-radius:12px; }
         .tl-card { min-width: 65px; padding: 10px 2px; }
         
-        .schedule-table th:first-child { width: 14%; } 
-        .schedule-table th:not(:first-child) { width: 17.2%; } 
-        .schedule-table th, .schedule-table td { 
-            padding: 4px 2px !important; 
-            border: 1px solid #e2e8f0; 
-            height: 60px; /* 🔥 모바일에서도 높이를 일정하게 고정 */
+        .schedule-table { 
+            min-width: 100% !important; /* PC용 600px 고정 제한을 강제로 해제! */
+            table-layout: fixed; 
         }
-        .schedule-table th { font-size: 11px !important; padding: 6px 0 !important; height: auto; }
         
-        .class-pill { padding: 4px 1px; min-height: 42px; border-radius: 4px; font-size: 11px !important; }
+        /* 🔥 2. 칸 비율 및 여백 극한 다이어트 */
+        .schedule-table th:first-child { width: 12%; } /* 교시 칸 크기 축소 */
+        .schedule-table th:not(:first-child) { width: 17.6%; } /* 월~금 균등 분배 */
+        .schedule-table th, .schedule-table td { 
+            padding: 2px 1px !important; /* 좌우 여백을 거의 없앰 */
+            border: 1px solid #e2e8f0; 
+            height: 60px; /* 높이 일정하게 고정 */
+            overflow: hidden; /* 삐져나가는 거 방지 */
+        }
+        .schedule-table th { font-size: 10px !important; padding: 4px 0 !important; height: auto; }
+        
+        /* 🔥 3. 수업 알약(Pill) 버튼 글씨 뚫고 나감 방지 */
+        .class-pill { 
+            padding: 2px 0px; 
+            min-height: 45px; 
+            border-radius: 4px; 
+            font-size: 10px !important; /* 글씨 크기 축소 */
+            line-height: 1.1;
+            word-break: break-all; /* 좁은 칸에서 글씨가 상자 밖으로 안 나가게 강제 줄바꿈 */
+        }
         .class-target { font-size: 9px !important; margin-top: 1px; }
 
         .modal-box { padding: 20px 15px; max-height: 90vh; }
