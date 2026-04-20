@@ -284,10 +284,10 @@
 
           <div class="dashboard-grid">
             <div class="content-card">
-                <h3 style="color:#1e40af; font-size:16px; margin-bottom:15px;">📝 1. 엑셀 명단 업로드</h3>
-                <p style="font-size:12px; color:#64748b; margin-bottom:15px;">엑셀 파일(A열:학년, B열:반, C열:번호, D열:이름)을 업로드하세요. <br>*첫 줄은 제목으로 인식되어 제외됩니다.</p>
+                <h3 style="color:#1e40af; font-size:16px; margin-bottom:15px;">📝 1. 학생편성현황 엑셀 일괄 업로드</h3>
+                <p style="font-size:12px; color:#64748b; margin-bottom:15px; line-height:1.5;">나이스에서 다운받은 엑셀 파일을 그대로 올리세요.<br>시스템이 <strong style="color:#ef4444;">학년, 반, 번호, 성명, 과목</strong> 열을 자동 탐지하여 각 교과목별로 명단을 찢어 넣고 정렬까지 완료합니다!</p>
                 <input type="file" id="rosterExcelFile" accept=".xlsx" class="ec-input" style="width:100%; margin-bottom:15px; cursor:pointer;">
-                <button onclick="processRosterExcel()" style="width:100%; background:#10b981; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">엑셀 업로드 실행</button>
+                <button onclick="processRosterExcel()" style="width:100%; background:#10b981; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">전체 명단 자동 분류 및 업로드</button>
             </div>
 
             <div class="content-card">
@@ -973,10 +973,9 @@
     window.onload = function() { setInterval(updateRealTimeClock, 1000); updateRealTimeClock(); if(checkAuth()) loadMenu('dashboard', document.querySelector('.sidebar .menu-base')); };
     setInterval(highlightCurrentClass, 10000);
     // ✨ 엑셀 파일 읽어서 명단 업로드
+    // ✨ 엑셀 파일 읽어서 자동 매핑 및 업로드
     function processRosterExcel() {
-        const subject = document.getElementById('rosterSubjectSelect').value;
         const fileInput = document.getElementById('rosterExcelFile');
-        if (!subject) return alert("먼저 위에서 과목을 선택해주세요.");
         if (fileInput.files.length === 0) return alert("엑셀 파일을 선택해주세요.");
 
         const reader = new FileReader();
@@ -985,24 +984,64 @@
                 const data = new Uint8Array(e.target.result);
                 const workbook = XLSX.read(data, {type: 'array'});
                 const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header: 1});
-                
+
+                let headerRowIdx = -1;
+                let colMap = { grade: -1, class: -1, number: -1, name: -1, subject: -1 };
+
+                // ✨ 헤더 자동 탐지 (나이스 양식이 윗줄에 쓸데없는 글이 있어도 알아서 찾음)
+                for(let i=0; i<Math.min(10, rows.length); i++) {
+                    if(!rows[i]) continue;
+                    let foundName = false;
+                    for(let j=0; j<rows[i].length; j++) {
+                        const val = String(rows[i][j] || "").replace(/\s/g, '');
+                        if(val.includes('학년')) colMap.grade = j;
+                        else if(val === '반') colMap.class = j;
+                        else if(val === '번호') colMap.number = j;
+                        else if(val === '성명' || val === '이름') { colMap.name = j; foundName = true; }
+                        else if(val.includes('과목')) colMap.subject = j;
+                    }
+                    if(foundName) { headerRowIdx = i; break; }
+                }
+
+                if(headerRowIdx === -1) return alert("엑셀에서 '성명(이름)' 열을 찾을 수 없습니다. 양식을 확인해주세요.");
+
                 const students = [];
-                for(let i=1; i<rows.length; i++) { // 첫 줄(제목) 제외
-                    if(rows[i] && rows[i].length >= 4 && rows[i][3]) {
-                        students.push({ grade: rows[i][0], class: rows[i][1], number: rows[i][2], name: String(rows[i][3]).trim() });
+                for(let i = headerRowIdx + 1; i < rows.length; i++) {
+                    const row = rows[i];
+                    if(!row || !row[colMap.name]) continue;
+
+                    let g = colMap.grade !== -1 ? String(row[colMap.grade]).replace(/[^0-9]/g, '') : "";
+                    let c = colMap.class !== -1 ? String(row[colMap.class]).replace(/[^0-9]/g, '') : "";
+                    let n = colMap.number !== -1 ? String(row[colMap.number]).replace(/[^0-9]/g, '') : "";
+                    let nm = String(row[colMap.name]).trim();
+                    let s = colMap.subject !== -1 ? String(row[colMap.subject]).trim() : "";
+
+                    if(c && n && nm) {
+                        students.push({ grade: g, class: c, number: n, name: nm, subject: s });
                     }
                 }
-                if(students.length === 0) return alert("데이터를 찾을 수 없거나 형식이 틀립니다.");
+
+                if(students.length === 0) return alert("추출할 학생 데이터가 없습니다.");
 
                 const btn = document.querySelector('button[onclick="processRosterExcel()"]');
-                btn.innerText = "업로드 중..."; btn.disabled = true;
+                btn.innerText = "서버 전송 및 자동 분류 중... ⏳"; btn.disabled = true;
 
-                await fetch(API_URL, { method: "POST", body: JSON.stringify({ type: "SAVE_STUDENTS", payload: { subject: subject, students: students } }) });
-                alert("명단이 업로드되었습니다!");
-                loadRosterTable();
-                btn.innerText = "엑셀 업로드 실행"; btn.disabled = false;
+                const res = await fetch(API_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ type: "BULK_UPLOAD_STUDENTS", payload: { students: students } })
+                });
+                const r = await res.json();
+
+                if(r.success) {
+                    alert(`🎉 완벽합니다! 총 ${r.count}건의 명단이 과목별로 자동 분류되고 정렬 저장되었습니다!`);
+                    if(document.getElementById('rosterSubjectSelect').value) loadRosterTable();
+                } else {
+                    alert("저장 실패: " + r.msg);
+                }
+                
+                btn.innerText = "전체 명단 자동 분류 및 업로드"; btn.disabled = false;
                 fileInput.value = '';
-            } catch (err) { alert("엑셀 판독 오류!"); }
+            } catch (err) { alert("엑셀 판독 오류: " + err.message); }
         };
         reader.readAsArrayBuffer(fileInput.files[0]);
     }
