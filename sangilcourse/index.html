@@ -953,8 +953,13 @@
         reader.readAsArrayBuffer(fileInput.files[0]);
     }
 
+    // ✨ "이름(번호).jpg" 형식 파서 및 글로벌 업로드
     async function uploadGlobalPhotos() {
+        const grade = document.getElementById('photoGrade').value;
+        const cls = document.getElementById('photoClass').value;
         const files = document.getElementById('photoFiles').files;
+        
+        if(!grade || !cls) return alert("먼저 위에서 학년과 반을 입력해주세요.");
         if(files.length === 0) return alert("사진 파일들을 선택해주세요.");
         
         const progress = document.getElementById('photoProgress');
@@ -968,10 +973,14 @@
             const file = files[i];
             progress.innerText = `업로드 진행 중... (${i+1} / ${files.length})\n[${file.name}]`;
             
-            const match = file.name.match(/^(\d{1})(\d{2})(\d{2})/);
+            // ✂️ 정규식을 사용해 '김유하(23).jpg' 에서 번호 '23'만 똑똑하게 빼냅니다.
+            const match = file.name.match(/(.+)\((\d+)\)/);
             if(!match) { failCount++; continue; }
             
-            const stuKey = match[1] + match[2] + match[3];
+            const num = match[2];
+            
+            // 학년 + 반(2자리) + 번호(2자리) 조합하여 학생 고유키(예: 10123) 생성!
+            const stuKey = String(grade) + String(cls).padStart(2, '0') + String(num).padStart(2, '0');
             
             try {
                 const base64 = await new Promise((resolve) => {
@@ -992,7 +1001,7 @@
         progress.innerText = `✅ 업로드 완료! (성공: ${successCount}건, 이름형식오류/실패: ${failCount}건)`;
         btn.disabled = false;
         document.getElementById('photoFiles').value = '';
-        if(document.getElementById('rosterSubjectSelect').value) loadRosterTable();
+        if(document.getElementById('rosterSubjectSelect') && document.getElementById('rosterSubjectSelect').value) loadRosterTable();
     }
 
     async function loadRosterTable() {
