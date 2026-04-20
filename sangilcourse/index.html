@@ -127,11 +127,11 @@
     </div>
     <div class="sidebar-menu">
       <button onclick="loadMenu('dashboard', this)" class="active menu-base">🏠 홈 (대시보드)</button>
-      <button onclick="loadMenu('manageStudents', this)" class="menu-base" id="menuManageStudents">👥 명단 및 사진 관리</button>
       
       <button id="adminBtn1" class="admin-menu menu-base" onclick="loadMenu('adminConfig', this)">⚙️ 교과 환경 설정</button>
       <button id="adminBtnSearch" class="admin-menu menu-base" onclick="loadMenu('adminSearch', this)">🔍 전체 교과목 현황</button>
-      <button id="adminBtn2" class="admin-menu menu-base" onclick="loadMenu('adminUsers', this)">👥 교직원 계정 관리</button>
+      <button id="adminBtnStudents" class="admin-menu menu-base" onclick="loadMenu('manageStudents', this)">👥 명단 및 사진 관리</button>
+      <button id="adminBtn2" class="admin-menu menu-base" onclick="loadMenu('adminUsers', this)">🔐 교직원 계정 관리</button>
       
       <div id="dynamicSubjectMenu" style="display:none;"></div>
     </div>
@@ -277,11 +277,19 @@
             </div>
 
             <div class="content-card">
-                <h3 style="color:#1e40af; font-size:16px; margin-bottom:15px;">📸 2. 글로벌 사진 일괄 업로드</h3>
+                <h3 style="color:#1e40af; font-size:16px; margin-bottom:15px;">📸 2. 반별 학생 사진 일괄 업로드</h3>
                 <div style="background:#eff6ff; padding:12px; border-radius:8px; margin-bottom:15px; border:1px solid #bfdbfe;">
-                    <p style="font-size:12px; color:#1e40af; font-weight:bold; margin-bottom:4px;">💡 파일명 규칙 (매우 중요!)</p>
-                    <p style="font-size:12px; color:#3b82f6; letter-spacing:-0.5px;">반드시 <b>학년(1)+반(2)+번호(2)이름.jpg</b> 형식이어야 합니다.<br>예: 1학년 5반 7번 홍길동 ➔ <strong style="background:white; padding:2px 4px; border-radius:4px; color:#ef4444;">10507홍길동.jpg</strong></p>
+                    <p style="font-size:12px; color:#1e40af; font-weight:bold; margin-bottom:4px;">💡 파일명 규칙 : 이름(번호).jpg</p>
+                    <p style="font-size:12px; color:#3b82f6; letter-spacing:-0.5px;">학년과 반을 선택 후, <strong style="background:white; padding:2px 4px; border-radius:4px; color:#ef4444;">김유하(23).jpg</strong> 형식의 사진들을 선택하세요.</p>
                 </div>
+                
+                <div style="display:flex; gap:10px; margin-bottom:15px;">
+                    <select id="photoGrade" class="ec-input" style="flex:1;">
+                        <option value="">학년 선택</option><option value="1">1학년</option><option value="2">2학년</option><option value="3">3학년</option>
+                    </select>
+                    <input type="number" id="photoClass" placeholder="반 입력 (예: 1)" class="ec-input" style="flex:1;">
+                </div>
+
                 <input type="file" id="photoFiles" accept="image/*" multiple class="ec-input" style="width:100%; margin-bottom:15px; cursor:pointer;">
                 <button onclick="uploadGlobalPhotos()" style="width:100%; background:#3b82f6; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">선택한 사진 일괄 등록</button>
                 <div id="photoProgress" style="margin-top:15px; font-size:13px; font-weight:bold; color:#ef4444; display:none; text-align:center;"></div>
@@ -597,7 +605,17 @@
       const contentArea = document.getElementById('contentArea');
       
       if (userInfo.role === "관리자") {
-        contentArea.innerHTML = `<div class="content-card"><h2 style="color: #1e293b; font-size:20px;">🏫 교과관리시스템 (관리자)</h2><p style="color:#64748b; margin-top:5px;">원하시는 업무를 선택해 주세요.</p></div><div class="quick-menus"><div class="quick-card" onclick="document.getElementById('adminBtn1').click()"><span class="quick-icon">⚙️</span><div class="quick-title" style="color:#1e40af;">학기/일과 설정</div><div class="quick-desc">환경설정 및 나이스 업로드</div></div><div class="quick-card" onclick="document.getElementById('adminBtnSearch').click()"><span class="quick-icon">🔍</span><div class="quick-title" style="color:#1e40af;">전체 교과목 현황</div><div class="quick-desc">학교 전체 개설과목 검색</div></div><div class="quick-card" onclick="document.getElementById('adminBtn2').click()"><span class="quick-icon">👥</span><div class="quick-title" style="color:#1e40af;">교직원 권한 관리</div><div class="quick-desc">계정 관리</div></div></div>`;
+        contentArea.innerHTML = `
+        <div class="content-card">
+            <h2 style="color: #1e293b; font-size:20px;">🏫 교과관리시스템 (관리자)</h2>
+            <p style="color:#64748b; margin-top:5px;">원하시는 업무를 선택해 주세요.</p>
+        </div>
+        <div class="quick-menus">
+          <div class="quick-card" onclick="document.getElementById('adminBtn1').click()"><span class="quick-icon">⚙️</span><div class="quick-title">교과 환경 설정</div><div class="quick-desc">운영기간 세팅 및 엑셀 업로드</div></div>
+          <div class="quick-card" onclick="document.getElementById('adminBtnSearch').click()"><span class="quick-icon">🔍</span><div class="quick-title">전체 교과목 현황</div><div class="quick-desc">학교 전체 개설과목 검색</div></div>
+          <div class="quick-card" onclick="document.getElementById('adminBtnStudents').click()"><span class="quick-icon">👥</span><div class="quick-title">명단 및 사진 관리</div><div class="quick-desc">학생 엑셀 및 사진 업로드</div></div>
+          <div class="quick-card" onclick="document.getElementById('adminBtn2').click()"><span class="quick-icon">🔐</span><div class="quick-title">교직원 계정 관리</div><div class="quick-desc">권한 부여 및 비번 초기화</div></div>
+        </div>`;
         return; 
       }
       try {
