@@ -1011,17 +1011,32 @@
         document.getElementById('photoFiles').value = '';
     }
 
+    // ✨ 타임라인 및 상태 바 업데이트 (방과후 기간 필터링 적용 버전)
     function highlightCurrentClass() {
-      const userInfo = JSON.parse(sessionStorage.getItem("userInfo")); if (!userInfo || userInfo.role === "관리자") return; 
-      const now = new Date(); const todayStr = ['일','월','화','수','목','금','토'][now.getDay()];
+      const userInfo = JSON.parse(sessionStorage.getItem("userInfo")); 
+      if (!userInfo || userInfo.role === "관리자") return; 
+      
+      const now = new Date(); 
+      const todayStr = ['일','월','화','수','목','금','토'][now.getDay()];
+      const todayD = new Date(); todayD.setHours(0,0,0,0); // 🕒 오늘 날짜 (시간 제거)
       
       const nowMins = now.getHours() * 60 + now.getMinutes();
       let currentPeriod = 0; let nextPeriod = 0;
       let statusStr = "오늘의 수업 타임라인"; let remainStr = ""; let progressPercent = 0; let dotColor = "#94a3b8";
       
+      // 1. 현재 "실제로 운영 중인" 수업만 필터링 (주간 시간표와 로직 통일)
+      const activeSchedule = myScheduleData.filter(s => {
+          if (parseInt(s.period) < 8) return true; // 1~7교시는 상시
+          if (!s.startDate || !s.endDate) return true; // 기간 설정 없으면 표시
+          const sd = new Date(s.startDate); sd.setHours(0,0,0,0);
+          const ed = new Date(s.endDate); ed.setHours(23,59,59,999);
+          return todayD >= sd && todayD <= ed; // 운영 기간 내에 있을 때만 활성화
+      });
+
+      // 2. 최대 교시 결정 (활성화된 수업 기준)
       let maxPeriod = 7; 
-      if (myScheduleData.some(s => parseInt(s.period) === 8)) maxPeriod = 8;
-      if (myScheduleData.some(s => parseInt(s.period) === 9)) maxPeriod = 9;
+      if (activeSchedule.some(s => parseInt(s.period) === 8)) maxPeriod = 8;
+      if (activeSchedule.some(s => parseInt(s.period) === 9)) maxPeriod = 9;
 
       const pTimes = (sysConfig && sysConfig.periodTimes) ? sysConfig.periodTimes : DEFAULT_TIMES;
       
@@ -1035,7 +1050,7 @@
               
               if (nowMins >= startMins && nowMins <= endMins) { 
                   currentPeriod = p; 
-                  let classData = myScheduleData.find(s => s.day === todayStr && s.period == p);
+                  let classData = activeSchedule.find(s => s.day === todayStr && s.period == p);
                   let subj = classData ? classData.subject : "공강";
                   statusStr = `${p}교시 ${subj} 시간`;
                   remainStr = `종료: ${endMins - nowMins}분 전`;
@@ -1044,7 +1059,7 @@
                   found = true; break; 
               } else if (nowMins < startMins) {
                   nextPeriod = p;
-                  let classData = myScheduleData.find(s => s.day === todayStr && s.period == p);
+                  let classData = activeSchedule.find(s => s.day === todayStr && s.period == p);
                   let subj = classData ? classData.subject : "공강";
                   statusStr = `쉬는시간 (다음: ${p}교시 ${subj})`;
                   remainStr = `시작: ${startMins - nowMins}분 전`;
@@ -1059,6 +1074,7 @@
           statusStr = "오늘의 일과가 모두 종료되었습니다. 🎉"; remainStr = ""; progressPercent = 100; dotColor = "#10b981"; 
       }
 
+      // UI 업데이트
       const tlTitle = document.getElementById('tl-status-title');
       if (tlTitle) {
           tlTitle.innerText = statusStr;
@@ -1066,7 +1082,8 @@
           document.getElementById('tl-progress-bar').style.width = `${progressPercent}%`;
           document.getElementById('tl-status-dot').style.backgroundColor = dotColor;
 
-          for (let p = 1; p <= maxPeriod; p++) {
+          // 타임라인 카드들의 활성화/비활성화 표시
+          for (let p = 1; p <= 9; p++) {
               const card = document.getElementById(`tl-card-${p}`);
               if (card) {
                   card.classList.remove('current', 'past');
@@ -1076,28 +1093,25 @@
           }
       }
 
+      // 사이드바 "수업중!" 뱃지 업데이트
       document.querySelectorAll('.live-class-badge').forEach(el => el.remove());
       document.querySelectorAll('.subject-btn').forEach(el => {
-          el.style.backgroundColor = 'transparent';
-          el.style.borderLeftColor = 'transparent';
+          el.style.backgroundColor = 'transparent'; el.style.borderLeftColor = 'transparent';
       });
 
-      if (currentPeriod === 0 || myScheduleData.length === 0) return; 
-
-      const currentClass = myScheduleData.find(s => s.day === todayStr && s.period == currentPeriod);
-      if (currentClass) {
-        const btn = document.querySelector(`.subject-btn[data-subject='${currentClass.fullName}']`);
-        if (btn) {
-            btn.style.backgroundColor = '#1e293b'; 
-            btn.style.borderLeftColor = '#ef4444'; 
-
-            const badgeContainer = btn.querySelector('.live-badge-container');
-            if (badgeContainer) {
-                const badge = document.createElement('span'); 
-                badge.className = 'live-class-badge'; 
-                badge.innerText = '🔥 수업중!';
-                badgeContainer.appendChild(badge);
-            }
+      if (currentPeriod !== 0) {
+        const currentClass = activeSchedule.find(s => s.day === todayStr && s.period == currentPeriod);
+        if (currentClass) {
+          const btn = document.querySelector(`.subject-btn[data-subject='${currentClass.fullName}']`);
+          if (btn) {
+              btn.style.backgroundColor = '#1e293b'; btn.style.borderLeftColor = '#ef4444'; 
+              const badgeContainer = btn.querySelector('.live-badge-container');
+              if (badgeContainer) {
+                  const badge = document.createElement('span'); 
+                  badge.className = 'live-class-badge'; badge.innerText = '🔥 수업중!';
+                  badgeContainer.appendChild(badge);
+              }
+          }
         }
       }
     }
