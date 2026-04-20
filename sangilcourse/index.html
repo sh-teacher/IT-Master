@@ -128,6 +128,7 @@
         7: { start: "15:40", end: "16:30" }, 8: { start: "16:40", end: "17:30" }, 9: { start: "17:40", end: "18:30" }
     };
 
+    // ✨ 무적의 시간 추출 함수 (1899년 귀신 텍스트 박멸)
     function extractTime(str) {
         if (!str) return "";
         const match = String(str).match(/(\d{1,2}:\d{2})/);
@@ -399,6 +400,14 @@
       if (activeSchedule.some(s => parseInt(s.period) === 8)) maxPeriod = 8;
       if (activeSchedule.some(s => parseInt(s.period) === 9)) maxPeriod = 9;
 
+      const pTimes = (sysConfig && sysConfig.periodTimes) ? sysConfig.periodTimes : DEFAULT_TIMES;
+      const timeTexts = []; 
+      for(let i=1; i<=maxPeriod; i++) {
+          let sT = extractTime(pTimes[i] ? pTimes[i].start : "");
+          let eT = extractTime(pTimes[i] ? pTimes[i].end : "");
+          timeTexts.push((sT && eT) ? `${sT}~${eT}` : "");
+      }
+
       let operationText = ""; let isOperating = true;
       if (sysConfig && sysConfig.startDate && sysConfig.endDate) {
           operationText = `<span style="font-size:13px; color:#e91e63; font-weight:bold; margin-left:10px;">[운영기간: ${formatDateString(sysConfig.startDate)} ~ ${formatDateString(sysConfig.endDate)}]</span>`;
@@ -414,19 +423,19 @@
         for (let period = 1; period <= maxPeriod; period++) {
           const classData = activeSchedule.find(s => s.day === todayStr && s.period == period);
           
-          // ✨ 타임라인 지저분한 시간 제거 & 텍스트 세로 배치 강제
+          // ✨ 타임라인의 시간도 깔끔하게 포맷팅하여 보여주고, 과목명/대상반은 세로로 강제 정렬
           if (classData) {
             let targetClassHtml = classData.targetClass ? `<div style="font-size:12px; font-weight:bold; color:#666; margin-top:2px;">(${classData.targetClass})</div>` : "";
             timelineHTML += `
               <div class="timeline-item" data-timeline-period="${period}">
-                <div class="timeline-time">${period}교시</div>
+                <div class="timeline-time">${period}교시 ${timeTexts[period-1] ? `(${timeTexts[period-1]})` : ""}</div>
                 <div class="timeline-title" style="display:flex; flex-direction:column;">
                   <span style="line-height:1.2;">${classData.subject}</span>
                   ${targetClassHtml}
                 </div>
               </div>`;
           } else {
-            timelineHTML += `<div class="timeline-item empty" data-timeline-period="${period}"><div class="timeline-time">${period}교시</div><div class="timeline-title empty">공강</div></div>`;
+            timelineHTML += `<div class="timeline-item empty" data-timeline-period="${period}"><div class="timeline-time">${period}교시 ${timeTexts[period-1] ? `(${timeTexts[period-1]})` : ""}</div><div class="timeline-title empty">공강</div></div>`;
           }
         }
         timelineHTML += `</div>`;
@@ -437,7 +446,7 @@
         tableHTML += `<tr><td><strong>${period}</strong></td>`;
         ["월", "화", "수", "목", "금"].forEach(day => {
           const classData = activeSchedule.find(s => s.day === day && s.period == period);
-          // ✨ 주간시간표 칸 내용 세로 배치 강제
+          // ✨ 표 안의 내용도 세로 배치 (flex-column) 강제 적용
           if (classData) {
             let targetClassHtml = classData.targetClass ? `<span style="font-size:11px; font-weight:normal; color:#555; margin-top:3px; letter-spacing:-0.5px;">(${classData.targetClass})</span>` : "";
             tableHTML += `
@@ -533,6 +542,7 @@
         } catch (e) { alert("오류 발생"); } finally { btnSave.innerText = "저장하기"; btnSave.disabled = false; }
     }
 
+    // ✨ 타임라인 강조 방식 완전 업그레이드 (분 단위로 안전하게 변환하여 계산)
     function highlightCurrentClass() {
       const userInfo = JSON.parse(sessionStorage.getItem("userInfo")); if (!userInfo || userInfo.role === "관리자") return; 
       const now = new Date(); const todayStr = ['일','월','화','수','목','금','토'][now.getDay()];
