@@ -74,13 +74,33 @@
     /* 🔥 수업중 불꽃 배지 디자인 최적화 */
     .live-class-badge { font-size: 11px; font-weight: 900; color: #fca5a5; background-color: #991b1b; padding: 2px 8px; border-radius: 10px; animation: pulse-live 1.5s infinite; border: 1px solid #ef4444; }
 
-    /* ✨ 주간 시간표 / 관리자 검색 테이블 공통 */
+    /* ✨ 주간 시간표 / 관리자 검색 테이블 공통 (너비/높이 절대 고정) */
     .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; } 
-    .schedule-table { width: 100%; min-width: 600px; border-collapse: separate; border-spacing: 0; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; font-size: 13px; text-align: center; background: white; }
-    .schedule-table th, .schedule-table td { padding: 12px 6px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; vertical-align: middle; }
-    .schedule-table th { background-color: #f8fafc; font-weight: 800; color: #475569; }
+    .schedule-table { 
+        width: 100%; 
+        min-width: 600px; 
+        table-layout: fixed; /* 🔥 가로 너비를 월~금 균등하게 강제 고정 */
+        border-collapse: separate; 
+        border-spacing: 0; 
+        border: 1px solid #e2e8f0; 
+        border-radius: 12px; 
+        overflow: hidden; 
+        font-size: 13px; 
+        text-align: center; 
+        background: white; 
+    }
+    .schedule-table th, .schedule-table td { 
+        padding: 12px 6px; 
+        border-bottom: 1px solid #e2e8f0; 
+        border-right: 1px solid #e2e8f0; 
+        vertical-align: middle; 
+        height: 75px; /* 🔥 교시별 세로 높이를 75px로 모두 강제 고정 */
+    }
+    .schedule-table th { background-color: #f8fafc; font-weight: 800; color: #475569; height: auto; padding: 10px; }
     .schedule-table tr:last-child td { border-bottom: none; }
     .schedule-table th:last-child, .schedule-table td:last-child { border-right: none; }
+    .schedule-table th:first-child { width: 12%; } 
+    .schedule-table th:not(:first-child) { width: 17.6%; }
     
     .class-pill { background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px 4px; color: #1e40af; font-weight: bold; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 54px; transition: all 0.2s; cursor: pointer; line-height: 1.2; word-break: break-all; }
     .class-pill:hover { background-color: #dbeafe; border-color: #93c5fd; transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(59,130,246,0.1); }
@@ -121,8 +141,12 @@
         
         .schedule-table th:first-child { width: 14%; } 
         .schedule-table th:not(:first-child) { width: 17.2%; } 
-        .schedule-table th, .schedule-table td { padding: 4px 2px !important; border: 1px solid #e2e8f0; }
-        .schedule-table th { font-size: 11px !important; padding: 6px 0 !important; }
+        .schedule-table th, .schedule-table td { 
+            padding: 4px 2px !important; 
+            border: 1px solid #e2e8f0; 
+            height: 60px; /* 🔥 모바일에서도 높이를 일정하게 고정 */
+        }
+        .schedule-table th { font-size: 11px !important; padding: 6px 0 !important; height: auto; }
         
         .class-pill { padding: 4px 1px; min-height: 42px; border-radius: 4px; font-size: 11px !important; }
         .class-target { font-size: 9px !important; margin-top: 1px; }
@@ -136,6 +160,7 @@
         .ec-delete-btn { width: 35px; flex: none; }
         .ec-inputs-bottom { display:flex; flex-wrap: wrap; gap: 6px; align-items: flex-start; }
         .ec-term { width: 100%; flex: none; }
+
     }
   </style>
 </head>
