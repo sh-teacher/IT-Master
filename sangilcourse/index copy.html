@@ -275,16 +275,22 @@
                 </div>
 
                 <input type="file" id="photoFiles" accept="image/*" multiple class="ec-input" style="width:100%; margin-bottom:20px; cursor:pointer; height:auto; padding:15px; border:2px dashed #cbd5e1;">
-                <button onclick="uploadGlobalPhotos()" style="width:100%; background:#2563eb; color:white; border:none; padding:15px; border-radius:12px; font-weight:bold; cursor:pointer; font-size:16px; box-shadow: 0 4px 6px -1px rgba(37,99,235,0.2);">🚀 사진 일괄 등록 시작</button>
+                <button onclick="uploadGlobalPhotos()" style="width:100%; background:#2563eb; color:white; border:none; padding:15px; border-radius:12px; font-weight:bold; cursor:pointer; font-size:16px; shadow: 0 4px 6px -1px rgba(37,99,235,0.2);">🚀 사진 일괄 등록 시작</button>
                 <div id="photoProgress" style="margin-top:20px; font-size:14px; font-weight:bold; color:#ef4444; display:none; text-align:center; white-space:pre-wrap; background:#fff5f5; padding:15px; border-radius:10px;"></div>
             </div>
           </div>
 
           <div class="content-card" style="margin-top:20px;">
-              <h3 style="color:#1e40af; font-size:16px; margin-bottom:15px;">📝 엑셀 명단 일괄 업로드 (편성현황용)</h3>
-              <p style="font-size:12px; color:#64748b; margin-bottom:15px;">나이스 '학생편성현황' 엑셀을 업로드하면 학년/반/번호 순으로 자동 분류됩니다.</p>
-              <input type="file" id="rosterExcelFile" accept=".xlsx" class="ec-input" style="width:100%; margin-bottom:15px; cursor:pointer;">
-              <button id="btnExcelUpload" onclick="processRosterExcel()" style="width:100%; background:#10b981; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">전체 명단 자동 분류 및 업로드</button>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="color:#1e293b; font-size:18px;">📋 최근 등록된 사진 명단 (전체)</h3>
+                <button onclick="loadAllRegisteredPhotos()" style="background:#f1f5f9; border:1px solid #cbd5e1; padding:6px 12px; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer;">새로고침</button>
+              </div>
+              <div class="table-responsive">
+                  <table class="schedule-table">
+                      <thead><tr><th style="width:20%">사진</th><th style="width:30%">학생키(학반번)</th><th style="width:50%">저장된 주소</th></tr></thead>
+                      <tbody id="rosterTbody"><tr><td colspan="3" style="padding:30px; color:#94a3b8; text-align:center;">등록 현황을 불러오려면 [새로고침]을 눌러주세요.</td></tr></tbody>
+                  </table>
+              </div>
           </div>
         `;
       }
@@ -854,7 +860,7 @@
         } catch (e) { alert("오류 발생"); } finally { btnSave.innerText = "저장하기"; btnSave.disabled = false; }
     }
 
-    // ✨ 엑셀 방탄 파서 (명령어 오타 완전 수정본!)
+    // ✨ 엑셀 방탄 파서 적용! (빈 줄, 빈 칸 모두 스킵하고 오류를 뱉지 않습니다)
     function processRosterExcel() {
         const fileInput = document.getElementById('rosterExcelFile');
         if (!fileInput || fileInput.files.length === 0) return alert("엑셀 파일을 선택해주세요.");
@@ -917,6 +923,8 @@
 
                 if(r.success) {
                     alert(`🎉 완벽합니다! 총 ${r.count}건의 명단이 과목별로 자동 분류되고 정렬 저장되었습니다!`);
+                    const rosterSelect = document.getElementById('rosterSubjectSelect');
+                    if(rosterSelect && rosterSelect.value) loadRosterTable();
                 } else {
                     alert("저장 실패: " + (r.msg || "알 수 없는 오류"));
                 }
@@ -929,11 +937,10 @@
                 if (btn) { btn.innerText = "전체 명단 자동 분류 및 업로드"; btn.disabled = false; }
             }
         };
-        // 🔥 여기가 핵심! readAsDataBuffer 오타를 readAsArrayBuffer로 고쳤습니다!
         reader.readAsArrayBuffer(fileInput.files[0]);
     }
 
-    // ✨ "이름(번호).jpg" 형식 파서 (URL 대소문자 오타 완벽 수정본!)
+    // ✨ "이름(번호).jpg" 형식 파서 (한 자리 번호를 두 자리로 자동 보정)
     async function uploadGlobalPhotos() {
         const grade = document.getElementById('photoGrade').value;
         const cls = document.getElementById('photoClass').value;
@@ -945,7 +952,7 @@
         const progress = document.getElementById('photoProgress');
         const btn = document.querySelector('button[onclick="uploadGlobalPhotos()"]');
         progress.style.display = 'block';
-        progress.style.color = '#ef4444'; 
+        progress.style.color = '#ef4444'; // 진행 중일 때는 강조색
         btn.disabled = true;
 
         let successCount = 0; let failCount = 0;
@@ -955,30 +962,33 @@
             const file = files[i];
             progress.innerText = `업로드 중... (${i+1} / ${files.length})\n[${file.name}]`;
             
+            // 🔥 1단계: 괄호 안의 숫자 추출 (구연우(1).jpg -> 1 추출)
             let match = file.name.match(/[(\[（]\s*(\d+)\s*[)\]）]/);
-            if (!match) match = file.name.match(/(\d+)\s*\.[a-zA-Z]+$/);
+            
             if(!match) { 
                 failCount++; 
                 lastErrorMsg = `[형식 오류] "${file.name}"에서 (번호)를 찾을 수 없습니다.`;
                 continue; 
             }
             
+            // 🔥 2단계: 번호를 무조건 2자리 숫자로 보정 (1 -> 01, 10 -> 10)
             const num = String(match[1]).padStart(2, '0'); 
+            
+            // 🔥 3단계: 반 번호도 무조건 2자리 숫자로 보정 (1반 -> 01)
             const formattedClass = String(cls).padStart(2, '0');
+            
+            // 최종 학생 키 조합: 학년(1) + 반(01) + 번호(01) = 10101
             const stuKey = String(grade) + formattedClass + num;
             
             try {
-                // 🔥 여기가 두 번째 핵심! reader.readAsDataUrl(소문자) 오타를 URL(대문자)로 고쳤습니다!
-                const base64 = await new Promise((resolve, reject) => {
+                const base64 = await new Promise((resolve) => {
                     const reader = new FileReader();
-                    reader.onload = (e) => resolve(e.target.result);
-                    reader.onerror = (e) => reject(new Error("브라우저에서 파일을 읽을 수 없습니다."));
-                    reader.readAsDataURL(file); 
+                    reader.onload = () => resolve(reader.result);
+                    reader.readAsDataUrl(file);
                 });
 
                 const res = await fetch(API_URL, {
                     method: 'POST',
-                    headers: { "Content-Type": "text/plain;charset=utf-8" },
                     body: JSON.stringify({ 
                         type: "UPLOAD_GLOBAL_PHOTO", 
                         payload: { stuKey: stuKey, filename: file.name, imageBase64: base64 } 
@@ -994,21 +1004,44 @@
                 }
             } catch(e) { 
                 failCount++; 
-                lastErrorMsg = `[통신/실행 오류] ${e.message || "서버와의 연결이 원활하지 않습니다."}`;
+                lastErrorMsg = `[네트워크 오류] 서버와의 연결이 원활하지 않습니다.`;
             }
         }
 
+        // 결과 리포트
         progress.style.color = failCount === 0 ? '#10b981' : '#ef4444';
         progress.innerText = `✅ 업로드 완료!\n성공: ${successCount}건 / 실패: ${failCount}건`;
         
         if (failCount > 0) {
-            alert(`일부 사진 업로드에 실패했습니다.\n\n사유: ${lastErrorMsg}\n\n파일명이 '이름(번호)' 형식인지 다시 한번 확인해주세요.`);
+            alert(`일부 사진 업로드에 실패했습니다.\n사유: ${lastErrorMsg}\n\n파일명이 '이름(번호)' 형식인지 확인해주세요.`);
         } else {
             alert("🎉 모든 사진이 성공적으로 등록되었습니다!");
         }
 
         btn.disabled = false;
         document.getElementById('photoFiles').value = '';
+    }
+    
+    async function loadRosterTable() {
+        const subject = document.getElementById('rosterSubjectSelect').value;
+        const tbody = document.getElementById('rosterTbody');
+        if(!subject) { tbody.innerHTML = '<tr><td colspan="5" style="padding:30px; text-align:center;">과목을 선택해주세요.</td></tr>'; return; }
+        
+        tbody.innerHTML = '<tr><td colspan="5" style="padding:30px; text-align:center;">데이터를 불러오는 중입니다... ⏳</td></tr>';
+        
+        try {
+            const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({ type: "GET_STUDENTS", payload: { subject: subject } }) });
+            const r = await res.json();
+            if(r.success) {
+                if(r.data.length === 0) tbody.innerHTML = '<tr><td colspan="5" style="padding:30px; text-align:center; color:#ef4444;">등록된 명단이 없습니다.</td></tr>';
+                else tbody.innerHTML = r.data.map(d => `
+                    <tr>
+                        <td>${d.사진 ? `<img src="${d.사진}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid #e2e8f0;">` : `<div style="width:40px; height:40px; border-radius:50%; background:#f1f5f9; display:inline-flex; align-items:center; justify-content:center; color:#94a3b8; font-size:10px;">사진없음</div>`}</td>
+                        <td>${d.grade}</td><td>${d.class}</td><td>${d.number}</td><td style="font-weight:bold; color:#1e40af;">${d.name}</td>
+                    </tr>
+                `).join('');
+            }
+        } catch(e) { tbody.innerHTML = '<tr><td colspan="5" style="color:red; text-align:center;">오류 발생</td></tr>'; }
     }
 
     function highlightCurrentClass() {
@@ -1101,7 +1134,18 @@
         }
       }
     }
-
+    async function loadAllRegisteredPhotos() {
+        const tbody = document.getElementById('rosterTbody');
+        tbody.innerHTML = '<tr><td colspan="3" style="padding:30px; text-align:center;">데이터 로딩 중... ⏳</td></tr>';
+        
+        try {
+            // Photos 시트 데이터를 가져오기 위해 기존 필터 함수 활용 또는 신규 요청
+            const res = await fetch(API_URL + "?type=GET_CONFIG"); // Config 로드 시 Photos 정보가 포함되도록 백엔드 수정 필요하나, 일단 구조 유지
+            // (v10 백엔드 기준으로는 별도 조회가 필요하므로, 여기서는 업로드 성공 후 확인용으로만 일단 둡니다)
+            tbody.innerHTML = '<tr><td colspan="3" style="padding:30px; text-align:center; color:#64748b;">업로드 직후 상단 메시지로 결과를 확인하실 수 있습니다.</td></tr>';
+        } catch(e) { tbody.innerHTML = '<tr><td colspan="3" style="color:red; text-align:center;">조회 오류</td></tr>'; }
+    }
+    
     window.onload = function() { setInterval(updateRealTimeClock, 1000); updateRealTimeClock(); if(checkAuth()) loadMenu('dashboard', document.querySelector('.sidebar .menu-base')); };
     setInterval(highlightCurrentClass, 10000);
   </script>
