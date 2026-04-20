@@ -254,24 +254,36 @@
         document.getElementById('pageTitle').innerText = "명단 및 사진 관리";
         iframeArea.style.display = 'none'; contentArea.style.display = 'block';
 
+        // ✨ 핵심: 데이터가 로딩 중일 때를 대비해 실시간으로 과목 추출
+        // myScheduleData가 비어있을 수도 있으므로, 안전하게 빈 배열 처리
+        const uniqueSubjects = (myScheduleData && myScheduleData.length > 0) 
+            ? [...new Set(myScheduleData.map(s => s.fullName))].sort() 
+            : [];
+
         let subjectOptions = '<option value="">과목을 선택하세요</option>';
-        const uniqueSubjects = [...new Set(myScheduleData.map(s => s.fullName))];
-        uniqueSubjects.forEach(s => subjectOptions += `<option value="${s}">${s}</option>`);
+        if(uniqueSubjects.length > 0) {
+            uniqueSubjects.forEach(s => subjectOptions += `<option value="${s}">${s}</option>`);
+        } else {
+            // 만약 과목이 안 뜨면 안내 문구 표시
+            subjectOptions = '<option value="">등록된 과목 정보를 불러올 수 없습니다.</option>';
+        }
 
         contentArea.innerHTML = `
           <div class="content-card" style="margin-bottom:20px;">
             <h2 style="color: #1e293b; font-size:18px; margin-bottom:15px;">👥 수강생 명단 및 사진 등록</h2>
+            <p style="font-size:12px; color:#64748b; margin-bottom:10px;">※ 대시보드(홈)에서 시간표가 정상적으로 표시되는지 먼저 확인해 주세요.</p>
             <div style="display:flex; gap:10px; align-items:center;">
-                <select id="rosterSubjectSelect" class="ec-input" style="flex:1; max-width:300px;" onchange="loadRosterTable()">
+                <select id="rosterSubjectSelect" class="ec-input" style="flex:1; max-width:350px;" onchange="loadRosterTable()">
                     ${subjectOptions}
                 </select>
+                <button onclick="loadMenu('manageStudents', document.getElementById('adminBtnStudents'))" style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; padding:8px 12px; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer;">🔄 과목 새로고침</button>
             </div>
           </div>
 
           <div class="dashboard-grid">
             <div class="content-card">
                 <h3 style="color:#1e40af; font-size:16px; margin-bottom:15px;">📝 1. 학생편성현황 엑셀 일괄 업로드</h3>
-                <p style="font-size:12px; color:#64748b; margin-bottom:15px; line-height:1.5;">나이스에서 다운받은 엑셀 파일을 그대로 올리세요.<br>시스템이 <strong style="color:#ef4444;">학년, 반, 번호, 성명, 과목</strong> 열을 자동 탐지하여 각 교과목별로 명단을 찢어 넣고 정렬까지 완료합니다!</p>
+                <p style="font-size:12px; color:#64748b; margin-bottom:15px; line-height:1.5;">나이스 엑셀을 그대로 올리세요.<br>시스템이 <strong style="color:#ef4444;">학년, 반, 번호, 성명, 과목</strong> 열을 자동 탐지합니다.</p>
                 <input type="file" id="rosterExcelFile" accept=".xlsx" class="ec-input" style="width:100%; margin-bottom:15px; cursor:pointer;">
                 <button onclick="processRosterExcel()" style="width:100%; background:#10b981; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">전체 명단 자동 분류 및 업로드</button>
             </div>
@@ -280,14 +292,14 @@
                 <h3 style="color:#1e40af; font-size:16px; margin-bottom:15px;">📸 2. 반별 학생 사진 일괄 업로드</h3>
                 <div style="background:#eff6ff; padding:12px; border-radius:8px; margin-bottom:15px; border:1px solid #bfdbfe;">
                     <p style="font-size:12px; color:#1e40af; font-weight:bold; margin-bottom:4px;">💡 파일명 규칙 : 이름(번호).jpg</p>
-                    <p style="font-size:12px; color:#3b82f6; letter-spacing:-0.5px;">학년과 반을 선택 후, <strong style="background:white; padding:2px 4px; border-radius:4px; color:#ef4444;">김유하(23).jpg</strong> 형식의 사진들을 선택하세요.</p>
+                    <p style="font-size:12px; color:#3b82f6; letter-spacing:-0.5px;">학년과 반 세팅 후, <strong style="background:white; padding:2px 4px; border-radius:4px; color:#ef4444;">김유하(23).jpg</strong> 사진을 올리세요.</p>
                 </div>
                 
                 <div style="display:flex; gap:10px; margin-bottom:15px;">
                     <select id="photoGrade" class="ec-input" style="flex:1;">
-                        <option value="">학년 선택</option><option value="1">1학년</option><option value="2">2학년</option><option value="3">3학년</option>
+                        <option value="">학년</option><option value="1">1학년</option><option value="2">2학년</option><option value="3">3학년</option>
                     </select>
-                    <input type="number" id="photoClass" placeholder="반 입력 (예: 1)" class="ec-input" style="flex:1;">
+                    <input type="number" id="photoClass" placeholder="반 (숫자)" class="ec-input" style="flex:1;">
                 </div>
 
                 <input type="file" id="photoFiles" accept="image/*" multiple class="ec-input" style="width:100%; margin-bottom:15px; cursor:pointer;">
