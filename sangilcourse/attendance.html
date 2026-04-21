@@ -165,9 +165,17 @@
     </div>
 
     <div id="panelSeat" class="tab-panel pb-10">
-        <div class="flex gap-2 mb-4 flex-wrap w-full md:justify-end">
-            <button onclick="saveSeatingToServer()" id="saveSeatBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 shadow-md text-xs md:text-sm">💾 좌석 저장</button>
-            <button onclick="toggleTeacherViewSeat()" id="teacherBtn" class="bg-violet-100 text-violet-700 px-4 py-2 rounded-lg font-bold hover:bg-violet-200 text-xs md:text-sm">🧑‍🏫 교사 위치로</button>
+        <div class="flex flex-col md:flex-row justify-between items-center gap-3 mb-4 w-full bg-slate-50 p-3 rounded-lg border border-slate-200">
+            <div class="flex items-center gap-2">
+                <span class="text-sm font-bold text-slate-700">🪑 책상 배열:</span>
+                <input type="text" id="seatConfigInput" value="6,6,7,7" class="border border-slate-300 rounded px-2 py-1 text-sm w-32 font-bold text-center" placeholder="예: 6,6,7,7">
+                <button onclick="applySeatConfigUI()" class="bg-slate-600 text-white px-3 py-1 rounded text-xs font-bold hover:bg-slate-700">적용</button>
+                <span class="text-[10px] text-slate-400 hidden md:inline">(쉼표로 각 줄의 책상 수 입력)</span>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="saveSeatingToServer()" id="saveSeatBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 shadow-md text-xs md:text-sm">💾 좌석 저장</button>
+                <button onclick="toggleTeacherViewSeat()" id="teacherBtn" class="bg-violet-100 text-violet-700 px-4 py-2 rounded-lg font-bold hover:bg-violet-200 text-xs md:text-sm">🧑‍🏫 교사 위치로</button>
+            </div>
         </div>
 
         <div class="flex flex-col md:flex-row gap-4 md:gap-8">
@@ -211,35 +219,69 @@
 // ==========================================
 const API_URL = "https://script.google.com/macros/s/AKfycbzfIY0Fs4S1EjSSNI2kZfrFgtSqipG_u_KDCkdT8Vy1LjrIwB7k_1awE_psCNw0VQGg/exec";
 
-// 상일여고 기준 표준 배열 (원하시는 교실 규격이 있다면 수정하세요)
-const ROW_CONFIG = [
-    { desks: 6, empty: 1 },
-    { desks: 6, empty: 1 },
-    { desks: 7, empty: 0 },
-    { desks: 7, empty: 0 },
-];
-const TOTAL_SEATS = ROW_CONFIG.reduce((a, r) => a + r.desks, 0); 
+// ==========================================
+// 🌟 동적 책상 배열 및 전역 변수
+// ==========================================
+let ROW_CONFIG = [6, 6, 7, 7]; 
+let TOTAL_SEATS = 26;
 
-// ✨ 관리자가 설정하지 않았을 때 사용할 기본 시간표 (1~9교시)
-const DEFAULT_TIMES = {
-    1: { start: "08:45", end: "09:35" },
-    2: { start: "09:45", end: "10:35" },
-    3: { start: "10:45", end: "11:35" },
-    4: { start: "11:45", end: "12:35" },
-    5: { start: "13:35", end: "14:25" },
-    6: { start: "14:35", end: "15:25" },
-    7: { start: "15:40", end: "16:30" },
-    8: { start: "16:40", end: "17:30" },
-    9: { start: "17:40", end: "18:30" }
-};
-let progressInterval = null; 
+function updateGridConfig(configArr) {
+    ROW_CONFIG = configArr;
+    TOTAL_SEATS = ROW_CONFIG.reduce((a, r) => a + r, 0);
+}
 
-let attendanceData = {}, fullSchedule = [], isTeacherView = true, isSeatTeacherView = false;
-let currentTab = 'attend';
-let currentSubject = ""; 
-let isPhotoView = false; 
-let currentLoadId = 0;
-let sysConfig = null; // ✨ 백엔드에서 받은 환경설정(기간, 다이나믹 시간) 보관
+// ✨ 관리자가 UI에서 배열을 변경했을 때 실행되는 함수
+function applySeatConfigUI() {
+    const val = document.getElementById('seatConfigInput').value;
+    const parsed = val.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n) && n > 0);
+    if(parsed.length === 0) return alert("올바른 형식이 아닙니다. 예: 6,6,7,7");
+    
+    if(confirm("책상 배치를 변경하면 현재 배치된 학생들이 대기열로 돌아갑니다. 계속하시겠습니까?")) {
+        updateGridConfig(parsed);
+        createAttendDesks();
+        createSeatDesks();
+        loadSeatStudents(currentSubject); // 대기열로 리셋
+    }
+}
+
+function createAttendDesks() {
+    const grid = document.getElementById('classroomGrid');
+    grid.innerHTML = '';
+    let seatIdx = 0;
+    ROW_CONFIG.forEach(desksCount => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'row-grid';
+        rowDiv.style.gridTemplateColumns = `repeat(${desksCount}, minmax(0, 1fr))`;
+        for (let c = 0; c < desksCount; c++) {
+            const desk = document.createElement('div');
+            desk.className = 'desk-attend';
+            desk.dataset.seatIndex = seatIdx++;
+            desk.innerHTML = `<span class="seat-num-label"></span>`;
+            rowDiv.appendChild(desk);
+        }
+        grid.appendChild(rowDiv);
+    });
+    applyAttendView();
+}
+
+function createSeatDesks() {
+    const grid = document.getElementById('seatClassroomGrid');
+    grid.innerHTML = '';
+    let seatIdx = 0;
+    ROW_CONFIG.forEach(desksCount => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'row-grid';
+        rowDiv.style.gridTemplateColumns = `repeat(${desksCount}, minmax(0, 1fr))`;
+        for (let c = 0; c < desksCount; c++) {
+            const desk = document.createElement('div');
+            desk.className = 'desk-seat';
+            desk.dataset.seatIndex = seatIdx++;
+            desk.innerHTML = `<input type="text" class="seat-num-input" maxlength="3" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()">`;
+            rowDiv.appendChild(desk);
+        }
+        grid.appendChild(rowDiv);
+    });
+}
 
 function switchTab(tab) {
     currentTab = tab;
@@ -469,11 +511,13 @@ async function loadClassData() {
     const loadId = ++currentLoadId; 
     document.getElementById('classLog').value = '데이터 불러오는 중...';
 
+    // 기존 책상 초기화
     document.querySelectorAll('.desk-attend').forEach(d => {
         d.innerHTML = '<span class="seat-num-label"></span>';
     });
 
     try {
+        // 서버에서 학생 명단, 좌석 배치도, 출석 일지 데이터를 동시에 가져옵니다.
         const [sr, seatingR, recordR] = await Promise.all([
             fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "GET_STUDENTS", payload: { subject } }) }),
             fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "GET_SEATING", payload: { subject } }) }),
@@ -489,19 +533,43 @@ async function loadClassData() {
         const students = studentsData.success ? studentsData.data : [];
         const savedSeating = savedSeatingData.success ? savedSeatingData.data : [];
 
+        // 🌟 1. 서버에 숨겨둔 책상 배열(CONFIG) 정보 꺼내서 화면에 적용하기
+        const configRow = savedSeating.find(s => parseInt(s.seatIndex) === -1);
+        if (configRow && configRow.seatLabel) {
+            try { 
+                const loadedConfig = JSON.parse(configRow.seatLabel); 
+                updateGridConfig(loadedConfig);
+                document.getElementById('seatConfigInput').value = loadedConfig.join(',');
+            } catch(e) {}
+        } else {
+            // 저장된 설정이 없으면 기본 배열값 적용 (상일여고 6,6,7,7)
+            updateGridConfig([6, 6, 7, 7]);
+            document.getElementById('seatConfigInput').value = '6,6,7,7';
+        }
+
+        // 배열 정보가 업데이트 되었으니 출석/좌석 책상 프레임을 새로 그립니다!
+        createAttendDesks();
+        createSeatDesks();
+
         attendanceData = {}; 
         document.getElementById('classLog').value = (recordData.success && recordData.data) ? recordData.data.log : '';
 
         const desks = document.querySelectorAll('.desk-attend');
-        savedSeating.forEach(seat => {
+        
+        // (주의: seatIndex가 -1인 설정 데이터는 제외하고 실제 학생/책상만 필터링)
+        const actualSeating = savedSeating.filter(s => parseInt(s.seatIndex) >= 0);
+
+        // 책상 상단에 라벨(번호 등) 붙이기
+        actualSeating.forEach(seat => {
             if (seat.seatLabel && seat.seatIndex < desks.length) {
                 desks[seat.seatIndex].querySelector('.seat-num-label').innerText = seat.seatLabel;
             }
         });
 
+        // 출석판 책상 위에 학생 카드 올리기
         students.forEach(std => {
             const cleanStdName = String(std.name || "").replace(/\s/g, '');
-            const seat = savedSeating.find(s => parseInt(s.number) === parseInt(std.number) && String(s.name || "").replace(/\s/g, '') === cleanStdName);
+            const seat = actualSeating.find(s => parseInt(s.number) === parseInt(std.number) && String(s.name || "").replace(/\s/g, '') === cleanStdName);
             
             if (seat && seat.seatIndex < desks.length) {
                 const stdKey = getStudentKey(std);
@@ -509,8 +577,16 @@ async function loadClassData() {
                 const card = document.createElement('div');
                 card.className = `student-card-attend rounded-md border font-bold p-1 card-present overflow-hidden`;
                 
+                // 사진 모드를 위한 태그 추가
+                let photoHtml = '';
+                if (std.사진) {
+                    photoHtml = `<div class="student-photo-wrapper has-img"><img src="${std.사진}" class="student-photo" alt="${std.name}"></div>`;
+                } else {
+                    photoHtml = `<div class="student-photo-wrapper no-img bg-slate-100 items-center justify-center text-slate-300 text-xl font-black rounded-md border w-full">${std.number}</div>`;
+                }
+
                 card.innerHTML = `
-                    <div class="student-photo-wrapper no-img bg-slate-100 items-center justify-center text-slate-300 text-xl font-black rounded-md border w-full">${std.number}</div>
+                    ${photoHtml}
                     <div class="flex flex-col items-center justify-center w-full overflow-hidden mt-1">
                         <span class="text-[9px] opacity-60 leading-none whitespace-nowrap">${std.class}-${std.number}</span>
                         <span class="text-[11px] font-black leading-tight truncate block">${std.name}</span>
@@ -521,6 +597,7 @@ async function loadClassData() {
             }
         });
 
+        // 저장된 지각/결석 데이터 불러오기
         if (recordData.success && recordData.data && recordData.data.attendanceIssues) {
             recordData.data.attendanceIssues.forEach(issue => {
                 const key = getStudentKey(issue);
@@ -536,7 +613,19 @@ async function loadClassData() {
             });
         }
         updateAbsenceList();
-    } catch (e) { console.error("로드 오류", e); alert("데이터 로드 중 오류 발생"); }
+
+        // 🌟 2. 배치되지 않은 학생이 있다면 자동으로 '좌석 세팅' 탭으로 이동!
+        const placedStudentsCount = actualSeating.filter(s => s.name && s.name !== '__EMPTY__').length;
+        if (students.length > 0 && (placedStudentsCount === 0 || placedStudentsCount < students.length)) {
+            switchTab('seat'); // 덜 배치됨 -> 좌석 탭
+        } else {
+            switchTab('attend'); // 모두 배치됨 -> 출석 탭 유지
+        }
+
+    } catch (e) { 
+        console.error("로드 오류", e); 
+        alert("데이터 로드 중 오류 발생"); 
+    }
 }
 
 function toggleAttendance(card, stdKey) {
@@ -714,7 +803,16 @@ async function saveSeatingToServer() {
     const subject = currentSubject;
     const btn = document.getElementById('saveSeatBtn');
     btn.innerText = "저장 중..."; btn.disabled = true;
+    
     const data = [];
+    
+    // 🌟 핵심: 현재 책상 배열(ROW_CONFIG)을 seatIndex -1 이라는 비밀 코드로 숨겨서 저장합니다!
+    data.push({
+        seatIndex: -1, 
+        seatLabel: JSON.stringify(ROW_CONFIG), 
+        grade: '', class: '', number: '', name: '__CONFIG__'
+    });
+
     document.querySelectorAll('.desk-seat').forEach(desk => {
         const card = desk.querySelector('.student-card-seat');
         const numInput = desk.querySelector('.seat-num-input');
@@ -727,6 +825,7 @@ async function saveSeatingToServer() {
             });
         }
     });
+    
     try {
         const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "SAVE_SEATING", payload: { subject, seatingData: data } }) });
         const r = await res.json();
