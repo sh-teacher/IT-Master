@@ -748,8 +748,18 @@ async function loadClassData() {
                 }
             });
         }
+        
         updateAbsenceList();
         renderListView();
+
+        // 🌟 여기가 이번에 새로 추가된 '스마트 탭 전환' 마법입니다!
+        const placedStudentsCount = savedSeating.filter(s => s.name && s.name !== '__EMPTY__' && s.name !== '__CONFIG__').length;
+        if (students.length > 0 && placedStudentsCount === 0) {
+            switchTab('seat'); // 완전히 빈 교실일 때만 좌석 세팅으로!
+        } else {
+            switchTab('attend'); // 한 명이라도 있으면 출석부로!
+        }
+
     } catch (e) { console.error("로드 오류", e); alert("데이터 로드 중 오류 발생"); }
 }
 
