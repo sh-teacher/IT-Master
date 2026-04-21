@@ -165,8 +165,8 @@
     </div>
 
     <div id="panelSeat" class="tab-panel pb-10">
+        <!-- ✨ 행/열 설정 UI 추가 -->
         <div class="flex gap-2 mb-4 flex-wrap w-full md:justify-end">
-            <!-- ✨ 행/열 설정 UI 추가 -->
             <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-600">
                 <span>행:</span>
                 <input type="number" id="rowCount" min="1" max="10" value="4" class="w-12 border border-slate-300 rounded px-1 py-0.5 text-center font-bold" onchange="applyGridConfig()">
@@ -218,7 +218,7 @@
 // ==========================================
 const API_URL = "https://script.google.com/macros/s/AKfycbzfIY0Fs4S1EjSSNI2kZfrFgtSqipG_u_KDCkdT8Vy1LjrIwB7k_1awE_psCNw0VQGg/exec";
 
-
+// ✨ ROW_CONFIG를 let으로 변경 (동적 변경 가능)
 let ROW_CONFIG = [
     { desks: 6, empty: 1 },
     { desks: 6, empty: 1 },
@@ -246,7 +246,7 @@ let currentTab = 'attend';
 let currentSubject = ""; 
 let isPhotoView = false; 
 let currentLoadId = 0;
-let sysConfig = null; // ✨ 백엔드에서 받은 환경설정(기간, 다이나믹 시간) 보관
+let sysConfig = null;
 
 function switchTab(tab) {
     currentTab = tab;
@@ -279,13 +279,10 @@ window.onload = async function () {
     if (targetSubject) {
         currentSubject = targetSubject;
         document.getElementById('subjectBadge').innerText = currentSubject;
-        // ✨ 추가: 페이지 로드 시 좌석 학생 로드 → 대기열 여부 자동 판단
-        await loadSeatStudents(currentSubject); 
     }
 
     try {
         const userInfo = JSON.parse(sessionStorage.getItem("userInfo"));
-        // 교사 본인의 스케줄과 서버 설정을 가져옵니다.
         const schRes = await fetch(API_URL, {
             method: 'POST',
             body: JSON.stringify({ type: "GET_DASHBOARD", payload: { teacherId: userInfo.id } })
@@ -293,8 +290,12 @@ window.onload = async function () {
         const schData = await schRes.json();
         if(schData.success) {
             fullSchedule = schData.schedule;
-            sysConfig = schData.config; // ✨ Config 로드
-            if(currentSubject) onSubjectChange();
+            sysConfig = schData.config;
+            if(currentSubject) {
+                onSubjectChange();
+                // ✨ 페이지 로드 시 좌석 학생 로드 → 대기열 여부 자동 판단
+                await loadSeatStudents(currentSubject);
+            }
         }
     } catch { console.log("데이터 로드 실패"); }
 };
@@ -310,7 +311,6 @@ function updateDateTime() {
     document.getElementById('currentDateTime').innerText = `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 (${days[now.getDay()]}) ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
 }
 
-// ✨ 다이나믹하게 관리자 지정 시간으로 바 차오르기 로직
 function updateClassTimer() {
     if (!currentSubject || fullSchedule.length === 0) return;
     const now = new Date();
@@ -340,7 +340,6 @@ function updateClassTimer() {
 
     const banner = document.getElementById('classProgressBanner');
     if (activePeriod) {
-        // 출석부에서는 파라미터로 넘어온 currentSubject (fullName 또는 subject)를 비교합니다.
         const isMyClass = fullSchedule.some(s => (s.fullName === currentSubject || s.subject === currentSubject) && s.day === todayStr && s.period == activePeriod);
         if (isMyClass) {
             banner.classList.remove('hidden');
@@ -383,6 +382,7 @@ function togglePhotoView() {
     }
 }
 
+// ✨ 출석판 책상 생성 (현재 ROW_CONFIG 기준)
 function createAttendDesks() {
     const grid = document.getElementById('classroomGrid');
     grid.innerHTML = '';
@@ -390,6 +390,7 @@ function createAttendDesks() {
     ROW_CONFIG.forEach(rowCfg => {
         const rowDiv = document.createElement('div');
         rowDiv.className = 'row-grid';
+        rowDiv.style.gridTemplateColumns = `repeat(${rowCfg.desks + rowCfg.empty}, minmax(0, 1fr))`;
         for (let c = 0; c < rowCfg.desks; c++) {
             const desk = document.createElement('div');
             desk.className = 'desk-attend';
@@ -423,7 +424,6 @@ function updatePeriodDropdown() {
     dateObj.setHours(0,0,0,0);
     const dayStr = ['일','월','화','수','목','금','토'][dateObj.getDay()];
     
-    // ✨ 핵심: 선택한 날짜가 해당 방과후 수업의 운영기간에 포함되는지 검사합니다!
     const matchedPeriods = fullSchedule.filter(s => {
         if (!((s.fullName === subject || s.subject === subject) && s.day === dayStr)) return false;
         
@@ -492,14 +492,16 @@ async function loadClassData() {
         const studentsData = await sr.json();
         const savedSeatingData = await seatingR.json();
         const recordData = await recordR.json();
-    
+
+        if (loadId !== currentLoadId) return;
+
+        // ✨ 출석판도 저장된 행/열 구성으로 재생성
         if (savedSeatingData.success && savedSeatingData.gridConfig) {
             const { rows, cols } = savedSeatingData.gridConfig;
             ROW_CONFIG = Array.from({ length: rows }, () => ({ desks: cols, empty: 0 }));
             TOTAL_SEATS = rows * cols;
-            createAttendDesks(); // 출석 책상 재생성
+            createAttendDesks();
         }
-        if (loadId !== currentLoadId) return;
 
         const students = studentsData.success ? studentsData.data : [];
         const savedSeating = savedSeatingData.success ? savedSeatingData.data : [];
@@ -607,36 +609,15 @@ async function saveDailyRecord() {
 // ==========================================
 const dnd = { active:false, card:null, ghost:null, offsetX:0, offsetY:0, startX:0, startY:0, currentOver:null };
 
-function createSeatDesks() {
-    const grid = document.getElementById('seatClassroomGrid');
-    grid.innerHTML = '';
-    let seatIdx = 0;
-    ROW_CONFIG.forEach((rowCfg, rowIdx) => {
-        const rowDiv = document.createElement('div');
-        rowDiv.className = 'row-grid';
-        for (let c = 0; c < rowCfg.desks; c++) {
-            const desk = document.createElement('div');
-            desk.className = 'desk-seat';
-            desk.dataset.seatIndex = seatIdx++;
-            desk.innerHTML = `<input type="text" class="seat-num-input" maxlength="3" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()">`;
-            rowDiv.appendChild(desk);
-        }
-        for (let e = 0; e < rowCfg.empty; e++) {
-            const empty = document.createElement('div');
-            empty.className = 'desk-seat-empty';
-            rowDiv.appendChild(empty);
-        }
-        grid.appendChild(rowDiv);
-    });
-}
+// ✨ 행/열 설정 적용 함수 (동적 그리드 재생성)
 function applyGridConfig(savedConfig) {
     const rows = savedConfig ? savedConfig.rows : parseInt(document.getElementById('rowCount').value) || 4;
     const cols = savedConfig ? savedConfig.cols : parseInt(document.getElementById('colCount').value) || 7;
-    
+
     document.getElementById('rowCount').value = rows;
     document.getElementById('colCount').value = cols;
 
-    // ROW_CONFIG 재생성 (마지막 열 수 기준, empty 없이 단순화)
+    // ROW_CONFIG 재생성
     ROW_CONFIG = Array.from({ length: rows }, () => ({ desks: cols, empty: 0 }));
     TOTAL_SEATS = rows * cols;
 
@@ -645,6 +626,25 @@ function applyGridConfig(savedConfig) {
     document.querySelectorAll('.desk-seat .student-card-seat').forEach(c => wl.appendChild(c));
 
     createSeatDesks();
+}
+
+function createSeatDesks() {
+    const grid = document.getElementById('seatClassroomGrid');
+    grid.innerHTML = '';
+    let seatIdx = 0;
+    ROW_CONFIG.forEach((rowCfg) => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'row-grid';
+        rowDiv.style.gridTemplateColumns = `repeat(${rowCfg.desks}, minmax(0, 1fr))`;
+        for (let c = 0; c < rowCfg.desks; c++) {
+            const desk = document.createElement('div');
+            desk.className = 'desk-seat';
+            desk.dataset.seatIndex = seatIdx++;
+            desk.innerHTML = `<input type="text" class="seat-num-input" maxlength="3" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()">`;
+            rowDiv.appendChild(desk);
+        }
+        grid.appendChild(rowDiv);
+    });
 }
 
 async function loadSeatStudents(subject) {
@@ -665,22 +665,35 @@ async function loadSeatStudents(subject) {
         const students = sRes.success ? sRes.data : [];
         const saved = seatRes.success ? seatRes.data : [];
 
-        // ✨ 여기에 추가 ─ gridConfig 복원 (책상 재배치)
+        // ✨ 저장된 gridConfig 복원 (책상 재배치)
         if (seatRes.success && seatRes.gridConfig) {
             applyGridConfig(seatRes.gridConfig);
         } else {
             applyGridConfig(null); // 기본값 적용
         }
         
-        // 이하 기존 코드 그대로
         wl.innerHTML = "";
-        if (!students.length) return wl.innerHTML = "...";
+        if (!students.length) return wl.innerHTML = "<div class='w-full text-center text-red-400 mt-5 font-bold'>학생 명단이 없습니다.</div>";
         
         const desks = document.querySelectorAll('.desk-seat');
-        saved.forEach(seatData => { ... });
-        students.forEach((std) => { ... });
+        saved.forEach(seatData => {
+            if (seatData.seatIndex >= 0 && seatData.seatIndex < TOTAL_SEATS) {
+                const numInput = desks[seatData.seatIndex].querySelector('.seat-num-input');
+                if (numInput && seatData.seatLabel) numInput.value = seatData.seatLabel;
+            }
+        });
+        
+        students.forEach((std) => {
+            const card = makeSeatCard(std);
+            const seat = saved.find(s => s.name === std.name && s.number == std.number);
+            if (seat && seat.seatIndex >= 0 && seat.seatIndex < TOTAL_SEATS) {
+                desks[seat.seatIndex].appendChild(card);
+            } else {
+                wl.appendChild(card);
+            }
+        });
 
-        // 대기열 자동 전환
+        // ✨ 대기열에 학생이 남아있으면 자동으로 좌석 탭으로 전환
         const waitingCards = wl.querySelectorAll('.student-card-seat');
         if (waitingCards.length > 0 && currentTab !== 'seat') {
             switchTab('seat');
@@ -770,13 +783,12 @@ async function saveSeatingToServer() {
     try {
         const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ 
             type: "SAVE_SEATING", 
-            payload: { subject, seatingData: data, gridConfig }  // ✨ gridConfig 추가
+            payload: { subject, seatingData: data, gridConfig }
         })});
         const r = await res.json();
         alert(r.success ? "✅ 저장되었습니다!" : "❌ 저장 실패");
     } catch { alert("네트워크 오류"); } finally { btn.innerText = "💾 좌석 저장"; btn.disabled = false; }
 }
-
 
 function toggleTeacherViewSeat() {
     isSeatTeacherView = !isSeatTeacherView;
