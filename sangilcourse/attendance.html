@@ -545,26 +545,14 @@ async function loadClassData() {
             const seat = savedSeating.find(s => parseInt(s.number) === parseInt(std.number) && String(s.name || "").replace(/\s/g, '') === cleanStdName);
             
             if (seat && seat.seatIndex < desks.length) {
-                // (loadClassData 내부의 card.innerHTML을 생성하는 부분입니다)
-
                 const stdKey = getStudentKey(std);
                 attendanceData[stdKey] = { name: std.name, class: std.class, number: std.number, status: 'present', memo: '' };
                 const card = document.createElement('div');
                 card.className = `student-card-attend rounded-md border font-bold p-1 card-present overflow-hidden`;
                 
-                // ✨ [추가된 로직] 사진 데이터가 있으면 img 태그를, 없으면 번호를 띄웁니다.
-                // 주의: 서버(Apps Script)에서 넘겨주는 사진 속성명(photo, imageUrl 등)에 맞게 std.photo 부분을 수정해 주세요.
-                let photoHtml = `<div class="student-photo-wrapper no-img bg-slate-100 flex items-center justify-center text-slate-300 text-xl font-black rounded-md border w-full h-full">${std.number}</div>`;
-                
-                if (std.photo) { // 사진 주소가 존재한다면
-                    photoHtml = `<div class="student-photo-wrapper has-img w-full h-full">
-                                     <img src="${std.photo}" class="student-photo" alt="${std.name}" onerror="this.style.display='none'">
-                                 </div>`;
-                }
-
-                // ✨ 방금 만든 photoHtml을 카드 위쪽에 삽입합니다.
+                // ✨ 글씨 크기를 키우고 간격을 살짝 조정했습니다.
                 card.innerHTML = `
-                    ${photoHtml}
+                    <div class="student-photo-wrapper no-img bg-slate-100 items-center justify-center text-slate-300 text-xl font-black rounded-md border w-full">${std.number}</div>
                     <div class="flex flex-col items-center justify-center w-full overflow-hidden mt-1 gap-0.5">
                         <span class="text-[11px] md:text-xs opacity-70 leading-none whitespace-nowrap">${std.class}-${std.number}</span>
                         <span class="text-xs md:text-sm font-black leading-tight truncate block">${std.name}</span>
