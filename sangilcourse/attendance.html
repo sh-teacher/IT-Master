@@ -240,10 +240,10 @@ const API_URL = "https://script.google.com/macros/s/AKfycbzfIY0Fs4S1EjSSNI2kZfrF
 
 // ✨ ROW_CONFIG를 let으로 변경 (동적 변경 가능)
 let ROW_CONFIG = [
-    { desks: 6, empty: 1 },
-    { desks: 6, empty: 1 },
-    { desks: 7, empty: 0 },
-    { desks: 7, empty: 0 },
+    { desks: 6, empty: 0 },
+    { desks: 6, empty: 0 },
+    { desks: 6, empty: 0 },
+    { desks: 6, empty: 0 },
 ];
 let TOTAL_SEATS = ROW_CONFIG.reduce((a, r) => a + r.desks, 0);
 
