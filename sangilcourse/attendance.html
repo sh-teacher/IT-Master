@@ -127,6 +127,7 @@
                         <div class="flex gap-2">
                             <button id="viewToggleBtn" onclick="toggleView()" class="bg-violet-600 text-white px-3 py-2 rounded-lg font-bold text-xs shadow-md">🧑‍🎓 학생 시점으로</button>
                             <button id="photoToggleBtn" onclick="togglePhotoView()" class="bg-slate-100 text-slate-600 px-3 py-2 rounded-lg font-bold text-xs shadow-md border border-slate-200">🖼️ 사진 모드</button>
+                            <button id="listToggleBtn" onclick="toggleListView()" class="bg-slate-100 text-slate-600 px-3 py-2 rounded-lg font-bold text-xs shadow-md border border-slate-200">📋 명렬표 모드</button>
                         </div>
                         <div class="flex gap-3 text-[10px] md:text-xs font-bold justify-center mt-1 md:mt-0">
                             <span class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-full bg-white border-2 border-slate-200"></div>출석</span>
@@ -140,6 +141,25 @@
                     <div id="boardArea" class="flex flex-col gap-2 md:gap-4 transition-all duration-300 classroom-min-width flex-1">
                         <div id="board" class="bg-emerald-800 text-white text-center py-2 md:py-4 rounded-lg font-black text-sm md:text-xl shadow-inner shrink-0">칠 판 (교탁)</div>
                         <div id="classroomGrid" class="flex flex-col gap-1 md:gap-4"></div>
+                    </div>
+                    <div id="listViewArea" class="hidden flex-1 flex-col classroom-min-width">
+                        <div class="border-2 border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm mt-2">
+                            <table class="w-full text-sm text-center">
+                                <thead class="bg-slate-100 text-slate-700 font-bold border-b-2 border-slate-200">
+                                    <tr>
+                                        <th class="py-3 px-2">배지번호</th>
+                                        <th class="py-3 px-2">학년</th>
+                                        <th class="py-3 px-2">반</th>
+                                        <th class="py-3 px-2">번호</th>
+                                        <th class="py-3 px-2">이름</th>
+                                        <th class="py-3 px-2">상태 (터치)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="listViewTbody" class="divide-y divide-slate-100">
+                                    <tr><td colspan="6" class="py-10 text-slate-400 font-bold">학생 데이터를 불러오는 중입니다...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -507,6 +527,8 @@ async function loadClassData() {
 
         const students = studentsData.success ? studentsData.data : [];
         const savedSeating = savedSeatingData.success ? savedSeatingData.data : [];
+        currentStudentsList = students; 
+        currentSavedSeatingList = savedSeating;
 
         attendanceData = {}; 
         document.getElementById('classLog').value = (recordData.success && recordData.data) ? recordData.data.log : '';
@@ -556,6 +578,7 @@ async function loadClassData() {
             });
         }
         updateAbsenceList();
+        renderListView(); // ✨ 데이터 모두 불렀을 때 표 새로고침
     } catch (e) { console.error("로드 오류", e); alert("데이터 로드 중 오류 발생"); }
 }
 
@@ -566,6 +589,8 @@ function toggleAttendance(card, stdKey) {
     else                            { s.status = 'present'; s.memo = ''; }
     card.className = `student-card-attend rounded-md border font-bold p-1 card-${s.status} overflow-hidden`;
     updateAbsenceList();
+    // ✨ 출석판에서 클릭 시 명렬표 표도 즉시 동기화 되도록 추가
+    if (isListView) renderListView();
 }
 
 function updateAbsenceList() {
@@ -873,6 +898,101 @@ function renderReport(records) {
     });
     studentsHTML += '</div>';
     document.getElementById('reportContent').innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-6 h-full overflow-y-auto p-1"><div class="flex flex-col"><h3 class="font-black mb-3 text-sm">📅 수업 일지 히스토리</h3>${logsHTML}</div><div class="flex flex-col mt-4 md:mt-0"><h3 class="font-black text-red-800 mb-3 text-sm">🚨 결석/지각 누적 통계</h3>${studentsHTML}</div></div>`;
+}
+// ✨ 명렬표 모드 상태 및 데이터 전역 변수
+let isListView = false;
+let currentStudentsList = [];
+let currentSavedSeatingList = [];
+
+// ✨ 표 모드 전환 로직
+function toggleListView() {
+    isListView = !isListView;
+    const btn = document.getElementById('listToggleBtn');
+    const boardArea = document.getElementById('boardArea');
+    const listViewArea = document.getElementById('listViewArea');
+    
+    if (isListView) {
+        btn.className = "bg-blue-600 text-white px-3 py-2 rounded-lg font-bold text-xs shadow-md";
+        btn.innerHTML = "📋 명렬표 모드 켜짐";
+        boardArea.style.display = 'none';
+        listViewArea.classList.remove('hidden');
+        listViewArea.classList.add('flex');
+    } else {
+        btn.className = "bg-slate-100 text-slate-600 px-3 py-2 rounded-lg font-bold text-xs shadow-md border border-slate-200";
+        btn.innerHTML = "📋 명렬표 모드";
+        boardArea.style.display = 'flex';
+        listViewArea.classList.add('hidden');
+        listViewArea.classList.remove('flex');
+    }
+}
+
+// ✨ 표 데이터 생성 로직
+function renderListView() {
+    const tbody = document.getElementById('listViewTbody');
+    tbody.innerHTML = '';
+    
+    if (!currentStudentsList || currentStudentsList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="py-10 text-slate-400 font-bold">학생 데이터가 없습니다.</td></tr>';
+        return;
+    }
+
+    // 학생 명단과 배지번호 매칭
+    const listData = currentStudentsList.map(std => {
+        const cleanStdName = String(std.name || "").replace(/\s/g, '');
+        const seat = currentSavedSeatingList.find(s => parseInt(s.number) === parseInt(std.number) && String(s.name || "").replace(/\s/g, '') === cleanStdName);
+        const stdKey = getStudentKey(std);
+        return {
+            seatLabel: seat && seat.seatLabel ? seat.seatLabel : '-',
+            grade: std.grade || '-',
+            class: std.class || '-',
+            number: std.number || '-',
+            name: std.name || '-',
+            key: stdKey
+        };
+    });
+
+    // 배지번호 숫자 기준으로 오름차순 정렬
+    listData.sort((a, b) => {
+        const aNum = parseInt(a.seatLabel);
+        const bNum = parseInt(b.seatLabel);
+        if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
+        if (!isNaN(aNum)) return -1;
+        if (!isNaN(bNum)) return 1;
+        return a.number - b.number; 
+    });
+
+    listData.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition";
+        
+        // 현재 출결 상태 확인
+        const att = attendanceData[item.key] || { status: 'present' };
+        let statusBadge = '<span class="px-3 py-1.5 bg-white text-slate-400 border border-slate-200 rounded-lg text-xs font-bold">출석</span>';
+        if(att.status === 'absent') statusBadge = '<span class="px-3 py-1.5 bg-red-100 text-red-700 border border-red-200 rounded-lg text-xs font-black shadow-sm">❌ 결석</span>';
+        if(att.status === 'late') statusBadge = '<span class="px-3 py-1.5 bg-amber-100 text-amber-700 border border-amber-200 rounded-lg text-xs font-black shadow-sm">⚠️ 지각</span>';
+
+        tr.innerHTML = `
+            <td class="py-3 px-2 font-black text-blue-600 text-base">${item.seatLabel}</td>
+            <td class="py-3 px-2 font-medium text-slate-600">${item.grade}</td>
+            <td class="py-3 px-2 font-medium text-slate-600">${item.class}</td>
+            <td class="py-3 px-2 font-medium text-slate-600">${item.number}</td>
+            <td class="py-3 px-2 font-black text-slate-800 text-sm">${item.name}</td>
+            <td class="py-2 px-2 cursor-pointer list-status-cell" data-key="${item.key}">${statusBadge}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    // 표에서도 클릭 시 출결 상태 변경 가능하도록 이벤트 연결
+    tbody.querySelectorAll('.list-status-cell').forEach(cell => {
+        cell.onclick = () => {
+            const stdKey = cell.dataset.key;
+            // 출석판의 카드 요소를 찾아서 로직 재사용
+            const card = [...document.querySelectorAll('.student-card-attend')].find(c => c.onclick && attendanceData[stdKey] && c.innerText.includes(attendanceData[stdKey].name));
+            if (card) {
+                toggleAttendance(card, stdKey);
+            }
+        };
+    });
 }
 </script>
 </body>
