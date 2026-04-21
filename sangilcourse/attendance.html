@@ -552,12 +552,10 @@ async function loadClassData() {
                 const card = document.createElement('div');
                 card.className = `student-card-attend rounded-md border font-bold p-1 card-present overflow-hidden`;
                 
-                // (loadClassData 내부의 기존 photoHtml 코드를 지우고 아래로 덮어씌우세요)
-                
-                let photoHtml = `<div class="student-photo-wrapper no-img bg-slate-100 items-center justify-center text-slate-300 text-xl font-black rounded-md border w-full h-full">${std.number}</div>`;
+                // ✨ 사진 영역에서 공간을 너무 차지하지 않도록 h-full 제거
+                let photoHtml = `<div class="student-photo-wrapper no-img bg-slate-100 items-center justify-center text-slate-300 text-xl font-black rounded-md border w-full">${std.number}</div>`;
                 
                 if (std.photo) {
-                    // ✨ [핵심 추가] 구글 드라이브 uc 주소를 썸네일 주소로 자동 변환하는 마법의 코드!
                     let finalImgUrl = std.photo;
                     if (finalImgUrl.includes('drive.google.com/uc')) {
                         const idMatch = finalImgUrl.match(/id=([^&]+)/);
@@ -566,19 +564,19 @@ async function loadClassData() {
                         }
                     }
 
-                    // 변환된 주소(finalImgUrl)를 사용하고, 그래도 실패하면 회색 번호 박스(Fallback)를 띄웁니다.
-                    photoHtml = `<div class="student-photo-wrapper has-img w-full h-full">
+                    // ✨ 에러 발생 시에도 규격이 틀어지지 않도록 수정
+                    photoHtml = `<div class="student-photo-wrapper has-img w-full">
                                      <img src="${finalImgUrl}" class="student-photo w-full h-full object-cover" alt="${std.name}" 
-                                          onerror="this.parentElement.className='student-photo-wrapper no-img bg-slate-100 items-center justify-center text-slate-300 text-xl font-black rounded-md border w-full h-full'; this.parentElement.innerHTML='${std.number}';">
+                                          onerror="this.parentElement.className='student-photo-wrapper no-img bg-slate-100 items-center justify-center text-slate-300 text-xl font-black rounded-md border w-full'; this.parentElement.innerHTML='${std.number}';">
                                  </div>`;
                 }
 
-                // 방금 만든 photoHtml을 카드 위쪽에 삽입합니다.
+                // ✨ [핵심 수정] shrink-0(찌그러짐 방지) 추가, 줄간격(leading-snug) 여유 있게 변경, 하단 여백(pb-1) 추가
                 card.innerHTML = `
                     ${photoHtml}
-                    <div class="flex flex-col items-center justify-center w-full overflow-hidden mt-1 gap-0.5">
-                        <span class="text-[11px] md:text-xs opacity-70 leading-none whitespace-nowrap">${std.class}-${std.number}</span>
-                        <span class="text-xs md:text-sm font-black leading-tight truncate block">${std.name}</span>
+                    <div class="flex flex-col items-center justify-center w-full shrink-0 pb-1">
+                        <span class="text-[11px] md:text-xs opacity-70 leading-snug whitespace-nowrap">${std.class}-${std.number}</span>
+                        <span class="text-xs md:text-sm font-black leading-snug truncate block w-full text-center">${std.name}</span>
                     </div>`;
                 
                 card.onclick = () => toggleAttendance(card, stdKey);
