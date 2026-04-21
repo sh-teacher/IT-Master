@@ -552,12 +552,23 @@ async function loadClassData() {
                 const card = document.createElement('div');
                 card.className = `student-card-attend rounded-md border font-bold p-1 card-present overflow-hidden`;
                 
+                // (loadClassData 내부의 기존 photoHtml 코드를 지우고 아래로 덮어씌우세요)
+                
                 let photoHtml = `<div class="student-photo-wrapper no-img bg-slate-100 items-center justify-center text-slate-300 text-xl font-black rounded-md border w-full h-full">${std.number}</div>`;
                 
                 if (std.photo) {
-                    // ✨ 이미지를 불러오지 못하면(onerror), 부모 요소를 원래의 회색 번호 박스로 덮어씌웁니다.
+                    // ✨ [핵심 추가] 구글 드라이브 uc 주소를 썸네일 주소로 자동 변환하는 마법의 코드!
+                    let finalImgUrl = std.photo;
+                    if (finalImgUrl.includes('drive.google.com/uc')) {
+                        const idMatch = finalImgUrl.match(/id=([^&]+)/);
+                        if (idMatch && idMatch[1]) {
+                            finalImgUrl = `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w400`;
+                        }
+                    }
+
+                    // 변환된 주소(finalImgUrl)를 사용하고, 그래도 실패하면 회색 번호 박스(Fallback)를 띄웁니다.
                     photoHtml = `<div class="student-photo-wrapper has-img w-full h-full">
-                                     <img src="${std.photo}" class="student-photo w-full h-full object-cover" alt="${std.name}" 
+                                     <img src="${finalImgUrl}" class="student-photo w-full h-full object-cover" alt="${std.name}" 
                                           onerror="this.parentElement.className='student-photo-wrapper no-img bg-slate-100 items-center justify-center text-slate-300 text-xl font-black rounded-md border w-full h-full'; this.parentElement.innerHTML='${std.number}';">
                                  </div>`;
                 }
