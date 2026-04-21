@@ -250,6 +250,11 @@
         contentArea.style.display = 'none'; iframeArea.style.display = 'block';
         iframeArea.src = `attendance.html?subject=${encodeURIComponent(extraParam)}`;
       } 
+      else if (menuId === 'realtimeSearch') {
+        document.getElementById('pageTitle').innerText = "실시간 수업 조회";
+        contentArea.style.display = 'none'; iframeArea.style.display = 'block';
+        iframeArea.src = "search.html";
+      }
       else if (menuId === 'manageStudents') {
         document.getElementById('pageTitle').innerText = "전체 학생 사진 관리";
         iframeArea.style.display = 'none'; contentArea.style.display = 'block';
