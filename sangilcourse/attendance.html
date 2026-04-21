@@ -655,6 +655,173 @@ async function loadClassData() {
     }
 }
 
+// 🌟 1. 구글 서버가 빈 응답을 줘도 에러가 나지 않게 막아주는 방탄 헬퍼 함수
+async function safeFetch(payload) {
+    try {
+        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+        const text = await res.text(); // 일단 무조건 텍스트로 안전하게 받음
+        
+        if (!text) {
+            console.warn("서버 응답이 비어있습니다. (빈 배열 반환)");
+            return { success: true, data: [] }; // 에러 대신 빈 데이터 반환
+        }
+        
+        try {
+            return JSON.parse(text); // 정상적인 경우 JSON으로 변환
+        } catch (e) {
+            console.error("JSON 파싱 에러! 서버가 보낸 원본 텍스트:", text);
+            return { success: false, data: [] };
+        }
+    } catch (err) {
+        console.error("통신 자체 실패:", err);
+        return { success: false, data: [] };
+    }
+}
+
+// 🌟 2. 멈춤 현상을 완벽히 해결한 로드 함수
+async function loadClassData() {
+    const subject = currentSubject;
+    const targetDate = document.getElementById('selectedDate').value;
+    const period = document.getElementById('selectedPeriod').value;
+    
+    if (!subject || !targetDate || !period) return;
+    
+    const loadId = ++currentLoadId; 
+    document.getElementById('classLog').value = '데이터 불러오는 중...';
+
+    // 양쪽 화면 초기화
+    document.querySelectorAll('.desk-attend').forEach(d => d.innerHTML = '<span class="seat-num-label"></span>');
+    document.getElementById('waitingList').innerHTML = "<div class='w-full text-center text-slate-500 mt-5 font-bold'>데이터를 가져오는 중입니다...</div>";
+
+    try {
+        // 🚀 기존의 불안정했던 fetch를 안전한 safeFetch로 전면 교체!
+        const [studentsData, savedSeatingData, recordData] = await Promise.all([
+            safeFetch({ type: "GET_STUDENTS", payload: { subject } }),
+            safeFetch({ type: "GET_SEATING", payload: { subject } }),
+            safeFetch({ type: "GET_DAILY_RECORD", payload: { subject, date: targetDate, period } })
+        ]);
+        
+        if (loadId !== currentLoadId) return;
+
+        const students = studentsData.success && studentsData.data ? studentsData.data : [];
+        const savedSeating = savedSeatingData.success && savedSeatingData.data ? savedSeatingData.data : [];
+
+        // 책상 배열(CONFIG) 복원 및 그리기
+        const configRow = savedSeating.find(s => parseInt(s.seatIndex) === -1);
+        if (configRow && configRow.seatLabel) {
+            try { 
+                const loadedConfig = JSON.parse(configRow.seatLabel); 
+                updateGridConfig(loadedConfig);
+                document.getElementById('seatConfigInput').value = loadedConfig.join(',');
+            } catch(e) {}
+        } else {
+            updateGridConfig([6, 6, 7, 7]);
+            document.getElementById('seatConfigInput').value = '6,6,7,7';
+        }
+
+        createAttendDesks();
+        createSeatDesks();
+
+        attendanceData = {}; 
+        document.getElementById('classLog').value = (recordData.success && recordData.data) ? recordData.data.log : '';
+
+        const attendDesks = document.querySelectorAll('.desk-attend');
+        const seatDesks = document.querySelectorAll('.desk-seat');
+        const wl = document.getElementById('waitingList');
+        
+        const actualSeating = savedSeating.filter(s => parseInt(s.seatIndex) >= 0);
+
+        // 좌석 라벨(번호표) 양쪽에 모두 붙이기
+        actualSeating.forEach(seat => {
+            if (seat.seatLabel && seat.seatIndex < attendDesks.length) {
+                const lbl = attendDesks[seat.seatIndex].querySelector('.seat-num-label');
+                if (lbl) lbl.innerText = seat.seatLabel;
+            }
+            if (seat.seatLabel && seat.seatIndex < seatDesks.length) {
+                const numInput = seatDesks[seat.seatIndex].querySelector('.seat-num-input');
+                if (numInput) numInput.value = seat.seatLabel;
+            }
+        });
+
+        wl.innerHTML = ""; 
+        if (students.length === 0) {
+            wl.innerHTML = "<div class='w-full text-center text-red-400 mt-5 font-bold'>배정된 학생 명단이 없습니다.</div>";
+        }
+
+        // 학생 카드 세팅
+        students.forEach(std => {
+            if (!std || !std.name) return; // 빈 데이터 방어
+
+            const cleanStdName = String(std.name).replace(/\s/g, '');
+            const seat = actualSeating.find(s => parseInt(s.number) === parseInt(std.number) && String(s.name || "").replace(/\s/g, '') === cleanStdName);
+            
+            // --- 출석판 카드 올리기 ---
+            if (seat && seat.seatIndex < attendDesks.length) {
+                const stdKey = getStudentKey(std);
+                attendanceData[stdKey] = { name: std.name, class: std.class, number: std.number, status: 'present', memo: '' };
+                
+                const card = document.createElement('div');
+                card.className = `student-card-attend rounded-md border font-bold p-1 card-present overflow-hidden`;
+                
+                let photoHtml = std.사진 
+                    ? `<div class="student-photo-wrapper has-img"><img src="${std.사진}" class="student-photo" alt="${std.name}"></div>` 
+                    : `<div class="student-photo-wrapper no-img bg-slate-100 items-center justify-center text-slate-300 text-xl font-black rounded-md border w-full">${std.number}</div>`;
+
+                card.innerHTML = `
+                    ${photoHtml}
+                    <div class="flex flex-col items-center justify-center w-full overflow-hidden mt-1">
+                        <span class="text-[9px] opacity-60 leading-none whitespace-nowrap">${std.class}-${std.number}</span>
+                        <span class="text-[11px] font-black leading-tight truncate block">${std.name}</span>
+                    </div>`;
+                
+                card.onclick = () => toggleAttendance(card, stdKey);
+                attendDesks[seat.seatIndex].appendChild(card);
+            }
+
+            // --- 좌석판 카드 올리기 ---
+            const seatCard = makeSeatCard(std);
+            if (seat && seat.seatIndex < seatDesks.length) {
+                seatDesks[seat.seatIndex].appendChild(seatCard);
+            } else {
+                wl.appendChild(seatCard); 
+            }
+        });
+
+        // 결석/지각 데이터 입히기
+        if (recordData.success && recordData.data && recordData.data.attendanceIssues) {
+            recordData.data.attendanceIssues.forEach(issue => {
+                const key = getStudentKey(issue);
+                if (attendanceData[key]) {
+                    attendanceData[key].status = issue.status;
+                    attendanceData[key].memo = issue.memo;
+                    const attendCards = document.querySelectorAll('.student-card-attend');
+                    for (let c of attendCards) {
+                        if (c.innerHTML.includes(issue.name)) {
+                            c.classList.remove('card-present');
+                            c.classList.add(`card-${issue.status}`);
+                            break;
+                        }
+                    }
+                }
+            });
+        }
+        updateAbsenceList();
+
+        // 🌟 스마트 탭 전환!
+        const placedStudentsCount = actualSeating.filter(s => s.name && s.name !== '__EMPTY__' && s.name !== '__CONFIG__').length;
+        if (students.length > 0 && (placedStudentsCount === 0 || placedStudentsCount < students.length)) {
+            switchTab('seat'); 
+        } else {
+            switchTab('attend'); 
+        }
+
+    } catch (e) { 
+        console.error("UI 그리기 오류:", e); 
+        document.getElementById('classLog').value = '화면을 그리는 중 오류가 발생했습니다.';
+    }
+}
+
+
 function toggleAttendance(card, stdKey) {
     const s = attendanceData[stdKey];
     if (s.status === 'present')     { s.status = 'absent'; s.memo = prompt(`[결석] 사유 입력:`, "질병결석") || "사유 미입력"; }
