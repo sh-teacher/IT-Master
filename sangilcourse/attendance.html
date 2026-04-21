@@ -552,14 +552,13 @@ async function loadClassData() {
                 const card = document.createElement('div');
                 card.className = `student-card-attend rounded-md border font-bold p-1 card-present overflow-hidden`;
                 
-                // ✨ [추가된 로직] 사진 데이터가 있으면 img 태그를, 없으면 번호를 띄웁니다.
-                // 주의: 서버(Apps Script)에서 넘겨주는 사진 속성명(photo, imageUrl 등)에 맞게 std.photo 부분을 수정해 주세요.
-                // ✨ [수정됨] 'flex' 클래스를 제거하여 기본 이름 모드에서는 사진 영역이 숨겨지도록 원래대로 되돌렸습니다.
                 let photoHtml = `<div class="student-photo-wrapper no-img bg-slate-100 items-center justify-center text-slate-300 text-xl font-black rounded-md border w-full h-full">${std.number}</div>`;
                 
-                if (std.photo) { // 사진 주소가 존재한다면
+                if (std.photo) {
+                    // ✨ 이미지를 불러오지 못하면(onerror), 부모 요소를 원래의 회색 번호 박스로 덮어씌웁니다.
                     photoHtml = `<div class="student-photo-wrapper has-img w-full h-full">
-                                     <img src="${std.photo}" class="student-photo" alt="${std.name}" onerror="this.style.display='none'">
+                                     <img src="${std.photo}" class="student-photo w-full h-full object-cover" alt="${std.name}" 
+                                          onerror="this.parentElement.className='student-photo-wrapper no-img bg-slate-100 items-center justify-center text-slate-300 text-xl font-black rounded-md border w-full h-full'; this.parentElement.innerHTML='${std.number}';">
                                  </div>`;
                 }
 
