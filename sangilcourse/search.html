@@ -3,30 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>상일 실시간 검색</title>
+    <title>상일 통합 수업 검색</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-50 p-4 min-h-screen">
     <div class="max-w-md mx-auto">
-        <h1 class="text-2xl font-black text-slate-800 mb-6 text-center">🔍 실시간 수업 조회</h1>
+        <h1 class="text-2xl font-black text-slate-800 mb-6 text-center">🔍 통합 수업 조회</h1>
 
         <div class="bg-white rounded-2xl shadow-xl p-6 space-y-4 border border-slate-200">
             <div>
-                <label class="block text-xs font-bold text-slate-400 mb-2">무엇이 궁금하세요?</label>
-                <select id="searchType" class="w-full p-3 bg-slate-100 rounded-xl font-bold text-slate-700 outline-none">
-                    <option value="STUDENT">이 학생이 지금 어디 있지? (학생이름)</option>
-                    <option value="TEACHER">OO선생님 지금 수업 어디지? (성함)</option>
-                    <option value="CLASS">특정 반 지금 수업 누구지? (반: 예 1-3)</option>
+                <label class="block text-xs font-bold text-slate-400 mb-2">누구를 찾으시나요?</label>
+                <select id="searchType" class="w-full p-3 bg-slate-100 rounded-xl font-bold text-slate-700 outline-none border-2 border-transparent focus:border-blue-500">
+                    <option value="STUDENT">이 학생 어디 있지? (이름)</option>
+                    <option value="TEACHER">이 선생님 어디 계시지? (이름)</option>
+                    <option value="CLASS">특정 반 수업이 누구지? (반: 예 1-3)</option>
                 </select>
             </div>
             
-            <div class="relative">
-                <input type="text" id="keyword" placeholder="검색어를 입력하세요..." class="w-full p-4 bg-slate-100 rounded-xl font-black text-lg outline-none focus:ring-2 ring-blue-500">
-                <button onclick="runSearch()" class="absolute right-2 top-2 bottom-2 bg-blue-600 text-white px-5 rounded-lg font-bold shadow-lg">검색</button>
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-2">요일 선택</label>
+                    <select id="searchDay" class="w-full p-3 bg-blue-50 rounded-xl font-bold text-blue-700 outline-none">
+                        <option value="">🕒 현재 요일</option>
+                        <option value="월">월요일</option>
+                        <option value="화">화요일</option>
+                        <option value="수">수요일</option>
+                        <option value="목">목요일</option>
+                        <option value="금">금요일</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 mb-2">교시 선택</label>
+                    <select id="searchPeriod" class="w-full p-3 bg-blue-50 rounded-xl font-bold text-blue-700 outline-none">
+                        <option value="">🕒 현재 교시</option>
+                        <option value="1">1교시</option>
+                        <option value="2">2교시</option>
+                        <option value="3">3교시</option>
+                        <option value="4">4교시</option>
+                        <option value="5">5교시</option>
+                        <option value="6">6교시</option>
+                        <option value="7">7교시</option>
+                        <option value="8">8교시</option>
+                        <option value="9">9교시</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="relative pt-2">
+                <input type="text" id="keyword" placeholder="이름 또는 반 입력..." class="w-full p-4 bg-slate-100 rounded-xl font-black text-lg outline-none focus:ring-2 ring-blue-500">
+                <button onclick="runSearch()" class="absolute right-2 top-4 bottom-2 bg-blue-600 text-white px-5 rounded-lg font-bold shadow-lg hover:bg-blue-700 transition">검색</button>
             </div>
         </div>
 
-        <div id="resultArea" class="mt-6 space-y-3">
+        <div id="resultArea" class="mt-6 space-y-3 pb-10">
             </div>
     </div>
 
@@ -35,18 +64,26 @@
 
         async function runSearch() {
             const type = document.getElementById('searchType').value;
-            const keyword = document.getElementById('keyword').value;
+            const keyword = document.getElementById('keyword').value.trim();
+            const forceDay = document.getElementById('searchDay').value;
+            const forcePeriod = document.getElementById('searchPeriod').value;
+
             if(!keyword) return alert("검색어를 입력하세요!");
 
             const area = document.getElementById('resultArea');
-            area.innerHTML = '<div class="text-center p-10 animate-pulse text-slate-400 font-bold">데이터 분석 중...</div>';
+            area.innerHTML = '<div class="text-center p-10 animate-pulse text-slate-400 font-bold">데이터 분석 중... ⏳</div>';
 
             try {
                 const res = await fetch(API_URL, {
                     method: 'POST',
                     body: JSON.stringify({
                         type: "SEARCH_REALTIME",
-                        payload: { searchType: type, keyword: keyword }
+                        payload: { 
+                            searchType: type, 
+                            keyword: keyword,
+                            forceDay: forceDay,   // 지정된 요일 (없으면 서버에서 현재 요일 계산)
+                            forcePeriod: forcePeriod // 지정된 교시 (없으면 서버에서 현재 시간 계산)
+                        }
                     })
                 });
                 const r = await res.json();
@@ -56,23 +93,34 @@
                     return;
                 }
 
-                if(r.data.length === 0) {
-                    area.innerHTML = `<div class="bg-slate-200 text-slate-500 p-4 rounded-xl text-center font-bold">진행 중인 수업이 없습니다.</div>`;
+                if(!r.data || r.data.length === 0) {
+                    const timeInfo = forceDay || forcePeriod ? "선택하신 시간" : "현재 시간";
+                    area.innerHTML = `<div class="bg-slate-200 text-slate-500 p-4 rounded-xl text-center font-bold">${timeInfo}에 해당하는 수업 정보가 없습니다.</div>`;
                     return;
                 }
 
                 area.innerHTML = r.data.map(item => `
-                    <div class="bg-white p-5 rounded-2xl shadow-md border-l-8 border-blue-500">
-                        <div class="text-xs font-bold text-slate-400 mb-1">${r.period}교시 수업 정보</div>
+                    <div class="bg-white p-5 rounded-2xl shadow-md border-l-8 border-blue-500 transform transition hover:scale-105">
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="text-xs font-bold text-slate-400">${r.period}교시 수업 정보</span>
+                            <span class="bg-blue-100 text-blue-600 text-[10px] px-2 py-0.5 rounded-full font-bold">${forceDay || '오늘'}</span>
+                        </div>
                         <div class="text-lg font-black text-slate-800">${item.subject}</div>
-                        ${item.teacher ? `<div class="text-blue-600 font-bold mt-1">담당 교사: ${item.teacher} 선생님</div>` : ''}
+                        ${item.teacher ? `<div class="text-blue-600 font-bold mt-1 flex items-center gap-1">
+                            <span class="text-sm">👨‍🏫</span> ${item.teacher} 선생님
+                        </div>` : ''}
                     </div>
                 `).join('');
 
             } catch(e) {
-                area.innerHTML = "통신 오류 발생";
+                area.innerHTML = `<div class="text-center p-10 text-red-500 font-bold">통신 오류가 발생했습니다.</div>`;
             }
         }
+
+        // 엔터키 검색 지원
+        document.getElementById('keyword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') runSearch();
+        });
     </script>
 </body>
 </html>
