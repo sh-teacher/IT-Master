@@ -115,20 +115,19 @@
                     📋 
                     <span id="subjectBadge" class="text-sm md:text-lg bg-blue-100 text-blue-800 px-3 py-1.5 rounded-full font-bold shadow-sm">과목 로딩 중...</span>
                 </h1>
-                <p class="text-slate-500 mt-1 font-medium text-sm" id="currentDateTime">불러오는 중...</p>
-            </div>
+                </div>
             
             <div class="flex gap-2 items-center flex-wrap justify-center xl:justify-end w-full xl:w-auto">
                 <input type="date" id="selectedDate" onchange="updatePeriodDropdown()" class="p-2 md:p-2 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-700 text-xs md:text-sm min-w-[120px]">
                 <div class="flex items-center justify-center gap-2 bg-slate-50 p-2 rounded-lg border border-slate-200">
                     <input type="checkbox" id="showAllPeriods" onchange="updatePeriodDropdown()" class="w-4 h-4 cursor-pointer accent-blue-600">
-                    <label for="showAllPeriods" class="text-xs font-bold text-slate-600 cursor-pointer whitespace-nowrap">모든 교시</label>
+                    <label for="showAllPeriods" class="text-xs font-bold text-slate-600 cursor-pointer whitespace-nowrap">보강교시</label>
                 </div>
                 <select id="selectedPeriod" onchange="loadClassData()" class="p-2 bg-slate-50 border border-slate-200 rounded-lg font-bold text-blue-600 text-xs md:text-sm">
                     <option value="">교시</option>
                 </select>
                 <div class="flex gap-2">
-                    <button onclick="openReportModal()" class="bg-indigo-100 text-indigo-700 px-3 py-2 rounded-lg font-bold hover:bg-indigo-200 transition text-xs md:text-sm whitespace-nowrap">📊 통계보기</button>
+                    <button onclick="openReportModal()" class="bg-indigo-100 text-indigo-700 px-3 py-2 rounded-lg font-bold hover:bg-indigo-200 transition text-xs md:text-sm whitespace-nowrap">📊 누가기록</button>
                 </div>
             </div>
         </div>
@@ -441,8 +440,8 @@ function switchTab(tab) {
 window.onload = async function () {
     const today = new Date();
     document.getElementById('selectedDate').value = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-    updateDateTime();
-    setInterval(updateDateTime, 60000);
+    
+    // 🔥 시계 업데이트 인터벌 삭제됨
     
     progressInterval = setInterval(updateClassTimer, 1000);
     
@@ -455,6 +454,13 @@ window.onload = async function () {
     if (targetSubject) {
         currentSubject = targetSubject;
         document.getElementById('subjectBadge').innerText = currentSubject;
+        
+        // ✨ 부모 창(index.html) 맨 위 상단 제목을 무조건 "출결/수업 일지"로 고정!
+        try {
+            if (window.parent && window.parent.document.getElementById('pageTitle')) {
+                window.parent.document.getElementById('pageTitle').innerText = "출결/수업 일지";
+            }
+        } catch(e) {}
     }
 
     try {
@@ -468,6 +474,25 @@ window.onload = async function () {
             fullSchedule = schData.schedule;
             sysConfig = schData.config;
             if(currentSubject) {
+                
+                // ✨ 과목명 옆에 (월1 수1) 스케줄 계산해서 붙이기!
+                const myClasses = fullSchedule.filter(s => s.fullName === currentSubject || s.subject === currentSubject);
+                const dayOrder = {'월':1,'화':2,'수':3,'목':4,'금':5};
+                
+                myClasses.sort((a,b) => {
+                    const dayA = dayOrder[a.day] || 9;
+                    const dayB = dayOrder[b.day] || 9;
+                    return dayA !== dayB ? dayA - dayB : parseInt(a.period) - parseInt(b.period);
+                });
+                
+                // 1~7교시 정규수업만 추출해서 중복 제거
+                const scheduleStrs = myClasses.filter(s => parseInt(s.period) <= 7).map(s => `${s.day}${s.period}`);
+                const uniqueSchedules = [...new Set(scheduleStrs)].join(' ');
+                
+                if (uniqueSchedules) {
+                    document.getElementById('subjectBadge').innerText = `${currentSubject} (${uniqueSchedules})`;
+                }
+
                 onSubjectChange();
             }
         }
@@ -477,12 +502,6 @@ window.onload = async function () {
 function onSubjectChange() {
     updatePeriodDropdown();
     updateClassTimer();
-}
-
-function updateDateTime() {
-    const now = new Date();
-    const days = ['일','월','화','수','목','금','토'];
-    document.getElementById('currentDateTime').innerText = `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 (${days[now.getDay()]}) ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
 }
 
 function updateClassTimer() {
