@@ -240,7 +240,7 @@
       }
 
       if (menuId === 'dashboard') {
-        document.getElementById('pageTitle').innerText = "홈 (대시보드)";
+        document.getElementById('pageTitle').innerText = "오늘일과 / 주간시간표";
         iframeArea.style.display = 'none'; contentArea.style.display = 'block';
         contentArea.innerHTML = `<div style="text-align:center; padding: 50px; font-weight:bold; color:#64748b;">데이터를 불러오는 중입니다... ⏳</div>`;
         renderDashboard(); 
@@ -251,7 +251,7 @@
         iframeArea.src = `attendance.html?subject=${encodeURIComponent(extraParam)}`;
       } 
       else if (menuId === 'realtimeSearch') {
-        document.getElementById('pageTitle').innerText = "실시간 수업 조회";
+        document.getElementById('pageTitle').innerText = "교과수업 만능탐색기";
         contentArea.style.display = 'none'; iframeArea.style.display = 'block';
         iframeArea.src = "search.html";
       }
