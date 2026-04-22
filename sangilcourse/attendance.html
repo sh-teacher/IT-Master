@@ -802,8 +802,8 @@ async function saveDailyRecord() {
 const dnd = { active:false, card:null, ghost:null, offsetX:0, offsetY:0, startX:0, startY:0, currentOver:null };
 
 function applyGridConfig(savedConfig) {
-    const rows = savedConfig ? savedConfig.rows : parseInt(document.getElementById('rowCount').value) || 4;
-    const cols = savedConfig ? savedConfig.cols : parseInt(document.getElementById('colCount').value) || 7;
+    const rows = savedConfig ? savedConfig.rows : parseInt(document.getElementById('rowCount').value) || 5;
+    const cols = savedConfig ? savedConfig.cols : parseInt(document.getElementById('colCount').value) || 6;
 
     document.getElementById('rowCount').value = rows;
     document.getElementById('colCount').value = cols;
