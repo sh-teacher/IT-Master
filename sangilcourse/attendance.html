@@ -701,39 +701,42 @@ async function loadClassData() {
     document.getElementById('classLog').value = '데이터 불러오는 중...';
 
     try {
-        // 🔥 속도 개선의 핵심: 스마트 캐싱 (브라우저 임시 메모리 활용)
-        let studentsData, savedSeatingData, recordData;
-        const fetchPromises = [];
+        // 🔥 속도 개선 + 완벽한 오류 방어(방탄) 코드 적용!
+        
+        // 1. 학생 데이터 가져오기 (캐시 오류 시 자동 복구)
+        const getStudents = async () => {
+            const cache = sessionStorage.getItem(`cache_std_${subject}`);
+            if (cache) { try { const parsed = JSON.parse(cache); if(parsed) return parsed; } catch(e){} }
+            const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "GET_STUDENTS", payload: { subject } }) });
+            const d = await r.json();
+            try { sessionStorage.setItem(`cache_std_${subject}`, JSON.stringify(d)); } catch(e){}
+            return d;
+        };
 
-        // 1. 학생 명단 (캐시가 있으면 메모리에서 0.01초 만에 꺼내고, 없으면 서버 요청)
-        const cachedStd = sessionStorage.getItem(`cache_std_${subject}`);
-        if (cachedStd) {
-            studentsData = JSON.parse(cachedStd);
-        } else {
-            fetchPromises.push(fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "GET_STUDENTS", payload: { subject } }) })
-                .then(r => r.json()).then(d => { studentsData = d; sessionStorage.setItem(`cache_std_${subject}`, JSON.stringify(d)); }));
-        }
+        // 2. 좌석 데이터 가져오기 (캐시 오류 시 자동 복구)
+        const getSeating = async () => {
+            const cache = sessionStorage.getItem(`cache_seat_${subject}`);
+            if (cache) { try { const parsed = JSON.parse(cache); if(parsed) return parsed; } catch(e){} }
+            const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "GET_SEATING", payload: { subject } }) });
+            const d = await r.json();
+            try { sessionStorage.setItem(`cache_seat_${subject}`, JSON.stringify(d)); } catch(e){}
+            return d;
+        };
 
-        // 2. 좌석 배치도 (학생 명단과 동일하게 캐싱 적용)
-        const cachedSeat = sessionStorage.getItem(`cache_seat_${subject}`);
-        if (cachedSeat) {
-            savedSeatingData = JSON.parse(cachedSeat);
-        } else {
-            fetchPromises.push(fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "GET_SEATING", payload: { subject } }) })
-                .then(r => r.json()).then(d => { savedSeatingData = d; sessionStorage.setItem(`cache_seat_${subject}`, JSON.stringify(d)); }));
-        }
+        // 3. 출결/일지 데이터 가져오기 (항상 서버에서 실시간으로)
+        const getRecord = async () => {
+            const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "GET_DAILY_RECORD", payload: { subject, date: targetDate, period } }) });
+            return await r.json();
+        };
 
-        // 3. 출결 및 일지 기록 (매 교시마다 달라지므로 서버에서 항상 새로고침)
-        fetchPromises.push(fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "GET_DAILY_RECORD", payload: { subject, date: targetDate, period } }) })
-            .then(r => r.json()).then(d => { recordData = d; }));
-
-        // 서버 통신 실행 (캐시가 있으면 3개 중 1개만 요청하므로 로딩 속도 급상승!)
-        await Promise.all(fetchPromises);
+        // 병렬로 3가지 데이터를 동시에, 안전하게 가져오기!
+        const [studentsData, savedSeatingData, recordData] = await Promise.all([getStudents(), getSeating(), getRecord()]);
 
         if (loadId !== currentLoadId) return;
 
-        const students = studentsData.success ? studentsData.data : [];
-        const savedSeating = savedSeatingData.success ? savedSeatingData.data : [];
+        // ?(옵셔널 체이닝)을 추가해서 데이터가 비어있어도 절대 에러가 나지 않게 방어
+        const students = studentsData?.success ? studentsData.data : [];
+        const savedSeating = savedSeatingData?.success ? savedSeatingData.data : [];
 
         currentStudentsList = students;
         currentSavedSeatingList = savedSeating;
@@ -742,8 +745,8 @@ async function loadClassData() {
             attendanceData[getStudentKey(std)] = { name: std.name, class: std.class, number: std.number, status: 'present', memo: '' };
         });
 
-        const newRows = savedSeatingData.gridConfig?.rows;
-        const newCols = savedSeatingData.gridConfig?.cols;
+        const newRows = savedSeatingData?.gridConfig?.rows;
+        const newCols = savedSeatingData?.gridConfig?.cols;
         const curRows = parseInt(document.getElementById('rowCount').value);
         const curCols = parseInt(document.getElementById('colCount').value);
         const needRebuild = newRows && newCols && (newRows !== curRows || newCols !== curCols);
@@ -763,7 +766,7 @@ async function loadClassData() {
             });
         }
 
-        document.getElementById('classLog').value = (recordData.success && recordData.data) ? recordData.data.log : '';
+        document.getElementById('classLog').value = (recordData?.success && recordData.data) ? recordData.data.log : '';
         const desks = document.querySelectorAll('.desk-attend');
 
         savedSeating.forEach(seat => {
@@ -782,7 +785,7 @@ async function loadClassData() {
             }
         });
 
-        if (recordData.success && recordData.data?.attendanceIssues) {
+        if (recordData?.success && recordData.data?.attendanceIssues) {
             recordData.data.attendanceIssues.forEach(issue => {
                 const key = getStudentKey(issue);
                 if (attendanceData[key]) {
@@ -813,7 +816,10 @@ async function loadClassData() {
 
         switchTab('attend'); 
 
-    } catch (e) { console.error("로드 오류", e); alert("데이터 로드 중 오류 발생"); }
+    } catch (e) { 
+        console.error("로드 오류", e); 
+        alert("데이터 로드 중 오류 발생"); 
+    }
 }
 
 function updateAbsenceList() {
