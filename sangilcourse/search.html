@@ -93,8 +93,8 @@
             const day = document.getElementById('searchDay').value;
             const period = document.getElementById('searchPeriod').value;
 
+            // 🔥 기존에 공강 검색 시 요일/교시 비어있으면 막던 코드 삭제!
             if (type !== 'FREE_TEACHER' && !keyword) return alert("검색어를 입력하세요!");
-            if (type === 'FREE_TEACHER' && (!day || !period)) return alert("요일과 교시를 반드시 선택해주세요!");
 
             const area = document.getElementById('resultArea');
             area.innerHTML = '<div class="text-center p-12 bg-white rounded-2xl shadow-sm animate-pulse text-slate-500 font-bold">열심히 데이터를 찾고 있습니다... 🔍</div>';
@@ -130,12 +130,16 @@
 
                     // ☕ 공강 교사 결과
                     if (r.type === "FREE_TEACHER") {
+                        // 🔥 백엔드가 계산해서 돌려준 '현재 요일/교시'를 받아서 출력!
+                        const finalDay = r.day || day;
+                        const finalPeriod = r.period || period;
+
                         if (r.data.length === 0) return area.innerHTML = `<div class="bg-slate-200 text-slate-600 p-5 rounded-2xl text-center font-bold">해당 시간에 공강인 선생님이 없습니다.</div>`;
                         
                         let tags = r.data.map(t => `<span class="inline-block bg-white text-slate-700 border border-slate-300 font-black px-3 py-2 rounded-lg shadow-sm m-1">${t}</span>`).join('');
                         area.innerHTML = `
                             <div class="bg-amber-50 rounded-3xl p-6 border border-amber-200 shadow-sm">
-                                <h2 class="text-lg font-black text-amber-800 mb-4">☕ ${day}요일 ${period}교시 공강 선생님 (${r.data.length}명)</h2>
+                                <h2 class="text-lg font-black text-amber-800 mb-4">☕ ${finalDay}요일 ${finalPeriod}교시 공강 선생님 (${r.data.length}명)</h2>
                                 <div>${tags}</div>
                             </div>
                         `;
@@ -150,8 +154,6 @@
                         
                         r.data.forEach(item => {
                             if (item.period >= 1 && item.period <= 8 && grid[item.period][item.day] !== undefined) {
-                                
-                                // 🔥 선생님 시간표일 때는 선생님 이름을 빼고, 학생/반 시간표일 때만 보여주기!
                                 let teacherHTML = '';
                                 if (type !== 'TIMETABLE_TEACHER' && item.teacher) {
                                     teacherHTML = `<div class="text-[10px] md:text-xs text-blue-600 font-bold mt-1 truncate">${item.teacher} 선생님</div>`;
