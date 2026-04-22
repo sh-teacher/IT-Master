@@ -469,7 +469,6 @@ window.onload = async function () {
             sysConfig = schData.config;
             if(currentSubject) {
                 onSubjectChange();
-                await loadSeatStudents(currentSubject);
             }
         }
     } catch { console.log("데이터 로드 실패"); }
@@ -555,8 +554,9 @@ function togglePhotoView() {
 
         // ✅ 사진 모드 ON 시점에 data-src → src 로 실제 로드
         document.querySelectorAll('.student-photo[data-src]').forEach(img => {
-            if (!img.src || img.src === window.location.href) { // src가 비어있는 경우만
+            if (!img.dataset.loaded) {
                 img.src = img.dataset.src;
+                img.dataset.loaded = "1";
             }
         });
     } else {
