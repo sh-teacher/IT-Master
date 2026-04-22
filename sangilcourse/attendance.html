@@ -670,15 +670,23 @@ async function loadClassData() {
 
         if (loadId !== currentLoadId) return;
 
-        if (savedSeatingData.success && savedSeatingData.gridConfig) {
-            const { rows, cols } = savedSeatingData.gridConfig;
-            ROW_CONFIG = Array.from({ length: rows }, () => ({ desks: cols, empty: 0 }));
-            TOTAL_SEATS = rows * cols;
-            createAttendDesks();
-        }
-
         const students = studentsData.success ? studentsData.data : [];
         const savedSeating = savedSeatingData.success ? savedSeatingData.data : [];
+        
+        // 🌟 1. 책상 배열 복원 (Config 정보 확인)
+        const configRow = savedSeating.find(s => parseInt(s.seatIndex) === -1);
+        if (configRow && configRow.seatLabel) {
+            try {
+                const loadedConfig = JSON.parse(configRow.seatLabel);
+                // 배열 설정 업데이트 (배열이 배열 형태면 행/열로 변환)
+                if (Array.isArray(loadedConfig)) {
+                    document.getElementById('rowCount').value = loadedConfig.length;
+                    document.getElementById('colCount').value = loadedConfig[0].desks || 7;
+                    applyGridConfig({ rows: loadedConfig.length, cols: loadedConfig[0].desks || 7 });
+                }
+            } catch(e) { console.warn("배열 설정 복원 실패"); }
+        }
+
         currentStudentsList = students;
         currentSavedSeatingList = savedSeating;
 
@@ -686,8 +694,14 @@ async function loadClassData() {
         document.getElementById('classLog').value = (recordData.success && recordData.data) ? recordData.data.log : '';
 
         const desks = document.querySelectorAll('.desk-attend');
+        
+        // 🌟 2. 실제 배치된 학생 수 계산 (CONFIG와 빈 자리는 제외)
+        const placedStudents = savedSeating.filter(s => s.name && s.name !== '__EMPTY__' && s.name !== '__CONFIG__');
+        const placedCount = placedStudents.length;
+
+        // 라벨 및 카드 표시
         savedSeating.forEach(seat => {
-            if (seat.seatLabel && seat.seatIndex < desks.length) {
+            if (seat.seatLabel && seat.seatIndex >= 0 && seat.seatIndex < desks.length) {
                 desks[seat.seatIndex].querySelector('.seat-num-label').innerText = seat.seatLabel;
             }
         });
@@ -696,50 +710,38 @@ async function loadClassData() {
             const cleanStdName = String(std.name || "").replace(/\s/g, '');
             const seat = savedSeating.find(s => parseInt(s.number) === parseInt(std.number) && String(s.name || "").replace(/\s/g, '') === cleanStdName);
             
-            if (seat && seat.seatIndex < desks.length) {
+            if (seat && seat.seatIndex >= 0 && seat.seatIndex < desks.length) {
                 const stdKey = getStudentKey(std);
                 attendanceData[stdKey] = { name: std.name, class: std.class, number: std.number, status: 'present', memo: '' };
                 const card = document.createElement('div');
-                // ✨ data-key 속성 추가 → O(1) 카드 조회
                 card.className = `student-card-attend rounded-md border font-bold p-1 card-present overflow-hidden`;
                 card.dataset.stdKey = stdKey;
                 
                 let photoHtml = `<div class="student-photo-wrapper no-img bg-slate-100 items-center justify-center text-slate-300 text-xl font-black rounded-md border w-full">${std.number}</div>`;
-                
                 if (std.photo) {
-                    let finalImgUrl = std.photo;
-                    if (finalImgUrl.includes('drive.google.com/uc')) {
-                        const idMatch = finalImgUrl.match(/id=([^&]+)/);
-                        if (idMatch && idMatch[1]) {
-                            finalImgUrl = `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w400`;
-                        }
-                    }
                     photoHtml = `<div class="student-photo-wrapper has-img w-full">
-                                     <img src="${finalImgUrl}" class="student-photo w-full h-full object-cover" alt="${std.name}" 
-                                          onerror="this.parentElement.className='student-photo-wrapper no-img bg-slate-100 items-center justify-center text-slate-300 text-xl font-black rounded-md border w-full'; this.parentElement.innerHTML='${std.number}';">
+                                     <img src="${std.photo}" class="student-photo w-full h-full object-cover" alt="${std.name}">
                                  </div>`;
                 }
 
-                card.innerHTML = `
-                    ${photoHtml}
+                card.innerHTML = `${photoHtml}
                     <div class="flex flex-col items-center justify-center w-full shrink-0 pb-1">
                         <span class="text-[11px] md:text-xs opacity-70 leading-snug whitespace-nowrap">${std.class}-${std.number}</span>
                         <span class="text-xs md:text-sm font-black leading-snug truncate block w-full text-center">${std.name}</span>
                     </div>`;
                 
-                // ✨ prompt() 대신 커스텀 모달 호출
                 card.onclick = () => openAttendModal(card, stdKey);
                 desks[seat.seatIndex].appendChild(card);
             }
         });
 
+        // 지각/결석 처리...
         if (recordData.success && recordData.data && recordData.data.attendanceIssues) {
             recordData.data.attendanceIssues.forEach(issue => {
                 const key = getStudentKey(issue);
                 if (attendanceData[key]) {
                     attendanceData[key].status = issue.status;
                     attendanceData[key].memo = issue.memo;
-                    // ✨ data-key로 O(1) 카드 조회
                     const card = document.querySelector(`.student-card-attend[data-std-key="${key}"]`);
                     if (card) {
                         card.classList.remove('card-present', 'card-absent', 'card-late');
@@ -748,16 +750,15 @@ async function loadClassData() {
                 }
             });
         }
-        
+
         updateAbsenceList();
         renderListView();
 
-        // 🌟 여기가 이번에 새로 추가된 '스마트 탭 전환' 마법입니다!
-        const placedStudentsCount = savedSeating.filter(s => s.name && s.name !== '__EMPTY__' && s.name !== '__CONFIG__').length;
-        if (students.length > 0 && placedStudentsCount === 0) {
-            switchTab('seat'); // 완전히 빈 교실일 때만 좌석 세팅으로!
+        // 🌟 3. 최종 탭 결정 (배치된 학생이 1명이라도 있으면 출석부로!)
+        if (students.length > 0 && placedCount === 0) {
+            switchTab('seat'); // 완전히 처음이라 아무도 없으면 좌석탭
         } else {
-            switchTab('attend'); // 한 명이라도 있으면 출석부로!
+            switchTab('attend'); // 한 명이라도 자리가 있으면 출석탭
         }
 
     } catch (e) { console.error("로드 오류", e); alert("데이터 로드 중 오류 발생"); }
