@@ -100,9 +100,9 @@
             area.innerHTML = '<div class="text-center p-12 bg-white rounded-2xl shadow-sm animate-pulse text-slate-500 font-bold">열심히 데이터를 찾고 있습니다... 🔍</div>';
 
             try {
-                // 1. 리얼타임 단건 조회 (기존 기능)
+                // 1. 리얼타임 단건 조회
                 if (type.startsWith('REAL_')) {
-                    let realType = type.split('_')[1]; // STUDENT, TEACHER, CLASS
+                    let realType = type.split('_')[1];
                     const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "SEARCH_REALTIME", payload: { searchType: realType, keyword: keyword, forceDay: day, forcePeriod: period } }) });
                     const r = await res.json();
                     
@@ -116,7 +116,7 @@
                                 ${item.studentInfo ? `<span class="bg-indigo-100 text-indigo-700 text-[11px] px-2 py-0.5 rounded-lg font-black shadow-sm">👤 ${item.studentInfo}</span>` : ''}
                             </div>
                             <div class="text-xl font-black text-slate-800">${item.subject}</div>
-                            ${item.teacher ? `<div class="text-blue-600 font-bold mt-2">👨‍🏫 ${item.teacher} 선생님</div>` : ''}
+                            ${item.teacher && type !== 'REAL_TEACHER' ? `<div class="text-blue-600 font-bold mt-2">${item.teacher} 선생님</div>` : ''}
                         </div>
                     `).join('');
                 } 
@@ -128,7 +128,7 @@
 
                     if (!r.success) return area.innerHTML = `<div class="bg-red-50 text-red-600 p-5 rounded-2xl text-center font-bold border border-red-200">${r.msg}</div>`;
 
-                    // ☕ 공강 교사 결과 렌더링
+                    // ☕ 공강 교사 결과
                     if (r.type === "FREE_TEACHER") {
                         if (r.data.length === 0) return area.innerHTML = `<div class="bg-slate-200 text-slate-600 p-5 rounded-2xl text-center font-bold">해당 시간에 공강인 선생님이 없습니다.</div>`;
                         
@@ -141,18 +141,23 @@
                         `;
                     } 
                     
-                    // 🗓️ 주간 시간표 렌더링 (🔥 너비 고정 적용!)
+                    // 🗓️ 주간 시간표 렌더링
                     else if (r.type === "TIMETABLE") {
                         if (r.data.length === 0) return area.innerHTML = `<div class="bg-slate-200 text-slate-600 p-5 rounded-2xl text-center font-bold">시간표 데이터가 없습니다.</div>`;
                         
-                        // 시간표 그리드 조립
                         const grid = {};
                         for (let p = 1; p <= 8; p++) { grid[p] = { '월': '', '화': '', '수': '', '목': '', '금': '' }; }
                         
                         r.data.forEach(item => {
                             if (item.period >= 1 && item.period <= 8 && grid[item.period][item.day] !== undefined) {
-                                // 한 칸에 여러 과목이 겹칠 수 있으니(이동수업 등) 누적 처리
-                                const html = `<div class="font-black text-slate-800 break-keep leading-snug">${item.subject}</div><div class="text-[10px] md:text-xs text-blue-600 font-bold mt-1 truncate">${item.teacher ? '👨‍🏫 ' + item.teacher : ''}</div>`;
+                                
+                                // 🔥 선생님 시간표일 때는 선생님 이름을 빼고, 학생/반 시간표일 때만 보여주기!
+                                let teacherHTML = '';
+                                if (type !== 'TIMETABLE_TEACHER' && item.teacher) {
+                                    teacherHTML = `<div class="text-[10px] md:text-xs text-blue-600 font-bold mt-1 truncate">${item.teacher} 선생님</div>`;
+                                }
+                                
+                                const html = `<div class="font-black text-slate-800 break-keep leading-snug">${item.subject}</div>${teacherHTML}`;
                                 grid[item.period][item.day] += (grid[item.period][item.day] ? '<hr class="my-1 border-slate-200">' : '') + html;
                             }
                         });
