@@ -103,7 +103,6 @@
             if (type !== 'FREE_TEACHER' && !keyword) return alert("검색어를 입력하세요!");
 
             const area = document.getElementById('resultArea');
-            // 로딩 바도 PC에서는 더 얇게
             area.innerHTML = '<div class="text-center p-8 md:p-10 bg-white rounded-3xl md:rounded-2xl shadow-sm animate-pulse text-slate-400 font-bold border border-slate-100 text-sm md:text-base">열심히 데이터를 찾고 있습니다... 🔍</div>';
 
             try {
@@ -162,36 +161,40 @@
                             if (item.period >= 1 && item.period <= 8 && grid[item.period][item.day] !== undefined) {
                                 let teacherHTML = '';
                                 if (type !== 'TIMETABLE_TEACHER' && item.teacher) {
-                                    teacherHTML = `<div class="text-[10px] md:text-[11px] text-blue-600 font-bold mt-0.5 md:mt-1 truncate">${item.teacher} 선생님</div>`;
+                                    // 🔥 모바일에서는 선생님 성함을 더 아담하게(8.5px) 줄이고, '선생님' 글자 생략
+                                    teacherHTML = `<div class="text-[8.5px] md:text-[11px] text-blue-600 font-bold mt-0.5 md:mt-1 truncate leading-none">${item.teacher}</div>`;
                                 }
                                 
-                                const html = `<div class="font-bold md:font-black text-slate-800 break-keep leading-tight text-xs md:text-[13px]">${item.subject}</div>${teacherHTML}`;
+                                // 🔥 모바일에서는 과목명도 알맞게 줄이고, 글자가 넘치면 예쁘게 줄바꿈(break-words) 적용!
+                                const html = `<div class="font-bold md:font-black text-slate-800 break-words md:break-keep leading-tight text-[10.5px] md:text-[13px] tracking-tighter">${item.subject}</div>${teacherHTML}`;
                                 grid[item.period][item.day] += (grid[item.period][item.day] ? '<hr class="my-1 border-slate-100">' : '') + html;
                             }
                         });
 
                         let tableHTML = `
                         <div class="bg-white rounded-3xl md:rounded-2xl shadow-sm md:shadow border border-slate-200 overflow-hidden">
-                            <div class="bg-blue-600 text-white text-center py-3 md:py-3.5 font-bold md:font-black text-base md:text-lg tracking-tight">${r.title}</div>
-                            <div class="w-full overflow-x-auto p-0.5 md:p-1">
-                                <table class="w-full text-center border-collapse table-fixed min-w-[500px]">
-                                    <thead class="bg-slate-50 text-slate-500 text-xs md:text-[13px]">
+                            <div class="bg-blue-600 text-white text-center py-2.5 md:py-3.5 font-bold md:font-black text-sm md:text-lg tracking-tight">${r.title}</div>
+                            <div class="w-full p-0.5 md:p-1">
+                                <table class="w-full text-center border-collapse table-fixed">
+                                    <thead class="bg-slate-50 text-slate-500 text-[10px] md:text-[13px]">
                                         <tr>
-                                            <th class="border border-slate-200 p-1.5 md:p-2 w-[10%]">교시</th>
-                                            <th class="border border-slate-200 p-1.5 md:p-2 w-[18%]">월</th>
-                                            <th class="border border-slate-200 p-1.5 md:p-2 w-[18%]">화</th>
-                                            <th class="border border-slate-200 p-1.5 md:p-2 w-[18%]">수</th>
-                                            <th class="border border-slate-200 p-1.5 md:p-2 w-[18%]">목</th>
-                                            <th class="border border-slate-200 p-1.5 md:p-2 w-[18%]">금</th>
+                                            <th class="border border-slate-200 p-0.5 md:p-2 w-[12%] md:w-[10%]">교시</th>
+                                            <th class="border border-slate-200 p-0.5 md:p-2 w-[17.6%] md:w-[18%]">월</th>
+                                            <th class="border border-slate-200 p-0.5 md:p-2 w-[17.6%] md:w-[18%]">화</th>
+                                            <th class="border border-slate-200 p-0.5 md:p-2 w-[17.6%] md:w-[18%]">수</th>
+                                            <th class="border border-slate-200 p-0.5 md:p-2 w-[17.6%] md:w-[18%]">목</th>
+                                            <th class="border border-slate-200 p-0.5 md:p-2 w-[17.6%] md:w-[18%]">금</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="text-xs md:text-[13px]">`;
+                                    <tbody class="text-[10px] md:text-[13px]">`;
                         
                         for (let p = 1; p <= 7; p++) {
-                            tableHTML += `<tr class="hover:bg-blue-50/30 transition-colors"><td class="border border-slate-200 p-1 md:p-2 font-bold text-slate-400 bg-slate-50 align-middle">${p}교시</td>`;
+                            // 🔥 각 교시 줄 높이(height)를 균일하게 맞춤
+                            tableHTML += `<tr class="hover:bg-blue-50/30 transition-colors h-[52px] md:h-[60px]">
+                                <td class="border border-slate-200 p-0.5 md:p-2 font-bold text-slate-400 bg-slate-50 align-middle text-[9px] md:text-[13px] tracking-tighter">${p}교시</td>`;
                             ['월', '화', '수', '목', '금'].forEach(d => {
                                 const cellContent = grid[p][d] ? grid[p][d] : `<span class="text-slate-200">-</span>`;
-                                tableHTML += `<td class="border border-slate-200 p-1.5 md:p-2 align-middle">${cellContent}</td>`;
+                                tableHTML += `<td class="border border-slate-200 p-0.5 md:p-2 align-middle overflow-hidden">${cellContent}</td>`;
                             });
                             tableHTML += `</tr>`;
                         }
