@@ -880,12 +880,6 @@ async function loadSeatStudents(subject) {
                 wl.appendChild(card);
             }
         });
-
-        const waitingCards = wl.querySelectorAll('.student-card-seat');
-        if (waitingCards.length > 0 && currentTab !== 'seat') {
-            switchTab('seat');
-        }
-
     } catch (e) { alert("데이터 로드 오류"); }
 }
 
