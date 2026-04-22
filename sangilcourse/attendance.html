@@ -747,19 +747,10 @@ async function loadClassData() {
 
         // 🌟 7. [핵심] 리스트 뷰 및 특이사항 목록 갱신
         updateAbsenceList();
-        renderListView();
+        if (isListView) renderListView();
 
-        // 8. 스마트 탭 전환
-        const placedCount = savedSeating.filter(s => {
-            const n = String(s.name || "").trim();
-            return n !== "" && n !== "__EMPTY__" && n !== "__CONFIG__";
-        }).length;
-
-        if (students.length > 0 && placedCount === 0) {
-            switchTab('seat'); 
-        } else {
-            switchTab('attend'); 
-        }
+        // 🔥 8. 무조건 출석/일지 탭으로 고정! (강제 이동 방지)
+        switchTab('attend'); 
 
     } catch (e) { console.error("로드 오류", e); alert("데이터 로드 중 오류 발생"); }
 }
