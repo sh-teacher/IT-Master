@@ -701,15 +701,34 @@ async function loadClassData() {
     document.getElementById('classLog').value = '데이터 불러오는 중...';
 
     try {
-        const [sr, seatingR, recordR] = await Promise.all([
-            fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "GET_STUDENTS", payload: { subject } }) }),
-            fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "GET_SEATING", payload: { subject } }) }),
-            fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "GET_DAILY_RECORD", payload: { subject, date: targetDate, period } }) })
-        ]);
+        // 🔥 속도 개선의 핵심: 스마트 캐싱 (브라우저 임시 메모리 활용)
+        let studentsData, savedSeatingData, recordData;
+        const fetchPromises = [];
 
-        const studentsData = await sr.json();
-        const savedSeatingData = await seatingR.json();
-        const recordData = await recordR.json();
+        // 1. 학생 명단 (캐시가 있으면 메모리에서 0.01초 만에 꺼내고, 없으면 서버 요청)
+        const cachedStd = sessionStorage.getItem(`cache_std_${subject}`);
+        if (cachedStd) {
+            studentsData = JSON.parse(cachedStd);
+        } else {
+            fetchPromises.push(fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "GET_STUDENTS", payload: { subject } }) })
+                .then(r => r.json()).then(d => { studentsData = d; sessionStorage.setItem(`cache_std_${subject}`, JSON.stringify(d)); }));
+        }
+
+        // 2. 좌석 배치도 (학생 명단과 동일하게 캐싱 적용)
+        const cachedSeat = sessionStorage.getItem(`cache_seat_${subject}`);
+        if (cachedSeat) {
+            savedSeatingData = JSON.parse(cachedSeat);
+        } else {
+            fetchPromises.push(fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "GET_SEATING", payload: { subject } }) })
+                .then(r => r.json()).then(d => { savedSeatingData = d; sessionStorage.setItem(`cache_seat_${subject}`, JSON.stringify(d)); }));
+        }
+
+        // 3. 출결 및 일지 기록 (매 교시마다 달라지므로 서버에서 항상 새로고침)
+        fetchPromises.push(fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "GET_DAILY_RECORD", payload: { subject, date: targetDate, period } }) })
+            .then(r => r.json()).then(d => { recordData = d; }));
+
+        // 서버 통신 실행 (캐시가 있으면 3개 중 1개만 요청하므로 로딩 속도 급상승!)
+        await Promise.all(fetchPromises);
 
         if (loadId !== currentLoadId) return;
 
@@ -723,7 +742,6 @@ async function loadClassData() {
             attendanceData[getStudentKey(std)] = { name: std.name, class: std.class, number: std.number, status: 'present', memo: '' };
         });
 
-        // ✅ gridConfig 변경 시에만 DOM 재생성 (불필요한 재생성 방지)
         const newRows = savedSeatingData.gridConfig?.rows;
         const newCols = savedSeatingData.gridConfig?.cols;
         const curRows = parseInt(document.getElementById('rowCount').value);
@@ -737,7 +755,6 @@ async function loadClassData() {
             TOTAL_SEATS = newRows * newCols;
             createAttendDesks();
         } else {
-            // ✅ 기존 책상은 카드만 제거하고 재사용 (DOM 재생성 없음)
             document.querySelectorAll('.desk-attend').forEach(d => {
                 const card = d.querySelector('.student-card-attend');
                 if (card) card.remove();
@@ -755,7 +772,6 @@ async function loadClassData() {
             }
         });
 
-        // ✅ requestAnimationFrame으로 카드 배치 — 메인 스레드 블로킹 방지
         await new Promise(resolve => requestAnimationFrame(resolve));
 
         students.forEach(std => {
@@ -783,22 +799,18 @@ async function loadClassData() {
 
         updateAbsenceList();
 
-        // 🔥 [핵심 추가] 좌석 배치 유무에 따른 명렬표/좌석판 자동 전환 눈치채기 로직!
         const placedCount = savedSeating.filter(s => {
             const n = String(s.name || "").trim();
             return n !== "" && n !== "__EMPTY__" && n !== "__CONFIG__";
         }).length;
 
         if (students.length > 0 && placedCount === 0) {
-            // 좌석 배치가 안 되어있으면 -> 알아서 '명렬표 모드'로!
             if (!isListView) toggleListView();
             else renderListView(); 
         } else {
-            // 좌석 배치가 되어있으면 -> 알아서 '좌석 모드'로!
             if (isListView) toggleListView();
         }
 
-        // 무조건 출석/일지 탭 유지
         switchTab('attend'); 
 
     } catch (e) { console.error("로드 오류", e); alert("데이터 로드 중 오류 발생"); }
@@ -1039,7 +1051,13 @@ async function saveSeatingToServer() {
             payload: { subject, seatingData: data, gridConfig }
         })});
         const r = await res.json();
-        alert(r.success ? "✅ 저장되었습니다!" : "❌ 저장 실패");
+        if (r.success) {
+            alert("✅ 저장되었습니다!");
+            // 🔥 좌석 배치가 바뀌었으므로 브라우저 임시 메모리(캐시)를 삭제하여 다음 로딩 때 새로 받아오도록 함
+            sessionStorage.removeItem(`cache_seat_${subject}`);
+        } else {
+            alert("❌ 저장 실패");
+        }
     } catch { alert("네트워크 오류"); } finally { btn.innerText = "💾 좌석 저장"; btn.disabled = false; }
 }
 
