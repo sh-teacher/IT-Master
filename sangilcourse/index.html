@@ -658,9 +658,9 @@
         const isToday = s.todayPeriods.length > 0;
         const todayPeriodStr = isToday ? s.todayPeriods.sort((a,b)=>a-b).map(p => p+'교시').join(', ') : '';
         
-        const dotColor = isToday ? '#10b981' : '#475569'; 
-        const titleColor = isToday ? '#10b981' : '#cbd5e1'; 
-        const fontWeight = isToday ? '800' : 'normal';
+        const dotColor = isToday ? '#10b981' : '#94a3b8'; 
+        const titleColor = isToday ? '#10b981' : '#f1f5f9'; 
+        const fontWeight = isToday ? '900' : 'bold';
         const badgeHtml = isToday ? `<span style="background:#334155; color:#34d399; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:800;">${todayPeriodStr}</span>` : '';
 
         const btn = document.createElement('button'); 
