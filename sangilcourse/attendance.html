@@ -12,7 +12,6 @@
   </script>
     <style>
         /* ── 공통 ── */
-        /* 🔥 좌석 열 개수에 맞춰 유연하게 변동 (스크롤 원인 제거) */
         .row-grid { display: grid; gap: 4px; width: 100%; }
         @media (min-width: 768px) { .row-grid { gap: 10px; } }
 
@@ -32,7 +31,7 @@
             .desk-attend-empty { min-height: 90px; }
         }
 
-        /* 📸 사진 모드 활성화 시 커지는 속성 (둥근 모서리 및 여백 유지!) */
+        /* 📸 사진 모드 활성화 시 커지는 속성 (둥근 모서리 유지) */
         .photo-mode .desk-attend { min-height: 120px; border-radius: 8px; padding: 4px; } 
         .photo-mode .desk-attend-empty { min-height: 120px; }
         @media (min-width: 768px) {
@@ -51,7 +50,15 @@
             .photo-mode .student-photo-wrapper { height: 150px; } 
         }
 
-        .student-photo { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; border: 1px solid #eee; }
+        /* 🔥 원본 사진 비율 완벽 유지! (cover -> contain 변경) */
+        .student-photo { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain; /* 사진 잘림 완벽 방지 */
+            border-radius: 4px; 
+            border: none; 
+            background-color: transparent; 
+        }
         @media (min-width: 768px) { .student-photo { border-radius: 10px; } }
 
         /* ── 좌석세팅 책상 ── */
@@ -92,9 +99,16 @@
         .tab-panel { display: none; }
         .tab-panel.active { display: block; }
         
-        /* 🔥 가로 스크롤 완벽 방지 (PC에서 보기 싫은 스크롤바 삭제) */
+        /* 🔥 스마트 반응형 너비 최적화! */
         .classroom-scroll-wrapper { width: 100%; overflow-x: auto; padding-bottom: 10px; }
-        .classroom-min-width { width: 100%; min-width: 100%; }
+        
+        /* 📱 모바일: 최소 600px 유지 (글씨 찌그러짐 방지, 좌우 스크롤 생성) */
+        .classroom-min-width { min-width: 600px; width: 100%; }
+        
+        /* 💻 PC (768px 이상): 최소 너비를 100%로 풀어서 화면에 꽉 차게 (불필요한 스크롤 제거) */
+        @media (min-width: 768px) { 
+            .classroom-min-width { min-width: 100%; } 
+        }
         
         /* ✨ 커스텀 출결 모달 */
         #attendModal {
