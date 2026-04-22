@@ -157,7 +157,7 @@
             if (type !== 'FREE_TEACHER' && type !== 'REAL_ALL' && !keyword) return alert("검색어를 입력하세요!");
 
             const area = document.getElementById('resultArea');
-            area.innerHTML = '<div class="text-center p-12 bg-white rounded-2xl shadow-sm animate-pulse text-slate-500 font-bold">열심히 데이터를 찾고 있습니다... 🔍</div>';
+            area.innerHTML = '<div class="text-center p-12 bg-white rounded-2xl shadow-sm animate-pulse text-slate-500 font-bold">데이터를 찾아 표로 정리하고 있습니다... 🔍</div>';
 
             try {
                 if (type.startsWith('REAL_')) {
@@ -232,7 +232,9 @@
                                     <tbody class="text-xs md:text-sm">`;
                         
                         for (let p = 1; p <= 7; p++) {
-                            tableHTML += `<tr class="hover:bg-slate-50 transition"><td class="border border-slate-200 p-2 font-black text-slate-600 bg-slate-50 align-middle">${p}교시</td>`;
+                            // 🔥 tr 태그에 h-[80px] 를 추가하여 모든 교시의 세로 높이를 일정하게 맞춥니다.
+                            tableHTML += `<tr class="hover:bg-slate-50 transition h-[80px]">
+                                <td class="border border-slate-200 p-2 font-black text-slate-600 bg-slate-50 align-middle">${p}교시</td>`;
                             ['월', '화', '수', '목', '금'].forEach(d => {
                                 const cellContent = grid[p][d] ? grid[p][d] : `<span class="text-slate-200">-</span>`;
                                 tableHTML += `<td class="border border-slate-200 p-2 align-middle">${cellContent}</td>`;
