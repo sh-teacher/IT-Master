@@ -2,27 +2,28 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>상일 통합 검색 엔진</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .timetable { width: 100%; border-collapse: collapse; text-align: center; font-size: 13px; }
-        .timetable th, .timetable td { border: 1px solid #e2e8f0; padding: 10px 4px; }
+        /* 테이블 스타일 세련되게 다듬기 */
+        .timetable { width: 100%; border-collapse: collapse; text-align: center; }
+        .timetable th, .timetable td { border: 1px solid #e2e8f0; padding: 8px 4px; }
         .timetable th { background-color: #f8fafc; color: #475569; font-weight: 800; }
-        .timetable td { height: 60px; vertical-align: middle; background-color: #ffffff; }
-        .tt-subj { font-weight: 900; color: #1e40af; display: block; line-height: 1.2; word-break: keep-all; }
-        .tt-teach { font-size: 11px; color: #64748b; margin-top: 4px; display: block; }
+        .timetable td { height: 50px; vertical-align: middle; background-color: #ffffff; }
+        .tt-subj { font-weight: 900; color: #1e40af; display: block; line-height: 1.3; word-break: keep-all; font-size: 13px; }
+        .tt-teach { font-size: 11px; color: #64748b; margin-top: 2px; display: block; }
     </style>
 </head>
-<body class="bg-slate-50 p-4 min-h-screen pb-20">
-    <div class="max-w-xl mx-auto">
-        <h1 class="text-2xl md:text-3xl font-black text-slate-800 mb-6 text-center">🔍 교과수업 만능 탐색기</h1>
+<body class="bg-slate-50 p-3 md:p-8 min-h-screen pb-24 font-sans text-slate-800">
+    <div class="max-w-3xl mx-auto">
+        <h1 class="text-2xl md:text-[26px] font-black text-slate-800 mb-5 md:mb-6 text-center tracking-tight">🔍 교과수업 만능 탐색기</h1>
 
-        <div class="bg-white rounded-3xl shadow-xl p-5 md:p-7 space-y-5 border border-slate-200">
+        <div class="bg-white rounded-3xl shadow-sm md:shadow-md p-5 md:p-6 border border-slate-200 space-y-4 md:space-y-5">
             
             <div>
-                <label class="block text-xs font-bold text-slate-400 mb-2">어떤 작업을 하실 건가요?</label>
-                <select id="searchType" onchange="toggleInputs()" class="w-full p-3 bg-slate-100 rounded-xl font-black text-slate-700 outline-none focus:ring-2 ring-blue-500">
+                <label class="block text-xs font-bold text-slate-400 mb-1.5 md:mb-2">어떤 작업을 하실 건가요?</label>
+                <select id="searchType" onchange="toggleInputs()" class="w-full p-4 md:py-2.5 md:px-3 bg-slate-100 rounded-2xl md:rounded-xl font-black md:font-bold text-slate-700 outline-none focus:ring-2 ring-blue-500/50 transition text-sm md:text-[15px]">
                     <optgroup label="📍 단일/실시간 위치 조회">
                         <option value="REAL_STUDENT">이 학생 지금 어디 있지? (이름)</option>
                         <option value="REAL_TEACHER">이 선생님 지금 어디 계시지? (성함)</option>
@@ -32,6 +33,7 @@
                         <option value="TIMETABLE_TEACHER">특정 선생님 [주간 시간표] 보기 (성함)</option>
                         <option value="TIMETABLE_CLASS">특정 반(실) [주간 시간표] 보기 (예: 1-3, 아름실)</option>
                         <option value="TIMETABLE_STUDENT">특정 학생 [주간 시간표] 보기 (이름)</option>
+                        <option value="TIMETABLE_ROOM">특정 장소/실 [주간 시간표] 보기 (예: 아름실)</option>
                     </optgroup>
                     <optgroup label="☕ 대강/보강 교사 찾기">
                         <option value="FREE_TEACHER" class="bg-amber-100">선택한 요일/교시에 [공강인 선생님] 찾기</option>
@@ -39,18 +41,18 @@
                 </select>
             </div>
             
-            <div id="timeSelector" class="grid grid-cols-2 gap-3">
+            <div id="timeSelector" class="grid grid-cols-2 gap-3 md:gap-4">
                 <div>
-                    <label class="block text-xs font-bold text-slate-400 mb-2">요일</label>
-                    <select id="searchDay" class="w-full p-3 bg-blue-50 border border-blue-100 rounded-xl font-bold text-blue-700 outline-none">
+                    <label class="block text-xs font-bold text-slate-400 mb-1.5 md:mb-2">요일</label>
+                    <select id="searchDay" class="w-full p-4 md:py-2.5 md:px-3 bg-blue-50 border border-blue-100 rounded-2xl md:rounded-xl font-bold text-blue-700 outline-none focus:ring-2 ring-blue-500/50 transition text-sm md:text-[15px]">
                         <option value="">🕒 현재 요일</option>
                         <option value="월">월요일</option><option value="화">화요일</option>
                         <option value="수">수요일</option><option value="목">목요일</option><option value="금">금요일</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-400 mb-2">교시</label>
-                    <select id="searchPeriod" class="w-full p-3 bg-blue-50 border border-blue-100 rounded-xl font-bold text-blue-700 outline-none">
+                    <label class="block text-xs font-bold text-slate-400 mb-1.5 md:mb-2">교시</label>
+                    <select id="searchPeriod" class="w-full p-4 md:py-2.5 md:px-3 bg-blue-50 border border-blue-100 rounded-2xl md:rounded-xl font-bold text-blue-700 outline-none focus:ring-2 ring-blue-500/50 transition text-sm md:text-[15px]">
                         <option value="">🕒 현재 교시</option>
                         <option value="1">1교시</option><option value="2">2교시</option><option value="3">3교시</option>
                         <option value="4">4교시</option><option value="5">5교시</option><option value="6">6교시</option><option value="7">7교시</option>
@@ -58,15 +60,20 @@
                 </div>
             </div>
 
-            <div class="relative pt-2" id="keywordBox">
-                <input type="text" id="keyword" placeholder="검색어 입력..." class="w-full p-4 bg-slate-100 rounded-xl font-black text-lg outline-none focus:ring-2 ring-blue-500">
-                <button onclick="runSearch()" class="absolute right-2 top-4 bottom-2 bg-blue-600 text-white px-6 rounded-lg font-bold shadow-md hover:bg-blue-700 transition">검색</button>
+            <div id="keywordBox" class="flex flex-col md:flex-row gap-2 md:gap-3 pt-1">
+                <input type="text" id="keyword" placeholder="검색어 입력..." class="flex-1 w-full p-4 md:py-2.5 md:px-4 bg-slate-100 rounded-2xl md:rounded-xl font-black md:font-bold text-base md:text-[15px] outline-none focus:ring-2 ring-blue-500/50 transition text-center md:text-left">
+                <button onclick="runSearch()" class="w-full md:w-28 bg-blue-600 text-white px-6 py-4 md:py-2.5 rounded-2xl md:rounded-xl font-black md:font-bold text-base md:text-[15px] shadow-sm hover:bg-blue-700 active:scale-95 transition-transform flex items-center justify-center gap-1.5">
+                    <span>🔍</span> 검색
+                </button>
             </div>
-            <button id="fullSearchBtn" onclick="runSearch()" style="display:none;" class="w-full mt-4 bg-amber-500 text-white p-4 rounded-xl font-black text-lg shadow-md hover:bg-amber-600 transition">☕ 이 시간에 공강인 선생님 찾기</button>
+
+            <button id="fullSearchBtn" onclick="runSearch()" style="display:none;" class="w-full mt-2 bg-amber-500 text-white p-4 md:py-3 rounded-2xl md:rounded-xl font-black md:font-bold text-base md:text-[15px] shadow-sm hover:bg-amber-600 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                <span>☕</span> 이 시간에 공강인 선생님 찾기
+            </button>
 
         </div>
 
-        <div id="resultArea" class="mt-6 space-y-4"></div>
+        <div id="resultArea" class="mt-5 md:mt-6 space-y-3 md:space-y-4"></div>
     </div>
 
     <script>
@@ -80,9 +87,9 @@
 
             if (type === 'FREE_TEACHER') {
                 keywordBox.style.display = 'none';
-                fullSearchBtn.style.display = 'block';
+                fullSearchBtn.style.display = 'flex';
             } else {
-                keywordBox.style.display = 'block';
+                keywordBox.style.display = 'flex';
                 fullSearchBtn.style.display = 'none';
             }
         }
@@ -93,11 +100,11 @@
             const day = document.getElementById('searchDay').value;
             const period = document.getElementById('searchPeriod').value;
 
-            // 🔥 기존에 공강 검색 시 요일/교시 비어있으면 막던 코드 삭제!
             if (type !== 'FREE_TEACHER' && !keyword) return alert("검색어를 입력하세요!");
 
             const area = document.getElementById('resultArea');
-            area.innerHTML = '<div class="text-center p-12 bg-white rounded-2xl shadow-sm animate-pulse text-slate-500 font-bold">열심히 데이터를 찾고 있습니다... 🔍</div>';
+            // 로딩 바도 PC에서는 더 얇게
+            area.innerHTML = '<div class="text-center p-8 md:p-10 bg-white rounded-3xl md:rounded-2xl shadow-sm animate-pulse text-slate-400 font-bold border border-slate-100 text-sm md:text-base">열심히 데이터를 찾고 있습니다... 🔍</div>';
 
             try {
                 // 1. 리얼타임 단건 조회
@@ -106,17 +113,17 @@
                     const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "SEARCH_REALTIME", payload: { searchType: realType, keyword: keyword, forceDay: day, forcePeriod: period } }) });
                     const r = await res.json();
                     
-                    if (!r.success) return area.innerHTML = `<div class="bg-amber-50 text-amber-700 p-5 rounded-2xl text-center font-bold border border-amber-200">${r.msg}</div>`;
-                    if (!r.data || r.data.length === 0) return area.innerHTML = `<div class="bg-slate-200 text-slate-600 p-5 rounded-2xl text-center font-bold">해당 시간에 진행 중인 수업이 없습니다.</div>`;
+                    if (!r.success) return area.innerHTML = `<div class="bg-amber-50 text-amber-700 p-4 md:p-5 rounded-2xl md:rounded-xl text-center font-bold border border-amber-200 shadow-sm text-sm">${r.msg}</div>`;
+                    if (!r.data || r.data.length === 0) return area.innerHTML = `<div class="bg-slate-100 text-slate-500 p-4 md:p-5 rounded-2xl md:rounded-xl text-center font-bold shadow-sm text-sm">해당 시간에 진행 중인 수업이 없습니다.</div>`;
 
                     area.innerHTML = r.data.map(item => `
-                        <div class="bg-white p-6 rounded-3xl shadow-md border-l-8 border-blue-500 transform transition hover:-translate-y-1">
-                            <div class="flex justify-between items-start mb-2">
-                                <span class="text-xs font-bold text-slate-400">${day || '오늘'} ${r.period}교시</span>
-                                ${item.studentInfo ? `<span class="bg-indigo-100 text-indigo-700 text-[11px] px-2 py-0.5 rounded-lg font-black shadow-sm">👤 ${item.studentInfo}</span>` : ''}
+                        <div class="bg-white p-5 md:p-6 rounded-3xl md:rounded-2xl shadow-sm border-l-4 md:border-l-8 border-blue-500 transform transition hover:-translate-y-1">
+                            <div class="flex justify-between items-start mb-1.5 md:mb-2">
+                                <span class="text-[11px] md:text-xs font-bold text-slate-400">${day || '오늘'} ${r.period}교시</span>
+                                ${item.studentInfo ? `<span class="bg-indigo-50 text-indigo-600 text-[10px] md:text-xs px-2 py-0.5 md:py-1 rounded-md font-bold border border-indigo-100 shadow-sm">👤 ${item.studentInfo}</span>` : ''}
                             </div>
-                            <div class="text-xl font-black text-slate-800">${item.subject}</div>
-                            ${item.teacher && type !== 'REAL_TEACHER' ? `<div class="text-blue-600 font-bold mt-2">${item.teacher} 선생님</div>` : ''}
+                            <div class="text-lg md:text-xl font-black text-slate-800 tracking-tight leading-snug">${item.subject}</div>
+                            ${item.teacher && type !== 'REAL_TEACHER' ? `<div class="text-blue-600 font-bold mt-1.5 md:mt-2 text-xs md:text-sm">${item.teacher} 선생님</div>` : ''}
                         </div>
                     `).join('');
                 } 
@@ -126,20 +133,19 @@
                     const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "GET_ADVANCED_SEARCH", payload: { searchType: type, keyword: keyword, day: day, period: period } }) });
                     const r = await res.json();
 
-                    if (!r.success) return area.innerHTML = `<div class="bg-red-50 text-red-600 p-5 rounded-2xl text-center font-bold border border-red-200">${r.msg}</div>`;
+                    if (!r.success) return area.innerHTML = `<div class="bg-red-50 text-red-600 p-4 md:p-5 rounded-2xl md:rounded-xl text-center font-bold border border-red-200 shadow-sm text-sm">${r.msg}</div>`;
 
                     // ☕ 공강 교사 결과
                     if (r.type === "FREE_TEACHER") {
-                        // 🔥 백엔드가 계산해서 돌려준 '현재 요일/교시'를 받아서 출력!
                         const finalDay = r.day || day;
                         const finalPeriod = r.period || period;
 
-                        if (r.data.length === 0) return area.innerHTML = `<div class="bg-slate-200 text-slate-600 p-5 rounded-2xl text-center font-bold">해당 시간에 공강인 선생님이 없습니다.</div>`;
+                        if (r.data.length === 0) return area.innerHTML = `<div class="bg-slate-100 text-slate-500 p-4 md:p-5 rounded-2xl md:rounded-xl text-center font-bold shadow-sm text-sm">해당 시간에 공강인 선생님이 없습니다.</div>`;
                         
-                        let tags = r.data.map(t => `<span class="inline-block bg-white text-slate-700 border border-slate-300 font-black px-3 py-2 rounded-lg shadow-sm m-1">${t}</span>`).join('');
+                        let tags = r.data.map(t => `<span class="inline-block bg-white text-slate-600 border border-slate-200 font-bold px-3 py-1.5 md:px-3.5 md:py-1.5 rounded-lg shadow-sm m-1 text-[13px] md:text-sm">${t}</span>`).join('');
                         area.innerHTML = `
-                            <div class="bg-amber-50 rounded-3xl p-6 border border-amber-200 shadow-sm">
-                                <h2 class="text-lg font-black text-amber-800 mb-4">☕ ${finalDay}요일 ${finalPeriod}교시 공강 선생님 (${r.data.length}명)</h2>
+                            <div class="bg-amber-50 rounded-3xl md:rounded-2xl p-5 md:p-6 border border-amber-200 shadow-sm">
+                                <h2 class="text-base md:text-lg font-black text-amber-800 mb-3 md:mb-4 tracking-tight">☕ ${finalDay}요일 ${finalPeriod}교시 공강 선생님 (${r.data.length}명)</h2>
                                 <div>${tags}</div>
                             </div>
                         `;
@@ -147,7 +153,7 @@
                     
                     // 🗓️ 주간 시간표 렌더링
                     else if (r.type === "TIMETABLE") {
-                        if (r.data.length === 0) return area.innerHTML = `<div class="bg-slate-200 text-slate-600 p-5 rounded-2xl text-center font-bold">시간표 데이터가 없습니다.</div>`;
+                        if (r.data.length === 0) return area.innerHTML = `<div class="bg-slate-100 text-slate-500 p-4 md:p-5 rounded-2xl md:rounded-xl text-center font-bold shadow-sm text-sm">시간표 데이터가 없습니다.</div>`;
                         
                         const grid = {};
                         for (let p = 1; p <= 8; p++) { grid[p] = { '월': '', '화': '', '수': '', '목': '', '금': '' }; }
@@ -156,36 +162,36 @@
                             if (item.period >= 1 && item.period <= 8 && grid[item.period][item.day] !== undefined) {
                                 let teacherHTML = '';
                                 if (type !== 'TIMETABLE_TEACHER' && item.teacher) {
-                                    teacherHTML = `<div class="text-[10px] md:text-xs text-blue-600 font-bold mt-1 truncate">${item.teacher} 선생님</div>`;
+                                    teacherHTML = `<div class="text-[10px] md:text-[11px] text-blue-600 font-bold mt-0.5 md:mt-1 truncate">${item.teacher} 선생님</div>`;
                                 }
                                 
-                                const html = `<div class="font-black text-slate-800 break-keep leading-snug">${item.subject}</div>${teacherHTML}`;
-                                grid[item.period][item.day] += (grid[item.period][item.day] ? '<hr class="my-1 border-slate-200">' : '') + html;
+                                const html = `<div class="font-bold md:font-black text-slate-800 break-keep leading-tight text-xs md:text-[13px]">${item.subject}</div>${teacherHTML}`;
+                                grid[item.period][item.day] += (grid[item.period][item.day] ? '<hr class="my-1 border-slate-100">' : '') + html;
                             }
                         });
 
                         let tableHTML = `
-                        <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
-                            <div class="bg-blue-600 text-white text-center py-4 font-black text-lg">${r.title}</div>
-                            <div class="w-full overflow-x-auto p-1">
+                        <div class="bg-white rounded-3xl md:rounded-2xl shadow-sm md:shadow border border-slate-200 overflow-hidden">
+                            <div class="bg-blue-600 text-white text-center py-3 md:py-3.5 font-bold md:font-black text-base md:text-lg tracking-tight">${r.title}</div>
+                            <div class="w-full overflow-x-auto p-0.5 md:p-1">
                                 <table class="w-full text-center border-collapse table-fixed min-w-[500px]">
-                                    <thead class="bg-slate-100 text-slate-700 text-sm">
+                                    <thead class="bg-slate-50 text-slate-500 text-xs md:text-[13px]">
                                         <tr>
-                                            <th class="border border-slate-200 p-2 md:p-3 w-[10%]">교시</th>
-                                            <th class="border border-slate-200 p-2 md:p-3 w-[18%]">월</th>
-                                            <th class="border border-slate-200 p-2 md:p-3 w-[18%]">화</th>
-                                            <th class="border border-slate-200 p-2 md:p-3 w-[18%]">수</th>
-                                            <th class="border border-slate-200 p-2 md:p-3 w-[18%]">목</th>
-                                            <th class="border border-slate-200 p-2 md:p-3 w-[18%]">금</th>
+                                            <th class="border border-slate-200 p-1.5 md:p-2 w-[10%]">교시</th>
+                                            <th class="border border-slate-200 p-1.5 md:p-2 w-[18%]">월</th>
+                                            <th class="border border-slate-200 p-1.5 md:p-2 w-[18%]">화</th>
+                                            <th class="border border-slate-200 p-1.5 md:p-2 w-[18%]">수</th>
+                                            <th class="border border-slate-200 p-1.5 md:p-2 w-[18%]">목</th>
+                                            <th class="border border-slate-200 p-1.5 md:p-2 w-[18%]">금</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="text-xs md:text-sm">`;
+                                    <tbody class="text-xs md:text-[13px]">`;
                         
                         for (let p = 1; p <= 7; p++) {
-                            tableHTML += `<tr class="hover:bg-slate-50 transition"><td class="border border-slate-200 p-2 font-black text-slate-600 bg-slate-50 align-middle">${p}교시</td>`;
+                            tableHTML += `<tr class="hover:bg-blue-50/30 transition-colors"><td class="border border-slate-200 p-1 md:p-2 font-bold text-slate-400 bg-slate-50 align-middle">${p}교시</td>`;
                             ['월', '화', '수', '목', '금'].forEach(d => {
                                 const cellContent = grid[p][d] ? grid[p][d] : `<span class="text-slate-200">-</span>`;
-                                tableHTML += `<td class="border border-slate-200 p-2 align-middle">${cellContent}</td>`;
+                                tableHTML += `<td class="border border-slate-200 p-1.5 md:p-2 align-middle">${cellContent}</td>`;
                             });
                             tableHTML += `</tr>`;
                         }
@@ -195,7 +201,7 @@
                     }
                 }
             } catch (e) {
-                area.innerHTML = `<div class="text-center p-5 text-red-500 font-bold bg-red-50 rounded-2xl">통신 오류가 발생했습니다. 다시 시도해주세요.</div>`;
+                area.innerHTML = `<div class="text-center p-4 md:p-5 text-red-500 font-bold bg-red-50 rounded-2xl md:rounded-xl shadow-sm border border-red-100 text-sm">통신 오류가 발생했습니다. 다시 시도해주세요.</div>`;
             }
         }
 
