@@ -672,14 +672,18 @@ async function loadClassData() {
         const students = studentsData.success ? studentsData.data : [];
         const savedSeating = savedSeatingData.success ? savedSeatingData.data : [];
 
-        // 🌟 [배치된 학생 수 계산] 
-        // 이름이 있고, 그 이름이 '__EMPTY__'(빈자리)나 '__CONFIG__'(설정)가 아닌 실제 이름인 경우만 카운트!
-        const placedCount = savedSeating.filter(s => {
-            const n = String(s.name || "").trim();
-            return n !== "" && n !== "__EMPTY__" && n !== "__CONFIG__";
-        }).length;
+        // 🌟 1. [핵심] 명렬표에서 사용할 전역 변수에 데이터 즉시 복사
+        currentStudentsList = students; 
+        currentSavedSeatingList = savedSeating;
+        attendanceData = {};
 
-        // 1. 그리드 설정 복원
+        // 🌟 2. 모든 학생을 일단 '출석'으로 초기화 (표 모드에서 누락 방지)
+        students.forEach(std => {
+            const stdKey = getStudentKey(std);
+            attendanceData[stdKey] = { name: std.name, class: std.class, number: std.number, status: 'present', memo: '' };
+        });
+
+        // 3. 그리드 설정 복원
         if (savedSeatingData.gridConfig) {
             const { rows, cols } = savedSeatingData.gridConfig;
             document.getElementById('rowCount').value = rows;
@@ -689,25 +693,23 @@ async function loadClassData() {
             createAttendDesks(); 
         }
 
-        attendanceData = {};
         document.getElementById('classLog').value = (recordData.success && recordData.data) ? recordData.data.log : '';
-
         const desks = document.querySelectorAll('.desk-attend');
         
-        // 2. 좌석 라벨 및 학생 카드 배치
+        // 4. 좌석 라벨 표시
         savedSeating.forEach(seat => {
             if (seat.seatLabel && seat.seatIndex >= 0 && seat.seatIndex < desks.length) {
                 desks[seat.seatIndex].querySelector('.seat-num-label').innerText = seat.seatLabel;
             }
         });
 
+        // 5. 학생 카드 배치 (학생 시점)
         students.forEach(std => {
             const cleanStdName = String(std.name || "").replace(/\s/g, '');
             const seat = savedSeating.find(s => parseInt(s.number) === parseInt(std.number) && String(s.name || "").replace(/\s/g, '') === cleanStdName);
             
             if (seat && seat.seatIndex >= 0 && seat.seatIndex < desks.length) {
                 const stdKey = getStudentKey(std);
-                attendanceData[stdKey] = { name: std.name, class: std.class, number: std.number, status: 'present', memo: '' };
                 const card = document.createElement('div');
                 card.className = `student-card-attend rounded-md border font-bold p-1 card-present overflow-hidden`;
                 card.dataset.stdKey = stdKey;
@@ -727,7 +729,7 @@ async function loadClassData() {
             }
         });
 
-        // 출결 이슈 로드 로직 (기존과 동일)
+        // 6. 저장된 출결 기록(결석/지각) 적용
         if (recordData.success && recordData.data && recordData.data.attendanceIssues) {
             recordData.data.attendanceIssues.forEach(issue => {
                 const key = getStudentKey(issue);
@@ -743,11 +745,16 @@ async function loadClassData() {
             });
         }
 
+        // 🌟 7. [핵심] 리스트 뷰 및 특이사항 목록 갱신
         updateAbsenceList();
         renderListView();
 
-        // 🌟 3. 최종 탭 결정 (단 1명이라도 배치되어 있으면 출석부로!)
-        console.log("배치된 학생 수:", placedCount); // 확인용
+        // 8. 스마트 탭 전환
+        const placedCount = savedSeating.filter(s => {
+            const n = String(s.name || "").trim();
+            return n !== "" && n !== "__EMPTY__" && n !== "__CONFIG__";
+        }).length;
+
         if (students.length > 0 && placedCount === 0) {
             switchTab('seat'); 
         } else {
