@@ -767,7 +767,24 @@ async function loadClassData() {
         }
 
         updateAbsenceList();
-        if (isListView) renderListView();
+
+        // 🔥 [핵심 추가] 좌석 배치 유무에 따른 명렬표/좌석판 자동 전환 눈치채기 로직!
+        const placedCount = savedSeating.filter(s => {
+            const n = String(s.name || "").trim();
+            return n !== "" && n !== "__EMPTY__" && n !== "__CONFIG__";
+        }).length;
+
+        if (students.length > 0 && placedCount === 0) {
+            // 좌석 배치가 안 되어있으면 -> 알아서 '명렬표 모드'로!
+            if (!isListView) toggleListView();
+            else renderListView(); 
+        } else {
+            // 좌석 배치가 되어있으면 -> 알아서 '좌석 모드'로!
+            if (isListView) toggleListView();
+        }
+
+        // 무조건 출석/일지 탭 유지
+        switchTab('attend'); 
 
     } catch (e) { console.error("로드 오류", e); alert("데이터 로드 중 오류 발생"); }
 }
