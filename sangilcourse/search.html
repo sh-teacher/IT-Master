@@ -93,8 +93,8 @@
             const day = document.getElementById('searchDay').value;
             const period = document.getElementById('searchPeriod').value;
 
-            if(type !== 'FREE_TEACHER' && !keyword) return alert("검색어를 입력하세요!");
-            if(type === 'FREE_TEACHER' && (!day || !period)) return alert("요일과 교시를 반드시 선택해주세요!");
+            if (type !== 'FREE_TEACHER' && !keyword) return alert("검색어를 입력하세요!");
+            if (type === 'FREE_TEACHER' && (!day || !period)) return alert("요일과 교시를 반드시 선택해주세요!");
 
             const area = document.getElementById('resultArea');
             area.innerHTML = '<div class="text-center p-12 bg-white rounded-2xl shadow-sm animate-pulse text-slate-500 font-bold">열심히 데이터를 찾고 있습니다... 🔍</div>';
@@ -106,13 +106,13 @@
                     const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "SEARCH_REALTIME", payload: { searchType: realType, keyword: keyword, forceDay: day, forcePeriod: period } }) });
                     const r = await res.json();
                     
-                    if(!r.success) return area.innerHTML = `<div class="bg-amber-50 text-amber-700 p-5 rounded-2xl text-center font-bold border border-amber-200">${r.msg}</div>`;
-                    if(!r.data || r.data.length === 0) return area.innerHTML = `<div class="bg-slate-200 text-slate-600 p-5 rounded-2xl text-center font-bold">해당 시간에 진행 중인 수업이 없습니다.</div>`;
+                    if (!r.success) return area.innerHTML = `<div class="bg-amber-50 text-amber-700 p-5 rounded-2xl text-center font-bold border border-amber-200">${r.msg}</div>`;
+                    if (!r.data || r.data.length === 0) return area.innerHTML = `<div class="bg-slate-200 text-slate-600 p-5 rounded-2xl text-center font-bold">해당 시간에 진행 중인 수업이 없습니다.</div>`;
 
                     area.innerHTML = r.data.map(item => `
                         <div class="bg-white p-6 rounded-3xl shadow-md border-l-8 border-blue-500 transform transition hover:-translate-y-1">
                             <div class="flex justify-between items-start mb-2">
-                                <span class="text-xs font-bold text-slate-400">${day||'오늘'} ${r.period}교시</span>
+                                <span class="text-xs font-bold text-slate-400">${day || '오늘'} ${r.period}교시</span>
                                 ${item.studentInfo ? `<span class="bg-indigo-100 text-indigo-700 text-[11px] px-2 py-0.5 rounded-lg font-black shadow-sm">👤 ${item.studentInfo}</span>` : ''}
                             </div>
                             <div class="text-xl font-black text-slate-800">${item.subject}</div>
@@ -126,11 +126,11 @@
                     const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "GET_ADVANCED_SEARCH", payload: { searchType: type, keyword: keyword, day: day, period: period } }) });
                     const r = await res.json();
 
-                    if(!r.success) return area.innerHTML = `<div class="bg-red-50 text-red-600 p-5 rounded-2xl text-center font-bold border border-red-200">${r.msg}</div>`;
+                    if (!r.success) return area.innerHTML = `<div class="bg-red-50 text-red-600 p-5 rounded-2xl text-center font-bold border border-red-200">${r.msg}</div>`;
 
                     // ☕ 공강 교사 결과 렌더링
                     if (r.type === "FREE_TEACHER") {
-                        if(r.data.length === 0) return area.innerHTML = `<div class="bg-slate-200 text-slate-600 p-5 rounded-2xl text-center font-bold">해당 시간에 공강인 선생님이 없습니다.</div>`;
+                        if (r.data.length === 0) return area.innerHTML = `<div class="bg-slate-200 text-slate-600 p-5 rounded-2xl text-center font-bold">해당 시간에 공강인 선생님이 없습니다.</div>`;
                         
                         let tags = r.data.map(t => `<span class="inline-block bg-white text-slate-700 border border-slate-300 font-black px-3 py-2 rounded-lg shadow-sm m-1">${t}</span>`).join('');
                         area.innerHTML = `
@@ -141,36 +141,53 @@
                         `;
                     } 
                     
-                    // 🗓️ 주간 시간표 렌더링
+                    // 🗓️ 주간 시간표 렌더링 (🔥 너비 고정 적용!)
                     else if (r.type === "TIMETABLE") {
-                        if(r.data.length === 0) return area.innerHTML = `<div class="bg-slate-200 text-slate-600 p-5 rounded-2xl text-center font-bold">시간표 데이터가 없습니다.</div>`;
+                        if (r.data.length === 0) return area.innerHTML = `<div class="bg-slate-200 text-slate-600 p-5 rounded-2xl text-center font-bold">시간표 데이터가 없습니다.</div>`;
                         
                         // 시간표 그리드 조립
                         const grid = {};
-                        for(let p=1; p<=8; p++) { grid[p] = { '월':'', '화':'', '수':'', '목':'', '금':'' }; }
+                        for (let p = 1; p <= 8; p++) { grid[p] = { '월': '', '화': '', '수': '', '목': '', '금': '' }; }
                         
                         r.data.forEach(item => {
-                            if(item.period >= 1 && item.period <= 8 && grid[item.period][item.day] !== undefined) {
+                            if (item.period >= 1 && item.period <= 8 && grid[item.period][item.day] !== undefined) {
                                 // 한 칸에 여러 과목이 겹칠 수 있으니(이동수업 등) 누적 처리
-                                const html = `<span class="tt-subj">${item.subject}</span><span class="tt-teach">${item.teacher || ''}</span>`;
+                                const html = `<div class="font-black text-slate-800 break-keep leading-snug">${item.subject}</div><div class="text-[10px] md:text-xs text-blue-600 font-bold mt-1 truncate">${item.teacher ? '👨‍🏫 ' + item.teacher : ''}</div>`;
                                 grid[item.period][item.day] += (grid[item.period][item.day] ? '<hr class="my-1 border-slate-200">' : '') + html;
                             }
                         });
 
-                        let tableHTML = `<div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden"><div class="bg-blue-600 text-white text-center py-4 font-black text-lg">${r.title}</div><div class="overflow-x-auto p-1"><table class="timetable"><thead><tr><th>교시</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th></tr></thead><tbody>`;
+                        let tableHTML = `
+                        <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+                            <div class="bg-blue-600 text-white text-center py-4 font-black text-lg">${r.title}</div>
+                            <div class="w-full overflow-x-auto p-1">
+                                <table class="w-full text-center border-collapse table-fixed min-w-[500px]">
+                                    <thead class="bg-slate-100 text-slate-700 text-sm">
+                                        <tr>
+                                            <th class="border border-slate-200 p-2 md:p-3 w-[10%]">교시</th>
+                                            <th class="border border-slate-200 p-2 md:p-3 w-[18%]">월</th>
+                                            <th class="border border-slate-200 p-2 md:p-3 w-[18%]">화</th>
+                                            <th class="border border-slate-200 p-2 md:p-3 w-[18%]">수</th>
+                                            <th class="border border-slate-200 p-2 md:p-3 w-[18%]">목</th>
+                                            <th class="border border-slate-200 p-2 md:p-3 w-[18%]">금</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-xs md:text-sm">`;
                         
-                        for(let p=1; p<=7; p++) {
-                            tableHTML += `<tr><td class="font-black text-slate-500">${p}</td>`;
-                            ['월','화','수','목','금'].forEach(d => {
-                                tableHTML += `<td>${grid[p][d] || ''}</td>`;
+                        for (let p = 1; p <= 7; p++) {
+                            tableHTML += `<tr class="hover:bg-slate-50 transition"><td class="border border-slate-200 p-2 font-black text-slate-600 bg-slate-50 align-middle">${p}교시</td>`;
+                            ['월', '화', '수', '목', '금'].forEach(d => {
+                                const cellContent = grid[p][d] ? grid[p][d] : `<span class="text-slate-200">-</span>`;
+                                tableHTML += `<td class="border border-slate-200 p-2 align-middle">${cellContent}</td>`;
                             });
                             tableHTML += `</tr>`;
                         }
+                        
                         tableHTML += `</tbody></table></div></div>`;
                         area.innerHTML = tableHTML;
                     }
                 }
-            } catch(e) {
+            } catch (e) {
                 area.innerHTML = `<div class="text-center p-5 text-red-500 font-bold bg-red-50 rounded-2xl">통신 오류가 발생했습니다. 다시 시도해주세요.</div>`;
             }
         }
