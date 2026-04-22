@@ -712,8 +712,6 @@ async function loadClassData() {
     document.getElementById('classLog').value = '데이터 불러오는 중...';
 
     try {
-        // 🔥 속도 개선 + 완벽한 오류 방어(방탄) 코드 적용!
-        
         // 1. 학생 데이터 가져오기 (캐시 오류 시 자동 복구)
         const getStudents = async () => {
             const cache = sessionStorage.getItem(`cache_std_${subject}`);
@@ -756,26 +754,18 @@ async function loadClassData() {
             attendanceData[getStudentKey(std)] = { name: std.name, class: std.class, number: std.number, status: 'present', memo: '' };
         });
 
-        const newRows = savedSeatingData?.gridConfig?.rows;
-        const newCols = savedSeatingData?.gridConfig?.cols;
-        const curRows = parseInt(document.getElementById('rowCount').value);
-        const curCols = parseInt(document.getElementById('colCount').value);
-        const needRebuild = newRows && newCols && (newRows !== curRows || newCols !== curCols);
+        // 🔥 [수정된 부분] 복잡한 조건(needRebuild) 다 지우고 무조건 깔끔하게 새로 그립니다!
+        const newRows = savedSeatingData?.gridConfig?.rows || 4;
+        const newCols = savedSeatingData?.gridConfig?.cols || 7;
 
-        if (needRebuild) {
-            document.getElementById('rowCount').value = newRows;
-            document.getElementById('colCount').value = newCols;
-            ROW_CONFIG = Array.from({ length: newRows }, () => ({ desks: newCols, empty: 0 }));
-            TOTAL_SEATS = newRows * newCols;
-            createAttendDesks();
-        } else {
-            document.querySelectorAll('.desk-attend').forEach(d => {
-                const card = d.querySelector('.student-card-attend');
-                if (card) card.remove();
-                const label = d.querySelector('.seat-num-label');
-                if (label) label.innerText = '';
-            });
-        }
+        document.getElementById('rowCount').value = newRows;
+        document.getElementById('colCount').value = newCols;
+        ROW_CONFIG = Array.from({ length: newRows }, () => ({ desks: newCols, empty: 0 }));
+        TOTAL_SEATS = newRows * newCols;
+        
+        // 찌그러짐 방지: 무조건 좌석판을 튼튼하게 다시 생성!
+        createAttendDesks();
+        // 🔥 -----------------------------------------------------------
 
         document.getElementById('classLog').value = (recordData?.success && recordData.data) ? recordData.data.log : '';
         const desks = document.querySelectorAll('.desk-attend');
