@@ -658,12 +658,12 @@
         const isToday = s.todayPeriods.length > 0;
         const todayPeriodStr = isToday ? s.todayPeriods.sort((a,b)=>a-b).map(p => p+'교시').join(', ') : '';
         
-        // 🔥 파스텔톤 녹색에서 -> 묵직하고 진한 트루 그린(#16a34a)으로 변경!
-        const dotColor = isToday ? '#16a34a' : '#94a3b8'; 
-        const titleColor = isToday ? '#16a34a' : '#f1f5f9'; 
+        // 🔥 어두운 배경에서 확 튀어오르는 '비비드 그린(#22c55e)'과 '네온 그린(#4ade80)'으로 교체!
+        const dotColor = isToday ? '#22c55e' : '#94a3b8'; 
+        const titleColor = isToday ? '#22c55e' : '#f1f5f9'; 
         const fontWeight = isToday ? '900' : 'bold';
-        // 뱃지도 진한 배경(#1e293b)에 선명한 녹색 글씨(#4ade80)로 맞춰서 통일감을 줬습니다!
-        const badgeHtml = isToday ? `<span style="background:#1e293b; color:#4ade80; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:800;">${todayPeriodStr}</span>` : '';
+        // 뱃지도 눈에 띄게 진초록 바탕(#14532d)에 네온 그린(#4ade80) 글씨로 포인트!
+        const badgeHtml = isToday ? `<span style="background:#14532d; color:#4ade80; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:800;">${todayPeriodStr}</span>` : '';
 
         const btn = document.createElement('button'); 
         btn.className = 'subject-btn'; 
