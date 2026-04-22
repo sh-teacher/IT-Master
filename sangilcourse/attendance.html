@@ -12,42 +12,47 @@
   </script>
     <style>
         /* ── 공통 ── */
+        /* 🔥 좌석 열 개수를 자바스크립트에 맞춰 자동 조절되게 고정 해제! */
         .row-grid { display: grid; gap: 4px; width: 100%; }
         @media (min-width: 768px) { .row-grid { gap: 10px; } }
 
-        /* ── 출석판 책상 ── */
-        .desk-attend { min-height: 48px; border: 2px dashed #cbd5e1; border-radius: 6px; display: flex; align-items: center; justify-content: center; padding: 2px; background: #f8fafc; position: relative; transition: all 0.2s; }
-        .desk-attend-empty { min-height: 48px; background: transparent; }
-        
-        /* 🔥 좌석이 많아져도 찌그러지지 않게 최소 너비를 넉넉히 확보합니다. */
-        .classroom-min-width { min-width: 650px; width: 100%; }
-        @media (min-width: 768px) { .classroom-min-width { min-width: 800px; } }
+        /* ── 출석판 책상 (기본: 텍스트(이름) 모드) ── */
+        .desk-attend {
+            min-height: 48px;
+            border: 2px dashed #cbd5e1; border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            padding: 2px; background: #f8fafc; position: relative;
+            transition: all 0.2s;
+            overflow: hidden;
+        }
+        .desk-attend-empty { min-height: 48px; background: transparent; transition: all 0.2s; }
 
-        /* ──────────────────────────────────────────────────
-           📸 사진 모드 (여백 없는 타일형 디자인)
-           ────────────────────────────────────────────────── */
-        /* 1. 그리드 여백을 1px(실선)만 남기고 완전히 제거 */
+        @media (min-width: 768px) { 
+            .desk-attend { min-height: 90px; border-radius: 12px; padding: 4px; } 
+            .desk-attend-empty { min-height: 90px; }
+        }
+
+        /* 📸 사진 모드 (타일형 무여백 디자인으로 덮어쓰기) */
+        /* 1. 그리드 여백 제거 */
         .photo-mode #classroomGrid .row-grid { gap: 1px !important; }
-
-        /* 2. 책상 테두리, 라운딩, 패딩 제거 및 4:5 사진 비율 고정 */
+        
+        /* 2. 책상 테두리/라운딩 제거 및 비율 고정 */
         .photo-mode .desk-attend {
             padding: 0 !important;
             border: none !important;
             border-radius: 0 !important;
             background-color: transparent !important;
-            overflow: hidden;
-            position: relative;
             aspect-ratio: 4/5; 
             min-height: auto !important; 
         }
         .photo-mode .desk-attend-empty {
-            background-color: #f1f5f9 !important; /* 빈자리 색상 */
+            background-color: #f1f5f9 !important;
             border: none !important;
             aspect-ratio: 4/5;
             min-height: auto !important;
         }
 
-        /* 3. 학생 카드 여백 및 테두리 꽉 채우기 */
+        /* 3. 학생 카드 여백/라운딩 제거 */
         .photo-mode .student-card-attend {
             padding: 0 !important;
             border: none !important;
@@ -58,7 +63,7 @@
             display: block !important; 
         }
 
-        /* 4. 사진 컨테이너 설정 (사진 모드일 때만 켜짐) */
+        /* 사진 영역 */
         .student-photo-wrapper { display: none; width: 100%; height: 70px; margin-bottom: 4px; }
         @media (min-width: 768px) { .student-photo-wrapper { height: 130px; margin-bottom: 8px; } }
         
@@ -70,19 +75,17 @@
             border: none !important; 
             border-radius: 0 !important;
         }
-        
+
         .student-photo { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; border: 1px solid #eee; }
         @media (min-width: 768px) { .student-photo { border-radius: 10px; } }
 
-        /* 타일 모드 사진은 라운딩 없이 직사각형으로 */
+        /* 사진 모드일 때는 사진도 라운딩/테두리 제거 */
         .photo-mode .student-photo {
             border: none !important;
             border-radius: 0 !important;
-            height: 100%; width: 100%;
-            object-fit: cover;
         }
 
-        /* 사진이 없는 학생 번호 임시 표시 */
+        /* 사진 없는 학생 번호 표시 */
         .photo-mode .student-photo-wrapper.no-img {
             background-color: #cbd5e1 !important;
             color: rgba(255,255,255,0.8) !important;
@@ -91,10 +94,9 @@
             display: flex !important; align-items: center; justify-content: center;
         }
 
-        /* 5. 이름/번호 텍스트를 사진 맨 아래쪽 오버레이(반투명 검정 배경)로 위치시킴 */
+        /* 사진 위 이름/번호 오버레이 처리 */
         .photo-mode .student-card-attend > div:last-child {
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
+            position: absolute; bottom: 0; left: 0; right: 0;
             background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.5) 70%, transparent 100%);
             color: white !important;
             padding: 8px 4px 4px 4px !important;
@@ -102,56 +104,65 @@
             z-index: 10;
             display: block !important;
         }
-        /* 텍스트 가독성을 위해 흰색으로 변경 */
         .photo-mode .student-card-attend span.opacity-70,
         .photo-mode .student-card-attend span.text-slate-400 {
             color: rgba(255,255,255,0.85) !important;
-            font-weight: bold;
-            font-size: 10px !important;
-            display: block;
-            margin-bottom: 2px;
+            font-weight: bold; font-size: 10px !important;
+            display: block; margin-bottom: 2px;
         }
         .photo-mode .student-card-attend span.text-slate-800,
         .photo-mode .student-card-attend span.font-black {
             color: white !important;
             text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-            font-size: 13px !important;
-            display: block;
+            font-size: 13px !important; display: block;
         }
 
         /* ── 좌석세팅 책상 ── */
-        .desk-seat { min-height: 60px; border: 2px dashed #cbd5e1; border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 2px; background: #f8fafc; position: relative; transition: border-color 0.15s, background 0.15s; overflow: hidden; }
+        .desk-seat {
+            min-height: 60px; border: 2px dashed #cbd5e1; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            padding: 2px; background: #f8fafc; position: relative;
+            transition: border-color 0.15s, background 0.15s;
+            overflow: hidden;
+        }
         @media (min-width: 768px) { .desk-seat { min-height: 88px; border-radius: 12px; padding: 4px;} }
         .desk-seat.over { border-color: #3b82f6 !important; background-color: #eff6ff !important; border-style: solid !important; }
         .desk-seat-empty { min-height: 60px; border-radius: 8px; background: transparent; }
         @media (min-width: 768px) { .desk-seat-empty { min-height: 88px; } }
 
+        /* 좌석 번호 라벨/인풋 */
         .seat-num-label { position: absolute; top: 2px; left: 4px; font-size: 9px; font-weight: 700; color: #94a3b8; z-index: 10; pointer-events: none; }
         @media (min-width: 768px) { .seat-num-label { top: 3px; left: 6px; font-size: 11px; } }
+        
         .seat-num-input { position: absolute; top: 2px; left: 3px; width: 20px; font-size: 9px; font-weight: 700; color: #94a3b8; background: transparent; border: none; outline: none; z-index: 10; cursor: text; }
         @media (min-width: 768px) { .seat-num-input { top: 3px; left: 5px; width: 28px; font-size: 11px; } }
         .seat-num-input:focus { color: #3b82f6; background: #eff6ff; border-radius: 3px; }
 
-        /* 카드 상태 (일반 모드 출결 상태 색상) */
+        /* 출석 카드 */
         .card-present { background-color: #ffffff; border-color: #e2e8f0; }
         .card-absent  { background-color: #fef2f2; border-color: #f87171; color: #b91c1c; }
         .card-late    { background-color: #fffbeb; border-color: #fbbf24; color: #b45309; }
-        .student-card-attend { cursor: pointer; transition: background-color 0.15s, border-color 0.15s; user-select: none; box-shadow: 0 2px 4px rgba(0,0,0,0.05); width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .student-card-attend { cursor: pointer; transition: all 0.2s; user-select: none; box-shadow: 0 2px 4px rgba(0,0,0,0.05); width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .student-card-attend:active { transform: scale(0.95); }
 
-        /* 타일 사진 모드일 때 결석/지각 상태 표시 (반투명 오버레이) */
+        /* 사진 모드일 때 결석/지각 오버레이 */
         .photo-mode .card-absent::after { content: "❌ 결석"; position: absolute; inset: 0; background: rgba(239, 68, 68, 0.4); display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 1.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.5); z-index: 20; pointer-events: none; }
         .photo-mode .card-late::after { content: "⚠️ 지각"; position: absolute; inset: 0; background: rgba(245, 158, 11, 0.4); display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 1.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.5); z-index: 20; pointer-events: none; }
 
-        .student-card-seat { cursor: grab; user-select: none; touch-action: none; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;}
+        /* 세팅판 드래그 카드 */
+        .student-card-seat { cursor: grab; user-select: none; -webkit-user-select: none; touch-action: none; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;}
         #waitingList.over { background-color: #f0fdf4 !important; outline: 2px dashed #22c55e; outline-offset: -2px; }
+        
         #ghost { position: fixed; pointer-events: none; z-index: 9999; opacity: 0.88; transform: rotate(2deg) scale(1.05); box-shadow: 0 8px 24px rgba(0,0,0,0.18); display: none; }
         .dragging-source { opacity: 0.28 !important; }
 
         .tab-panel { display: none; }
         .tab-panel.active { display: block; }
+        
+        /* 🔥 스크롤 삭제 & 너비 유연성 확보 (PC에서 불필요한 스크롤 발생 방지) */
         .classroom-scroll-wrapper { width: 100%; overflow-x: auto; padding-bottom: 10px; }
-
+        .classroom-min-width { min-width: 100%; width: 100%; }
+        
         /* ✨ 커스텀 출결 모달 */
         #attendModal {
             position: fixed; inset: 0; z-index: 500;
@@ -161,7 +172,9 @@
             opacity: 0; pointer-events: none;
             transition: opacity 0.18s ease;
         }
-        #attendModal.open { opacity: 1; pointer-events: auto; }
+        #attendModal.open {
+            opacity: 1; pointer-events: auto;
+        }
         #attendModalSheet {
             width: 100%; max-width: 480px;
             background: #fff;
@@ -171,7 +184,9 @@
             transform: translateY(100%);
             transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1);
         }
-        #attendModal.open #attendModalSheet { transform: translateY(0); }
+        #attendModal.open #attendModalSheet {
+            transform: translateY(0);
+        }
         .attend-modal-btn {
             width: 100%; padding: 14px; border-radius: 12px;
             font-size: 15px; font-weight: 800;
@@ -181,12 +196,27 @@
         }
         .attend-modal-btn:active { transform: scale(0.97); }
 
-        /* 인쇄 최적화 */
+        /* ── 인쇄 전용 스타일 ── */
         @media print {
             body > *:not(#reportModal) { display: none !important; }
-            #reportModal { position: relative !important; display: block !important; background: white !important; padding: 0 !important; margin: 0 !important; }
-            #reportModal > div { box-shadow: none !important; border-radius: 0 !important; height: auto !important; max-width: 100% !important; margin: 0 !important; }
-            #reportContent, #reportContent div { height: auto !important; overflow: visible !important; }
+            #reportModal { 
+                position: relative !important; 
+                display: block !important; 
+                background: white !important; 
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            #reportModal > div {
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                height: auto !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+            }
+            #reportContent, #reportContent div { 
+                height: auto !important; 
+                overflow: visible !important; 
+            }
             #reportModal button { display: none !important; }
         }
     </style>
