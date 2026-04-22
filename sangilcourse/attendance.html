@@ -1090,12 +1090,14 @@ function renderListView() {
         return;
     }
 
+    // 🔥 좌석 배치가 안 되어 있어도 출석 체크가 가능하도록, 
+    // 학생의 '반-번호'를 기준으로 자동 정렬하고 가상의 연번(순번)을 부여합니다!
     const listData = currentStudentsList.map(std => {
         const cleanStdName = String(std.name || "").replace(/\s/g, '');
         const seat = currentSavedSeatingList.find(s => parseInt(s.number) === parseInt(std.number) && String(s.name || "").replace(/\s/g, '') === cleanStdName);
         const stdKey = getStudentKey(std);
         return {
-            seatLabel: seat && seat.seatLabel ? seat.seatLabel : '-',
+            seatLabel: seat && seat.seatLabel ? seat.seatLabel : null, // 좌석 정보가 없으면 일단 null 로 세팅
             grade: std.grade || '-',
             class: std.class || '-',
             number: std.number || '-',
@@ -1104,28 +1106,37 @@ function renderListView() {
         };
     });
 
+    // 정렬 1순위: 지정된 좌석(연번), 2순위: 반, 3순위: 번호
     listData.sort((a, b) => {
         const aNum = parseInt(a.seatLabel);
         const bNum = parseInt(b.seatLabel);
+        
         if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
         if (!isNaN(aNum)) return -1;
         if (!isNaN(bNum)) return 1;
-        return a.number - b.number;
+        
+        // 좌석 번호가 없으면 반 -> 번호 순으로 정렬
+        if (a.class !== b.class) return parseInt(a.class) - parseInt(b.class);
+        return parseInt(a.number) - parseInt(b.number);
     });
 
     const fragment = document.createDocumentFragment();
 
-    listData.forEach(item => {
+    // 🔥 좌석 배치를 안 했을 경우(seatLabel이 null일 경우), 위에서 정렬된 순서대로 가상의 연번(1, 2, 3...)을 부여합니다!
+    listData.forEach((item, index) => {
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-50 transition";
         
+        // 가상 연번 부여 (배치도가 없어도 번호가 나옴)
+        const displaySeatLabel = item.seatLabel ? item.seatLabel : (index + 1);
+
         const att = attendanceData[item.key] || { status: 'present' };
         let statusBadge = '<span class="px-2 py-1 md:px-3 md:py-1.5 bg-white text-slate-400 border border-slate-200 rounded-lg text-[10px] md:text-xs font-bold whitespace-nowrap">출석</span>';
         if(att.status === 'absent') statusBadge = '<span class="px-2 py-1 md:px-3 md:py-1.5 bg-red-100 text-red-700 border border-red-200 rounded-lg text-[10px] md:text-xs font-black shadow-sm whitespace-nowrap">❌ 결석</span>';
         if(att.status === 'late') statusBadge = '<span class="px-2 py-1 md:px-3 md:py-1.5 bg-amber-100 text-amber-700 border border-amber-200 rounded-lg text-[10px] md:text-xs font-black shadow-sm whitespace-nowrap">⚠️ 지각</span>';
 
         tr.innerHTML = `
-            <td class="py-2 px-1 md:px-2 font-black text-blue-600 text-sm md:text-base">${item.seatLabel}</td>
+            <td class="py-2 px-1 md:px-2 font-black text-blue-600 text-sm md:text-base">${displaySeatLabel}</td>
             <td class="py-2 px-1 md:px-2 font-medium text-slate-600 hidden md:table-cell">${item.grade}</td>
             <td class="py-2 px-1 md:px-2 font-medium text-slate-600 hidden md:table-cell">${item.class}</td>
             <td class="py-2 px-1 md:px-2 font-medium text-slate-600">${item.number}</td>
@@ -1137,14 +1148,19 @@ function renderListView() {
 
     tbody.appendChild(fragment);
 
-    // ✨ data-key로 카드 직접 참조 — innerText 탐색 제거
+    // ✨ data-key로 모달 즉시 호출 (가상 카드 생성)
     tbody.querySelectorAll('.list-status-cell').forEach(cell => {
         cell.onclick = () => {
             const stdKey = cell.dataset.key;
-            const card = document.querySelector(`.student-card-attend[data-std-key="${stdKey}"]`);
-            if (card) {
-                openAttendModal(card, stdKey);
+            // 좌석 배치가 없어서 실제 html 카드가 없더라도, 모달을 띄울 수 있게 가짜 카드 객체를 넘겨줍니다!
+            let card = document.querySelector(`.student-card-attend[data-std-key="${stdKey}"]`);
+            if (!card) {
+                // 화면(좌석판)에는 안 보이지만 메모리상에만 존재하는 가상 카드를 만들어 우회합니다.
+                card = document.createElement('div');
+                card.dataset.stdKey = stdKey;
+                card.classList.add('card-present'); 
             }
+            openAttendModal(card, stdKey);
         };
     });
 }
