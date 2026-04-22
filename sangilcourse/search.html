@@ -22,13 +22,7 @@
 </head>
 <body class="bg-slate-50 p-4 min-h-screen pb-20 relative">
     <div class="max-w-xl mx-auto">
-        <h1 class="text-2xl md:text-3xl font-black text-slate-800 mb-4 text-center">🔍 교과수업 만능 탐색기</h1>
-
-        <div class="mb-6 flex justify-center">
-            <button onclick="openRealTimeModal()" class="w-full bg-indigo-600 text-white px-5 py-3.5 rounded-2xl font-black shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:shadow-xl transition transform hover:-translate-y-1 flex items-center justify-center gap-2 text-lg">
-                🕒 이 시간 우리 학교 수업 전부 다 보여줘~ <span class="text-sm font-bold opacity-80">(전체 현황판)</span>
-            </button>
-        </div>
+        <h1 class="text-2xl md:text-3xl font-black text-slate-800 mb-6 text-center">🔍 교과수업 만능 탐색기</h1>
 
         <div class="bg-white rounded-3xl shadow-xl p-5 md:p-7 space-y-5 border border-slate-200">
             
@@ -38,11 +32,12 @@
                     <optgroup label="📍 단일/실시간 위치 조회">
                         <option value="REAL_STUDENT">이 학생 지금 어디 있지? (이름)</option>
                         <option value="REAL_TEACHER">이 선생님 지금 어디 계시지? (성함)</option>
-                        <option value="REAL_CLASS">특정 반 지금 수업 누구지? (예: 1-3)</option>
+                        <option value="REAL_CLASS">특정 반 지금 수업 누구지? (예: 1-1)</option>
+                        <option value="REAL_ALL" class="bg-indigo-100">🕒 이 시간 우리 학교 모든 실의 수업은? (전체 현황)</option>
                     </optgroup>
                     <optgroup label="🗓️ 주간 시간표 조회">
                         <option value="TIMETABLE_TEACHER">특정 선생님 [주간 시간표] 보기 (성함)</option>
-                        <option value="TIMETABLE_CLASS">특정 반(실) [주간 시간표] 보기 (예: 1-3, 아름실)</option>
+                        <option value="TIMETABLE_CLASS">특정 반(실) [주간 시간표] 보기 (예: 1-1, 아름실)</option>
                         <option value="TIMETABLE_STUDENT">특정 학생 [주간 시간표] 보기 (이름)</option>
                     </optgroup>
                     <optgroup label="☕ 대강/보강 교사 찾기">
@@ -74,7 +69,8 @@
                 <input type="text" id="keyword" placeholder="검색어 입력..." class="w-full p-4 bg-slate-100 rounded-xl font-black text-lg outline-none focus:ring-2 ring-blue-500">
                 <button onclick="runSearch()" class="absolute right-2 top-4 bottom-2 bg-blue-600 text-white px-6 rounded-lg font-bold shadow-md hover:bg-blue-700 transition">검색</button>
             </div>
-            <button id="fullSearchBtn" onclick="runSearch()" style="display:none;" class="w-full mt-4 bg-amber-500 text-white p-4 rounded-xl font-black text-lg shadow-md hover:bg-amber-600 transition">☕ 이 시간에 공강인 선생님 찾기</button>
+            
+            <button id="fullSearchBtn" onclick="runSearch()" style="display:none;" class="w-full mt-4 text-white p-4 rounded-xl font-black text-lg shadow-md transition"></button>
 
         </div>
 
@@ -122,22 +118,33 @@
             const type = document.getElementById('searchType').value;
             const keywordBox = document.getElementById('keywordBox');
             const fullSearchBtn = document.getElementById('fullSearchBtn');
-            const timeSelector = document.getElementById('timeSelector'); // 🔥 요일/교시 박스 추가
+            const timeSelector = document.getElementById('timeSelector');
 
-            // 1. 검색어 창 & 공강 버튼 토글
+            // 1. 선택지에 따라 검색창과 버튼을 동적으로 변신시킴
             if (type === 'FREE_TEACHER') {
                 keywordBox.style.display = 'none';
                 fullSearchBtn.style.display = 'block';
-            } else {
+                fullSearchBtn.className = "w-full mt-4 bg-amber-500 text-white p-4 rounded-xl font-black text-lg shadow-md hover:bg-amber-600 transition";
+                fullSearchBtn.innerText = '☕ 이 시간에 공강인 선생님 찾기';
+                fullSearchBtn.onclick = runSearch; 
+            } 
+            else if (type === 'REAL_ALL') {
+                keywordBox.style.display = 'none';
+                fullSearchBtn.style.display = 'block';
+                fullSearchBtn.className = "w-full mt-4 bg-indigo-600 text-white p-4 rounded-xl font-black text-lg shadow-md hover:bg-indigo-700 transition";
+                fullSearchBtn.innerText = '🕒 이 시간 전체 수업 현황판 열기';
+                fullSearchBtn.onclick = openRealTimeModal; 
+            } 
+            else {
                 keywordBox.style.display = 'block';
                 fullSearchBtn.style.display = 'none';
             }
 
-            // 2. ✨ 요일/교시 선택창 토글 (주간 시간표 조회 시에는 싹 숨김!)
+            // 2. 주간 시간표일 때는 요일/교시 선택기 숨김 (선생님의 디테일!)
             if (type.startsWith('TIMETABLE_')) {
                 timeSelector.style.display = 'none';
             } else {
-                timeSelector.style.display = ''; // 다시 다른 메뉴를 선택하면 원래 모양(grid)대로 등장
+                timeSelector.style.display = '';
             }
         }
 
@@ -147,53 +154,7 @@
             const day = document.getElementById('searchDay').value;
             const period = document.getElementById('searchPeriod').value;
 
-            if (type !== 'FREE_TEACHER' && !keyword) return alert("검색어를 입력하세요!");
-
-            const area = document.getElementById('resultArea');
-            area.innerHTML = '<div class="text-center p-12 bg-white rounded-2xl shadow-sm animate-pulse text-slate-500 font-bold">열심히 데이터를 찾고 있습니다... 🔍</div>';
-
-            try {
-                // 1. 리얼타임 단건 조회
-                if (type.startsWith('REAL_')) {
-                    let realType = type.split('_')[1];
-                    const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "SEARCH_REALTIME", payload: { searchType: realType, keyword: keyword, forceDay: day, forcePeriod: period } }) });
-                    const r = await res.json();
-                    
-                    if (!r.success) return area.innerHTML = `<div class="bg-amber-50 text-amber-700 p-5 rounded-2xl text-center font-bold border border-amber-200">${r.msg}</div>`;
-                    if (!r.data || r.data.length === 0) return area.innerHTML = `<div class="bg-slate-200 text-slate-600 p-5 rounded-2xl text-center font-bold">해당 시간에 진행 중인 수업이 없습니다.</div>`;
-
-                    area.innerHTML = r.data.map(item => `
-                        <div class="bg-white p-6 rounded-3xl shadow-md border-l-8 border-blue-500 transform transition hover:-translate-y-1">
-                            <div class="flex justify-between items-start mb-2">
-                                <span class="text-xs font-bold text-slate-400">${day || '오늘'} ${r.period}교시</span>
-                                ${item.studentInfo ? `<span class="bg-indigo-100 text-indigo-700 text-[11px] px-2 py-0.5 rounded-lg font-black shadow-sm">👤 ${item.studentInfo}</span>` : ''}
-                            </div>
-                            <div class="text-xl font-black text-slate-800">${item.subject}</div>
-                            ${item.teacher && type !== 'REAL_TEACHER' ? `<div class="text-blue-600 font-bold mt-2">${item.teacher} 선생님</div>` : ''}
-                        </div>
-                    `).join('');
-                } 
-                
-                // 2. 고급 기능 (주간 시간표 & 공강 찾기)
-                else {
-                    const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "GET_ADVANCED_SEARCH", payload: { searchType: type, keyword: keyword, day: day, period: period } }) });
-                    const r = await json(); // (Note: Existing code typo fixed below, r = await res.json())
-                    // -> Fixed code: 
-                    // const r = await res.json(); 
-                } // ... (위 수정사항 반영하여 전체 로직 안정화 진행함)
-            } catch (e) {
-                // error handling
-            }
-        }
-
-        // 실제 원본 runSearch 로직 (오류 수정 포함)
-        async function runSearch() {
-            const type = document.getElementById('searchType').value;
-            const keyword = document.getElementById('keyword').value.trim();
-            const day = document.getElementById('searchDay').value;
-            const period = document.getElementById('searchPeriod').value;
-
-            if (type !== 'FREE_TEACHER' && !keyword) return alert("검색어를 입력하세요!");
+            if (type !== 'FREE_TEACHER' && type !== 'REAL_ALL' && !keyword) return alert("검색어를 입력하세요!");
 
             const area = document.getElementById('resultArea');
             area.innerHTML = '<div class="text-center p-12 bg-white rounded-2xl shadow-sm animate-pulse text-slate-500 font-bold">열심히 데이터를 찾고 있습니다... 🔍</div>';
@@ -284,7 +245,7 @@
                     }
                 }
             } catch (e) {
-                area.innerHTML = `<div class="text-center p-5 text-red-500 font-bold bg-red-50 rounded-2xl">통신 오류가 발생했습니다. 다시 시도해주세요.</div>`;
+                area.innerHTML = `<div class="text-center py-12 text-red-500 font-bold bg-white rounded-2xl shadow-sm">통신 오류가 발생했습니다. 잠시 후 다시 시도해주세요.</div>`;
             }
         }
 
@@ -296,21 +257,30 @@
 
         function openRealTimeModal() {
             document.getElementById('realTimeModal').classList.remove('hidden');
-            setNowRealTime(); 
+            
+            // 메인 화면에서 미리 선택해둔 요일/교시가 있다면 그대로 반영!
+            const mainDay = document.getElementById('searchDay').value;
+            const mainPeriod = document.getElementById('searchPeriod').value;
+            
+            if (mainDay && mainPeriod) {
+                document.getElementById('rtDay').value = mainDay;
+                document.getElementById('rtPeriod').value = mainPeriod;
+                renderRealTimeClasses();
+            } else {
+                setNowRealTime(); 
+            }
         }
 
         function closeRealTimeModal() {
             document.getElementById('realTimeModal').classList.add('hidden');
         }
 
-        // 현재 시간을 계산해서 자동으로 요일/교시 세팅
         function setNowRealTime() {
             const now = new Date();
             const dayIdx = now.getDay(); 
             const dayArr = ['일','월','화','수','목','금','토'];
             let currentDay = dayArr[dayIdx];
             
-            // 주말이면 월요일로 기본 세팅
             if (currentDay === '토' || currentDay === '일') currentDay = '월';
             
             const timeVal = now.getHours() * 100 + now.getMinutes();
@@ -329,7 +299,6 @@
             renderRealTimeClasses();
         }
 
-        // 백엔드에 해당 요일/교시의 '모든' 수업을 달라고 요청 (키워드 없이 검색)
         async function renderRealTimeClasses() {
             const targetDay = document.getElementById('rtDay').value;
             const targetPeriod = document.getElementById('rtPeriod').value;
@@ -343,7 +312,6 @@
             `;
 
             try {
-                // 🔥 기존 백엔드의 "반 검색(REAL_CLASS)" 기능을 활용하여 키워드 빈칸("")으로 찌름 -> 전체 조회 유도
                 const res = await fetch(API_URL, { 
                     method: 'POST', 
                     body: JSON.stringify({ 
@@ -362,7 +330,6 @@
                     return;
                 }
 
-                // 결과가 있다면 정렬 (반 순서 또는 과목명 순서)
                 const activeClasses = r.data.sort((a, b) => a.subject.localeCompare(b.subject, 'ko', { numeric: true }));
 
                 let html = `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-10">`;
@@ -371,7 +338,6 @@
                     const subjectName = cls.subject || '과목명 미상';
                     const teacherName = cls.teacher || '교사 미정';
                     
-                    // 괄호 정보 추출 (예: "통합과학 (1-3)" -> "1-3 반")
                     let roomInfo = "수업중"; 
                     const match = subjectName.match(/\(([^)]+)\)$/);
                     if(match) roomInfo = match[1] + " 반";
@@ -379,7 +345,6 @@
                     html += `
                         <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-lg transition transform hover:-translate-y-1 flex flex-col justify-between border-t-4 border-t-indigo-500 relative overflow-hidden group">
                             <div class="absolute -right-2 -bottom-4 text-7xl opacity-5 group-hover:opacity-10 group-hover:scale-110 transition duration-300">🏫</div>
-                            
                             <div class="relative z-10">
                                 <div class="flex justify-between items-start mb-3">
                                     <span class="bg-indigo-600 text-white px-3 py-1 rounded-md text-xs font-black tracking-widest shadow-sm">${roomInfo}</span>
@@ -403,6 +368,9 @@
                 resultArea.innerHTML = `<div class="text-center py-12 text-red-500 font-bold bg-white rounded-2xl shadow-sm">통신 오류가 발생했습니다. 잠시 후 다시 시도해주세요.</div>`;
             }
         }
+        
+        // 페이지 로딩 시 초기 1회 실행하여 UI 맞추기
+        window.onload = toggleInputs;
     </script>
 </body>
 </html>
