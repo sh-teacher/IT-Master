@@ -12,13 +12,18 @@
   </script>
     <style>
         /* ── 공통 ── */
-        .row-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+        /* 🔥 repeat(7) 고정 해제! 자바스크립트가 설정한 대로 움직이게 합니다. */
+        .row-grid { display: grid; gap: 4px; width: 100%; }
         @media (min-width: 768px) { .row-grid { gap: 10px; } }
 
         /* ── 출석판 책상 ── */
-        .desk-attend { min-height: 48px; border: 2px dashed #cbd5e1; border-radius: 6px; display: flex; align-items: center; justify-content: center; padding: 2px; background: #f8fafc; position: relative; transition: all 0.2s; overflow: hidden; }
-        .desk-attend-empty { min-height: 48px; background: transparent; transition: all 0.2s; }
-        @media (min-width: 768px) { .desk-attend { min-height: 90px; border-radius: 12px; padding: 4px; } .desk-attend-empty { min-height: 90px; } }
+        /* 🔥 이름이 잘리지 않게 overflow-hidden을 제거하거나 조정합니다. */
+        .desk-attend { min-height: 48px; border: 2px dashed #cbd5e1; border-radius: 6px; display: flex; align-items: center; justify-content: center; padding: 2px; background: #f8fafc; position: relative; transition: all 0.2s; }
+        .desk-attend-empty { min-height: 48px; background: transparent; }
+        
+        /* 🔥 좌석이 많아져도 찌그러지지 않게 최소 너비를 넉넉히 확보합니다. */
+        .classroom-min-width { min-width: 650px; width: 100%; }
+        @media (min-width: 768px) { .classroom-min-width { min-width: 800px; } }
 
         /* 사진 모드 */
         .photo-mode .desk-attend { min-height: 120px; border-radius: 8px; padding: 4px; } 
@@ -584,10 +589,16 @@ function createAttendDesks() {
     const grid = document.getElementById('classroomGrid');
     grid.innerHTML = '';
     let seatIdx = 0;
+    
+    // 🔥 현재 설정된 열(Column) 개수를 가져옵니다.
+    const colCount = ROW_CONFIG[0] ? ROW_CONFIG[0].desks : 7;
+
     ROW_CONFIG.forEach(rowCfg => {
         const rowDiv = document.createElement('div');
         rowDiv.className = 'row-grid';
+        // 🔥 CSS 고정값 대신 여기서 계산된 열 개수를 정확히 주입합니다!
         rowDiv.style.gridTemplateColumns = `repeat(${rowCfg.desks + rowCfg.empty}, minmax(0, 1fr))`;
+        
         for (let c = 0; c < rowCfg.desks; c++) {
             const desk = document.createElement('div');
             desk.className = 'desk-attend';
