@@ -216,7 +216,7 @@
                 <div class="overflow-x-auto"><table class="timetable">
                 <thead><tr><th>교시</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th></tr></thead><tbody>`;
             for (let p = 1; p <= 7; p++) {
-                tableHTML += `<tr class="h-[80px]"><td>${p}</td>`;
+                tableHTML += `<tr class="h-[70px]"><td>${p}</td>`;
                 ['월', '화', '수', '목', '금'].forEach(d => {
                     tableHTML += `<td>${grid[p][d] || '-'}</td>`;
                 });
