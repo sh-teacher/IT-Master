@@ -658,10 +658,12 @@
         const isToday = s.todayPeriods.length > 0;
         const todayPeriodStr = isToday ? s.todayPeriods.sort((a,b)=>a-b).map(p => p+'교시').join(', ') : '';
         
-        const dotColor = isToday ? '#10b981' : '#94a3b8'; 
-        const titleColor = isToday ? '#10b981' : '#f1f5f9'; 
+        // 🔥 파스텔톤 녹색에서 -> 묵직하고 진한 트루 그린(#16a34a)으로 변경!
+        const dotColor = isToday ? '#16a34a' : '#94a3b8'; 
+        const titleColor = isToday ? '#16a34a' : '#f1f5f9'; 
         const fontWeight = isToday ? '900' : 'bold';
-        const badgeHtml = isToday ? `<span style="background:#334155; color:#34d399; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:800;">${todayPeriodStr}</span>` : '';
+        // 뱃지도 진한 배경(#1e293b)에 선명한 녹색 글씨(#4ade80)로 맞춰서 통일감을 줬습니다!
+        const badgeHtml = isToday ? `<span style="background:#1e293b; color:#4ade80; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:800;">${todayPeriodStr}</span>` : '';
 
         const btn = document.createElement('button'); 
         btn.className = 'subject-btn'; 
