@@ -548,9 +548,17 @@ function togglePhotoView() {
     isPhotoView = !isPhotoView;
     document.getElementById('classroomGrid').classList.toggle('photo-mode', isPhotoView);
     const btn = document.getElementById('photoToggleBtn');
-    if(isPhotoView) {
+
+    if (isPhotoView) {
         btn.className = "flex-1 md:flex-none bg-blue-600 text-white px-1 md:px-3 py-2 rounded-lg font-bold text-[10px] md:text-xs shadow-md whitespace-nowrap transition-colors";
         btn.innerHTML = "📝 이름 모드";
+
+        // ✅ 사진 모드 ON 시점에 data-src → src 로 실제 로드
+        document.querySelectorAll('.student-photo[data-src]').forEach(img => {
+            if (!img.src || img.src === window.location.href) { // src가 비어있는 경우만
+                img.src = img.dataset.src;
+            }
+        });
     } else {
         btn.className = "flex-1 md:flex-none bg-slate-100 text-slate-600 px-1 md:px-3 py-2 rounded-lg font-bold text-[10px] md:text-xs shadow-md border border-slate-200 whitespace-nowrap transition-colors";
         btn.innerHTML = "🖼️ 사진 모드";
@@ -644,17 +652,38 @@ function applyAttendView() {
 
 function getStudentKey(std) { return `${std.class}_${std.number}_${std.name}`.replace(/\s/g, ''); }
 
+// 기존 코드에서 loadClassData() 안의 카드 생성 부분을 이 함수로 분리
+function makeAttendCard(std) {
+    const card = document.createElement('div');
+    card.className = `student-card-attend rounded-md border font-bold p-1 card-present overflow-hidden`;
+    const stdKey = getStudentKey(std);
+    card.dataset.stdKey = stdKey;
+
+    // ✅ 사진은 data-src에만 저장, 실제 src는 비워둠
+    const hasPhoto = !!std.photo;
+    card.innerHTML = `
+        <div class="student-photo-wrapper ${hasPhoto ? 'has-img' : 'no-img'} ${hasPhoto ? '' : 'bg-slate-100 items-center justify-center text-slate-300 text-xl font-black rounded-md border'} w-full">
+            ${hasPhoto
+                ? `<img data-src="${std.photo}" class="student-photo w-full h-full object-cover" src="" alt="">`
+                : std.number
+            }
+        </div>
+        <div class="flex flex-col items-center justify-center w-full shrink-0 pb-1">
+            <span class="text-[11px] md:text-xs opacity-70 leading-snug whitespace-nowrap">${std.class}-${std.number}</span>
+            <span class="text-xs md:text-sm font-black leading-snug truncate block w-full text-center">${std.name}</span>
+        </div>`;
+    card.onclick = () => openAttendModal(card, stdKey);
+    return card;
+}
+
 async function loadClassData() {
     const subject = currentSubject;
     const targetDate = document.getElementById('selectedDate').value;
     const period = document.getElementById('selectedPeriod').value;
     if (!subject || !targetDate || !period) return;
-    
+
     const loadId = ++currentLoadId;
     document.getElementById('classLog').value = '데이터 불러오는 중...';
-
-    // 화면 초기화
-    document.querySelectorAll('.desk-attend').forEach(d => d.innerHTML = '<span class="seat-num-label"></span>');
 
     try {
         const [sr, seatingR, recordR] = await Promise.all([
@@ -662,7 +691,7 @@ async function loadClassData() {
             fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "GET_SEATING", payload: { subject } }) }),
             fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "GET_DAILY_RECORD", payload: { subject, date: targetDate, period } }) })
         ]);
-        
+
         const studentsData = await sr.json();
         const savedSeatingData = await seatingR.json();
         const recordData = await recordR.json();
@@ -672,65 +701,57 @@ async function loadClassData() {
         const students = studentsData.success ? studentsData.data : [];
         const savedSeating = savedSeatingData.success ? savedSeatingData.data : [];
 
-        // 🌟 1. [핵심] 명렬표에서 사용할 전역 변수에 데이터 즉시 복사
-        currentStudentsList = students; 
+        currentStudentsList = students;
         currentSavedSeatingList = savedSeating;
         attendanceData = {};
-
-        // 🌟 2. 모든 학생을 일단 '출석'으로 초기화 (표 모드에서 누락 방지)
         students.forEach(std => {
-            const stdKey = getStudentKey(std);
-            attendanceData[stdKey] = { name: std.name, class: std.class, number: std.number, status: 'present', memo: '' };
+            attendanceData[getStudentKey(std)] = { name: std.name, class: std.class, number: std.number, status: 'present', memo: '' };
         });
 
-        // 3. 그리드 설정 복원
-        if (savedSeatingData.gridConfig) {
-            const { rows, cols } = savedSeatingData.gridConfig;
-            document.getElementById('rowCount').value = rows;
-            document.getElementById('colCount').value = cols;
-            ROW_CONFIG = Array.from({ length: rows }, () => ({ desks: cols, empty: 0 }));
-            TOTAL_SEATS = rows * cols;
-            createAttendDesks(); 
+        // ✅ gridConfig 변경 시에만 DOM 재생성 (불필요한 재생성 방지)
+        const newRows = savedSeatingData.gridConfig?.rows;
+        const newCols = savedSeatingData.gridConfig?.cols;
+        const curRows = parseInt(document.getElementById('rowCount').value);
+        const curCols = parseInt(document.getElementById('colCount').value);
+        const needRebuild = newRows && newCols && (newRows !== curRows || newCols !== curCols);
+
+        if (needRebuild) {
+            document.getElementById('rowCount').value = newRows;
+            document.getElementById('colCount').value = newCols;
+            ROW_CONFIG = Array.from({ length: newRows }, () => ({ desks: newCols, empty: 0 }));
+            TOTAL_SEATS = newRows * newCols;
+            createAttendDesks();
+        } else {
+            // ✅ 기존 책상은 카드만 제거하고 재사용 (DOM 재생성 없음)
+            document.querySelectorAll('.desk-attend').forEach(d => {
+                const card = d.querySelector('.student-card-attend');
+                if (card) card.remove();
+                const label = d.querySelector('.seat-num-label');
+                if (label) label.innerText = '';
+            });
         }
 
         document.getElementById('classLog').value = (recordData.success && recordData.data) ? recordData.data.log : '';
         const desks = document.querySelectorAll('.desk-attend');
-        
-        // 4. 좌석 라벨 표시
+
         savedSeating.forEach(seat => {
             if (seat.seatLabel && seat.seatIndex >= 0 && seat.seatIndex < desks.length) {
                 desks[seat.seatIndex].querySelector('.seat-num-label').innerText = seat.seatLabel;
             }
         });
 
-        // 5. 학생 카드 배치 (학생 시점)
+        // ✅ requestAnimationFrame으로 카드 배치 — 메인 스레드 블로킹 방지
+        await new Promise(resolve => requestAnimationFrame(resolve));
+
         students.forEach(std => {
             const cleanStdName = String(std.name || "").replace(/\s/g, '');
             const seat = savedSeating.find(s => parseInt(s.number) === parseInt(std.number) && String(s.name || "").replace(/\s/g, '') === cleanStdName);
-            
             if (seat && seat.seatIndex >= 0 && seat.seatIndex < desks.length) {
-                const stdKey = getStudentKey(std);
-                const card = document.createElement('div');
-                card.className = `student-card-attend rounded-md border font-bold p-1 card-present overflow-hidden`;
-                card.dataset.stdKey = stdKey;
-                
-                let photoHtml = `<div class="student-photo-wrapper no-img bg-slate-100 items-center justify-center text-slate-300 text-xl font-black rounded-md border w-full">${std.number}</div>`;
-                if (std.photo) {
-                    photoHtml = `<div class="student-photo-wrapper has-img w-full"><img src="${std.photo}" class="student-photo w-full h-full object-cover"></div>`;
-                }
-
-                card.innerHTML = `${photoHtml}
-                    <div class="flex flex-col items-center justify-center w-full shrink-0 pb-1">
-                        <span class="text-[11px] md:text-xs opacity-70 leading-snug whitespace-nowrap">${std.class}-${std.number}</span>
-                        <span class="text-xs md:text-sm font-black leading-snug truncate block w-full text-center">${std.name}</span>
-                    </div>`;
-                card.onclick = () => openAttendModal(card, stdKey);
-                desks[seat.seatIndex].appendChild(card);
+                desks[seat.seatIndex].appendChild(makeAttendCard(std));
             }
         });
 
-        // 6. 저장된 출결 기록(결석/지각) 적용
-        if (recordData.success && recordData.data && recordData.data.attendanceIssues) {
+        if (recordData.success && recordData.data?.attendanceIssues) {
             recordData.data.attendanceIssues.forEach(issue => {
                 const key = getStudentKey(issue);
                 if (attendanceData[key]) {
@@ -745,12 +766,8 @@ async function loadClassData() {
             });
         }
 
-        // 🌟 7. [핵심] 리스트 뷰 및 특이사항 목록 갱신
         updateAbsenceList();
         if (isListView) renderListView();
-
-        // 🔥 8. 무조건 출석/일지 탭으로 고정! (강제 이동 방지)
-        switchTab('attend'); 
 
     } catch (e) { console.error("로드 오류", e); alert("데이터 로드 중 오류 발생"); }
 }
