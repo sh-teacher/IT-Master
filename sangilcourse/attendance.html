@@ -12,7 +12,7 @@
   </script>
     <style>
         /* ── 공통 ── */
-        /* 🔥 좌석 열 개수를 자바스크립트에 맞춰 자동 조절되게 고정 해제! */
+        /* 🔥 좌석 열 개수에 맞춰 유연하게 변동 (스크롤 원인 제거) */
         .row-grid { display: grid; gap: 4px; width: 100%; }
         @media (min-width: 768px) { .row-grid { gap: 10px; } }
 
@@ -32,90 +32,27 @@
             .desk-attend-empty { min-height: 90px; }
         }
 
-        /* 📸 사진 모드 (타일형 무여백 디자인으로 덮어쓰기) */
-        /* 1. 그리드 여백 제거 */
-        .photo-mode #classroomGrid .row-grid { gap: 1px !important; }
-        
-        /* 2. 책상 테두리/라운딩 제거 및 비율 고정 */
-        .photo-mode .desk-attend {
-            padding: 0 !important;
-            border: none !important;
-            border-radius: 0 !important;
-            background-color: transparent !important;
-            aspect-ratio: 4/5; 
-            min-height: auto !important; 
-        }
-        .photo-mode .desk-attend-empty {
-            background-color: #f1f5f9 !important;
-            border: none !important;
-            aspect-ratio: 4/5;
-            min-height: auto !important;
-        }
-
-        /* 3. 학생 카드 여백/라운딩 제거 */
-        .photo-mode .student-card-attend {
-            padding: 0 !important;
-            border: none !important;
-            border-radius: 0 !important;
-            margin: 0 !important;
-            box-shadow: none !important;
-            height: 100%; width: 100%;
-            display: block !important; 
+        /* 📸 사진 모드 활성화 시 커지는 속성 (둥근 모서리 및 여백 유지!) */
+        .photo-mode .desk-attend { min-height: 120px; border-radius: 8px; padding: 4px; } 
+        .photo-mode .desk-attend-empty { min-height: 120px; }
+        @media (min-width: 768px) {
+            .photo-mode .desk-attend { min-height: 200px; padding: 6px; border-radius: 16px; }
+            .photo-mode .desk-attend-empty { min-height: 200px; }
         }
 
         /* 사진 영역 */
         .student-photo-wrapper { display: none; width: 100%; height: 70px; margin-bottom: 4px; }
         @media (min-width: 768px) { .student-photo-wrapper { height: 130px; margin-bottom: 8px; } }
         
-        .photo-mode .student-photo-wrapper {
-            display: block !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            height: 100% !important; width: 100% !important;
-            border: none !important; 
-            border-radius: 0 !important;
+        .photo-mode .student-photo-wrapper.has-img { display: block; }
+        .photo-mode .student-photo-wrapper.no-img { display: flex; }
+        
+        @media (min-width: 768px) {
+            .photo-mode .student-photo-wrapper { height: 150px; } 
         }
 
         .student-photo { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; border: 1px solid #eee; }
         @media (min-width: 768px) { .student-photo { border-radius: 10px; } }
-
-        /* 사진 모드일 때는 사진도 라운딩/테두리 제거 */
-        .photo-mode .student-photo {
-            border: none !important;
-            border-radius: 0 !important;
-        }
-
-        /* 사진 없는 학생 번호 표시 */
-        .photo-mode .student-photo-wrapper.no-img {
-            background-color: #cbd5e1 !important;
-            color: rgba(255,255,255,0.8) !important;
-            font-size: 2.5rem !important; 
-            font-weight: 900;
-            display: flex !important; align-items: center; justify-content: center;
-        }
-
-        /* 사진 위 이름/번호 오버레이 처리 */
-        .photo-mode .student-card-attend > div:last-child {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.5) 70%, transparent 100%);
-            color: white !important;
-            padding: 8px 4px 4px 4px !important;
-            text-align: center;
-            z-index: 10;
-            display: block !important;
-        }
-        .photo-mode .student-card-attend span.opacity-70,
-        .photo-mode .student-card-attend span.text-slate-400 {
-            color: rgba(255,255,255,0.85) !important;
-            font-weight: bold; font-size: 10px !important;
-            display: block; margin-bottom: 2px;
-        }
-        .photo-mode .student-card-attend span.text-slate-800,
-        .photo-mode .student-card-attend span.font-black {
-            color: white !important;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-            font-size: 13px !important; display: block;
-        }
 
         /* ── 좌석세팅 책상 ── */
         .desk-seat {
@@ -145,10 +82,6 @@
         .student-card-attend { cursor: pointer; transition: all 0.2s; user-select: none; box-shadow: 0 2px 4px rgba(0,0,0,0.05); width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .student-card-attend:active { transform: scale(0.95); }
 
-        /* 사진 모드일 때 결석/지각 오버레이 */
-        .photo-mode .card-absent::after { content: "❌ 결석"; position: absolute; inset: 0; background: rgba(239, 68, 68, 0.4); display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 1.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.5); z-index: 20; pointer-events: none; }
-        .photo-mode .card-late::after { content: "⚠️ 지각"; position: absolute; inset: 0; background: rgba(245, 158, 11, 0.4); display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 1.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.5); z-index: 20; pointer-events: none; }
-
         /* 세팅판 드래그 카드 */
         .student-card-seat { cursor: grab; user-select: none; -webkit-user-select: none; touch-action: none; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;}
         #waitingList.over { background-color: #f0fdf4 !important; outline: 2px dashed #22c55e; outline-offset: -2px; }
@@ -159,9 +92,9 @@
         .tab-panel { display: none; }
         .tab-panel.active { display: block; }
         
-        /* 🔥 스크롤 삭제 & 너비 유연성 확보 (PC에서 불필요한 스크롤 발생 방지) */
+        /* 🔥 가로 스크롤 완벽 방지 (PC에서 보기 싫은 스크롤바 삭제) */
         .classroom-scroll-wrapper { width: 100%; overflow-x: auto; padding-bottom: 10px; }
-        .classroom-min-width { min-width: 100%; width: 100%; }
+        .classroom-min-width { width: 100%; min-width: 100%; }
         
         /* ✨ 커스텀 출결 모달 */
         #attendModal {
