@@ -6,12 +6,39 @@
     <title>상일여고 교과수업 만능 탐색기</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .timetable { width: 100%; border-collapse: collapse; text-align: center; font-size: 13px; }
-        .timetable th, .timetable td { border: 1px solid #e2e8f0; padding: 10px 4px; }
-        .timetable th { background-color: #f8fafc; color: #475569; font-weight: 800; }
-        .timetable td { height: 60px; vertical-align: middle; background-color: #ffffff; }
-        .tt-subj { font-weight: 900; color: #1e40af; display: block; line-height: 1.2; word-break: keep-all; }
-        .tt-teach { font-size: 11px; color: #64748b; margin-top: 4px; display: block; }
+        /* ── 모바일/PC 반응형 주간 시간표 ── */
+        .timetable { 
+            width: 100%; 
+            border-collapse: collapse; 
+            text-align: center; 
+            table-layout: fixed; /* 🔥 열 너비 균등 분배의 핵심 */
+            min-width: 320px; 
+        }
+        
+        /* 테이블 칸 여백 최적화 */
+        .timetable th, .timetable td { border: 1px solid #e2e8f0; padding: 4px 2px; }
+        @media (min-width: 768px) { .timetable th, .timetable td { padding: 10px 4px; } }
+
+        /* 테이블 헤더(요일) */
+        .timetable th { background-color: #f8fafc; color: #475569; font-weight: 800; font-size: 12px; padding: 8px 2px; }
+        @media (min-width: 768px) { .timetable th { font-size: 14px; } }
+
+        /* 세로 높이 최적화 (모바일: 65px, PC: 85px) */
+        .timetable td { height: 65px; vertical-align: middle; background-color: #ffffff; }
+        @media (min-width: 768px) { .timetable td { height: 85px; } }
+
+        /* 🔥 '교시' 열은 좁게(12%), '요일' 열은 넓게 균등 분배 */
+        .timetable th:first-child, .timetable td:first-child { 
+            width: 12%; 
+            font-weight: 900; 
+            background-color: #f8fafc; 
+            color: #64748b; 
+            font-size: 11px; 
+        }
+        .timetable th:not(:first-child) { width: 17.6%; }
+        @media (min-width: 768px) { 
+            .timetable th:first-child, .timetable td:first-child { font-size: 13px; } 
+        }
     </style>
 </head>
 <body class="bg-slate-50 p-4 min-h-screen pb-20">
@@ -154,7 +181,7 @@
                         `;
                     } 
                     
-                    // 🗓️ 주간 시간표 렌더링
+                    // 🗓️ 주간 시간표 렌더링 (모바일 최적화 버전)
                     else if (r.type === "TIMETABLE") {
                         if (r.data.length === 0) return area.innerHTML = `<div class="bg-slate-200 text-slate-600 p-5 rounded-2xl text-center font-bold">시간표 데이터가 없습니다.</div>`;
                         
@@ -165,36 +192,34 @@
                             if (item.period >= 1 && item.period <= 8 && grid[item.period][item.day] !== undefined) {
                                 let teacherHTML = '';
                                 if (type !== 'TIMETABLE_TEACHER' && item.teacher) {
-                                    teacherHTML = `<div class="text-[10px] md:text-xs text-blue-600 font-bold mt-1 truncate">${item.teacher} 선생님</div>`;
+                                    // 🔥 모바일에서는 교사 이름 작게, PC에서는 정상 크기
+                                    teacherHTML = `<div class="text-[9px] md:text-xs text-blue-600 font-bold mt-0.5 md:mt-1 truncate tracking-tighter">${item.teacher}</div>`;
                                 }
                                 
-                                const html = `<div class="font-black text-slate-800 break-keep leading-snug">${item.subject}</div>${teacherHTML}`;
+                                // 🔥 모바일에서는 과목명 폰트 축소 (text-[10px])
+                                const html = `<div class="font-black text-slate-800 leading-tight text-[10px] md:text-[13px] break-keep">${item.subject}</div>${teacherHTML}`;
                                 grid[item.period][item.day] += (grid[item.period][item.day] ? '<hr class="my-1 border-slate-200">' : '') + html;
                             }
                         });
 
                         let tableHTML = `
                         <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
-                            <div class="bg-blue-600 text-white text-center py-4 font-black text-lg">${r.title}</div>
-                            <div class="w-full overflow-x-auto p-1">
-                                <table class="w-full text-center border-collapse table-fixed min-w-[500px]">
-                                    <thead class="bg-slate-100 text-slate-700 text-sm">
+                            <div class="bg-blue-600 text-white text-center py-3 md:py-4 font-black text-base md:text-lg">${r.title}</div>
+                            <div class="w-full overflow-x-auto p-0 md:p-1">
+                                <table class="timetable">
+                                    <thead>
                                         <tr>
-                                            <th class="border border-slate-200 p-2 md:p-3 w-[10%]">교시</th>
-                                            <th class="border border-slate-200 p-2 md:p-3 w-[18%]">월</th>
-                                            <th class="border border-slate-200 p-2 md:p-3 w-[18%]">화</th>
-                                            <th class="border border-slate-200 p-2 md:p-3 w-[18%]">수</th>
-                                            <th class="border border-slate-200 p-2 md:p-3 w-[18%]">목</th>
-                                            <th class="border border-slate-200 p-2 md:p-3 w-[18%]">금</th>
+                                            <th>교시</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="text-xs md:text-sm">`;
+                                    <tbody>`;
                         
                         for (let p = 1; p <= 7; p++) {
-                            tableHTML += `<tr class="hover:bg-slate-50 transition"><td class="border border-slate-200 p-2 font-black text-slate-600 bg-slate-50 align-middle">${p}교시</td>`;
+                            // CSS에서 높이를 제어하므로 인라인 높이 제거
+                            tableHTML += `<tr class="hover:bg-slate-50 transition"><td>${p}</td>`;
                             ['월', '화', '수', '목', '금'].forEach(d => {
                                 const cellContent = grid[p][d] ? grid[p][d] : `<span class="text-slate-200">-</span>`;
-                                tableHTML += `<td class="border border-slate-200 p-2 align-middle">${cellContent}</td>`;
+                                tableHTML += `<td>${cellContent}</td>`;
                             });
                             tableHTML += `</tr>`;
                         }
