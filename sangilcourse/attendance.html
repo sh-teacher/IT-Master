@@ -1312,8 +1312,8 @@ function renderListView() {
 
         tr.innerHTML = `
             <td class="py-2 px-1 md:px-2 font-black text-blue-600 text-sm md:text-base">${displaySeatLabel}</td>
-            <td class="py-2 px-1 md:px-2 font-medium text-slate-600 hidden md:table-cell">${item.grade}</td>
-            <td class="py-2 px-1 md:px-2 font-medium text-slate-600 hidden md:table-cell">${item.class}</td>
+            <td class="py-2 px-1 md:px-2 font-medium text-slate-600">${item.grade}</td>
+            <td class="py-2 px-1 md:px-2 font-medium text-slate-600">${item.class}</td>
             <td class="py-2 px-1 md:px-2 font-medium text-slate-600">${item.number}</td>
             <td class="py-2 px-1 md:px-2 font-black text-slate-800 text-[11px] md:text-sm whitespace-nowrap">${item.name}</td>
             <td class="py-2 px-1 md:px-2 cursor-pointer list-status-cell" data-key="${item.key}">${statusBadge}</td>
