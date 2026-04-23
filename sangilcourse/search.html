@@ -6,39 +6,41 @@
     <title>상일여고 교과수업 만능 탐색기</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* ── 모바일/PC 반응형 주간 시간표 ── */
-        .timetable { 
-            width: 100%; 
-            border-collapse: collapse; 
-            text-align: center; 
-            table-layout: fixed; /* 🔥 열 너비 균등 분배의 핵심 */
-            min-width: 320px; 
-        }
-        
-        /* 테이블 칸 여백 최적화 */
-        .timetable th, .timetable td { border: 1px solid #e2e8f0; padding: 4px 2px; }
-        @media (min-width: 768px) { .timetable th, .timetable td { padding: 10px 4px; } }
+    /* ── 모바일/PC 반응형 주간 시간표 ── */
+    .timetable { 
+        width: 100%; 
+        border-collapse: collapse; 
+        text-align: center; 
+        table-layout: fixed; /* 🔥 열 너비 균등 분배의 핵심 */
+    }
+    
+    /* 🔥 글자가 길어도 표를 뚫고 나가지 않게 강제 줄바꿈 & 여백 축소 */
+    .timetable th, .timetable td { 
+        border: 1px solid #e2e8f0; 
+        padding: 2px 1px; /* 모바일 패딩을 극한으로 줄임 */
+        word-break: break-all; /* 모바일 핵심: 글자 단위로 줄바꿈 허용 */
+        letter-spacing: -0.5px; 
+    }
+    @media (min-width: 768px) { 
+        .timetable th, .timetable td { padding: 10px 4px; word-break: keep-all; letter-spacing: normal; } 
+    }
 
-        /* 테이블 헤더(요일) */
-        .timetable th { background-color: #f8fafc; color: #475569; font-weight: 800; font-size: 12px; padding: 8px 2px; }
-        @media (min-width: 768px) { .timetable th { font-size: 14px; } }
+    /* 테이블 헤더(요일) */
+    .timetable th { background-color: #f8fafc; color: #475569; font-weight: 800; font-size: 11px; padding: 6px 0; }
+    @media (min-width: 768px) { .timetable th { font-size: 14px; padding: 8px 2px; } }
 
-        /* 세로 높이 최적화 (모바일: 65px, PC: 85px) */
-        .timetable td { height: 65px; vertical-align: middle; background-color: #ffffff; }
-        @media (min-width: 768px) { .timetable td { height: 85px; } }
+    /* 세로 높이 최적화 (모바일: 65px, PC: 85px) */
+    .timetable td { height: 65px; vertical-align: middle; background-color: #ffffff; }
+    @media (min-width: 768px) { .timetable td { height: 85px; } }
 
-        /* 🔥 '교시' 열은 좁게(12%), '요일' 열은 넓게 균등 분배 */
-        .timetable th:first-child, .timetable td:first-child { 
-            width: 12%; 
-            font-weight: 900; 
-            background-color: #f8fafc; 
-            color: #64748b; 
-            font-size: 11px; 
-        }
-        .timetable th:not(:first-child) { width: 17.6%; }
-        @media (min-width: 768px) { 
-            .timetable th:first-child, .timetable td:first-child { font-size: 13px; } 
-        }
+    /* 🔥 '교시' 열은 좁게(12%), '요일' 열은 넓게 균등 분배 */
+    .timetable th:first-child, .timetable td:first-child { 
+        width: 12%; font-weight: 900; background-color: #f8fafc; color: #64748b; font-size: 10px; 
+    }
+    .timetable th:not(:first-child) { width: 17.6%; }
+    @media (min-width: 768px) { 
+        .timetable th:first-child, .timetable td:first-child { font-size: 13px; } 
+    }
     </style>
 </head>
 <body class="bg-slate-50 p-4 min-h-screen pb-20">
@@ -181,7 +183,7 @@
                         `;
                     } 
                     
-                    // 🗓️ 주간 시간표 렌더링 (모바일 최적화 버전)
+                    // 🗓️ 주간 시간표 렌더링
                     else if (r.type === "TIMETABLE") {
                         if (r.data.length === 0) return area.innerHTML = `<div class="bg-slate-200 text-slate-600 p-5 rounded-2xl text-center font-bold">시간표 데이터가 없습니다.</div>`;
                         
@@ -192,12 +194,12 @@
                             if (item.period >= 1 && item.period <= 8 && grid[item.period][item.day] !== undefined) {
                                 let teacherHTML = '';
                                 if (type !== 'TIMETABLE_TEACHER' && item.teacher) {
-                                    // 🔥 모바일에서는 교사 이름 작게, PC에서는 정상 크기
-                                    teacherHTML = `<div class="text-[9px] md:text-xs text-blue-600 font-bold mt-0.5 md:mt-1 truncate tracking-tighter">${item.teacher}</div>`;
+                                    // 🔥 모바일에서는 '선생님' 글자 생략, 폰트 최소화
+                                    teacherHTML = `<div class="text-[9px] md:text-xs text-blue-600 font-bold mt-0.5 md:mt-1 truncate">${item.teacher}</div>`;
                                 }
                                 
-                                // 🔥 모바일에서는 과목명 폰트 축소 (text-[10px])
-                                const html = `<div class="font-black text-slate-800 leading-tight text-[10px] md:text-[13px] break-keep">${item.subject}</div>${teacherHTML}`;
+                                // 🔥 break-keep 삭제! 모바일에서 과목명이 길면 자연스럽게 줄을 바꿈 (text-[10px])
+                                const html = `<div class="font-black text-slate-800 leading-tight text-[10px] md:text-[13px] break-all md:break-keep">${item.subject}</div>${teacherHTML}`;
                                 grid[item.period][item.day] += (grid[item.period][item.day] ? '<hr class="my-1 border-slate-200">' : '') + html;
                             }
                         });
@@ -205,8 +207,8 @@
                         let tableHTML = `
                         <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
                             <div class="bg-blue-600 text-white text-center py-3 md:py-4 font-black text-base md:text-lg">${r.title}</div>
-                            <div class="w-full overflow-x-auto p-0 md:p-1">
-                                <table class="timetable">
+                            <div class="w-full p-0 md:p-1 overflow-hidden">
+                                <table class="timetable w-full">
                                     <thead>
                                         <tr>
                                             <th>교시</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th>
@@ -215,7 +217,6 @@
                                     <tbody>`;
                         
                         for (let p = 1; p <= 7; p++) {
-                            // CSS에서 높이를 제어하므로 인라인 높이 제거
                             tableHTML += `<tr class="hover:bg-slate-50 transition"><td>${p}</td>`;
                             ['월', '화', '수', '목', '금'].forEach(d => {
                                 const cellContent = grid[p][d] ? grid[p][d] : `<span class="text-slate-200">-</span>`;
