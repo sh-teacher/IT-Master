@@ -241,8 +241,8 @@
                                 <thead class="bg-slate-100 text-slate-700 font-bold border-b-2 border-slate-200 whitespace-nowrap">
                                     <tr>
                                         <th class="py-2 md:py-3 px-1 md:px-2">연번</th>
-                                        <th class="py-2 md:py-3 px-1 md:px-2">학년</th>
-                                        <th class="py-2 md:py-3 px-1 md:px-2">반</th>
+                                        <th class="py-2 md:py-3 px-1 md:px-2 hidden md:table-cell">학년</th>
+                                        <th class="py-2 md:py-3 px-1 md:px-2 hidden md:table-cell">반</th>
                                         <th class="py-2 md:py-3 px-1 md:px-2">번호</th>
                                         <th class="py-2 md:py-3 px-1 md:px-2">이름</th>
                                         <th class="py-2 md:py-3 px-1 md:px-2">상태</th>
@@ -1099,56 +1099,85 @@ function forceHideListView() {
 }
 function toggleListView() { isListView ? forceHideListView() : forceShowListView(); }
 
-function renderListView() {
+// ── 정렬 데이터 계산 (재사용)
+function buildSortedListData() {
+    return currentStudentsList.map(std => {
+        const cleanName = String(std.name||"").replace(/\s/g,'');
+        const seat = currentSavedSeatingList.find(s =>
+            parseInt(s.number) === parseInt(std.number) &&
+            String(s.name||"").replace(/\s/g,'') === cleanName
+        );
+        return {
+            seatLabel: seat?.seatLabel || null,
+            grade: std.grade||'-', class: std.class||'-',
+            number: std.number||'-', name: std.name||'-',
+            key: getStudentKey(std)
+        };
+    }).sort((a,b) => {
+        const an = parseInt(a.seatLabel), bn = parseInt(b.seatLabel);
+        if (!isNaN(an) && !isNaN(bn)) return an - bn;
+        if (!isNaN(an)) return -1;
+        if (!isNaN(bn)) return 1;
+        if (a.class !== b.class) return parseInt(a.class) - parseInt(b.class);
+        return parseInt(a.number) - parseInt(b.number);
+    });
+}
+
+const BADGE_PRESENT = '<span class="px-1.5 py-1 md:px-3 md:py-1.5 bg-white text-slate-400 border border-slate-200 rounded-lg text-[10px] md:text-xs font-bold whitespace-nowrap">출석</span>';
+const BADGE_ABSENT  = '<span class="px-1.5 py-1 md:px-3 md:py-1.5 bg-red-100 text-red-700 border border-red-200 rounded-lg text-[10px] md:text-xs font-black shadow-sm whitespace-nowrap">❌ 결석</span>';
+const BADGE_LATE    = '<span class="px-1.5 py-1 md:px-3 md:py-1.5 bg-amber-100 text-amber-700 border border-amber-200 rounded-lg text-[10px] md:text-xs font-black shadow-sm whitespace-nowrap">⚠️ 지각</span>';
+
+// Phase A: 이름·번호 즉시 출력 (출결은 일단 전원 "출석")
+function renderListViewFast() {
     const tbody = document.getElementById('listViewTbody');
     if (!currentStudentsList?.length) {
         tbody.innerHTML = '<tr><td colspan="6" class="py-10 text-slate-400 font-bold text-center">학생 데이터가 없습니다.</td></tr>';
         return;
     }
-    const listData = currentStudentsList.map(std => {
-        const cleanName = String(std.name||"").replace(/\s/g,'');
-        const seat = currentSavedSeatingList.find(s => parseInt(s.number)===parseInt(std.number) && String(s.name||"").replace(/\s/g,'')===cleanName);
-        return { seatLabel: seat?.seatLabel || null, grade: std.grade||'-', class: std.class||'-', number: std.number||'-', name: std.name||'-', key: getStudentKey(std) };
-    });
-    listData.sort((a,b) => {
-        const an = parseInt(a.seatLabel), bn = parseInt(b.seatLabel);
-        if (!isNaN(an) && !isNaN(bn)) return an-bn;
-        if (!isNaN(an)) return -1; if (!isNaN(bn)) return 1;
-        if (a.class !== b.class) return parseInt(a.class)-parseInt(b.class);
-        return parseInt(a.number)-parseInt(b.number);
-    });
+    const listData = buildSortedListData();
     const frag = document.createDocumentFragment();
     listData.forEach((item, idx) => {
         const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-50 transition text-center"; // 가운데 정렬 유지
-        const displayLabel = item.seatLabel || (idx+1);
-        const att = attendanceData[item.key] || { status:'present' };
-        
-        // 🔥 모바일 화면을 위해 배지(출석/결석) 좌우 여백을 살짝(px-1.5) 줄여서 공간을 확보했습니다.
-        let badge = '<span class="px-1.5 py-1 md:px-3 md:py-1.5 bg-white text-slate-400 border border-slate-200 rounded-lg text-[10px] md:text-xs font-bold whitespace-nowrap">출석</span>';
-        if (att.status==='absent') badge = '<span class="px-1.5 py-1 md:px-3 md:py-1.5 bg-red-100 text-red-700 border border-red-200 rounded-lg text-[10px] md:text-xs font-black shadow-sm whitespace-nowrap">❌ 결석</span>';
-        if (att.status==='late')   badge = '<span class="px-1.5 py-1 md:px-3 md:py-1.5 bg-amber-100 text-amber-700 border border-amber-200 rounded-lg text-[10px] md:text-xs font-black shadow-sm whitespace-nowrap">⚠️ 지각</span>';
-        
-        // 🔥 여기서 hidden md:table-cell 을 완전히 삭제하고 모바일 폰트 크기(11px)를 적용했습니다!
+        tr.className = "hover:bg-slate-50 transition text-center";
+        const displayLabel = item.seatLabel || (idx + 1);
         tr.innerHTML = `
             <td class="py-2 px-0.5 md:px-2 font-black text-blue-600 text-[11px] md:text-base">${displayLabel}</td>
             <td class="py-2 px-0.5 md:px-2 font-medium text-slate-600 text-[11px] md:text-sm">${item.grade}</td>
             <td class="py-2 px-0.5 md:px-2 font-medium text-slate-600 text-[11px] md:text-sm">${item.class}</td>
             <td class="py-2 px-0.5 md:px-2 font-medium text-slate-600 text-[11px] md:text-sm">${item.number}</td>
             <td class="py-2 px-0.5 md:px-2 font-black text-slate-800 text-[11px] md:text-sm whitespace-nowrap">${item.name}</td>
-            <td class="py-2 px-0.5 md:px-2 cursor-pointer list-status-cell" data-key="${item.key}">${badge}</td>`;
+            <td class="py-2 px-0.5 md:px-2 cursor-pointer list-status-cell" data-key="${item.key}">${BADGE_PRESENT}</td>`;
         frag.appendChild(tr);
     });
     tbody.innerHTML = '';
     tbody.appendChild(frag);
-    tbody.querySelectorAll('.list-status-cell').forEach(cell => {
-        cell.onclick = () => {
-            const stdKey = cell.dataset.key;
-            let card = document.querySelector(`.student-card-attend[data-std-key="${stdKey}"]`);
-            if (!card) { card = document.createElement('div'); card.dataset.stdKey = stdKey; card.classList.add('card-present'); }
-            openAttendModal(card, stdKey);
-        };
+
+    // 이벤트 위임 (셀마다 onclick 달지 않고 tbody에 한 번만)
+    tbody.onclick = (e) => {
+        const cell = e.target.closest('.list-status-cell');
+        if (!cell) return;
+        const stdKey = cell.dataset.key;
+        let card = document.querySelector(`.student-card-attend[data-std-key="${stdKey}"]`);
+        if (!card) { card = document.createElement('div'); card.dataset.stdKey = stdKey; card.classList.add('card-present'); }
+        openAttendModal(card, stdKey);
+    };
+
+    // Phase B: 다음 프레임에 출결 색상 덮어씌우기
+    requestAnimationFrame(applyAttendanceBadges);
+}
+
+// Phase B: 결석·지각인 셀만 골라 배지 교체 (출석은 이미 맞으므로 스킵)
+function applyAttendanceBadges() {
+    document.querySelectorAll('#listViewTbody .list-status-cell').forEach(cell => {
+        const att = attendanceData[cell.dataset.key];
+        if (!att || att.status === 'present') return;
+        cell.innerHTML = att.status === 'absent' ? BADGE_ABSENT : BADGE_LATE;
     });
+}
+
+// renderListView 호출부는 그대로 유지 (하위 호환)
+function renderListView() {
+    renderListViewFast();
 }
 </script>
 </body>
