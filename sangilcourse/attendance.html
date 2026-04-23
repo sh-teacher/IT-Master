@@ -11,18 +11,15 @@
     }
   </script>
     <style>
-        /* ── 공통 ── */
         .row-grid { display: grid; gap: 4px; width: 100%; }
         @media (min-width: 768px) { .row-grid { gap: 10px; } }
 
-        /* ── 출석판 책상 (기본: 텍스트(이름) 모드) ── */
         .desk-attend {
             min-height: 48px;
             border: 2px dashed #cbd5e1; border-radius: 6px;
             display: flex; align-items: center; justify-content: center;
             padding: 2px; background: #f8fafc; position: relative;
-            transition: all 0.2s;
-            overflow: hidden;
+            transition: all 0.2s; overflow: hidden;
         }
         .desk-attend-empty { min-height: 48px; background: transparent; transition: all 0.2s; }
 
@@ -31,97 +28,59 @@
             .desk-attend-empty { min-height: 90px; }
         }
 
-        /* 📸 [핵심 수정] 사진 모드 활성화 시 카드 디자인 (여백 최소화 & 너비 확보) */
         .photo-mode .desk-attend { 
-            min-height: auto; /* 🔥 고정 높이 해제: 사진 크기에 맞춰 카드가 늘어납니다. */
-            height: auto;
-            border-radius: 8px; 
-            padding: 2px; /* 카드 내부 패딩 최소화 */
-            border: 1px solid #e2e8f0; /* 테두리 실선으로 변경하여 깔끔하게 */
-            background: #fff;
-            display: block; /* 내부 요소가 순서대로 쌓이도록 */
+            min-height: auto; height: auto; border-radius: 8px; 
+            padding: 2px; border: 1px solid #e2e8f0; background: #fff; display: block;
         } 
-        .photo-mode .desk-attend-empty { 
-            min-height: 120px; /* 빈 자리는 최소 높이 유지 */
-        }
+        .photo-mode .desk-attend-empty { min-height: 120px; }
         @media (min-width: 768px) {
             .photo-mode .desk-attend { border-radius: 12px; padding: 3px; }
             .photo-mode .desk-attend-empty { min-height: 200px; }
         }
 
-        /* [핵심 수정] 사진 영역 (고정 높이 및 마진 제거) */
         .student-photo-wrapper { 
-            display: none; 
-            width: 100%; 
-            height: auto; /* 🔥 고정 높이 해제 */
-            margin-bottom: 2px; /* 🔥 하단 마진 최소화: 이름 바로 아래 붙이기 */
+            display: none; width: 100%; height: auto; margin-bottom: 2px;
         }
-        
         .photo-mode .student-photo-wrapper.has-img { display: block; }
         .photo-mode .student-photo-wrapper.no-img { 
-            display: flex; 
-            height: 100px; /* 사진 없는 경우 최소 높이 */
-            align-items: center; 
-            justify-content: center; 
-            background: #f1f5f9; 
-            border-radius: 4px;
+            display: flex; height: 100px;
+            align-items: center; justify-content: center; 
+            background: #f1f5f9; border-radius: 4px;
         }
-        
         @media (min-width: 768px) {
             .photo-mode .student-photo-wrapper.no-img { height: 160px; } 
         }
 
-        /* [핵심 수정] 사진 스타일 (너비 꽉 채우고 높이는 자동) */
         .student-photo { 
-            width: 100% !important; 
-            height: auto !important; /* 높이 자동 계산 (사진 비율 유지) */
-            object-fit: contain !important; /* 잘림 방지 */
-            border-radius: 4px; 
-            border: none; 
-            display: block;
+            width: 100% !important; height: auto !important;
+            object-fit: contain !important; border-radius: 4px; 
+            border: none; display: block;
         }
         @media (min-width: 768px) { .student-photo { border-radius: 8px; } }
 
-        /* [핵심 수정] 사진 모드 이름/번호 영역 (패딩 최소화) */
-        .photo-mode .student-card-attend {
-            padding: 0;
-            justify-content: flex-start; /* 위쪽부터 정렬 */
-        }
-        
+        .photo-mode .student-card-attend { padding: 0; justify-content: flex-start; }
         .photo-mode .student-card-attend > div:last-child {
-            padding: 2px 0 0 0 !important; /* 🔥 사진 바로 아래 붙이기 (패딩 최소화) */
-            text-align: center;
-            width: 100%;
+            padding: 2px 0 0 0 !important; text-align: center; width: 100%;
         }
-        
-        /* 반번호 이름 글씨 크기 조정 (카드가 커진 만큼 살짝 키움) */
-        .photo-mode .student-card-attend span.text-slate-400 { 
-            font-size: 9px !important; 
-            margin-bottom: -1px;
-        }
-        .photo-mode .student-card-attend span.font-black { 
-            font-size: 11px !important; 
-        }
+        .photo-mode .student-card-attend span.text-slate-400 { font-size: 9px !important; margin-bottom: -1px; }
+        .photo-mode .student-card-attend span.font-black { font-size: 11px !important; }
 
         @media (min-width: 768px) {
             .photo-mode .student-card-attend span.text-slate-400 { font-size: 11px !important; }
             .photo-mode .student-card-attend span.font-black { font-size: 14px !important; }
         }
 
-        /* ── 좌석세팅 책상 ── */
         .desk-seat {
             min-height: 60px; border: 2px dashed #cbd5e1; border-radius: 8px;
             display: flex; align-items: center; justify-content: center;
             padding: 2px; background: #f8fafc; position: relative;
-            transition: border-color 0.15s, background 0.15s;
-            overflow: hidden;
+            transition: border-color 0.15s, background 0.15s; overflow: hidden;
         }
         @media (min-width: 768px) { .desk-seat { min-height: 88px; border-radius: 12px; padding: 4px;} }
         .desk-seat.over { border-color: #3b82f6 !important; background-color: #eff6ff !important; border-style: solid !important; }
         .desk-seat-empty { min-height: 60px; border-radius: 8px; background: transparent; }
         @media (min-width: 768px) { .desk-seat-empty { min-height: 88px; } }
 
-        /* 좌석 번호 라벨/인풋 */
         .seat-num-label { position: absolute; top: 2px; left: 4px; font-size: 9px; font-weight: 700; color: #94a3b8; z-index: 10; pointer-events: none; }
         @media (min-width: 768px) { .seat-num-label { top: 3px; left: 6px; font-size: 11px; } }
         
@@ -129,23 +88,18 @@
         @media (min-width: 768px) { .seat-num-input { top: 3px; left: 5px; width: 28px; font-size: 11px; } }
         .seat-num-input:focus { color: #3b82f6; background: #eff6ff; border-radius: 3px; }
 
-        /* 출석 카드 상태 색상 (일반 모드) */
         .card-present { background-color: #ffffff; border-color: #e2e8f0; }
         .card-absent  { background-color: #fef2f2; border-color: #f87171; color: #b91c1c; }
         .card-late    { background-color: #fffbeb; border-color: #fbbf24; color: #b45309; }
         .student-card-attend { cursor: pointer; transition: all 0.2s; user-select: none; box-shadow: 0 2px 4px rgba(0,0,0,0.05); width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .student-card-attend:active { transform: scale(0.95); }
 
-        /* [핵심 수정] 사진 모드일 때 출석 상태 표시 (카드 전체 배경색 대신 하단 이름 영역 색상 변경) */
         .photo-mode .student-card-attend.card-present > div:last-child { background-color: #fff; }
         .photo-mode .student-card-attend.card-absent > div:last-child  { background-color: #fee2e2; color: #b91c1c; }
         .photo-mode .student-card-attend.card-late > div:last-child    { background-color: #fef3c7; color: #b45309; }
-        
-        /* 사진 모드일 때 글씨 색상 강제 지정 */
         .photo-mode .student-card-attend.card-absent span,
         .photo-mode .student-card-attend.card-late span { color: inherit !important; }
 
-        /* 세팅판 드래그 카드 */
         .student-card-seat { cursor: grab; user-select: none; -webkit-user-select: none; touch-action: none; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;}
         #waitingList.over { background-color: #f0fdf4 !important; outline: 2px dashed #22c55e; outline-offset: -2px; }
         
@@ -155,32 +109,42 @@
         .tab-panel { display: none; }
         .tab-panel.active { display: block; }
         
-        /* 🔥 스마트 반응형 너비 최적화! */
         .classroom-scroll-wrapper { width: 100%; overflow-x: auto; padding-bottom: 10px; }
-        
-        /* 📱 모바일: 최소 600px 유지 (글씨 찌그러짐 방지, 좌우 스크롤 생성) */
         .classroom-min-width { min-width: 600px; width: 100%; }
-        
-        /* 💻 PC (768px 이상): 최소 너비를 100%로 풀어서 화면에 꽉 차게 (불필요한 스크롤 제거) */
         @media (min-width: 768px) { 
             .classroom-min-width { min-width: 100%; } 
         }
-        
-        /* ✨ 커스텀 출결 모달 */
+
+        /* ── 로딩 스켈레톤 ── */
+        @keyframes shimmer {
+            0% { background-position: -400px 0; }
+            100% { background-position: 400px 0; }
+        }
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+            background-size: 400px 100%;
+            animation: shimmer 1.2s ease-in-out infinite;
+            border-radius: 6px;
+        }
+
+        /* ── 단계별 페이드인 ── */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in { animation: fadeIn 0.25s ease forwards; }
+
+        /* ── 출결 모달 ── */
         #attendModal {
             position: fixed; inset: 0; z-index: 500;
             display: flex; align-items: flex-end; justify-content: center;
-            background: rgba(15,23,42,0.45);
-            backdrop-filter: blur(2px);
-            opacity: 0; pointer-events: none;
-            transition: opacity 0.18s ease;
+            background: rgba(15,23,42,0.45); backdrop-filter: blur(2px);
+            opacity: 0; pointer-events: none; transition: opacity 0.18s ease;
         }
         #attendModal.open { opacity: 1; pointer-events: auto; }
         #attendModalSheet {
-            width: 100%; max-width: 480px;
-            background: #fff;
-            border-radius: 20px 20px 0 0;
-            padding: 20px 20px 32px;
+            width: 100%; max-width: 480px; background: #fff;
+            border-radius: 20px 20px 0 0; padding: 20px 20px 32px;
             box-shadow: 0 -8px 40px rgba(0,0,0,0.18);
             transform: translateY(100%);
             transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1);
@@ -188,34 +152,17 @@
         #attendModal.open #attendModalSheet { transform: translateY(0); }
         .attend-modal-btn {
             width: 100%; padding: 14px; border-radius: 12px;
-            font-size: 15px; font-weight: 800;
-            border: 2px solid transparent;
+            font-size: 15px; font-weight: 800; border: 2px solid transparent;
             cursor: pointer; transition: all 0.12s;
             display: flex; align-items: center; gap: 10px;
         }
         .attend-modal-btn:active { transform: scale(0.97); }
 
-        /* ── 인쇄 전용 스타일 ── */
         @media print {
             body > *:not(#reportModal) { display: none !important; }
-            #reportModal { 
-                position: relative !important; 
-                display: block !important; 
-                background: white !important; 
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-            #reportModal > div {
-                box-shadow: none !important;
-                border-radius: 0 !important;
-                height: auto !important;
-                max-width: 100% !important;
-                margin: 0 !important;
-            }
-            #reportContent, #reportContent div { 
-                height: auto !important; 
-                overflow: visible !important; 
-            }
+            #reportModal { position: relative !important; display: block !important; background: white !important; padding: 0 !important; margin: 0 !important; }
+            #reportModal > div { box-shadow: none !important; border-radius: 0 !important; height: auto !important; max-width: 100% !important; margin: 0 !important; }
+            #reportContent, #reportContent div { height: auto !important; overflow: visible !important; }
             #reportModal button { display: none !important; }
         }
     </style>
@@ -224,7 +171,6 @@
 <div class="max-w-7xl mx-auto w-full">
 
     <div class="flex flex-col items-center justify-center gap-3 mb-2 pt-2">
-        
         <div class="w-full text-center">
             <span class="inline-flex items-center gap-2 bg-indigo-50 text-indigo-800 border border-indigo-100 px-5 py-2.5 rounded-full font-black text-sm md:text-lg shadow-sm tracking-tight">
                 📋 <span id="subjectBadge">과목 로딩 중...</span>
@@ -240,11 +186,10 @@
                     <label class="text-xs md:text-sm font-bold text-slate-600 cursor-pointer whitespace-nowrap pointer-events-none">보강교시</label>
                 </div>
                 
-                <select id="selectedPeriod" onchange="loadClassData()" class="flex-1 md:flex-none p-2 md:py-2 md:px-3 bg-white border border-slate-200 rounded-lg font-bold text-blue-600 text-xs md:text-sm text-center shadow-sm focus:ring-2 ring-blue-500 outline-none transition">
+                <select id="selectedPeriod" onchange="onPeriodChange()" class="flex-1 md:flex-none p-2 md:py-2 md:px-3 bg-white border border-slate-200 rounded-lg font-bold text-blue-600 text-xs md:text-sm text-center shadow-sm focus:ring-2 ring-blue-500 outline-none transition">
                     <option value="">교시</option>
                 </select>
             </div>
-            
             <button onclick="openReportModal()" class="w-full md:w-auto bg-indigo-100 text-indigo-800 border border-indigo-200 px-5 py-2.5 md:py-2 rounded-lg font-black hover:bg-indigo-200 transition text-xs md:text-sm whitespace-nowrap shadow-sm">📊 누적현황</button>
         </div>
     </div>
@@ -304,7 +249,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="listViewTbody" class="divide-y divide-slate-100">
-                                    <tr><td colspan="6" class="py-10 text-slate-400 font-bold">학생 데이터를 불러오는 중입니다...</td></tr>
+                                    <tr><td colspan="6" class="py-10 text-slate-400 font-bold">과목을 선택해주세요.</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -351,7 +296,6 @@
                     <div class="col-span-2 w-full text-slate-400 text-center text-xs mt-5">로딩 중...</div>
                 </div>
             </div>
-            
             <div class="w-full md:w-3/4 border-2 border-slate-100 rounded-xl p-3 md:p-6 bg-white overflow-hidden">
                 <div class="classroom-scroll-wrapper">
                     <div id="seatClassroomContainer" class="flex flex-col gap-2 md:gap-5 classroom-min-width">
@@ -366,7 +310,6 @@
 
 <div id="ghost" class="flex flex-col items-center justify-center bg-white rounded-lg border border-slate-200 font-bold text-slate-700"></div>
 
-<!-- ✨ 커스텀 출결 모달 (prompt() 대체) -->
 <div id="attendModal" onclick="closeAttendModal(event)">
     <div id="attendModalSheet">
         <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-4"></div>
@@ -377,28 +320,22 @@
         <p class="text-xs font-bold text-slate-500 mb-2 text-center">출결 상태 선택</p>
         <div class="flex flex-col gap-2 mb-3">
             <button class="attend-modal-btn bg-white border-slate-200 text-slate-700 hover:bg-slate-50" onclick="applyAttendStatus('present')">
-                <span class="w-5 h-5 rounded-full bg-slate-100 border-2 border-slate-300 inline-block shrink-0"></span>
-                출석
+                <span class="w-5 h-5 rounded-full bg-slate-100 border-2 border-slate-300 inline-block shrink-0"></span>출석
             </button>
             <button class="attend-modal-btn bg-red-50 border-red-200 text-red-700 hover:bg-red-100" onclick="applyAttendStatus('absent')">
-                <span class="text-lg leading-none">❌</span>
-                결석
+                <span class="text-lg leading-none">❌</span>결석
             </button>
             <button class="attend-modal-btn bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100" onclick="applyAttendStatus('late')">
-                <span class="text-lg leading-none">⚠️</span>
-                지각
+                <span class="text-lg leading-none">⚠️</span>지각
             </button>
         </div>
-        <!-- 사유 입력 (결석/지각 선택 시 표시) -->
         <div id="attendModalMemoArea" class="hidden mb-3">
             <label class="text-xs font-bold text-slate-500 mb-1 block">사유 입력</label>
             <input id="attendModalMemoInput" type="text" 
                    class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm font-medium focus:border-blue-400 focus:outline-none"
                    placeholder="사유를 입력하세요" />
             <button onclick="confirmAttendMemo()" 
-                    class="mt-2 w-full bg-blue-600 text-white py-3 rounded-xl font-bold text-sm hover:bg-blue-700 transition">
-                확인
-            </button>
+                    class="mt-2 w-full bg-blue-600 text-white py-3 rounded-xl font-bold text-sm hover:bg-blue-700 transition">확인</button>
         </div>
         <button onclick="closeAttendModalDirect()" class="w-full text-xs text-slate-400 font-bold py-2 hover:text-slate-600 transition">취소</button>
     </div>
@@ -419,296 +356,288 @@
 
 <script>
 // ==========================================
-// 🌟 상일여고 전용 API 연동
+// 🌟 설정 & 전역 상태
 // ==========================================
 const API_URL = "https://script.google.com/macros/s/AKfycbzfIY0Fs4S1EjSSNI2kZfrFgtSqipG_u_KDCkdT8Vy1LjrIwB7k_1awE_psCNw0VQGg/exec";
 
-let ROW_CONFIG = [
-    { desks: 6, empty: 0 },
-    { desks: 6, empty: 0 },
-    { desks: 6, empty: 0 },
-    { desks: 6, empty: 0 },
-];
-let TOTAL_SEATS = ROW_CONFIG.reduce((a, r) => a + r.desks, 0);
+let ROW_CONFIG = Array.from({ length: 4 }, () => ({ desks: 7, empty: 0 }));
+let TOTAL_SEATS = 28;
 
 const DEFAULT_TIMES = {
-    1: { start: "08:45", end: "09:35" },
-    2: { start: "09:45", end: "10:35" },
-    3: { start: "10:45", end: "11:35" },
-    4: { start: "11:45", end: "12:35" },
-    5: { start: "13:35", end: "14:25" },
-    6: { start: "14:35", end: "15:25" },
-    7: { start: "15:40", end: "16:30" },
-    8: { start: "16:40", end: "17:30" },
-    9: { start: "17:40", end: "18:30" }
+    1:{start:"08:45",end:"09:35"},2:{start:"09:45",end:"10:35"},
+    3:{start:"10:45",end:"11:35"},4:{start:"11:45",end:"12:35"},
+    5:{start:"13:35",end:"14:25"},6:{start:"14:35",end:"15:25"},
+    7:{start:"15:40",end:"16:30"},8:{start:"16:40",end:"17:30"},
+    9:{start:"17:40",end:"18:30"}
 };
-let progressInterval = null;
 
 let attendanceData = {}, fullSchedule = [], isTeacherView = true, isSeatTeacherView = false;
-let currentTab = 'attend';
-let currentSubject = "";
-let isPhotoView = false;
-let currentLoadId = 0;
-let sysConfig = null;
+let currentTab = 'attend', currentSubject = "", isPhotoView = false;
+let currentLoadId = 0, sysConfig = null;
+let currentStudentsList = [], currentSavedSeatingList = [];
+let isListView = false;
 
-// ✨ 출결 모달 상태
-let _modalTargetCard = null;
-let _modalTargetKey = null;
-let _modalPendingStatus = null;
+// ── 모달 상태
+let _modalTargetCard = null, _modalTargetKey = null, _modalPendingStatus = null;
+
+// ── 인플라이트 요청 취소용 토큰
+let _loadToken = 0;
 
 // ==========================================
-// ✨ 커스텀 출결 모달 (prompt() 완전 대체)
+// ✨ 모달
 // ==========================================
 function openAttendModal(card, stdKey) {
-    _modalTargetCard = card;
-    _modalTargetKey = stdKey;
-    _modalPendingStatus = null;
-
-    const std = attendanceData[stdKey];
-    if (!std) return;
-
+    _modalTargetCard = card; _modalTargetKey = stdKey; _modalPendingStatus = null;
+    const std = attendanceData[stdKey]; if (!std) return;
     document.getElementById('attendModalName').innerText = std.name;
     document.getElementById('attendModalClass').innerText = `${std.class}반 ${std.number}번 · 현재: ${std.status === 'present' ? '출석' : std.status === 'absent' ? '결석' : '지각'}`;
     document.getElementById('attendModalMemoArea').classList.add('hidden');
     document.getElementById('attendModalMemoInput').value = '';
-
-    const modal = document.getElementById('attendModal');
-    modal.classList.add('open');
-    // 모바일 키보드 방지를 위해 포커스 지연
-    setTimeout(() => {}, 50);
+    document.getElementById('attendModal').classList.add('open');
 }
-
-function closeAttendModal(e) {
-    if (e && e.target !== document.getElementById('attendModal')) return;
-    closeAttendModalDirect();
-}
-
+function closeAttendModal(e) { if (e && e.target !== document.getElementById('attendModal')) return; closeAttendModalDirect(); }
 function closeAttendModalDirect() {
     document.getElementById('attendModal').classList.remove('open');
-    _modalTargetCard = null;
-    _modalTargetKey = null;
-    _modalPendingStatus = null;
+    _modalTargetCard = null; _modalTargetKey = null; _modalPendingStatus = null;
 }
-
 function applyAttendStatus(status) {
     if (!_modalTargetKey) return;
-    if (status === 'present') {
-        // 출석은 사유 없이 즉시 적용
-        _applyFinalStatus('present', '');
-        closeAttendModalDirect();
-    } else {
-        // 결석/지각은 사유 입력 영역 표시
-        _modalPendingStatus = status;
-        const memoArea = document.getElementById('attendModalMemoArea');
-        memoArea.classList.remove('hidden');
-        const input = document.getElementById('attendModalMemoInput');
-        input.placeholder = status === 'absent' ? '예: 질병결석, 가정사정 등' : '예: 지각, 대중교통 지연 등';
-        input.value = status === 'absent' ? '질병결석' : '지각';
-        // 약간의 지연 후 포커스 (모달 애니메이션 후)
-        setTimeout(() => input.focus(), 100);
-    }
+    if (status === 'present') { _applyFinalStatus('present', ''); closeAttendModalDirect(); return; }
+    _modalPendingStatus = status;
+    const memoArea = document.getElementById('attendModalMemoArea');
+    memoArea.classList.remove('hidden');
+    const input = document.getElementById('attendModalMemoInput');
+    input.placeholder = status === 'absent' ? '예: 질병결석, 가정사정 등' : '예: 지각, 대중교통 지연 등';
+    input.value = status === 'absent' ? '질병결석' : '지각';
+    setTimeout(() => input.focus(), 100);
 }
-
 function confirmAttendMemo() {
     if (!_modalPendingStatus || !_modalTargetKey) return;
     const memo = document.getElementById('attendModalMemoInput').value.trim() || '사유 미입력';
     _applyFinalStatus(_modalPendingStatus, memo);
     closeAttendModalDirect();
 }
-
-// ✨ 엔터키로도 확인 가능
-document.getElementById('attendModalMemoInput')?.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') confirmAttendMemo();
-});
-
+document.getElementById('attendModalMemoInput')?.addEventListener('keydown', e => { if (e.key === 'Enter') confirmAttendMemo(); });
 function _applyFinalStatus(status, memo) {
-    const s = attendanceData[_modalTargetKey];
-    if (!s) return;
-    s.status = status;
-    s.memo = memo;
-
-    // ✨ classList만 교체 — innerHTML 재생성 없음, 이미지 리로드 없음
+    const s = attendanceData[_modalTargetKey]; if (!s) return;
+    s.status = status; s.memo = memo;
     const card = _modalTargetCard;
     card.classList.remove('card-present', 'card-absent', 'card-late');
     card.classList.add(`card-${status}`);
-
     updateAbsenceList();
     if (isListView) renderListView();
 }
 
 // ==========================================
-// 탭 / 초기화
+// 🚀 탭 / 초기화
 // ==========================================
 function switchTab(tab) {
     currentTab = tab;
     document.getElementById('panelAttend').classList.toggle('active', tab === 'attend');
     document.getElementById('panelSeat').classList.toggle('active', tab === 'seat');
-    
-    const activeClass = 'flex-1 bg-blue-600 text-white px-2 py-3 rounded-t-xl font-bold text-xs md:text-sm transition';
-    const inactiveClass = 'flex-1 bg-slate-100 text-slate-500 hover:bg-slate-200 px-2 py-3 rounded-t-xl font-bold text-xs md:text-sm transition';
-    
-    document.getElementById('tabBtnAttend').className = tab === 'attend' ? activeClass : inactiveClass;
-    document.getElementById('tabBtnSeat').className = tab === 'seat' ? activeClass : inactiveClass;
-
+    const activeC = 'flex-1 bg-blue-600 text-white px-2 py-3 rounded-t-xl font-bold text-xs md:text-sm transition';
+    const inactiveC = 'flex-1 bg-slate-100 text-slate-500 hover:bg-slate-200 px-2 py-3 rounded-t-xl font-bold text-xs md:text-sm transition';
+    document.getElementById('tabBtnAttend').className = tab === 'attend' ? activeC : inactiveC;
+    document.getElementById('tabBtnSeat').className   = tab === 'seat'   ? activeC : inactiveC;
     if (tab === 'seat' && currentSubject) loadSeatStudents(currentSubject);
 }
 
 window.onload = async function () {
+    // 날짜 세팅
     const today = new Date();
     document.getElementById('selectedDate').value = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-    
-    // 시계 관련 코드 삭제됨
-    progressInterval = setInterval(updateClassTimer, 1000);
-    
+
+    // 타이머
+    setInterval(updateClassTimer, 1000);
+
+    // 기본 그리드 미리 그리기 (빈 껍데기라도 즉시 표시)
     createAttendDesks();
     createSeatDesks();
 
+    // URL 파라미터로 과목 확보
     const urlParams = new URLSearchParams(window.location.search);
     const targetSubject = urlParams.get('subject');
-
     if (targetSubject) {
         currentSubject = targetSubject;
         document.getElementById('subjectBadge').innerText = currentSubject;
-        
-        try {
-            if (window.parent && window.parent.document.getElementById('pageTitle')) {
-                window.parent.document.getElementById('pageTitle').innerText = "출결/수업 일지";
-            }
-        } catch(e) {}
     }
 
+    // ── 스케줄 로드 (백그라운드 – UI 블로킹 없음)
+    loadScheduleInBackground();
+};
+
+// 스케줄은 백그라운드에서 조용히 받아와 배지만 업데이트
+async function loadScheduleInBackground() {
     try {
         const userInfo = JSON.parse(sessionStorage.getItem("userInfo"));
-        const schRes = await fetch(API_URL, {
+        const res = await fetch(API_URL, {
             method: 'POST',
             body: JSON.stringify({ type: "GET_DASHBOARD", payload: { teacherId: userInfo.id } })
         });
-        const schData = await schRes.json();
-        if(schData.success) {
-            fullSchedule = schData.schedule;
-            sysConfig = schData.config;
-            if(currentSubject) {
-                // ✨ 과목명 옆에 (월1 수1) 스케줄 계산해서 예쁘게 붙이기
-                const myClasses = fullSchedule.filter(s => s.fullName === currentSubject || s.subject === currentSubject);
-                const dayOrder = {'월':1,'화':2,'수':3,'목':4,'금':5};
-                
-                myClasses.sort((a,b) => {
-                    const dayA = dayOrder[a.day] || 9;
-                    const dayB = dayOrder[b.day] || 9;
-                    return dayA !== dayB ? dayA - dayB : parseInt(a.period) - parseInt(b.period);
-                });
-                
-                const scheduleStrs = myClasses.filter(s => parseInt(s.period) <= 7).map(s => `${s.day}${s.period}`);
-                const uniqueSchedules = [...new Set(scheduleStrs)].join(' ');
-                
-                if (uniqueSchedules) {
-                    document.getElementById('subjectBadge').innerText = `${currentSubject} (${uniqueSchedules})`;
-                }
-                onSubjectChange();
-            }
-        }
-    } catch { console.log("데이터 로드 실패"); }
-};
+        const data = await res.json();
+        if (!data.success) return;
+        fullSchedule = data.schedule;
+        sysConfig = data.config;
 
-function onSubjectChange() {
-    updatePeriodDropdown();
-    updateClassTimer();
+        if (currentSubject) {
+            // 배지 업데이트 (스케줄 약어)
+            const dayOrder = {'월':1,'화':2,'수':3,'목':4,'금':5};
+            const myClasses = fullSchedule.filter(s => s.fullName === currentSubject || s.subject === currentSubject);
+            myClasses.sort((a,b) => {
+                const da = dayOrder[a.day]||9, db = dayOrder[b.day]||9;
+                return da !== db ? da - db : parseInt(a.period) - parseInt(b.period);
+            });
+            const scheduleStr = [...new Set(myClasses.filter(s => parseInt(s.period) <= 7).map(s => `${s.day}${s.period}`))].join(' ');
+            if (scheduleStr) document.getElementById('subjectBadge').innerText = `${currentSubject} (${scheduleStr})`;
+
+            // 배지 업데이트 후 교시 드롭다운 채우고 데이터 로드
+            updatePeriodDropdown();
+        }
+        updateClassTimer();
+    } catch (e) { console.log("스케줄 로드 실패", e); }
 }
 
 function updateClassTimer() {
     if (!currentSubject || fullSchedule.length === 0) return;
     const now = new Date();
     const todayStr = ['일','월','화','수','목','금','토'][now.getDay()];
-    
-    let activePeriod = null, periodTotalSeconds = 0, remainingSeconds = 0;
-    const nowSecondsTotal = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-    
     const pTimes = (sysConfig && sysConfig.periodTimes) ? sysConfig.periodTimes : DEFAULT_TIMES;
-
+    const nowSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+    let activePeriod = null, totalSec = 0, remainSec = 0;
     for (let p = 1; p <= 9; p++) {
-        const timeData = pTimes[p];
-        if(!timeData || !timeData.start || !timeData.end) continue;
-        
-        const [sh, sm] = timeData.start.split(':').map(Number);
-        const [eh, em] = timeData.end.split(':').map(Number);
-        const startSec = sh * 3600 + sm * 60;
-        const endSec = eh * 3600 + em * 60;
-        
-        if (nowSecondsTotal >= startSec && nowSecondsTotal <= endSec) {
-            activePeriod = p;
-            periodTotalSeconds = endSec - startSec;
-            remainingSeconds = endSec - nowSecondsTotal;
-            break;
-        }
+        const t = pTimes[p]; if (!t?.start || !t?.end) continue;
+        const [sh,sm] = t.start.split(':').map(Number);
+        const [eh,em] = t.end.split(':').map(Number);
+        const s = sh*3600+sm*60, e = eh*3600+em*60;
+        if (nowSec >= s && nowSec <= e) { activePeriod = p; totalSec = e-s; remainSec = e-nowSec; break; }
     }
-
     const banner = document.getElementById('classProgressBanner');
     if (activePeriod) {
         const isMyClass = fullSchedule.some(s => (s.fullName === currentSubject || s.subject === currentSubject) && s.day === todayStr && s.period == activePeriod);
         if (isMyClass) {
             banner.classList.remove('hidden');
-            const percent = Math.max(0, Math.min(100, (remainingSeconds / periodTotalSeconds) * 100));
-            const minLeft = Math.floor(remainingSeconds / 60);
-            const secLeft = remainingSeconds % 60;
-            
+            const pct = Math.max(0, Math.min(100, (remainSec/totalSec)*100));
+            const m = Math.floor(remainSec/60), sc = remainSec%60;
             document.getElementById('classProgressText').innerText = `🏫 [${currentSubject}] ${activePeriod}교시 진행 중`;
-            document.getElementById('classProgressTimeText').innerText = `남은 시간: ${minLeft}분 ${String(secLeft).padStart(2, '0')}초`;
-            
-            const bar = document.getElementById('classProgressBar');
-            bar.style.width = `${percent}%`;
-            
-            const timeText = document.getElementById('classProgressTimeText');
-            if (minLeft < 5) {
-                bar.classList.add('bg-red-500'); bar.classList.remove('bg-blue-600');
-                timeText.classList.add('text-red-600'); timeText.classList.remove('text-blue-600');
-                banner.classList.add('border-red-200', 'bg-red-50'); banner.classList.remove('border-blue-200', 'bg-blue-50');
-            } else {
-                bar.classList.add('bg-blue-600'); bar.classList.remove('bg-red-500');
-                timeText.classList.add('text-blue-600'); timeText.classList.remove('text-red-600');
-                banner.classList.add('border-blue-200', 'bg-blue-50'); banner.classList.remove('border-red-200', 'bg-red-50');
-            }
+            document.getElementById('classProgressTimeText').innerText = `남은 시간: ${m}분 ${String(sc).padStart(2,'0')}초`;
+            const bar = document.getElementById('classProgressBar'); bar.style.width = `${pct}%`;
+            const timeEl = document.getElementById('classProgressTimeText');
+            if (m < 5) { bar.classList.replace('bg-blue-600','bg-red-500'); timeEl.classList.replace('text-blue-600','text-red-600'); banner.className = banner.className.replace('border-blue-200 bg-blue-50','border-red-200 bg-red-50'); }
+            else { bar.classList.replace('bg-red-500','bg-blue-600'); timeEl.classList.replace('text-red-600','text-blue-600'); }
             return;
         }
     }
     banner.classList.add('hidden');
 }
 
+// ==========================================
+// 🚀 교시 드롭다운 (스케줄 없어도 동작)
+// ==========================================
+function updatePeriodDropdown() {
+    const subject = currentSubject;
+    const dateVal = document.getElementById('selectedDate').value;
+    const periodSelect = document.getElementById('selectedPeriod');
+    const showAll = document.getElementById('showAllPeriods').checked;
+    periodSelect.innerHTML = '';
+    if (!subject || !dateVal) { periodSelect.innerHTML = '<option value="">과목/날짜</option>'; periodSelect.disabled = true; return; }
+    const dateObj = new Date(dateVal); dateObj.setHours(0,0,0,0);
+    const dayStr = ['일','월','화','수','목','금','토'][dateObj.getDay()];
+    const matchedPeriods = fullSchedule.filter(s => {
+        if (!((s.fullName === subject || s.subject === subject) && s.day === dayStr)) return false;
+        if (parseInt(s.period) >= 8 && s.startDate && s.endDate) {
+            const cs = new Date(s.startDate); cs.setHours(0,0,0,0);
+            const ce = new Date(s.endDate); ce.setHours(23,59,59,999);
+            if (dateObj < cs || dateObj > ce) return false;
+        }
+        return true;
+    });
+    periodSelect.disabled = false;
+    if (showAll) {
+        for (let i = 1; i <= 9; i++) periodSelect.innerHTML += `<option value="${i}">${i}교시</option>`;
+    } else if (matchedPeriods.length > 0) {
+        matchedPeriods.sort((a,b) => a.period-b.period).forEach(p => periodSelect.innerHTML += `<option value="${p.period}">${p.period}교시</option>`);
+    } else {
+        periodSelect.innerHTML = '<option value="">없음</option>'; periodSelect.disabled = true;
+    }
+    loadClassData();
+}
+
+// 교시 변경 시 즉시 로드
+function onPeriodChange() { loadClassData(); }
+
+// ==========================================
+// 뷰 토글
+// ==========================================
+function toggleView() { isTeacherView = !isTeacherView; applyAttendView(); }
+function applyAttendView() {
+    const btn = document.getElementById('viewToggleBtn');
+    const boardArea = document.getElementById('boardArea');
+    const rows = [...document.querySelectorAll('#classroomGrid .row-grid')];
+    if (isTeacherView) {
+        btn.className = "flex-1 md:flex-none bg-violet-600 text-white px-1 md:px-3 py-2 rounded-lg font-bold text-[10px] md:text-xs shadow-md whitespace-nowrap transition-colors";
+        btn.innerHTML = "🧑‍🎓 학생 시점";
+        boardArea.style.flexDirection = 'column-reverse'; boardArea.style.justifyContent = 'flex-end';
+    } else {
+        btn.className = "flex-1 md:flex-none bg-slate-100 text-slate-600 px-1 md:px-3 py-2 rounded-lg font-bold text-[10px] md:text-xs shadow-md border border-slate-200 whitespace-nowrap transition-colors";
+        btn.innerHTML = "🧑‍🏫 교사 시점";
+        boardArea.style.flexDirection = 'column'; boardArea.style.justifyContent = 'flex-start';
+    }
+    rows.forEach((row, i) => {
+        row.style.order = isTeacherView ? (rows.length - 1 - i) : i;
+        [...row.children].forEach((cell, j) => cell.style.order = isTeacherView ? (row.children.length - 1 - j) : j);
+    });
+}
+
 function togglePhotoView() {
     isPhotoView = !isPhotoView;
     document.getElementById('classroomGrid').classList.toggle('photo-mode', isPhotoView);
     const btn = document.getElementById('photoToggleBtn');
-
     if (isPhotoView) {
         btn.className = "flex-1 md:flex-none bg-blue-600 text-white px-1 md:px-3 py-2 rounded-lg font-bold text-[10px] md:text-xs shadow-md whitespace-nowrap transition-colors";
         btn.innerHTML = "📝 이름 모드";
-
-        // ✅ 사진 모드 ON 시점에 data-src → src 로 실제 로드
-        document.querySelectorAll('.student-photo[data-src]').forEach(img => {
-            if (!img.dataset.loaded) {
-                img.src = img.dataset.src;
-                img.dataset.loaded = "1";
-            }
-        });
+        // 이제 사진은 뷰포트에 들어올 때만 로드 (IntersectionObserver 방식)
+        activateLazyPhotos();
     } else {
         btn.className = "flex-1 md:flex-none bg-slate-100 text-slate-600 px-1 md:px-3 py-2 rounded-lg font-bold text-[10px] md:text-xs shadow-md border border-slate-200 whitespace-nowrap transition-colors";
         btn.innerHTML = "🖼️ 사진 모드";
     }
 }
 
+// 사진 Intersection Observer 기반 lazy load
+let _photoObserver = null;
+function activateLazyPhotos() {
+    if (_photoObserver) _photoObserver.disconnect();
+    _photoObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                if (img.dataset.src && !img.dataset.loaded) {
+                    img.src = img.dataset.src;
+                    img.dataset.loaded = "1";
+                }
+                _photoObserver.unobserve(img);
+            }
+        });
+    }, { rootMargin: '100px' });
+
+    document.querySelectorAll('.student-photo[data-src]').forEach(img => {
+        if (!img.dataset.loaded) _photoObserver.observe(img);
+    });
+}
+
+// ==========================================
+// 🏗️ 그리드 생성
+// ==========================================
+function getStudentKey(std) { return `${std.class}_${std.number}_${std.name}`.replace(/\s/g,''); }
+
 function createAttendDesks() {
     const grid = document.getElementById('classroomGrid');
-    grid.innerHTML = '';
+    const frag = document.createDocumentFragment();
     let seatIdx = 0;
-    
-    // 🔥 현재 설정된 열(Column) 개수를 가져옵니다.
-    const colCount = ROW_CONFIG[0] ? ROW_CONFIG[0].desks : 7;
-
     ROW_CONFIG.forEach(rowCfg => {
         const rowDiv = document.createElement('div');
         rowDiv.className = 'row-grid';
-        // 🔥 CSS 고정값 대신 여기서 계산된 열 개수를 정확히 주입합니다!
         rowDiv.style.gridTemplateColumns = `repeat(${rowCfg.desks + rowCfg.empty}, minmax(0, 1fr))`;
-        
         for (let c = 0; c < rowCfg.desks; c++) {
             const desk = document.createElement('div');
             desk.className = 'desk-attend';
@@ -721,283 +650,258 @@ function createAttendDesks() {
             empty.className = 'desk-attend-empty';
             rowDiv.appendChild(empty);
         }
-        grid.appendChild(rowDiv);
+        frag.appendChild(rowDiv);
     });
+    grid.innerHTML = '';
+    grid.appendChild(frag);
     applyAttendView();
 }
 
-function updatePeriodDropdown() {
-    const subject = currentSubject;
-    const dateVal = document.getElementById('selectedDate').value;
-    const periodSelect = document.getElementById('selectedPeriod');
-    const showAll = document.getElementById('showAllPeriods').checked;
-    
-    periodSelect.innerHTML = '';
-    if (!subject || !dateVal) {
-        periodSelect.innerHTML = '<option value="">과목/날짜</option>';
-        periodSelect.disabled = true;
-        return;
-    }
-    const dateObj = new Date(dateVal);
-    dateObj.setHours(0,0,0,0);
-    const dayStr = ['일','월','화','수','목','금','토'][dateObj.getDay()];
-    
-    const matchedPeriods = fullSchedule.filter(s => {
-        if (!((s.fullName === subject || s.subject === subject) && s.day === dayStr)) return false;
-        if (parseInt(s.period) >= 8 && s.startDate && s.endDate) {
-            const classStart = new Date(s.startDate); classStart.setHours(0,0,0,0);
-            const classEnd = new Date(s.endDate); classEnd.setHours(23,59,59,999);
-            if (dateObj < classStart || dateObj > classEnd) return false;
-        }
-        return true;
-    });
-    
-    periodSelect.disabled = false;
-    if (showAll) {
-        for (let i = 1; i <= 9; i++) periodSelect.innerHTML += `<option value="${i}">${i}교시</option>`;
-    } else if (matchedPeriods.length > 0) {
-        matchedPeriods.sort((a, b) => a.period - b.period).forEach(p => periodSelect.innerHTML += `<option value="${p.period}">${p.period}교시</option>`);
-    } else {
-        periodSelect.innerHTML = `<option value="">없음</option>`;
-        periodSelect.disabled = true;
-    }
-    loadClassData();
-}
-
-function toggleView() { isTeacherView = !isTeacherView; applyAttendView(); }
-function applyAttendView() {
-    const btn = document.getElementById('viewToggleBtn');
-    const boardArea = document.getElementById('boardArea');
-    const rows = [...document.querySelectorAll('#classroomGrid .row-grid')];
-    if (isTeacherView) {
-        btn.className = "flex-1 md:flex-none bg-violet-600 text-white px-1 md:px-3 py-2 rounded-lg font-bold text-[10px] md:text-xs shadow-md whitespace-nowrap transition-colors";
-        btn.innerHTML = "🧑‍🎓 학생 시점";
-        boardArea.style.flexDirection = 'column-reverse';
-        boardArea.style.justifyContent = 'flex-end';
-    } else {
-        btn.className = "flex-1 md:flex-none bg-slate-100 text-slate-600 px-1 md:px-3 py-2 rounded-lg font-bold text-[10px] md:text-xs shadow-md border border-slate-200 whitespace-nowrap transition-colors";
-        btn.innerHTML = "🧑‍🏫 교사 시점";
-        boardArea.style.flexDirection = 'column';
-        boardArea.style.justifyContent = 'flex-start';
-    }
-    rows.forEach((row, i) => {
-        row.style.order = isTeacherView ? (rows.length - 1 - i) : i;
-        [...row.children].forEach((cell, j) => cell.style.order = isTeacherView ? (row.children.length - 1 - j) : j);
-    });
-}
-
-function getStudentKey(std) { return `${std.class}_${std.number}_${std.name}`.replace(/\s/g, ''); }
-
-// 기존 코드에서 loadClassData() 안의 카드 생성 부분을 이 함수로 분리
 function makeAttendCard(std) {
     const card = document.createElement('div');
-    card.className = `student-card-attend rounded-md border font-bold p-1 card-present overflow-hidden`;
-    const stdKey = getStudentKey(std);
-    card.dataset.stdKey = stdKey;
-
-    // ✅ 사진은 data-src에만 저장, 실제 src는 비워둠
+    card.className = 'student-card-attend rounded-md border font-bold p-1 card-present overflow-hidden';
+    card.dataset.stdKey = getStudentKey(std);
     const hasPhoto = !!std.photo;
     card.innerHTML = `
         <div class="student-photo-wrapper ${hasPhoto ? 'has-img' : 'no-img'} ${hasPhoto ? '' : 'bg-slate-100 items-center justify-center text-slate-300 text-xl font-black rounded-md border'} w-full">
-            ${hasPhoto
-                ? `<img data-src="${std.photo}" class="student-photo w-full h-full object-cover" src="" alt="">`
-                : std.number
-            }
+            ${hasPhoto ? `<img data-src="${std.photo}" class="student-photo w-full h-full object-cover" src="" alt="">` : std.number}
         </div>
         <div class="flex flex-col items-center justify-center w-full shrink-0 pb-1">
             <span class="text-[11px] md:text-xs opacity-70 leading-snug whitespace-nowrap">${std.class}-${std.number}</span>
             <span class="text-xs md:text-sm font-black leading-snug truncate block w-full text-center">${std.name}</span>
         </div>`;
-    card.onclick = () => openAttendModal(card, stdKey);
+    card.onclick = () => openAttendModal(card, getStudentKey(std));
     return card;
 }
 
+// ==========================================
+// 🚀🚀🚀 핵심: 초고속 단계별 로딩
+// ==========================================
 async function loadClassData() {
     const subject = currentSubject;
     const targetDate = document.getElementById('selectedDate').value;
     const period = document.getElementById('selectedPeriod').value;
     if (!subject || !targetDate || !period) return;
 
-    const loadId = ++currentLoadId;
-    document.getElementById('classLog').value = '데이터 불러오는 중...';
+    const token = ++_loadToken; // 이전 요청 무효화
+    document.getElementById('classLog').value = '';
+
+    // ── Phase 0: 스켈레톤 표시 (즉시)
+    showLoadingSkeleton();
 
     try {
-        // 1. 학생 데이터 가져오기 (캐시 오류 시 자동 복구)
-        const getStudents = async () => {
-            const cache = sessionStorage.getItem(`cache_std_${subject}`);
-            if (cache) { try { const parsed = JSON.parse(cache); if(parsed) return parsed; } catch(e){} }
-            const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "GET_STUDENTS", payload: { subject } }) });
-            const d = await r.json();
-            try { sessionStorage.setItem(`cache_std_${subject}`, JSON.stringify(d)); } catch(e){}
-            return d;
-        };
+        // ── Phase 1: 학생 + 좌석 데이터 (캐시 우선, 병렬)
+        const [studentsData, seatingData] = await Promise.all([
+            fetchWithCache(`cache_std_${subject}`,  { type: "GET_STUDENTS",  payload: { subject } }),
+            fetchWithCache(`cache_seat_${subject}`, { type: "GET_SEATING",   payload: { subject } })
+        ]);
+        if (token !== _loadToken) return; // 로드가 취소됨
 
-        // 2. 좌석 데이터 가져오기 (캐시 오류 시 자동 복구)
-        const getSeating = async () => {
-            const cache = sessionStorage.getItem(`cache_seat_${subject}`);
-            if (cache) { try { const parsed = JSON.parse(cache); if(parsed) return parsed; } catch(e){} }
-            const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "GET_SEATING", payload: { subject } }) });
-            const d = await r.json();
-            try { sessionStorage.setItem(`cache_seat_${subject}`, JSON.stringify(d)); } catch(e){}
-            return d;
-        };
-
-        // 3. 출결/일지 데이터 가져오기 (항상 서버에서 실시간으로)
-        const getRecord = async () => {
-            const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "GET_DAILY_RECORD", payload: { subject, date: targetDate, period } }) });
-            return await r.json();
-        };
-
-        // 병렬로 3가지 데이터를 동시에, 안전하게 가져오기!
-        const [studentsData, savedSeatingData, recordData] = await Promise.all([getStudents(), getSeating(), getRecord()]);
-
-        if (loadId !== currentLoadId) return;
-
-        // ?(옵셔널 체이닝)을 추가해서 데이터가 비어있어도 절대 에러가 나지 않게 방어
-        const students = studentsData?.success ? studentsData.data : [];
-        const savedSeating = savedSeatingData?.success ? savedSeatingData.data : [];
+        const students = studentsData?.success  ? studentsData.data  : [];
+        const savedSeating = seatingData?.success ? seatingData.data  : [];
 
         currentStudentsList = students;
         currentSavedSeatingList = savedSeating;
+
+        // 출석 데이터 초기화 (전원 출석)
         attendanceData = {};
         students.forEach(std => {
             attendanceData[getStudentKey(std)] = { name: std.name, class: std.class, number: std.number, status: 'present', memo: '' };
         });
 
-        // 🔥 [수정된 부분] 복잡한 조건(needRebuild) 다 지우고 무조건 깔끔하게 새로 그립니다!
-        const newRows = savedSeatingData?.gridConfig?.rows || 4;
-        const newCols = savedSeatingData?.gridConfig?.cols || 7;
-
+        // ── Phase 2: 그리드 재구성 + 이름 카드 즉시 렌더링
+        const newRows = seatingData?.gridConfig?.rows || 4;
+        const newCols = seatingData?.gridConfig?.cols || 7;
         document.getElementById('rowCount').value = newRows;
         document.getElementById('colCount').value = newCols;
         ROW_CONFIG = Array.from({ length: newRows }, () => ({ desks: newCols, empty: 0 }));
         TOTAL_SEATS = newRows * newCols;
-        
-        // 찌그러짐 방지: 무조건 좌석판을 튼튼하게 다시 생성!
         createAttendDesks();
-        // 🔥 -----------------------------------------------------------
 
-        document.getElementById('classLog').value = (recordData?.success && recordData.data) ? recordData.data.log : '';
         const desks = document.querySelectorAll('.desk-attend');
 
+        // 좌석번호 라벨 세팅
         savedSeating.forEach(seat => {
             if (seat.seatLabel && seat.seatIndex >= 0 && seat.seatIndex < desks.length) {
                 desks[seat.seatIndex].querySelector('.seat-num-label').innerText = seat.seatLabel;
             }
         });
 
-        await new Promise(resolve => requestAnimationFrame(resolve));
+        // 학생 카드 배치 (requestAnimationFrame으로 부드럽게)
+        const placedCount = placeStudentCards(students, savedSeating, desks);
 
-        students.forEach(std => {
-            const cleanStdName = String(std.name || "").replace(/\s/g, '');
-            const seat = savedSeating.find(s => parseInt(s.number) === parseInt(std.number) && String(s.name || "").replace(/\s/g, '') === cleanStdName);
-            if (seat && seat.seatIndex >= 0 && seat.seatIndex < desks.length) {
-                desks[seat.seatIndex].appendChild(makeAttendCard(std));
-            }
-        });
-
-        if (recordData?.success && recordData.data?.attendanceIssues) {
-            recordData.data.attendanceIssues.forEach(issue => {
-                const key = getStudentKey(issue);
-                if (attendanceData[key]) {
-                    attendanceData[key].status = issue.status;
-                    attendanceData[key].memo = issue.memo;
-                    const card = document.querySelector(`.student-card-attend[data-std-key="${key}"]`);
-                    if (card) {
-                        card.classList.remove('card-present', 'card-absent', 'card-late');
-                        card.classList.add(`card-${issue.status}`);
-                    }
-                }
-            });
+        // ── 좌석 배치 없으면 명렬표 즉시 표시 (Phase 2에서!)
+        if (students.length > 0 && placedCount === 0) {
+            if (!isListView) { isListView = false; forceShowListView(); }
+            else renderListView();
+        } else {
+            if (isListView) forceHideListView();
         }
 
+        // 특이사항 초기 (전원 출석 상태)
         updateAbsenceList();
 
-        const placedCount = savedSeating.filter(s => {
-            const n = String(s.name || "").trim();
-            return n !== "" && n !== "__EMPTY__" && n !== "__CONFIG__";
-        }).length;
+        // ── Phase 3: 출결/일지 데이터 (백그라운드, UI 블로킹 없음)
+        loadRecordInBackground(subject, targetDate, period, token);
 
-        if (students.length > 0 && placedCount === 0) {
-            if (!isListView) toggleListView();
-            else renderListView(); 
-        } else {
-            if (isListView) toggleListView();
-        }
-
-        switchTab('attend'); 
-
-    } catch (e) { 
-        console.error("로드 오류", e); 
-        alert("데이터 로드 중 오류 발생"); 
+    } catch (e) {
+        console.error("로드 오류", e);
+        if (token === _loadToken) alert("데이터 로드 중 오류 발생");
     }
 }
 
-function updateAbsenceList() {
-    const list = document.getElementById('absenceList');
-    list.innerHTML = '';
-    let hasIssue = false;
-    Object.values(attendanceData).forEach(std => {
-        if (std.status !== 'present') {
-            hasIssue = true;
-            const li = document.createElement('li');
-            li.className = `p-3 rounded-xl text-xs font-bold border ${std.status === 'absent' ? 'bg-red-100 text-red-800 border-red-200' : 'bg-amber-50 text-amber-800 border-amber-200'}`;
-            li.innerHTML = `<div class="flex justify-between mb-1"><span>${std.class}반 ${std.number}번 ${std.name}</span><span class="px-2 py-0.5 bg-white rounded-lg">${std.status==='absent'?'❌ 결석':'⚠️ 지각'}</span></div><div class="text-[11px] font-normal opacity-80 mt-1">사유: ${std.memo}</div>`;
-            list.appendChild(li);
+// 학생 카드 배치 → 배치된 수 반환
+function placeStudentCards(students, savedSeating, desks) {
+    let placedCount = 0;
+    const frag = {}; // seatIndex → card
+
+    students.forEach(std => {
+        const cleanName = String(std.name || "").replace(/\s/g, '');
+        const seat = savedSeating.find(s => parseInt(s.number) === parseInt(std.number) && String(s.name || "").replace(/\s/g, '') === cleanName);
+        if (seat && seat.seatIndex >= 0 && seat.seatIndex < desks.length) {
+            frag[seat.seatIndex] = std;
+            placedCount++;
         }
     });
-    if (!hasIssue) list.innerHTML = '<li class="text-xs text-red-400 text-center py-5">결석/지각생이 없습니다. 🎉</li>';
+
+    // 배치가 있는 경우만 DOM 조작 (배치 없으면 불필요)
+    if (placedCount > 0) {
+        requestAnimationFrame(() => {
+            Object.entries(frag).forEach(([idx, std]) => {
+                desks[parseInt(idx)].appendChild(makeAttendCard(std));
+            });
+        });
+    }
+    return placedCount;
 }
 
+// 출결/일지 데이터 백그라운드 로드 (이름 카드 표시 후 덧씌우기)
+async function loadRecordInBackground(subject, targetDate, period, token) {
+    try {
+        const res = await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ type: "GET_DAILY_RECORD", payload: { subject, date: targetDate, period } })
+        });
+        const recordData = await res.json();
+        if (token !== _loadToken) return; // 다른 로드가 시작됨
+
+        // 일지 텍스트
+        document.getElementById('classLog').value = (recordData?.success && recordData.data?.log) ? recordData.data.log : '';
+
+        // 출결 색상 반영
+        if (recordData?.success && recordData.data?.attendanceIssues) {
+            recordData.data.attendanceIssues.forEach(issue => {
+                const key = getStudentKey(issue);
+                if (!attendanceData[key]) return;
+                attendanceData[key].status = issue.status;
+                attendanceData[key].memo   = issue.memo;
+                // 이미 DOM에 있는 카드만 업데이트
+                const card = document.querySelector(`.student-card-attend[data-std-key="${key}"]`);
+                if (card) {
+                    card.classList.remove('card-present', 'card-absent', 'card-late');
+                    card.classList.add(`card-${issue.status}`);
+                }
+            });
+            updateAbsenceList();
+            if (isListView) renderListView();
+        }
+    } catch (e) { console.warn("출결 기록 로드 실패", e); }
+}
+
+// ── 캐시 우선 fetch 헬퍼
+async function fetchWithCache(cacheKey, body) {
+    const cache = sessionStorage.getItem(cacheKey);
+    if (cache) {
+        try { const parsed = JSON.parse(cache); if (parsed) return parsed; } catch(e) {}
+    }
+    const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify(body) });
+    const d = await r.json();
+    try { sessionStorage.setItem(cacheKey, JSON.stringify(d)); } catch(e) {}
+    return d;
+}
+
+// ── 스켈레톤 표시 (즉각적인 시각 피드백)
+function showLoadingSkeleton() {
+    const desks = document.querySelectorAll('.desk-attend');
+    desks.forEach(d => {
+        const inner = d.querySelector('.student-card-attend');
+        if (!inner) {
+            // 빈 책상에 shimmer 넣기
+            if (!d.querySelector('.skeleton-inner')) {
+                const sk = document.createElement('div');
+                sk.className = 'skeleton-inner skeleton w-full h-full rounded-md';
+                sk.style.minHeight = '36px';
+                d.appendChild(sk);
+            }
+        }
+    });
+    // 일지 영역도 로딩 표시
+    document.getElementById('classLog').placeholder = '⏳ 수업 일지 불러오는 중...';
+}
+
+// 스켈레톤 제거는 카드 배치 시 자동으로 처리됨 (카드가 덮으면 보이지 않음)
+
+// ==========================================
+// 특이사항 명단
+// ==========================================
+function updateAbsenceList() {
+    const list = document.getElementById('absenceList');
+    const issues = Object.values(attendanceData).filter(s => s.status !== 'present');
+    if (!issues.length) { list.innerHTML = '<li class="text-xs text-red-400 text-center py-5">결석/지각생이 없습니다. 🎉</li>'; return; }
+    const frag = document.createDocumentFragment();
+    issues.forEach(std => {
+        const li = document.createElement('li');
+        li.className = `p-3 rounded-xl text-xs font-bold border ${std.status === 'absent' ? 'bg-red-100 text-red-800 border-red-200' : 'bg-amber-50 text-amber-800 border-amber-200'}`;
+        li.innerHTML = `<div class="flex justify-between mb-1"><span>${std.class}반 ${std.number}번 ${std.name}</span><span class="px-2 py-0.5 bg-white rounded-lg">${std.status==='absent'?'❌ 결석':'⚠️ 지각'}</span></div><div class="text-[11px] font-normal opacity-80 mt-1">사유: ${std.memo}</div>`;
+        frag.appendChild(li);
+    });
+    list.innerHTML = '';
+    list.appendChild(frag);
+}
+
+// ==========================================
+// 💾 저장
+// ==========================================
 async function saveDailyRecord() {
     const subject = currentSubject;
     const period  = document.getElementById('selectedPeriod').value;
     if (!subject || !period) return alert("과목과 교시를 선택하세요.");
-    
     const btnPc = document.getElementById('saveAttendBtnPc');
     btnPc.innerText = "저장 중..."; btnPc.disabled = true;
-    
     try {
-        const res = await fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({ type: "SAVE_DAILY_RECORD", payload: {
-                date: document.getElementById('selectedDate').value,
-                period, subject, log: document.getElementById('classLog').value,
-                attendanceIssues: Object.values(attendanceData).filter(std => std.status !== 'present')
-            }})
-        });
+        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "SAVE_DAILY_RECORD", payload: {
+            date: document.getElementById('selectedDate').value,
+            period, subject, log: document.getElementById('classLog').value,
+            attendanceIssues: Object.values(attendanceData).filter(s => s.status !== 'present')
+        }})});
         const r = await res.json();
         if (r.success) alert("✅ 저장이 완료되었습니다!");
-    } catch { alert("네트워크 오류 발생"); } 
+    } catch { alert("네트워크 오류 발생"); }
     finally { btnPc.innerText = "💾 출석 및 일지 저장"; btnPc.disabled = false; }
 }
 
 // ==========================================
-// 탭2: 좌석 배치 세팅
+// 🪑 좌석 세팅 탭
 // ==========================================
 const dnd = { active:false, card:null, ghost:null, offsetX:0, offsetY:0, startX:0, startY:0, currentOver:null };
 
 function applyGridConfig(savedConfig) {
     const rows = savedConfig ? savedConfig.rows : parseInt(document.getElementById('rowCount').value) || 5;
-    const cols = savedConfig ? savedConfig.cols : parseInt(document.getElementById('colCount').value) || 6;
-
+    const cols = savedConfig ? savedConfig.cols  : parseInt(document.getElementById('colCount').value) || 6;
     document.getElementById('rowCount').value = rows;
     document.getElementById('colCount').value = cols;
-
     ROW_CONFIG = Array.from({ length: rows }, () => ({ desks: cols, empty: 0 }));
     TOTAL_SEATS = rows * cols;
-
     const wl = document.getElementById('waitingList');
     document.querySelectorAll('.desk-seat .student-card-seat').forEach(c => wl.appendChild(c));
-
     createSeatDesks();
 }
 
 function createSeatDesks() {
     const grid = document.getElementById('seatClassroomGrid');
-    grid.innerHTML = '';
+    const frag = document.createDocumentFragment();
     let seatIdx = 0;
-    ROW_CONFIG.forEach((rowCfg) => {
+    ROW_CONFIG.forEach(rowCfg => {
         const rowDiv = document.createElement('div');
         rowDiv.className = 'row-grid';
         rowDiv.style.gridTemplateColumns = `repeat(${rowCfg.desks}, minmax(0, 1fr))`;
@@ -1008,8 +912,10 @@ function createSeatDesks() {
             desk.innerHTML = `<input type="text" class="seat-num-input" maxlength="3" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()">`;
             rowDiv.appendChild(desk);
         }
-        grid.appendChild(rowDiv);
+        frag.appendChild(rowDiv);
     });
+    grid.innerHTML = '';
+    grid.appendChild(frag);
 }
 
 async function loadSeatStudents(subject) {
@@ -1018,45 +924,34 @@ async function loadSeatStudents(subject) {
     wl.innerHTML = "<div class='w-full text-center text-slate-500 mt-5'>불러오는 중...</div>";
     document.querySelectorAll('.desk-seat .student-card-seat').forEach(c => c.remove());
     document.querySelectorAll('.seat-num-input').forEach(input => input.value = '');
-
     try {
         const [sr, seatingR] = await Promise.all([
-            fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "GET_STUDENTS", payload: { subject } }) }),
-            fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "GET_SEATING", payload: { subject } }) })
+            fetchWithCache(`cache_std_${subject}`,  { type: "GET_STUDENTS", payload: { subject } }),
+            fetchWithCache(`cache_seat_${subject}`, { type: "GET_SEATING",  payload: { subject } })
         ]);
-        const sRes = await sr.json();
-        const seatRes = await seatingR.json();
-        
-        const students = sRes.success ? sRes.data : [];
-        const saved = seatRes.success ? seatRes.data : [];
-
-        if (seatRes.success && seatRes.gridConfig) {
-            applyGridConfig(seatRes.gridConfig);
-        } else {
-            applyGridConfig(null);
-        }
-        
+        const students = sr?.success ? sr.data : [];
+        const saved    = seatingR?.success ? seatingR.data : [];
+        if (seatingR?.success && seatingR.gridConfig) applyGridConfig(seatingR.gridConfig);
+        else applyGridConfig(null);
         wl.innerHTML = "";
-        if (!students.length) return wl.innerHTML = "<div class='w-full text-center text-red-400 mt-5 font-bold'>학생 명단이 없습니다.</div>";
-        
+        if (!students.length) { wl.innerHTML = "<div class='w-full text-center text-red-400 mt-5 font-bold'>학생 명단이 없습니다.</div>"; return; }
         const desks = document.querySelectorAll('.desk-seat');
         saved.forEach(seatData => {
             if (seatData.seatIndex >= 0 && seatData.seatIndex < TOTAL_SEATS) {
-                const numInput = desks[seatData.seatIndex].querySelector('.seat-num-input');
+                const numInput = desks[seatData.seatIndex]?.querySelector('.seat-num-input');
                 if (numInput && seatData.seatLabel) numInput.value = seatData.seatLabel;
             }
         });
-        
-        students.forEach((std) => {
+        const frag = document.createDocumentFragment();
+        const unplacedFrag = document.createDocumentFragment();
+        students.forEach(std => {
             const card = makeSeatCard(std);
             const seat = saved.find(s => s.name === std.name && s.number == std.number);
-            if (seat && seat.seatIndex >= 0 && seat.seatIndex < TOTAL_SEATS) {
-                desks[seat.seatIndex].appendChild(card);
-            } else {
-                wl.appendChild(card);
-            }
+            if (seat && seat.seatIndex >= 0 && seat.seatIndex < TOTAL_SEATS) desks[seat.seatIndex].appendChild(card);
+            else unplacedFrag.appendChild(card);
         });
-    } catch (e) { alert("데이터 로드 오류"); }
+        wl.appendChild(unplacedFrag);
+    } catch { alert("데이터 로드 오류"); }
 }
 
 function makeSeatCard(std) {
@@ -1070,33 +965,29 @@ function makeSeatCard(std) {
     return card;
 }
 
-function initDrag(clientX, clientY, card) {
-    const rect = card.getBoundingClientRect(); dnd.card = card; dnd.active = false; dnd.startX = clientX; dnd.startY = clientY;
-    dnd.offsetX = clientX - rect.left; dnd.offsetY = clientY - rect.top;
+// ── DnD
+function initDrag(cx, cy, card) {
+    const rect = card.getBoundingClientRect(); dnd.card = card; dnd.active = false;
+    dnd.startX = cx; dnd.startY = cy; dnd.offsetX = cx-rect.left; dnd.offsetY = cy-rect.top;
     dnd.ghost = document.getElementById('ghost'); dnd.ghost.innerHTML = card.innerHTML;
-    dnd.ghost.style.width = rect.width + 'px'; dnd.ghost.style.height = rect.height + 'px'; dnd.ghost.style.display = 'none';
+    dnd.ghost.style.width = rect.width+'px'; dnd.ghost.style.height = rect.height+'px'; dnd.ghost.style.display = 'none';
 }
-function moveDrag(clientX, clientY) {
+function moveDrag(cx, cy) {
     if (!dnd.card) return;
-    if (!dnd.active) {
-        if (Math.sqrt(Math.pow(clientX - dnd.startX,2) + Math.pow(clientY - dnd.startY,2)) < 5) return;
-        dnd.active = true; dnd.card.classList.add('dragging-source'); dnd.ghost.style.display = 'flex';
-    }
-    dnd.ghost.style.left = (clientX - dnd.offsetX) + 'px'; dnd.ghost.style.top  = (clientY - dnd.offsetY) + 'px';
+    if (!dnd.active) { if (Math.hypot(cx-dnd.startX, cy-dnd.startY) < 5) return; dnd.active = true; dnd.card.classList.add('dragging-source'); dnd.ghost.style.display = 'flex'; }
+    dnd.ghost.style.left = (cx-dnd.offsetX)+'px'; dnd.ghost.style.top = (cy-dnd.offsetY)+'px';
     dnd.ghost.style.visibility = 'hidden';
-    const zone = findSeatDropZone(document.elementFromPoint(clientX, clientY));
+    const zone = findSeatDropZone(document.elementFromPoint(cx, cy));
     dnd.ghost.style.visibility = 'visible';
     if (dnd.currentOver && dnd.currentOver !== zone) dnd.currentOver.classList.remove('over');
     if (zone && zone !== dnd.currentOver) zone.classList.add('over');
     dnd.currentOver = zone;
 }
-function endDrag(clientX, clientY) {
+function endDrag(cx, cy) {
     if (!dnd.active) { seatCleanup(); return; }
     dnd.ghost.style.visibility = 'hidden';
-    
     const origParent = dnd.card.parentNode;
-    
-    const zone = findSeatDropZone(document.elementFromPoint(clientX, clientY));
+    const zone = findSeatDropZone(document.elementFromPoint(cx, cy));
     if (zone) {
         if (zone.classList.contains('desk-seat')) {
             const existing = zone.querySelector('.student-card-seat');
@@ -1104,39 +995,28 @@ function endDrag(clientX, clientY) {
                 zone.appendChild(dnd.card);
                 const numInput = zone.querySelector('.seat-num-input');
                 if (numInput && !numInput.value.trim()) {
-                    let maxNum = 0;
-                    document.querySelectorAll('.desk-seat .seat-num-input').forEach(inp => {
-                        const val = parseInt(inp.value, 10);
-                        if (!isNaN(val) && val > maxNum) maxNum = val;
-                    });
-                    numInput.value = maxNum + 1;
+                    let max = 0;
+                    document.querySelectorAll('.desk-seat .seat-num-input').forEach(inp => { const v = parseInt(inp.value,10); if (!isNaN(v) && v > max) max = v; });
+                    numInput.value = max + 1;
                 }
-            } else if (existing !== dnd.card) { 
-                zone.appendChild(dnd.card); 
-                origParent.appendChild(existing); 
-            }
-        } else if (zone.id === 'waitingList') { 
-            zone.appendChild(dnd.card); 
+            } else if (existing !== dnd.card) { zone.appendChild(dnd.card); origParent.appendChild(existing); }
+        } else if (zone.id === 'waitingList') { zone.appendChild(dnd.card); }
+    }
+    if (origParent?.classList.contains('desk-seat') && origParent !== dnd.card.parentNode) {
+        if (!origParent.querySelector('.student-card-seat')) {
+            const inp = origParent.querySelector('.seat-num-input');
+            if (inp) inp.value = '';
         }
     }
-
-    if (origParent && origParent.classList.contains('desk-seat') && origParent !== dnd.card.parentNode) {
-        const remainingCard = origParent.querySelector('.student-card-seat');
-        if (!remainingCard) {
-            const origNumInput = origParent.querySelector('.seat-num-input');
-            if (origNumInput) origNumInput.value = '';
-        }
-    }
-
     seatCleanup();
 }
 function onSeatMouseDown(e) { if (e.button !== 0) return; e.preventDefault(); initDrag(e.clientX, e.clientY, e.currentTarget); document.addEventListener('mousemove', onSeatMouseMove); document.addEventListener('mouseup', onSeatMouseUp); }
 function onSeatMouseMove(e) { moveDrag(e.clientX, e.clientY); }
 function onSeatMouseUp(e) { document.removeEventListener('mousemove', onSeatMouseMove); document.removeEventListener('mouseup', onSeatMouseUp); endDrag(e.clientX, e.clientY); }
-function onSeatTouchStart(e) { if (e.touches.length > 1) return; initDrag(e.touches[0].clientX, e.touches[0].clientY, e.currentTarget); document.addEventListener('touchmove', onSeatTouchMove, {passive: false}); document.addEventListener('touchend', onSeatTouchEnd); }
+function onSeatTouchStart(e) { if (e.touches.length > 1) return; initDrag(e.touches[0].clientX, e.touches[0].clientY, e.currentTarget); document.addEventListener('touchmove', onSeatTouchMove, {passive:false}); document.addEventListener('touchend', onSeatTouchEnd); }
 function onSeatTouchMove(e) { if(!dnd.card) return; e.preventDefault(); moveDrag(e.touches[0].clientX, e.touches[0].clientY); }
 function onSeatTouchEnd(e) { document.removeEventListener('touchmove', onSeatTouchMove); document.removeEventListener('touchend', onSeatTouchEnd); endDrag(e.changedTouches[0].clientX, e.changedTouches[0].clientY); }
-function findSeatDropZone(el) { if (!el) return null; const desk = el.closest('.desk-seat'); if (desk) return desk; const wl = el.closest('#waitingList'); return wl ? wl : null; }
+function findSeatDropZone(el) { if (!el) return null; const desk = el.closest('.desk-seat'); if (desk) return desk; return el.closest('#waitingList') || null; }
 function seatCleanup() { if (dnd.currentOver) dnd.currentOver.classList.remove('over'); if (dnd.card) dnd.card.classList.remove('dragging-source'); if (dnd.ghost) dnd.ghost.style.display = 'none'; dnd.active = false; dnd.card = null; dnd.currentOver = null; }
 
 async function saveSeatingToServer() {
@@ -1148,50 +1028,34 @@ async function saveSeatingToServer() {
         const card = desk.querySelector('.student-card-seat');
         const numInput = desk.querySelector('.seat-num-input');
         if (card || (numInput && numInput.value)) {
-            data.push({
-                seatIndex: parseInt(desk.dataset.seatIndex),
-                seatLabel: numInput ? numInput.value.trim() : '',
+            data.push({ seatIndex: parseInt(desk.dataset.seatIndex), seatLabel: numInput ? numInput.value.trim() : '',
                 grade: card ? card.dataset.grade : '', class: card ? card.dataset.class : '',
-                number: card ? card.dataset.number : '', name: card ? card.dataset.name : '__EMPTY__'
-            });
+                number: card ? card.dataset.number : '', name: card ? card.dataset.name : '__EMPTY__' });
         }
     });
-
-    const gridConfig = {
-        rows: parseInt(document.getElementById('rowCount').value),
-        cols: parseInt(document.getElementById('colCount').value)
-    };
-
+    const gridConfig = { rows: parseInt(document.getElementById('rowCount').value), cols: parseInt(document.getElementById('colCount').value) };
     try {
-        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ 
-            type: "SAVE_SEATING", 
-            payload: { subject, seatingData: data, gridConfig }
-        })});
+        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "SAVE_SEATING", payload: { subject, seatingData: data, gridConfig } })});
         const r = await res.json();
-        if (r.success) {
-            alert("✅ 저장되었습니다!");
-            // 🔥 좌석 배치가 바뀌었으므로 브라우저 임시 메모리(캐시)를 삭제하여 다음 로딩 때 새로 받아오도록 함
-            sessionStorage.removeItem(`cache_seat_${subject}`);
-        } else {
-            alert("❌ 저장 실패");
-        }
-    } catch { alert("네트워크 오류"); } finally { btn.innerText = "💾 좌석 저장"; btn.disabled = false; }
+        if (r.success) { alert("✅ 저장되었습니다!"); sessionStorage.removeItem(`cache_seat_${subject}`); }
+        else alert("❌ 저장 실패");
+    } catch { alert("네트워크 오류"); }
+    finally { btn.innerText = "💾 좌석 저장"; btn.disabled = false; }
 }
 
 function toggleTeacherViewSeat() {
     isSeatTeacherView = !isSeatTeacherView;
-    const btn = document.getElementById('teacherBtn');
-    btn.innerText = isSeatTeacherView ? '🧑‍🎓 학생 시점으로' : '🧑‍🏫 교사 위치로';
+    document.getElementById('teacherBtn').innerText = isSeatTeacherView ? '🧑‍🎓 학생 시점으로' : '🧑‍🏫 교사 위치로';
     const rows = [...document.querySelectorAll('#seatClassroomGrid .row-grid')];
-    rows.forEach(row => {
-        row.style.order = isSeatTeacherView ? (rows.length - 1 - rows.indexOf(row)) : rows.indexOf(row);
-        [...row.children].forEach((cell, i) => cell.style.order = isSeatTeacherView ? (row.children.length - 1 - i) : i);
+    rows.forEach((row, i) => {
+        row.style.order = isSeatTeacherView ? (rows.length-1-i) : i;
+        [...row.children].forEach((cell, j) => cell.style.order = isSeatTeacherView ? (row.children.length-1-j) : j);
     });
     document.getElementById('seatClassroomContainer').style.flexDirection = isSeatTeacherView ? 'column-reverse' : 'column';
 }
 
 // ==========================================
-// 📊 통계 모달
+// 📊 리포트 모달
 // ==========================================
 async function openReportModal() {
     const sub = currentSubject;
@@ -1199,7 +1063,7 @@ async function openReportModal() {
     document.getElementById('reportContent').innerHTML = '<div class="text-center p-10 text-slate-500 font-bold animate-pulse">데이터 집계 중...</div>';
     document.getElementById('reportModal').classList.remove('hidden');
     try {
-        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "GET_SUBJECT_REPORT", payload: { subject: sub } }) });
+        const res = await fetch(API_URL, { method:'POST', body: JSON.stringify({ type:"GET_SUBJECT_REPORT", payload:{ subject: sub } }) });
         const result = await res.json();
         if (!result.success || result.data.length === 0) document.getElementById('reportContent').innerHTML = '<div class="text-center p-10 font-bold">기록이 없습니다.</div>';
         else renderReport(result.data);
@@ -1208,133 +1072,92 @@ async function openReportModal() {
 function closeReportModal() { document.getElementById('reportModal').classList.add('hidden'); }
 function renderReport(records) {
     let logsHTML = '<div class="space-y-3">', stats = {};
-    records.sort((a, b) => new Date(a.date) - new Date(b.date) || a.period - b.period).forEach(r => {
-        const fullDateStr = `${r.date} (${['일','월','화','수','목','금','토'][new Date(r.date).getDay()]})`;
-        logsHTML += `<div class="bg-white p-4 rounded-xl border shadow-sm"><div class="flex justify-between items-center mb-1"><span class="font-black text-sm">${fullDateStr}</span><span class="text-blue-600 font-bold text-xs">${r.period}교시</span></div><p class="text-xs text-slate-600 whitespace-pre-wrap border-t pt-2">${r.log || '내용 없음'}</p></div>`;
+    records.sort((a,b) => new Date(a.date)-new Date(b.date)||a.period-b.period).forEach(r => {
+        const fd = `${r.date} (${['일','월','화','수','목','금','토'][new Date(r.date).getDay()]})`;
+        logsHTML += `<div class="bg-white p-4 rounded-xl border shadow-sm"><div class="flex justify-between items-center mb-1"><span class="font-black text-sm">${fd}</span><span class="text-blue-600 font-bold text-xs">${r.period}교시</span></div><p class="text-xs text-slate-600 whitespace-pre-wrap border-t pt-2">${r.log||'내용 없음'}</p></div>`;
         r.issues.forEach(i => {
             const k = getStudentKey(i);
-            if (!stats[k]) stats[k] = { ...i, absent: 0, late: 0, memos: [] };
-            if (i.status === 'absent') stats[k].absent++; else stats[k].late++;
-            stats[k].memos.push(`<div class="flex justify-between text-[10px] font-medium py-1 border-b border-slate-50"><span class="text-slate-500">${fullDateStr} ${r.period}교시</span><span class="${i.status==='absent'?'text-red-500':'text-amber-600'}">${i.status==='absent'?'❌ 결석':'⚠️ 지각'} (${i.memo || '사유없음'})</span></div>`);
+            if (!stats[k]) stats[k] = {...i, absent:0, late:0, memos:[]};
+            if (i.status==='absent') stats[k].absent++; else stats[k].late++;
+            stats[k].memos.push(`<div class="flex justify-between text-[10px] font-medium py-1 border-b border-slate-50"><span class="text-slate-500">${fd} ${r.period}교시</span><span class="${i.status==='absent'?'text-red-500':'text-amber-600'}">${i.status==='absent'?'❌ 결석':'⚠️ 지각'} (${i.memo||'사유없음'})</span></div>`);
         });
     });
     logsHTML += '</div>';
     let studentsHTML = '<div class="grid grid-cols-1 md:grid-cols-2 gap-3">';
-    Object.values(stats).sort((a,b)=>a.class-b.class||a.number-b.number).forEach(s => {
-        studentsHTML += `<div class="bg-white p-3 rounded-xl border shadow-sm"><div class="flex justify-between items-start font-bold text-xs mb-2"><span class="text-slate-800">${s.class}반 ${s.number}번 ${s.name}</span><div class="flex gap-2 text-[10px]">${s.absent ? `<span class="bg-red-50 text-red-600 px-2 py-0.5 rounded">결석 ${s.absent}회</span>` : ''}${s.late ? `<span class="bg-amber-50 text-amber-600 px-2 py-0.5 rounded">지각 ${s.late}회</span>` : ''}</div></div><div class="mt-2 bg-slate-50 p-2 rounded-lg space-y-0.5">${s.memos.join('')}</div></div>`;
+    Object.values(stats).sort((a,b) => a.class-b.class||a.number-b.number).forEach(s => {
+        studentsHTML += `<div class="bg-white p-3 rounded-xl border shadow-sm"><div class="flex justify-between items-start font-bold text-xs mb-2"><span class="text-slate-800">${s.class}반 ${s.number}번 ${s.name}</span><div class="flex gap-2 text-[10px]">${s.absent?`<span class="bg-red-50 text-red-600 px-2 py-0.5 rounded">결석 ${s.absent}회</span>`:''}${s.late?`<span class="bg-amber-50 text-amber-600 px-2 py-0.5 rounded">지각 ${s.late}회</span>`:''}</div></div><div class="mt-2 bg-slate-50 p-2 rounded-lg space-y-0.5">${s.memos.join('')}</div></div>`;
     });
     studentsHTML += '</div>';
     document.getElementById('reportContent').innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-6 h-full overflow-y-auto p-1"><div class="flex flex-col"><h3 class="font-black mb-3 text-sm">📅 수업 일지 히스토리</h3>${logsHTML}</div><div class="flex flex-col mt-4 md:mt-0"><h3 class="font-black text-red-800 mb-3 text-sm">🚨 결석/지각 누적 통계</h3>${studentsHTML}</div></div>`;
 }
 
 // ==========================================
-// 📋 명렬표 모드
+// 📋 명렬표
 // ==========================================
-let isListView = false;
-let currentStudentsList = [];
-let currentSavedSeatingList = [];
-
-function toggleListView() {
-    isListView = !isListView;
+function forceShowListView() {
+    isListView = true;
     const btn = document.getElementById('listToggleBtn');
-    const boardArea = document.getElementById('boardArea');
-    const listViewArea = document.getElementById('listViewArea');
-    
-    if (isListView) {
-        btn.className = "flex-1 md:flex-none bg-blue-600 text-white px-1 md:px-3 py-2 rounded-lg font-bold text-[10px] md:text-xs shadow-md whitespace-nowrap transition-colors";
-        btn.innerHTML = "📋 좌석 모드";
-        boardArea.style.display = 'none';
-        listViewArea.classList.remove('hidden');
-        listViewArea.classList.add('flex');
-        renderListView();
-    } else {
-        btn.className = "flex-1 md:flex-none bg-slate-100 text-slate-600 px-1 md:px-3 py-2 rounded-lg font-bold text-[10px] md:text-xs shadow-md border border-slate-200 whitespace-nowrap transition-colors";
-        btn.innerHTML = "📋 명렬표";
-        boardArea.style.display = 'flex';
-        listViewArea.classList.add('hidden');
-        listViewArea.classList.remove('flex');
-    }
+    btn.className = "flex-1 md:flex-none bg-blue-600 text-white px-1 md:px-3 py-2 rounded-lg font-bold text-[10px] md:text-xs shadow-md whitespace-nowrap transition-colors";
+    btn.innerHTML = "📋 좌석 모드";
+    document.getElementById('boardArea').style.display = 'none';
+    const lv = document.getElementById('listViewArea');
+    lv.classList.remove('hidden'); lv.classList.add('flex');
+    renderListView();
 }
+function forceHideListView() {
+    isListView = false;
+    const btn = document.getElementById('listToggleBtn');
+    btn.className = "flex-1 md:flex-none bg-slate-100 text-slate-600 px-1 md:px-3 py-2 rounded-lg font-bold text-[10px] md:text-xs shadow-md border border-slate-200 whitespace-nowrap transition-colors";
+    btn.innerHTML = "📋 명렬표";
+    document.getElementById('boardArea').style.display = 'flex';
+    const lv = document.getElementById('listViewArea');
+    lv.classList.add('hidden'); lv.classList.remove('flex');
+}
+function toggleListView() { isListView ? forceHideListView() : forceShowListView(); }
 
 function renderListView() {
     const tbody = document.getElementById('listViewTbody');
-    tbody.innerHTML = '';
-    
-    if (!currentStudentsList || currentStudentsList.length === 0) {
+    if (!currentStudentsList?.length) {
         tbody.innerHTML = '<tr><td colspan="6" class="py-10 text-slate-400 font-bold">학생 데이터가 없습니다.</td></tr>';
         return;
     }
-
-    // 🔥 좌석 배치가 안 되어 있어도 출석 체크가 가능하도록, 
-    // 학생의 '반-번호'를 기준으로 자동 정렬하고 가상의 연번(순번)을 부여합니다!
     const listData = currentStudentsList.map(std => {
-        const cleanStdName = String(std.name || "").replace(/\s/g, '');
-        const seat = currentSavedSeatingList.find(s => parseInt(s.number) === parseInt(std.number) && String(s.name || "").replace(/\s/g, '') === cleanStdName);
-        const stdKey = getStudentKey(std);
-        return {
-            seatLabel: seat && seat.seatLabel ? seat.seatLabel : null, // 좌석 정보가 없으면 일단 null 로 세팅
-            grade: std.grade || '-',
-            class: std.class || '-',
-            number: std.number || '-',
-            name: std.name || '-',
-            key: stdKey
-        };
+        const cleanName = String(std.name||"").replace(/\s/g,'');
+        const seat = currentSavedSeatingList.find(s => parseInt(s.number)===parseInt(std.number) && String(s.name||"").replace(/\s/g,'')===cleanName);
+        return { seatLabel: seat?.seatLabel || null, grade: std.grade||'-', class: std.class||'-', number: std.number||'-', name: std.name||'-', key: getStudentKey(std) };
     });
-
-    // 정렬 1순위: 지정된 좌석(연번), 2순위: 반, 3순위: 번호
-    listData.sort((a, b) => {
-        const aNum = parseInt(a.seatLabel);
-        const bNum = parseInt(b.seatLabel);
-        
-        if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
-        if (!isNaN(aNum)) return -1;
-        if (!isNaN(bNum)) return 1;
-        
-        // 좌석 번호가 없으면 반 -> 번호 순으로 정렬
-        if (a.class !== b.class) return parseInt(a.class) - parseInt(b.class);
-        return parseInt(a.number) - parseInt(b.number);
+    listData.sort((a,b) => {
+        const an = parseInt(a.seatLabel), bn = parseInt(b.seatLabel);
+        if (!isNaN(an) && !isNaN(bn)) return an-bn;
+        if (!isNaN(an)) return -1; if (!isNaN(bn)) return 1;
+        if (a.class !== b.class) return parseInt(a.class)-parseInt(b.class);
+        return parseInt(a.number)-parseInt(b.number);
     });
-
-    const fragment = document.createDocumentFragment();
-
-    // 🔥 좌석 배치를 안 했을 경우(seatLabel이 null일 경우), 위에서 정렬된 순서대로 가상의 연번(1, 2, 3...)을 부여합니다!
-    listData.forEach((item, index) => {
+    const frag = document.createDocumentFragment();
+    listData.forEach((item, idx) => {
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-50 transition";
-        
-        // 가상 연번 부여 (배치도가 없어도 번호가 나옴)
-        const displaySeatLabel = item.seatLabel ? item.seatLabel : (index + 1);
-
-        const att = attendanceData[item.key] || { status: 'present' };
-        let statusBadge = '<span class="px-2 py-1 md:px-3 md:py-1.5 bg-white text-slate-400 border border-slate-200 rounded-lg text-[10px] md:text-xs font-bold whitespace-nowrap">출석</span>';
-        if(att.status === 'absent') statusBadge = '<span class="px-2 py-1 md:px-3 md:py-1.5 bg-red-100 text-red-700 border border-red-200 rounded-lg text-[10px] md:text-xs font-black shadow-sm whitespace-nowrap">❌ 결석</span>';
-        if(att.status === 'late') statusBadge = '<span class="px-2 py-1 md:px-3 md:py-1.5 bg-amber-100 text-amber-700 border border-amber-200 rounded-lg text-[10px] md:text-xs font-black shadow-sm whitespace-nowrap">⚠️ 지각</span>';
-
+        const displayLabel = item.seatLabel || (idx+1);
+        const att = attendanceData[item.key] || { status:'present' };
+        let badge = '<span class="px-2 py-1 md:px-3 md:py-1.5 bg-white text-slate-400 border border-slate-200 rounded-lg text-[10px] md:text-xs font-bold whitespace-nowrap">출석</span>';
+        if (att.status==='absent') badge = '<span class="px-2 py-1 md:px-3 md:py-1.5 bg-red-100 text-red-700 border border-red-200 rounded-lg text-[10px] md:text-xs font-black shadow-sm whitespace-nowrap">❌ 결석</span>';
+        if (att.status==='late')   badge = '<span class="px-2 py-1 md:px-3 md:py-1.5 bg-amber-100 text-amber-700 border border-amber-200 rounded-lg text-[10px] md:text-xs font-black shadow-sm whitespace-nowrap">⚠️ 지각</span>';
         tr.innerHTML = `
-            <td class="py-2 px-1 md:px-2 font-black text-blue-600 text-sm md:text-base">${displaySeatLabel}</td>
-            <td class="py-2 px-1 md:px-2 font-medium text-slate-600">${item.grade}</td>
-            <td class="py-2 px-1 md:px-2 font-medium text-slate-600">${item.class}</td>
+            <td class="py-2 px-1 md:px-2 font-black text-blue-600 text-sm md:text-base">${displayLabel}</td>
+            <td class="py-2 px-1 md:px-2 font-medium text-slate-600 hidden md:table-cell">${item.grade}</td>
+            <td class="py-2 px-1 md:px-2 font-medium text-slate-600 hidden md:table-cell">${item.class}</td>
             <td class="py-2 px-1 md:px-2 font-medium text-slate-600">${item.number}</td>
             <td class="py-2 px-1 md:px-2 font-black text-slate-800 text-[11px] md:text-sm whitespace-nowrap">${item.name}</td>
-            <td class="py-2 px-1 md:px-2 cursor-pointer list-status-cell" data-key="${item.key}">${statusBadge}</td>
-        `;
-        fragment.appendChild(tr);
+            <td class="py-2 px-1 md:px-2 cursor-pointer list-status-cell" data-key="${item.key}">${badge}</td>`;
+        frag.appendChild(tr);
     });
-
-    tbody.appendChild(fragment);
-
-    // ✨ data-key로 모달 즉시 호출 (가상 카드 생성)
+    tbody.innerHTML = '';
+    tbody.appendChild(frag);
     tbody.querySelectorAll('.list-status-cell').forEach(cell => {
         cell.onclick = () => {
             const stdKey = cell.dataset.key;
-            // 좌석 배치가 없어서 실제 html 카드가 없더라도, 모달을 띄울 수 있게 가짜 카드 객체를 넘겨줍니다!
             let card = document.querySelector(`.student-card-attend[data-std-key="${stdKey}"]`);
-            if (!card) {
-                // 화면(좌석판)에는 안 보이지만 메모리상에만 존재하는 가상 카드를 만들어 우회합니다.
-                card = document.createElement('div');
-                card.dataset.stdKey = stdKey;
-                card.classList.add('card-present'); 
-            }
+            if (!card) { card = document.createElement('div'); card.dataset.stdKey = stdKey; card.classList.add('card-present'); }
             openAttendModal(card, stdKey);
         };
     });
