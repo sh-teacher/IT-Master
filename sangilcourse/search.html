@@ -184,6 +184,7 @@
                     } 
                     
                     // 🗓️ 주간 시간표 렌더링
+                    // 🗓️ 주간 시간표 렌더링
                     else if (r.type === "TIMETABLE") {
                         if (r.data.length === 0) return area.innerHTML = `<div class="bg-slate-200 text-slate-600 p-5 rounded-2xl text-center font-bold">시간표 데이터가 없습니다.</div>`;
                         
@@ -194,12 +195,14 @@
                             if (item.period >= 1 && item.period <= 8 && grid[item.period][item.day] !== undefined) {
                                 let teacherHTML = '';
                                 if (type !== 'TIMETABLE_TEACHER' && item.teacher) {
-                                    // 🔥 모바일에서는 '선생님' 글자 생략, 폰트 최소화
                                     teacherHTML = `<div class="text-[9px] md:text-xs text-blue-600 font-bold mt-0.5 md:mt-1 truncate">${item.teacher}</div>`;
                                 }
                                 
-                                // 🔥 break-keep 삭제! 모바일에서 과목명이 길면 자연스럽게 줄을 바꿈 (text-[10px])
-                                const html = `<div class="font-black text-slate-800 leading-tight text-[10px] md:text-[13px] break-all md:break-keep">${item.subject}</div>${teacherHTML}`;
+                                // 🔥 [핵심 수정] 과목명에서 괄호 '(' 앞의 띄어쓰기를 무시하고 무조건 줄바꿈(<br>)을 추가합니다!
+                                // 추가로 괄호 안의 글씨는 과목명보다 살짝 작고 옅게(text-slate-500) 처리해서 더 예쁘게 만듭니다.
+                                const formattedSubject = item.subject.replace(/\s*\(/g, '<br><span class="text-[9px] md:text-[11px] text-slate-500 font-bold">(').replace(/\)/g, ')</span>');
+
+                                const html = `<div class="font-black text-slate-800 leading-tight text-[10px] md:text-[13px] break-all md:break-keep">${formattedSubject}</div>${teacherHTML}`;
                                 grid[item.period][item.day] += (grid[item.period][item.day] ? '<hr class="my-1 border-slate-200">' : '') + html;
                             }
                         });
