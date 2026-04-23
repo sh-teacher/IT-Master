@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>상일 통합 검색 엔진</title>
+    <title>상일여고 교과수업 만능 탐색기</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .timetable { width: 100%; border-collapse: collapse; text-align: center; font-size: 13px; }
@@ -77,13 +77,22 @@
             const type = document.getElementById('searchType').value;
             const keywordBox = document.getElementById('keywordBox');
             const fullSearchBtn = document.getElementById('fullSearchBtn');
+            const timeSelector = document.getElementById('timeSelector'); // ✨ 추가: 요일/교시 영역 가져오기
 
+            // 1. 공강 교사 찾기 토글
             if (type === 'FREE_TEACHER') {
                 keywordBox.style.display = 'none';
                 fullSearchBtn.style.display = 'block';
             } else {
                 keywordBox.style.display = 'block';
                 fullSearchBtn.style.display = 'none';
+            }
+
+            // 2. ✨ 주간 시간표 조회 시 요일/교시 숨기기 로직
+            if (type.startsWith('TIMETABLE_')) {
+                timeSelector.style.display = 'none'; // 시간표 메뉴면 싹 가림
+            } else {
+                timeSelector.style.display = ''; // 다른 메뉴면 다시 보여줌
             }
         }
 
