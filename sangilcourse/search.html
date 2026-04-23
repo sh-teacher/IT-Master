@@ -191,18 +191,17 @@
                         r.data.forEach(item => {
                             if (item.period >= 1 && item.period <= 8 && grid[item.period][item.day] !== undefined) {
                                 
-                                // 1. 과목명 & 배정반 강제 줄바꿈 + 폰트 축소 (모바일 최적화)
-                                // 괄호 앞 여백을 무시하고 <br>로 넘깁니다.
-                                const formattedSubject = item.subject.replace(/\s*\(/g, '<span class="block text-[9px] md:text-[11px] text-slate-500 font-bold leading-tight mt-0.5">(').replace(/\)/g, ')</span>');
+                                // 1. 과목명 & 배정반 강제 줄바꿈 + 폰트 1단계 확대!
+                                const formattedSubject = item.subject.replace(/\s*\(/g, '<span class="block text-[10px] md:text-[12px] text-slate-500 font-bold leading-tight mt-0.5">(').replace(/\)/g, ')</span>');
                                 
-                                // 2. 교사명 폰트 축소
+                                // 2. 교사명 폰트 1단계 확대!
                                 let teacherHTML = '';
                                 if (type !== 'TIMETABLE_TEACHER' && item.teacher) {
-                                    teacherHTML = `<div class="text-[8.5px] md:text-xs text-blue-600 font-bold mt-0.5 truncate">${item.teacher}</div>`;
+                                    teacherHTML = `<div class="text-[10px] md:text-[13px] text-blue-600 font-bold mt-0.5 truncate">${item.teacher}</div>`;
                                 }
                                 
-                                // break-words 옵션으로 화면이 좁으면 글자가 알아서 쪼개지도록 설정
-                                const html = `<div class="font-black text-slate-800 leading-[1.1] md:leading-snug text-[9.5px] md:text-[13px] break-words">${formattedSubject}</div>${teacherHTML}`;
+                                // 3. 메인 과목명 폰트 1단계 확대! (모바일 11px, PC 14px 수준으로 업그레이드)
+                                const html = `<div class="font-black text-slate-800 leading-[1.15] md:leading-snug text-[11px] md:text-[14px] break-words">${formattedSubject}</div>${teacherHTML}`;
                                 
                                 grid[item.period][item.day] += (grid[item.period][item.day] ? '<hr class="my-0.5 border-slate-200">' : '') + html;
                             }
