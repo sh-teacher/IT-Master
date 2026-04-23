@@ -193,7 +193,7 @@
                                 
                                 // 1. 과목명 & 배정반 강제 줄바꿈 + 폰트 축소 (모바일 최적화)
                                 // 괄호 앞 여백을 무시하고 <br>로 넘깁니다.
-                                const formattedSubject = item.subject.replace(/\s*\(/g, '<br><span class="text-[8.5px] md:text-[11px] text-slate-500 font-bold leading-none">(').replace(/\)/g, ')</span>');
+                                const formattedSubject = item.subject.replace(/\s*\(/g, '<span class="block text-[9px] md:text-[11px] text-slate-500 font-bold leading-tight mt-0.5">(').replace(/\)/g, ')</span>');
                                 
                                 // 2. 교사명 폰트 축소
                                 let teacherHTML = '';
