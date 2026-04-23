@@ -182,6 +182,7 @@
                         area.innerHTML = `<div class="bg-amber-50 p-5 rounded-2xl border border-amber-200"><h2 class="text-md font-black text-amber-800 mb-3">☕ ${r.day || day}요일 ${r.period || period}교시 공강 (${r.data.length}명)</h2><div>${tags}</div></div>`;
                     } 
                     // 🗓️ 🔥 여기서부터 주간 시간표 렌더링 (모바일 초밀착 방탄 모드)
+                    // 🗓️ 주간 시간표 렌더링 (모바일 최적화 + 괄호 방어 코드 적용)
                     else if (r.type === "TIMETABLE") {
                         if (r.data.length === 0) return area.innerHTML = `<div class="bg-slate-200 text-slate-600 p-5 rounded-2xl text-center font-bold">시간표 데이터가 없습니다.</div>`;
                         
@@ -191,16 +192,22 @@
                         r.data.forEach(item => {
                             if (item.period >= 1 && item.period <= 8 && grid[item.period][item.day] !== undefined) {
                                 
-                                // 1. 과목명 & 배정반 강제 줄바꿈 + 폰트 1단계 확대!
-                                const formattedSubject = item.subject.replace(/\s*\(/g, '<span class="block text-[10px] md:text-[12px] text-slate-500 font-bold leading-tight mt-0.5">(').replace(/\)/g, ')</span>');
+                                // 1. 과목명이 비어있을 경우를 대비한 튼튼한 방어코드
+                                let subjectStr = item.subject || "";
                                 
-                                // 2. 교사명 폰트 1단계 확대!
+                                // 2. 괄호(배정반)가 있으면 다음 줄로 예쁘게 내리고(block 사용), 없으면 과목명만 큼직하게 유지!
+                                let formattedSubject = subjectStr;
+                                if (subjectStr.includes('(')) {
+                                    formattedSubject = subjectStr.replace(/\s*\(/g, '<span class="block text-[10px] md:text-[12px] text-slate-500 font-bold leading-tight mt-0.5">(').replace(/\)/g, ')</span>');
+                                }
+                                
+                                // 3. 교사명 세팅 (폰트 1단계 확대)
                                 let teacherHTML = '';
                                 if (type !== 'TIMETABLE_TEACHER' && item.teacher) {
                                     teacherHTML = `<div class="text-[10px] md:text-[13px] text-blue-600 font-bold mt-0.5 truncate">${item.teacher}</div>`;
                                 }
                                 
-                                // 3. 메인 과목명 폰트 1단계 확대! (모바일 11px, PC 14px 수준으로 업그레이드)
+                                // 4. 메인 과목명 조립 (폰트 1단계 확대 및 모바일 자동 줄바꿈)
                                 const html = `<div class="font-black text-slate-800 leading-[1.15] md:leading-snug text-[11px] md:text-[14px] break-words">${formattedSubject}</div>${teacherHTML}`;
                                 
                                 grid[item.period][item.day] += (grid[item.period][item.day] ? '<hr class="my-0.5 border-slate-200">' : '') + html;
@@ -211,7 +218,7 @@
                         let tableHTML = `
                         <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
                             <div class="bg-blue-600 text-white text-center py-2 md:py-4 font-black text-sm md:text-lg">${r.title}</div>
-                            <div class="w-full overflow-x-auto">
+                            <div class="w-full overflow-x-auto p-0 md:p-1">
                                 <table class="w-full text-center border-collapse table-fixed min-w-[300px]">
                                     <thead>
                                         <tr class="bg-slate-100 text-slate-600 text-[10px] md:text-[13px] font-black">
