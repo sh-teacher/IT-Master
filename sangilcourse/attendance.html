@@ -1102,7 +1102,7 @@ function toggleListView() { isListView ? forceHideListView() : forceShowListView
 function renderListView() {
     const tbody = document.getElementById('listViewTbody');
     if (!currentStudentsList?.length) {
-        tbody.innerHTML = '<tr><td colspan="6" class="py-10 text-slate-400 font-bold">학생 데이터가 없습니다.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="py-10 text-slate-400 font-bold text-center">학생 데이터가 없습니다.</td></tr>';
         return;
     }
     const listData = currentStudentsList.map(std => {
@@ -1120,19 +1120,23 @@ function renderListView() {
     const frag = document.createDocumentFragment();
     listData.forEach((item, idx) => {
         const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-50 transition";
+        tr.className = "hover:bg-slate-50 transition text-center"; // 가운데 정렬 유지
         const displayLabel = item.seatLabel || (idx+1);
         const att = attendanceData[item.key] || { status:'present' };
-        let badge = '<span class="px-2 py-1 md:px-3 md:py-1.5 bg-white text-slate-400 border border-slate-200 rounded-lg text-[10px] md:text-xs font-bold whitespace-nowrap">출석</span>';
-        if (att.status==='absent') badge = '<span class="px-2 py-1 md:px-3 md:py-1.5 bg-red-100 text-red-700 border border-red-200 rounded-lg text-[10px] md:text-xs font-black shadow-sm whitespace-nowrap">❌ 결석</span>';
-        if (att.status==='late')   badge = '<span class="px-2 py-1 md:px-3 md:py-1.5 bg-amber-100 text-amber-700 border border-amber-200 rounded-lg text-[10px] md:text-xs font-black shadow-sm whitespace-nowrap">⚠️ 지각</span>';
+        
+        // 🔥 모바일 화면을 위해 배지(출석/결석) 좌우 여백을 살짝(px-1.5) 줄여서 공간을 확보했습니다.
+        let badge = '<span class="px-1.5 py-1 md:px-3 md:py-1.5 bg-white text-slate-400 border border-slate-200 rounded-lg text-[10px] md:text-xs font-bold whitespace-nowrap">출석</span>';
+        if (att.status==='absent') badge = '<span class="px-1.5 py-1 md:px-3 md:py-1.5 bg-red-100 text-red-700 border border-red-200 rounded-lg text-[10px] md:text-xs font-black shadow-sm whitespace-nowrap">❌ 결석</span>';
+        if (att.status==='late')   badge = '<span class="px-1.5 py-1 md:px-3 md:py-1.5 bg-amber-100 text-amber-700 border border-amber-200 rounded-lg text-[10px] md:text-xs font-black shadow-sm whitespace-nowrap">⚠️ 지각</span>';
+        
+        // 🔥 여기서 hidden md:table-cell 을 완전히 삭제하고 모바일 폰트 크기(11px)를 적용했습니다!
         tr.innerHTML = `
-            <td class="py-2 px-1 md:px-2 font-black text-blue-600 text-sm md:text-base">${displayLabel}</td>
-            <td class="py-2 px-1 md:px-2 font-medium text-slate-600 hidden md:table-cell">${item.grade}</td>
-            <td class="py-2 px-1 md:px-2 font-medium text-slate-600 hidden md:table-cell">${item.class}</td>
-            <td class="py-2 px-1 md:px-2 font-medium text-slate-600">${item.number}</td>
-            <td class="py-2 px-1 md:px-2 font-black text-slate-800 text-[11px] md:text-sm whitespace-nowrap">${item.name}</td>
-            <td class="py-2 px-1 md:px-2 cursor-pointer list-status-cell" data-key="${item.key}">${badge}</td>`;
+            <td class="py-2 px-0.5 md:px-2 font-black text-blue-600 text-[11px] md:text-base">${displayLabel}</td>
+            <td class="py-2 px-0.5 md:px-2 font-medium text-slate-600 text-[11px] md:text-sm">${item.grade}</td>
+            <td class="py-2 px-0.5 md:px-2 font-medium text-slate-600 text-[11px] md:text-sm">${item.class}</td>
+            <td class="py-2 px-0.5 md:px-2 font-medium text-slate-600 text-[11px] md:text-sm">${item.number}</td>
+            <td class="py-2 px-0.5 md:px-2 font-black text-slate-800 text-[11px] md:text-sm whitespace-nowrap">${item.name}</td>
+            <td class="py-2 px-0.5 md:px-2 cursor-pointer list-status-cell" data-key="${item.key}">${badge}</td>`;
         frag.appendChild(tr);
     });
     tbody.innerHTML = '';
