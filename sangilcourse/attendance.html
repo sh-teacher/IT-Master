@@ -822,24 +822,8 @@ async function fetchWithCache(cacheKey, body) {
 
 // ── 스켈레톤 표시 (즉각적인 시각 피드백)
 function showLoadingSkeleton() {
-    const desks = document.querySelectorAll('.desk-attend');
-    desks.forEach(d => {
-        const inner = d.querySelector('.student-card-attend');
-        if (!inner) {
-            // 빈 책상에 shimmer 넣기
-            if (!d.querySelector('.skeleton-inner')) {
-                const sk = document.createElement('div');
-                sk.className = 'skeleton-inner skeleton w-full h-full rounded-md';
-                sk.style.minHeight = '36px';
-                d.appendChild(sk);
-            }
-        }
-    });
-    // 일지 영역도 로딩 표시
-    document.getElementById('classLog').placeholder = '⏳ 수업 일지 불러오는 중...';
+    // 일지 placeholder는 건드리지 않음 — 로딩 표시 불필요
 }
-
-// 스켈레톤 제거는 카드 배치 시 자동으로 처리됨 (카드가 덮으면 보이지 않음)
 
 // ==========================================
 // 특이사항 명단
