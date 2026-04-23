@@ -130,21 +130,35 @@
             area.innerHTML = '<div class="text-center p-10 bg-white rounded-2xl shadow-sm animate-pulse text-slate-500 font-bold">데이터를 가져오는 중입니다... 🔍</div>';
 
             try {
-                // 1. [실시간 전체 현황판]
+                // 1. [실시간 전체 현황판] ✅ 1-1 ~ 3-9 반 번호 직접 반복 조회
                 if (type === 'REAL_ALL') {
-                    const searchKeywords = ["-", "실", "관", "장", " "]; 
-                    const fetchPromises = searchKeywords.map(kw => 
-                        fetch(API_URL, { method: 'POST', body: JSON.stringify({ type: "SEARCH_REALTIME", payload: { searchType: "CLASS", keyword: kw, forceDay: day, forcePeriod: period } }) }).then(r => r.json())
+                    const classKeywords = [];
+                    for (let grade = 1; grade <= 3; grade++) {
+                        for (let cls = 1; cls <= 9; cls++) {
+                            classKeywords.push(`${grade}-${cls}`);
+                        }
+                    }
+
+                    const fetchPromises = classKeywords.map(kw =>
+                        fetch(API_URL, {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                type: "SEARCH_REALTIME",
+                                payload: { searchType: "CLASS", keyword: kw, forceDay: day, forcePeriod: period }
+                            })
+                        })
+                        .then(r => r.json())
+                        .catch(() => ({ success: false }))
                     );
-                    
+
                     const results = await Promise.all(fetchPromises);
                     let allData = [];
                     let uniqueCheck = new Set();
-                    
+
                     results.forEach(res => {
                         if (res.success && res.data) {
                             res.data.forEach(item => {
-                                const key = item.subject + item.teacher; 
+                                const key = item.subject + item.teacher;
                                 if (!uniqueCheck.has(key)) { uniqueCheck.add(key); allData.push(item); }
                             });
                         }
@@ -181,8 +195,7 @@
                         let tags = r.data.map(t => `<span class="inline-block bg-white text-slate-700 border border-slate-300 font-black px-3 py-1.5 rounded-lg m-1 text-sm">${t}</span>`).join('');
                         area.innerHTML = `<div class="bg-amber-50 p-5 rounded-2xl border border-amber-200"><h2 class="text-md font-black text-amber-800 mb-3">☕ ${r.day || day}요일 ${r.period || period}교시 공강 (${r.data.length}명)</h2><div>${tags}</div></div>`;
                     } 
-                    // 🗓️ 🔥 여기서부터 주간 시간표 렌더링 (모바일 초밀착 방탄 모드)
-                    // 🗓️ 주간 시간표 렌더링 (모바일 최적화 + 괄호 방어 코드 적용)
+                    // 🗓️ [주간 시간표 렌더링 (모바일 최적화 + 괄호 방어 코드)]
                     else if (r.type === "TIMETABLE") {
                         if (r.data.length === 0) return area.innerHTML = `<div class="bg-slate-200 text-slate-600 p-5 rounded-2xl text-center font-bold">시간표 데이터가 없습니다.</div>`;
                         
@@ -192,29 +205,34 @@
                         r.data.forEach(item => {
                             if (item.period >= 1 && item.period <= 8 && grid[item.period][item.day] !== undefined) {
                                 
-                                // 1. 과목명이 비어있을 경우를 대비한 튼튼한 방어코드
-                                let subjectStr = item.subject || "";
+                                // 🔥 확실하게 문자열로 변환 (숫자형 데이터 에러 원천 차단)
+                                let subjectStr = String(item.subject || "");
+
+                                // ✅ 학생 시간표: (배정반) 정보가 없을 때 item.room 또는 item.class 필드로 보완
+                                if (type === 'TIMETABLE_STUDENT') {
+                                    // 괄호 정보가 아예 없는 경우, 별도 필드(room/class/className)로 보완
+                                    if (!subjectStr.includes('(')) {
+                                        const roomInfo = item.room || item.class || item.className || "";
+                                        if (roomInfo) subjectStr = `${subjectStr} (${roomInfo})`;
+                                    }
+                                }
                                 
-                                // 2. 괄호(배정반)가 있으면 다음 줄로 예쁘게 내리고(block 사용), 없으면 과목명만 큼직하게 유지!
                                 let formattedSubject = subjectStr;
                                 if (subjectStr.includes('(')) {
                                     formattedSubject = subjectStr.replace(/\s*\(/g, '<span class="block text-[10px] md:text-[12px] text-slate-500 font-bold leading-tight mt-0.5">(').replace(/\)/g, ')</span>');
                                 }
                                 
-                                // 3. 교사명 세팅 (폰트 1단계 확대)
                                 let teacherHTML = '';
                                 if (type !== 'TIMETABLE_TEACHER' && item.teacher) {
                                     teacherHTML = `<div class="text-[10px] md:text-[13px] text-blue-600 font-bold mt-0.5 truncate">${item.teacher}</div>`;
                                 }
                                 
-                                // 4. 메인 과목명 조립 (폰트 1단계 확대 및 모바일 자동 줄바꿈)
                                 const html = `<div class="font-black text-slate-800 leading-[1.15] md:leading-snug text-[11px] md:text-[14px] break-words">${formattedSubject}</div>${teacherHTML}`;
                                 
                                 grid[item.period][item.day] += (grid[item.period][item.day] ? '<hr class="my-0.5 border-slate-200">' : '') + html;
                             }
                         });
 
-                        // 테이블을 감싸는 div에서 min-w 강제 설정 제거 -> 모바일 화면에 100% 맞춰짐
                         let tableHTML = `
                         <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
                             <div class="bg-blue-600 text-white text-center py-2 md:py-4 font-black text-sm md:text-lg">${r.title}</div>
@@ -233,13 +251,11 @@
                                     <tbody>`;
                         
                         for (let p = 1; p <= 7; p++) {
-                            // 모바일은 65px, PC는 80px 세로 높이 고정
                             tableHTML += `<tr class="hover:bg-slate-50 transition h-[65px] md:h-[80px]">
                                 <td class="border border-slate-200 p-0.5 md:p-2 font-black text-slate-500 bg-slate-50 text-[10px] md:text-sm">${p}</td>`;
                             
                             ['월', '화', '수', '목', '금'].forEach(d => {
                                 const cellContent = grid[p][d] ? grid[p][d] : `<span class="text-slate-200">-</span>`;
-                                // 모바일에서는 패딩을 0.5로 극한으로 줄여서 공간 확보
                                 tableHTML += `<td class="border border-slate-200 p-0.5 md:p-2 align-middle">${cellContent}</td>`;
                             });
                             tableHTML += `</tr>`;
@@ -250,6 +266,7 @@
                     }
                 }
             } catch (e) {
+                console.error(e);
                 area.innerHTML = `<div class="text-center p-5 text-red-500 font-bold bg-red-50 rounded-2xl">통신 오류가 발생했습니다. 잠시 후 다시 시도해주세요.</div>`;
             }
         }
