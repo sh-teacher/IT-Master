@@ -134,10 +134,12 @@
                 if (type === 'REAL_ALL') {
                     const classKeywords = [];
                     for (let grade = 1; grade <= 3; grade++) {
-                        for (let cls = 1; cls <= 9; cls++) {
+                        for (let cls = 1; cls <= 8; cls++) {
                             classKeywords.push(`${grade}-${cls}`);
                         }
                     }
+                    // 특별실 추가
+                    classKeywords.push("아름실", "다움실");
 
                     const fetchPromises = classKeywords.map(kw =>
                         fetch(API_URL, {
