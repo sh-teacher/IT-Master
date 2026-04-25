@@ -464,12 +464,16 @@
             const container = document.getElementById('dday-container');
             let html = '';
             const today = new Date();
-            today.setHours(0,0,0,0);
+            today.setHours(0, 0, 0, 0);
 
             dDayDates.forEach(d => {
                 const targetDate = new Date(d.date);
+                targetDate.setHours(0, 0, 0, 0); // 👈 추가된 부분: 타겟 날짜의 시간도 0시 정각으로 초기화
+
                 const diffTime = targetDate - today;
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                // 👈 수정된 부분: Math.ceil 대신 Math.round 사용
+                const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24)); 
                 
                 let ddayText = '';
                 if(diffDays > 0) ddayText = `D-${diffDays}`;
