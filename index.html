@@ -272,7 +272,10 @@
             </div>
         </div>
         <div class="section">
-            <div class="section-title">🍚 오늘의 급식</div>
+            <div class="section-title">
+                <span>🍚 학교 급식 조회</span>
+                <input type="date" id="meal-date-picker" style="padding: 4px 8px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; color: #555; cursor: pointer; outline: none;" onchange="fetchMeal()">
+            </div>
             <div id="meal-container" class="meal-box">
                 급식 정보를 불러오는 중입니다... ⏳
             </div>
@@ -794,19 +797,28 @@
                 icon.style.transform = 'rotate(180deg)'; 
             }
         }
-        // 🍚 나이스 오픈 API 연동: 동적 학교 검색 및 급식 조회
+        // 🍚 나이스 오픈 API 연동: 동적 학교 검색 및 특정 날짜 급식 조회
         async function fetchMeal() {
             const mealContainer = document.getElementById('meal-container');
-            const now = new Date();
+            const datePicker = document.getElementById('meal-date-picker');
             
-            // YYYYMMDD 날짜 포맷 맞추기
-            const yyyy = now.getFullYear();
-            const mm = String(now.getMonth() + 1).padStart(2, '0');
-            const dd = String(now.getDate()).padStart(2, '0');
-            const todayStr = `${yyyy}${mm}${dd}`;
+            // 1. 조회할 날짜 세팅 (달력 값이 있으면 그 날짜, 없으면 오늘 날짜)
+            let targetDateObj;
+            if (datePicker && datePicker.value) {
+                targetDateObj = new Date(datePicker.value);
+            } else {
+                targetDateObj = new Date();
+            }
+            
+            const yyyy = targetDateObj.getFullYear();
+            const mm = String(targetDateObj.getMonth() + 1).padStart(2, '0');
+            const dd = String(targetDateObj.getDate()).padStart(2, '0');
+            const targetDateStr = `${yyyy}${mm}${dd}`;
+
+            mealContainer.innerHTML = "급식 정보를 불러오는 중입니다... ⏳";
 
             try {
-                // 1. 나이스 API에서 '상일여자고등학교' 검색
+                // 2. 나이스 API에서 '상일여자고등학교' 검색
                 const schoolUrl = `https://open.neis.go.kr/hub/schoolInfo?Type=json&SCHUL_NM=상일여자고등학교`;
                 const schoolRes = await fetch(schoolUrl);
                 const schoolData = await schoolRes.json();
@@ -816,7 +828,7 @@
                     return;
                 }
 
-                // 2. 검색 결과 중 '광주' 지역의 학교 코드(SD_SCHUL_CODE)와 교육청 코드(ATPT) 추출
+                // 3. 검색 결과 중 '광주' 지역 추출
                 const targetSchool = schoolData.schoolInfo[1].row.find(s => s.ATPT_OFCDC_SC_NM.includes("광주"));
                 if (!targetSchool) {
                     mealContainer.innerHTML = "광주 지역의 해당 학교를 찾을 수 없습니다.";
@@ -826,34 +838,35 @@
                 const officeCode = targetSchool.ATPT_OFCDC_SC_CODE;
                 const schoolCode = targetSchool.SD_SCHUL_CODE;
 
-                // 3. 알아낸 코드로 오늘 급식 조회하기
-                const mealUrl = `https://open.neis.go.kr/hub/mealServiceDietInfo?Type=json&ATPT_OFCDC_SC_CODE=${officeCode}&SD_SCHUL_CODE=${schoolCode}&MLSV_YMD=${todayStr}`;
+                // 4. 추출한 정보와 선택한 날짜로 급식 조회하기
+                const mealUrl = `https://open.neis.go.kr/hub/mealServiceDietInfo?Type=json&ATPT_OFCDC_SC_CODE=${officeCode}&SD_SCHUL_CODE=${schoolCode}&MLSV_YMD=${targetDateStr}`;
                 
                 const mealRes = await fetch(mealUrl);
                 const mealJson = await mealRes.json();
 
-                // 4. 급식 데이터가 존재하면 예쁘게 가공해서 화면에 출력
+                // 5. 급식 데이터 출력
                 if (mealJson.mealServiceDietInfo) {
                     const mealData = mealJson.mealServiceDietInfo[1].row[0]; // 중식 데이터
                     
-                    // 알레르기 숫자 (예: 1.2.3.) 깔끔하게 제거
+                    // 알레르기 숫자 및 특수기호 제거
                     let cleanDish = mealData.DDISH_NM.replace(/<br\/>/g, '<br>');
-                    cleanDish = cleanDish.replace(/\([0-9.]+\)/g, ''); // 괄호와 숫자 지우기
+                    cleanDish = cleanDish.replace(/\([0-9.]+\)/g, ''); 
                     cleanDish = cleanDish.replace(/\*/g, '').trim(); 
 
                     mealContainer.innerHTML = `
-                        <div style="font-weight:bold; margin-bottom:10px;">🍽️ 오늘의 식단 (${mealData.MMEAL_SC_NM})</div>
+                        <div style="font-weight:bold; margin-bottom:10px;">🍽️ ${yyyy}년 ${mm}월 ${dd}일 식단 (${mealData.MMEAL_SC_NM})</div>
                         <div>${cleanDish}</div>
                         <div style="margin-top:15px; font-size:12px; opacity:0.7;">🔥 칼로리: ${mealData.CAL_INFO}</div>
                     `;
                 } else {
-                    mealContainer.innerHTML = "오늘은 급식 정보가 없습니다. (주말이나 휴일일 수 있어요 🍳)";
+                    mealContainer.innerHTML = `해당 날짜(${yyyy}-${mm}-${dd})에는 급식 정보가 없습니다. 🍳`;
                 }
             } catch (e) {
                 console.error("급식 로드 실패:", e);
                 mealContainer.innerHTML = "급식 정보를 불러오지 못했습니다. (새로고침 해주세요)";
             }
         }
+
         window.onload = function() {
             // 구글 시트에서 데이터를 불러오기 전, 빈 화면을 방지하기 위해 임시로 기본값을 띄웁니다.
             dDayDates = [...defaultDDays];
@@ -862,6 +875,15 @@
             renderTimetable();
             renderTimeline();
             updateClockAndTimeline();
+            
+            // 🌟 달력에 오늘 날짜 기본 세팅 추가
+            const datePicker = document.getElementById('meal-date-picker');
+            const now = new Date();
+            const yyyy = now.getFullYear();
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const dd = String(now.getDate()).padStart(2, '0');
+            datePicker.value = `${yyyy}-${mm}-${dd}`;
+
             fetchMeal();
             // 시트에서 데이터를 불러와 덮어씌웁니다.
             loadDataFromSheet(); 
