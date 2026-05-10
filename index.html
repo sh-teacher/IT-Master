@@ -202,7 +202,18 @@
             line-height: 1.8; color: #166534; text-align: center;
             box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
+        /* 급식 날짜 이동 버튼 스타일 */
+        .meal-nav-btn {
+            background: none; border: none; cursor: pointer; 
+            font-size: 14px; padding: 4px 8px; color: #888; 
+            border-radius: 4px; transition: all 0.2s;
+        }
+        .meal-nav-btn:hover { background-color: #f0f0f0; color: #333; }
         
+        /* 다크모드 대응 */
+        body.dark-mode .meal-nav-btn { color: #aaa; }
+        body.dark-mode .meal-nav-btn:hover { background-color: #333; color: #fff; }
+
         /* 다크모드 대응 */
         body.dark-mode .meal-box { 
             background-color: #1e3a29; border-color: #34a853; color: #a7f3d0; 
@@ -877,7 +888,24 @@
                 mealContainer.innerHTML = "급식 정보를 불러오지 못했습니다. (새로고침 해주세요)";
             }
         }
-
+        // 🍚 급식 날짜 하루 전/후로 이동하는 함수
+        function changeMealDate(offset) {
+            const datePicker = document.getElementById('meal-date-picker');
+            let currentDate = new Date(datePicker.value);
+            
+            // 날짜 계산 (하루 더하거나 빼기, 월말/월초 자동 계산됨)
+            currentDate.setDate(currentDate.getDate() + offset);
+            
+            // 계산된 날짜를 다시 YYYY-MM-DD 형식으로 변환
+            const yyyy = currentDate.getFullYear();
+            const mm = String(currentDate.getMonth() + 1).padStart(2, '0');
+            const dd = String(currentDate.getDate()).padStart(2, '0');
+            
+            // 달력에 새로운 날짜 세팅 후 급식 다시 불러오기
+            datePicker.value = `${yyyy}-${mm}-${dd}`;
+            fetchMeal();
+        }
+        
         window.onload = function() {
             // 구글 시트에서 데이터를 불러오기 전, 빈 화면을 방지하기 위해 임시로 기본값을 띄웁니다.
             dDayDates = [...defaultDDays];
