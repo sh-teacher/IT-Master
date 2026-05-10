@@ -286,7 +286,11 @@
         <div class="section">
             <div class="section-title">
                 <span>🍚 학교 급식 조회</span>
-                <input type="date" id="meal-date-picker" style="padding: 4px 8px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; color: #555; cursor: pointer; outline: none;" onchange="fetchMeal()">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <button class="meal-nav-btn" onclick="changeMealDate(-1)" title="이전 날짜">◀</button>
+                    <input type="date" id="meal-date-picker" style="padding: 4px 8px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; color: #555; cursor: pointer; outline: none;" onchange="fetchMeal()">
+                    <button class="meal-nav-btn" onclick="changeMealDate(1)" title="다음 날짜">▶</button>
+                </div>
             </div>
             <div id="meal-container" class="meal-box">
                 급식 정보를 불러오는 중입니다... ⏳
@@ -905,7 +909,7 @@
             datePicker.value = `${yyyy}-${mm}-${dd}`;
             fetchMeal();
         }
-        
+
         window.onload = function() {
             // 구글 시트에서 데이터를 불러오기 전, 빈 화면을 방지하기 위해 임시로 기본값을 띄웁니다.
             dDayDates = [...defaultDDays];
