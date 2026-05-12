@@ -141,13 +141,15 @@
 
         /* 이미지 보완용 클래스 */
         .img-container { text-align: center; margin: 40px 0; }
-        .img-container img { 
-            width: 100%;   /* 이 부분을 추가 */
-            max-width: 100%; 
-            height: auto; 
-            border-radius: 12px; 
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); 
-            border: 1px solid var(--border-color); 
+        .img-container img {
+            width: auto;           /* 이미지 고유의 비율 유지 */
+            max-width: 60%;        /* 본문 너비의 60%만 차지 (이 수치를 50%~70% 사이로 조절해 보세요) */
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* 그림자도 살짝 연하게 변경 */
+            border: 1px solid var(--border-color);
+            display: block;        /* 중앙 정렬을 위해 필요 */
+            margin: 0 auto;        /* 좌우 여백을 자동으로 주어 중앙 정렬 */
         }
         .img-caption { margin-top: 10px; font-size: 0.95rem; color: var(--text-light); }
     </style>
