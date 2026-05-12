@@ -229,6 +229,54 @@
                 <p><code>printf</code>를 여러 번 사용하여 여러분의 이름, 오늘 날짜, 그리고 공부 목표를 멋진 상자 모양 안에 출력해 보세요!</p>
             </div>
         </section>
+        <section>
+            <h2>6. 🛠 초급 응용: 컴퓨터 제어하기 (system 함수)</h2>
+            <p>단순히 글자만 출력하는 것이 지루하다면, C언어로 내 컴퓨터에 있는 프로그램을 직접 깨워볼까요? <code>stdlib.h</code>라는 새로운 도구 상자를 가져오면 윈도우 시스템 명령어를 실행할 수 있습니다.</p>
+
+            <div class="img-container">
+                <img src="./images/system_call_concept.png" alt="C언어 system 함수를 통한 운영체제 제어 개념도">
+                <div class="img-caption">▲ C언어가 운영체제(OS)에게 명령을 전달하는 과정</div>
+            </div>
+
+            <h3>💻 예제: 윈도우 도구 소환하기</h3>
+            <p>아래 코드를 실행하고 숫자 1이나 2를 입력해 보세요. 마치 마법처럼 계산기와 그림판이 나타날 것입니다!</p>
+
+<pre><code><span class="cmt">#include &lt;stdio.h&gt;</span>
+<span class="cmt">#include &lt;stdlib.h&gt; </span> <span class="cmt">// system() 함수를 사용하기 위해 꼭 필요해요!</span>
+
+<span class="type">int</span> <span class="func">main</span>() {
+    <span class="type">int</span> choice;
+
+    <span class="func">printf</span>(<span class="str">"--- [마법의 도구 상자] ---\n"</span>);
+    <span class="func">printf</span>(<span class="str">"1. 계산기 소환\n"</span>);
+    <span class="func">printf</span>(<span class="str">"2. 그림판 소환\n"</span>);
+    <span class="func">printf</span>(<span class="str">"원하는 번호를 입력하세요: "</span>);
+    
+    <span class="func">scanf</span>(<span class="str">"%d"</span>, &choice);
+
+    <span class="kw">if</span> (choice == <span class="type">1</span>) {
+        <span class="func">printf</span>(<span class="str">"계산기를 실행합니다...\n"</span>);
+        <span class="func">system</span>(<span class="str">"calc"</span>);    <span class="cmt">// 윈도우 계산기 실행 명령어</span>
+    } <span class="kw">else</span> <span class="kw">if</span> (choice == <span class="type">2</span>) {
+        <span class="func">printf</span>(<span class="str">"그림판을 실행합니다...\n"</span>);
+        <span class="func">system</span>(<span class="str">"mspaint"</span>); <span class="cmt">// 윈도우 그림판 실행 명령어</span>
+    } <span class="kw">else</span> {
+        <span class="func">printf</span>(<span class="str">"잘못된 번호입니다!\n"</span>);
+    }
+
+    <span class="kw">return</span> <span class="type">0</span>;
+}</code></pre>
+
+            <div class="callout">
+                <h4>💡 여기서 잠깐! stdlib.h 란?</h4>
+                <p><code>Standard Library</code>의 약자로, 문자열 변환, 메모리 할당, 그리고 위 예제처럼 운영체제에 명령을 내리는 <code>system()</code> 같은 유용한 함수들이 들어있는 도구 상자입니다.</p>
+            </div>
+
+            <div class="callout warning">
+                <h4>🚀 더 해보기 (과제)</h4>
+                <p>명령어에 <code>"notepad"</code>를 넣으면 메모장이 열립니다. 또, <code>"shutdown -s -t 60"</code>을 넣으면 60초 뒤에 컴퓨터가 꺼지는 무시무시한(?) 프로그램도 만들 수 있어요! (취소 명령어는 <code>"shutdown -a"</code>입니다.)</p>
+            </div>
+        </section>
     </main>
 
 </body>
