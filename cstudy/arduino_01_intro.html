@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>01. 아두이노의 세계로 - 아두이노 마스터 가이드</title>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* 기본 레이아웃 및 CSS */
+        :root { --primary: #0d9488; --sidebar-bg: #f8fafc; --text-main: #334155; --text-light: #64748b; --code-bg: #1e293b; --tip-bg: #f0fdf4; --tip-border: #10b981; --border-color: #e2e8f0; --accent-red: #ef4444; }
+        body { margin: 0; font-family: 'Pretendard', sans-serif; color: var(--text-main); display: flex; line-height: 1.6; }
+        
+        /* 사이드바 (아두이노 테마에 맞춰 포인트 컬러 변경) */
+        .sidebar { width: 300px; height: 100vh; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); position: fixed; overflow-y: auto; padding: 30px 20px; box-sizing: border-box; }
+        .sidebar h2 { font-size: 1.1rem; color: #0f172a; margin-top: 20px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 2px solid var(--primary); }
+        .nav-list { list-style: none; padding: 0; margin: 0; }
+        .nav-list li { margin-bottom: 8px; }
+        .nav-list a { text-decoration: none; color: var(--text-light); display: block; padding: 8px 12px; border-radius: 6px; transition: all 0.2s; font-size: 0.95rem; }
+        .nav-list a:hover { background-color: #e2e8f0; color: #0f172a; }
+        .nav-list a.active { background-color: #ccfbf1; color: var(--primary); font-weight: bold; }
+        
+        /* 본문 영역 */
+        .content { margin-left: 300px; padding: 60px 80px; max-width: 1000px; width: 100%; box-sizing: border-box; }
+        .content h1 { font-size: 2.5rem; color: #0f172a; margin-bottom: 10px; }
+        .content .subtitle { font-size: 1.2rem; color: var(--text-light); margin-bottom: 50px; }
+        .content h2 { font-size: 1.8rem; color: var(--primary); margin-top: 50px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .content h3 { font-size: 1.4rem; color: #0f172a; margin-top: 30px; }
+        .content p { font-size: 1.1rem; margin-bottom: 20px; }
+        
+        /* 코드 블록 스타일 */
+        pre { background-color: var(--code-bg); color: #f8fafc; padding: 20px; border-radius: 8px; overflow-x: auto; font-family: 'Fira Code', monospace; font-size: 1.05rem; margin: 20px 0; }
+        .kw { color: #f9a8d4; } /* 키워드 */
+        .func { color: #a7f3d0; } /* 함수 */
+        .num { color: #fef08a; } /* 숫자 */
+        .cmt { color: #94a3b8; font-style: italic; } /* 주석 */
+
+        /* 콜아웃 박스 (Tip, Warning 등) */
+        .callout { background-color: var(--tip-bg); border-left: 5px solid var(--tip-border); padding: 20px; border-radius: 0 8px 8px 0; margin: 30px 0; }
+        .callout.danger { background-color: #fef2f2; border-left-color: var(--accent-red); }
+        .callout h4 { margin: 0 0 10px 0; color: var(--primary); font-size: 1.2rem; }
+        .callout.danger h4 { color: var(--accent-red); }
+
+        /* 이미지 컨테이너 */
+        .img-container { text-align: center; margin: 40px 0; background: #fff; padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .img-container img { width: auto; max-width: 80%; height: auto; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); display: block; margin: 0 auto; }
+        .img-caption { margin-top: 15px; font-size: 0.95rem; color: var(--text-light); font-weight: 500; }
+
+        /* 스텝 뱃지 */
+        .step-badge { display: inline-block; background: var(--primary); color: white; border-radius: 50%; width: 28px; height: 28px; text-align: center; line-height: 28px; font-weight: bold; margin-right: 10px; }
+        
+        /* 표 스타일 */
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; }
+        th, td { border: 1px solid var(--border-color); padding: 12px; text-align: left; }
+        th { background-color: var(--sidebar-bg); color: var(--primary); }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <h2>💻 C언어 기초</h2>
+        <ul class="nav-list">
+            <li><a href="chapter_01_hello.html">01 ~ 08. C언어 과정</a></li>
+        </ul>
+
+        <h2>🤖 아두이노 제어</h2>
+        <ul class="nav-list">
+            <li><a href="arduino_01_intro.html" class="active">01. 아두이노의 세계로</a></li>
+            <li><a href="arduino_02_digital.html">02. 디지털 입출력</a></li>
+            <li><a href="arduino_03_analog.html">03. 아날로그의 이해</a></li>
+            <li><a href="arduino_04_serial.html">04. 시리얼 통신</a></li>
+            <li><a href="arduino_05_sensor.html">05. 감각 불어넣기</a></li>
+            <li><a href="arduino_06_motor.html">06. 움직임 만들기</a></li>
+        </ul>
+
+        <h2>🏆 미니 프로젝트</h2>
+        <ul class="nav-list">
+            <li><a href="project_01_traffic_light.html">01. 3색 신호등 시스템</a></li>
+            <li><a href="project_02_piano.html">02. 미니 피아노</a></li>
+            </ul>
+    </aside>
+
+    <main class="content">
+        <h1>01. 아두이노의 세계로: 하드웨어의 눈을 뜨다</h1>
+        <div class="subtitle">우리가 작성한 C언어 코드가 모니터를 벗어나 현실 세계의 전구를 켜는 마법 같은 순간입니다.</div>
+
+        <section>
+            <h2>1. 아두이노(Arduino)란 무엇인가요?</h2>
+            <p>아두이노는 센서나 모터 같은 하드웨어를 쉽게 제어할 수 있도록 만들어진 <strong>초소형 컴퓨터(마이크로컨트롤러)</strong>입니다. 이탈리아에서 학생들이 저렴하고 쉽게 프로그래밍을 배울 수 있도록 개발한 오픈소스 하드웨어 프로젝트죠.</p>
+            <p>C/C++ 언어를 기반으로 작동하기 때문에, 여러분이 앞서 배운 변수, 조건문, 반복문, 함수 등의 지식을 아두이노에서 100% 그대로 활용할 수 있습니다.</p>
+
+            <div class="img-container">
+                
+                <div class="img-caption">▲ 아두이노 우노(Uno) 보드의 구조. 0~13번까지의 디지털 핀과 아날로그 핀, 전원부로 구성되어 있습니다.</div>
+            </div>
+
+            <h3>💡 보드의 핵심 구성 요소</h3>
+            <table>
+                <tr>
+                    <th>명칭</th>
+                    <th>역할</th>
+                </tr>
+                <tr>
+                    <td><strong>디지털 핀 (0~13)</strong></td>
+                    <td>전기를 켜고(ON) 끄는(OFF) 신호를 주고받는 통로입니다. LED나 버튼을 연결합니다.</td>
+                </tr>
+                <tr>
+                    <td><strong>아날로그 핀 (A0~A5)</strong></td>
+                    <td>온도, 빛의 밝기처럼 연속적으로 변하는 미세한 값을 읽어들이는 통로입니다.</td>
+                </tr>
+                <tr>
+                    <td><strong>전원부 (5V, GND)</strong></td>
+                    <td>부품들에 전기를 공급(5V)하고, 전기가 빠져나가는 하수구(GND, 접지) 역할을 합니다.</td>
+                </tr>
+            </table>
+        </section>
+
+        <section>
+            <h2>2. 대장간 준비: 아두이노 IDE 설치 및 연결</h2>
+            <p>아두이노에게 명령을 내리려면 C언어의 Dev-C++처럼 코드를 작성하고 번역해 줄 전용 프로그램이 필요합니다. 이를 <strong>Arduino IDE</strong>라고 부릅니다.</p>
+
+            <div class="img-container">
+                
+                <div class="img-caption">▲ 아두이노 IDE 실행 화면. 체크 표시(확인)와 화살표(업로드) 버튼이 핵심입니다.</div>
+            </div>
+
+            <h3>🛠️ 환경 세팅 3단계</h3>
+            <p><span class="step-badge">1</span> <strong>다운로드:</strong> 아두이노 공식 홈페이지(arduino.cc)에서 Arduino IDE를 다운로드하고 설치합니다.</p>
+            <p><span class="step-badge">2</span> <strong>컴퓨터와 연결:</strong> 파란색 USB 케이블을 이용해 아두이노 보드와 컴퓨터를 연결합니다. 보드에 불이 들어오면 성공입니다.</p>
+            <p><span class="step-badge">3</span> <strong>보드 및 포트 인식:</strong> IDE 상단 메뉴에서 <code>[툴(Tools)] -> [보드] -> Arduino Uno</code>를 선택하고, <code>[툴] -> [포트(Port)]</code>에서 연결된 포트(COM3, COM4 등)를 선택합니다.</p>
+
+            <div class="callout danger">
+                <h4>⚠️ 자주 발생하는 오류: "포트가 안 잡혀요!"</h4>
+                <p>포트 메뉴가 비활성화되어 있다면, USB 케이블이 데이터 전송용이 아닌 단순 충전용 케이블일 확률이 높습니다. 또는 호환 보드(CH340 칩셋)를 사용하는 경우 별도의 드라이버 설치가 필요할 수 있습니다.</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>3. 아두이노 코드의 해부학: setup()과 loop()</h2>
+            <p>C언어에서는 무조건 <code>main()</code> 함수에서 코드가 시작되었죠? 아두이노는 마이크로컨트롤러의 특성상 <strong>두 개의 기본 함수</strong>를 반드시 가져야 합니다. 아두이노에서는 작성한 코드를 <strong>'스케치(Sketch)'</strong>라고 부릅니다.</p>
+
+<pre><code><span class="kw">void</span> <span class="func">setup</span>() {
+    <span class="cmt">// 1. 초기화 구역: 아두이노에 전원이 켜지면 딱 한 번만 실행됩니다.</span>
+    <span class="cmt">// 주로 "몇 번 핀을 사용할 거야"라고 세팅하는 코드를 넣습니다.</span>
+}
+
+<span class="kw">void</span> <span class="func">loop</span>() {
+    <span class="cmt">// 2. 무한 반복 구역: setup()이 끝나면 전원이 꺼질 때까지 계속 반복 실행됩니다.</span>
+    <span class="cmt">// LED를 켜고 끄거나, 센서 값을 계속 읽어오는 메인 코드가 들어갑니다.</span>
+}</code></pre>
+        </section>
+
+        <section>
+            <h2>4. 💡 실습: 첫 번째 마법, LED 깜빡이기 (Blink)</h2>
+            <p>아두이노 보드를 자세히 보면 <strong>13번 핀</strong> 옆에 작게 <code>L</code>이라고 적힌 부품이 있습니다. 이것은 보드 자체에 내장된 LED 전구입니다. 따로 부품을 연결할 필요 없이 이 내장 LED를 깜빡이게 만들어 봅시다.</p>
+
+            <div class="img-container">
+                
+                <div class="img-caption">▲ 아두이노 우노의 내장 LED (L) 위치. 13번 핀과 연결되어 있습니다.</div>
+            </div>
+
+            <p>아래 코드를 아두이노 IDE에 그대로 입력한 뒤, 화면 왼쪽 위의 <strong>'업로드(화살표 ➡ 버튼)'</strong>를 클릭하세요!</p>
+
+<pre><code><span class="kw">void</span> <span class="func">setup</span>() {
+    <span class="cmt">// 13번 핀을 전기를 내보내는 '출력(OUTPUT)' 모드로 설정하겠어!</span>
+    <span class="func">pinMode</span>(<span class="num">13</span>, OUTPUT); 
+}
+
+<span class="kw">void</span> <span class="func">loop</span>() {
+    <span class="func">digitalWrite</span>(<span class="num">13</span>, HIGH);  <span class="cmt">// 13번 핀에 5V 전기를 보내라! (LED 켜짐)</span>
+    <span class="func">delay</span>(<span class="num">1000</span>);             <span class="cmt">// 1000밀리초(1초) 동안 기다려라</span>
+    
+    <span class="func">digitalWrite</span>(<span class="num">13</span>, LOW);   <span class="cmt">// 13번 핀에 전기를 끊어라! 0V (LED 꺼짐)</span>
+    <span class="func">delay</span>(<span class="num">1000</span>);             <span class="cmt">// 1000밀리초(1초) 동안 기다려라</span>
+}</code></pre>
+
+            <h3>🔍 코드 완벽 분석</h3>
+            <ul>
+                <li><strong>pinMode(핀번호, 모드):</strong> 핀을 입력(INPUT)으로 쓸지 출력(OUTPUT)으로 쓸지 정합니다. 불을 켜는 건 에너지를 내보내는 것이니 <code>OUTPUT</code>입니다.</li>
+                <li><strong>digitalWrite(핀번호, 상태):</strong> 핀에 전기를 줍니다. <code>HIGH</code>는 5V 전압(켜기), <code>LOW</code>는 0V 전압(끄기)을 의미합니다. C언어의 1과 0이라고 생각하시면 됩니다.</li>
+                <li><strong>delay(밀리초):</strong> 아두이노를 잠깐 멈추게 하는 함수입니다. 단위가 밀리초(ms)이므로 <strong>1000은 1초</strong>를 의미합니다.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>5. 🎯 창의적 미션: SOS 모스 부호 구조 요청</h2>
+            <p>단순히 깜빡이는 것을 넘어, 시간차(delay)를 조절하여 빛으로 모스 부호(Morse Code)를 보내볼까요? SOS는 <strong>짧게 3번(S), 길게 3번(O), 짧게 3번(S)</strong>으로 이루어져 있습니다.</p>
+
+<pre><code><span class="kw">void</span> <span class="func">setup</span>() {
+    <span class="func">pinMode</span>(<span class="num">13</span>, OUTPUT);
+}
+
+<span class="kw">void</span> <span class="func">loop</span>() {
+    <span class="cmt">// S (짧게 3번)</span>
+    <span class="kw">for</span>(<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">3</span>; i++) {
+        <span class="func">digitalWrite</span>(<span class="num">13</span>, HIGH); <span class="func">delay</span>(<span class="num">200</span>); <span class="cmt">// 0.2초 켜짐</span>
+        <span class="func">digitalWrite</span>(<span class="num">13</span>, LOW);  <span class="func">delay</span>(<span class="num">200</span>); <span class="cmt">// 0.2초 꺼짐</span>
+    }
+    <span class="func">delay</span>(<span class="num">300</span>); <span class="cmt">// 글자 사이 쉬는 시간</span>
+
+    <span class="cmt">// O (길게 3번)</span>
+    <span class="kw">for</span>(<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">3</span>; i++) {
+        <span class="func">digitalWrite</span>(<span class="num">13</span>, HIGH); <span class="func">delay</span>(<span class="num">600</span>); <span class="cmt">// 0.6초 켜짐</span>
+        <span class="func">digitalWrite</span>(<span class="num">13</span>, LOW);  <span class="func">delay</span>(<span class="num">200</span>);
+    }
+    <span class="func">delay</span>(<span class="num">300</span>);
+
+    <span class="cmt">// S (짧게 3번)</span>
+    <span class="kw">for</span>(<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">3</span>; i++) {
+        <span class="func">digitalWrite</span>(<span class="num">13</span>, HIGH); <span class="func">delay</span>(<span class="num">200</span>);
+        <span class="func">digitalWrite</span>(<span class="num">13</span>, LOW);  <span class="func">delay</span>(<span class="num">200</span>);
+    }
+    
+    <span class="func">delay</span>(<span class="num">2000</span>); <span class="cmt">// 한 단어가 끝나고 2초 대기 후 무한 반복!</span>
+}</code></pre>
+
+            <div class="callout">
+                <h4>🎉 C언어 지식의 활용!</h4>
+                <p>SOS 코드를 짤 때 코드를 길게 나열할 수도 있었지만, 우리는 C언어 5장에서 배운 <strong>for 반복문</strong>을 사용했습니다. 이렇게 프로그래밍 지식이 있으면 하드웨어 제어 코드가 훨씬 간결해집니다!</p>
+            </div>
+        </section>
+
+    </main>
+</body>
+</html>
