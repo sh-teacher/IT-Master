@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로젝트 02. 미니 피아노 - 아두이노 마스터 가이드</title>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #f59e0b; --sidebar-bg: #f8fafc; --text-main: #334155; --text-light: #64748b; --code-bg: #1e293b; --tip-bg: #fffbeb; --tip-border: #f59e0b; --border-color: #e2e8f0; --accent-indigo: #6366f1; --accent-pink: #f472b6; }
+        body { margin: 0; font-family: 'Pretendard', sans-serif; color: var(--text-main); display: flex; line-height: 1.6; }
+        
+        /* 사이드바 */
+        .sidebar { width: 300px; height: 100vh; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); position: fixed; overflow-y: auto; padding: 30px 20px; box-sizing: border-box; }
+        .sidebar h2 { font-size: 1.1rem; color: #0f172a; margin-top: 20px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 2px solid var(--primary); }
+        .nav-list { list-style: none; padding: 0; margin: 0; }
+        .nav-list li { margin-bottom: 8px; }
+        .nav-list a { text-decoration: none; color: var(--text-light); display: block; padding: 8px 12px; border-radius: 6px; transition: all 0.2s; font-size: 0.95rem; }
+        .nav-list a:hover { background-color: #e2e8f0; color: #0f172a; }
+        .nav-list a.active { background-color: #fef3c7; color: var(--primary); font-weight: bold; }
+        
+        /* 본문 영역 */
+        .content { margin-left: 300px; padding: 60px 80px; max-width: 1000px; width: 100%; box-sizing: border-box; }
+        .content h1 { font-size: 2.5rem; color: #0f172a; margin-bottom: 10px; }
+        .content .subtitle { font-size: 1.2rem; color: var(--text-light); margin-bottom: 50px; }
+        .content h2 { font-size: 1.8rem; color: var(--primary); margin-top: 50px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .content h3 { font-size: 1.4rem; color: #0f172a; margin-top: 30px; }
+        .content p { font-size: 1.1rem; margin-bottom: 20px; }
+        
+        /* 코드 블록 */
+        pre { background-color: var(--code-bg); color: #f8fafc; padding: 20px; border-radius: 8px; overflow-x: auto; font-family: 'Fira Code', monospace; font-size: 1.05rem; margin: 20px 0; }
+        .kw { color: #f9a8d4; }
+        .func { color: #a7f3d0; }
+        .num { color: #fef08a; }
+        .str { color: #fca5a5; }
+        .cmt { color: #94a3b8; font-style: italic; }
+
+        /* 콜아웃 박스 */
+        .callout { background-color: var(--tip-bg); border-left: 5px solid var(--tip-border); padding: 20px; border-radius: 0 8px 8px 0; margin: 30px 0; }
+        .callout.concept { background-color: #eef2ff; border-left-color: var(--accent-indigo); }
+        .callout h4 { margin: 0 0 10px 0; color: #b45309; font-size: 1.2rem; }
+        .callout.concept h4 { color: var(--accent-indigo); }
+
+        /* 이미지 컨테이너 */
+        .img-container { text-align: center; margin: 40px 0; background: #fff; padding: 30px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .img-caption { margin-top: 15px; font-size: 0.95rem; color: var(--text-light); font-weight: 500; }
+        
+        .parts-list { display: flex; flex-wrap: wrap; gap: 15px; margin: 20px 0; }
+        .part-item { background: #f1f5f9; padding: 10px 20px; border-radius: 30px; font-size: 0.9rem; font-weight: 600; color: #475569; border: 1px solid #e2e8f0; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <h2>🤖 아두이노 기초</h2>
+        <ul class="nav-list">
+            <li><a href="arduino_01_intro.html">이론 과정 전체보기</a></li>
+        </ul>
+
+        <h2>🏆 미니 프로젝트</h2>
+        <ul class="nav-list">
+            <li><a href="project_01_traffic_light.html">01. 3색 신호등 시스템</a></li>
+            <li><a href="project_02_piano.html" class="active">02. 미니 피아노</a></li>
+            <li><a href="project_03_mood_light.html">03. 스마트 무드등</a></li>
+            <li><a href="project_04_alarm.html">04. 레이저 경보기</a></li>
+        </ul>
+    </aside>
+
+    <main class="content">
+        <h1>프로젝트 02: 피에조 부저 미니 피아노 🎹</h1>
+        <div class="subtitle">5개의 버튼을 눌러 아름다운 멜로디를 연주하는 나만의 악기를 제작합니다.</div>
+
+        <section>
+            <h2>1. 프로젝트 원리: 소리는 어떻게 나나요?</h2>
+            <p>우리가 사용할 <strong>피에조 부저(Piezo Buzzer)</strong>는 전기를 주면 내부의 판이 미세하게 떨리면서 소리를 냅니다. 1초에 판이 몇 번 떨리느냐(주파수)에 따라 우리가 듣는 음계가 달라집니다.</p>
+            <ul>
+                <li><strong>도(Do):</strong> 1초에 262번 진동 (262Hz)</li>
+                <li><strong>레(Re):</strong> 1초에 294번 진동 (294Hz)</li>
+                <li><strong>미(Mi):</strong> 1초에 330번 진동 (330Hz)</li>
+            </ul>
+
+            <div class="callout concept">
+                <h4>💡 아두이노의 마법사: tone() 함수</h4>
+                <p>아두이노에는 복잡한 진동 계산 없이 소리를 내주는 <code>tone(핀번호, 주파수)</code> 함수가 내장되어 있습니다. 이 함수를 사용하면 단 한 줄로 피아노 소리를 낼 수 있습니다!</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>2. 회로 구성 (Wiring)</h2>
+            <p>5개의 버튼을 디지털 2번부터 6번 핀까지 차례대로 연결하고, 피에조 부저는 디지털 8번 핀에 연결합니다.</p>
+
+            <div class="img-container">
+                <svg width="100%" max-width="600" height="300" viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="50" y="50" width="500" height="200" rx="10" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2"/>
+                    
+                    <g transform="translate(100, 150)">
+                        <rect x="-15" y="-15" width="30" height="30" rx="5" fill="#1e293b"/>
+                        <circle cx="0" cy="0" r="8" fill="#ef4444"/>
+                        <text x="-10" y="35" fill="#334155" font-size="12" font-weight="bold">D2</text>
+                    </g>
+                    <g transform="translate(160, 150)">
+                        <rect x="-15" y="-15" width="30" height="30" rx="5" fill="#1e293b"/>
+                        <circle cx="0" cy="0" r="8" fill="#f59e0b"/>
+                        <text x="-10" y="35" fill="#334155" font-size="12" font-weight="bold">D3</text>
+                    </g>
+                    <g transform="translate(220, 150)">
+                        <rect x="-15" y="-15" width="30" height="30" rx="5" fill="#1e293b"/>
+                        <circle cx="0" cy="0" r="8" fill="#10b981"/>
+                        <text x="-10" y="35" fill="#334155" font-size="12" font-weight="bold">D4</text>
+                    </g>
+                    <g transform="translate(280, 150)">
+                        <rect x="-15" y="-15" width="30" height="30" rx="5" fill="#1e293b"/>
+                        <circle cx="0" cy="0" r="8" fill="#3b82f6"/>
+                        <text x="-10" y="35" fill="#334155" font-size="12" font-weight="bold">D5</text>
+                    </g>
+                    <g transform="translate(340, 150)">
+                        <rect x="-15" y="-15" width="30" height="30" rx="5" fill="#1e293b"/>
+                        <circle cx="0" cy="0" r="8" fill="#8b5cf6"/>
+                        <text x="-10" y="35" fill="#334155" font-size="12" font-weight="bold">D6</text>
+                    </g>
+
+                    <circle cx="480" cy="120" r="35" fill="#334155"/>
+                    <circle cx="480" cy="120" r="5" fill="#94a3b8"/>
+                    <text x="455" y="175" fill="#334155" font-weight="bold">Piezo (D8)</text>
+
+                    <line x1="50" y1="210" x2="550" y2="210" stroke="#3b82f6" stroke-width="3" stroke-dasharray="5,5"/>
+                    <text x="300" y="240" text-anchor="middle" fill="#3b82f6" font-size="14">모든 버튼과 부저의 한쪽 다리를 GND에 공통 연결하세요.</text>
+                </svg>
+                <div class="img-caption">▲ 피아노 회로도: 버튼 5개와 피에조 부저 1개를 연결합니다.</div>
+            </div>
+
+            <h3>📦 준비물</h3>
+            <div class="parts-list">
+                <span class="part-item">아두이노 우노 x 1</span>
+                <span class="part-item">피에조 부저 x 1</span>
+                <span class="part-item">푸시 버튼 x 5</span>
+                <span class="part-item">점퍼 와이어 다수</span>
+            </div>
+        </section>
+
+        <section>
+            <h2>3. 코드 작성하기: 멜로디 프로그래밍</h2>
+            <p>버튼 5개에 각각 '도, 레, 미, 파, 솔'의 주파수를 매칭합니다. 버튼을 누르면 해당 소리가 나고, 떼면 소리가 멈추도록(noTone) 설계합니다.</p>
+
+<pre><code><span class="cmt">// 1. 음계 주파수 정의 (도, 레, 미, 파, 솔)</span>
+<span class="type">int</span> notes[] = {<span class="num">262</span>, <span class="num">294</span>, <span class="num">330</span>, <span class="num">349</span>, <span class="num">392</span>};
+<span class="type">int</span> speakerPin = <span class="num">8</span>;
+
+<span class="kw">void</span> <span class="func">setup</span>() {
+    <span class="cmt">// 2. 2번~6번 핀을 버튼 입력으로 설정 (내부 풀업 사용)</span>
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num">2</span>; i &lt;= <span class="num">6</span>; i++) {
+        <span class="func">pinMode</span>(i, INPUT_PULLUP);
+    }
+}
+
+<span class="kw">void</span> <span class="func">loop</span>() {
+    <span class="type">bool</span> isPlayed = <span class="kw">false</span>; <span class="cmt">// 현재 소리가 나는 중인지 체크</span>
+
+    <span class="kw">for</span> (<span class="type">int</span> i = <span class="num">0</span>; i &lt; <span class="num">5</span>; i++) {
+        <span class="cmt">// 버튼은 눌리면 LOW(0) 상태가 됩니다.</span>
+        <span class="kw">if</span> (<span class="func">digitalRead</span>(i + <span class="num">2</span>) == LOW) {
+            <span class="func">tone</span>(speakerPin, notes[i]); <span class="cmt">// 해당 음계 소리 내기</span>
+            isPlayed = <span class="kw">true</span>;
+        }
+    }
+
+    <span class="cmt">// 아무 버튼도 눌리지 않았다면 소리 끄기</span>
+    <span class="kw">if</span> (!isPlayed) {
+        <span class="func">noTone</span>(speakerPin);
+    }
+}</code></pre>
+        </section>
+
+        <section>
+            <h2>4. 코드 상세 설명</h2>
+            <ul>
+                <li><strong>notes[] 배열:</strong> C언어 7장에서 배운 배열을 사용해 주파수 값들을 묶어서 관리합니다. 덕분에 <code>notes[0]</code>은 도, <code>notes[1]</code>은 레... 식으로 쉽게 접근할 수 있습니다.</li>
+                <li><strong>INPUT_PULLUP:</strong> 2장에서 배운 대로, 별도의 저항 부품 없이 버튼을 작동시키기 위해 아두이노 내부 저항을 켭니다.</li>
+                <li><strong>noTone():</strong> 소리를 멈추는 함수입니다. 이 함수가 없으면 버튼을 떼어도 마지막 소리가 계속 울리게 됩니다.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>5. 🎯 심화 챌린지: 나만의 작곡가 모드</h2>
+            <p>단순한 피아노를 넘어, 아두이노가 스스로 노래를 부르게 해볼까요? <strong>'작은 별'</strong>이나 <strong>'비행기'</strong>의 멜로디 주파수를 배열에 담고, 특정 버튼을 누르면 노래가 자동으로 재생되도록 기능을 추가해 보세요!</p>
+            <p>힌트: <code>tone(핀, 주파수, 지속시간)</code>을 사용하면 소리의 길이를 조절할 수 있습니다.</p>
+        </section>
+    </main>
+</body>
+</html>

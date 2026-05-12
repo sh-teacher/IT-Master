@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로젝트 03. 스마트 무드등 - 아두이노 마스터 가이드</title>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #f59e0b; --sidebar-bg: #f8fafc; --text-main: #334155; --text-light: #64748b; --code-bg: #1e293b; --tip-bg: #fffbeb; --tip-border: #f59e0b; --border-color: #e2e8f0; --accent-yellow: #fbbf24; --accent-blue: #3b82f6; }
+        body { margin: 0; font-family: 'Pretendard', sans-serif; color: var(--text-main); display: flex; line-height: 1.6; }
+        
+        .sidebar { width: 300px; height: 100vh; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); position: fixed; overflow-y: auto; padding: 30px 20px; box-sizing: border-box; }
+        .sidebar h2 { font-size: 1.1rem; color: #0f172a; margin-top: 20px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 2px solid var(--primary); }
+        .nav-list { list-style: none; padding: 0; margin: 0; }
+        .nav-list li { margin-bottom: 8px; }
+        .nav-list a { text-decoration: none; color: var(--text-light); display: block; padding: 8px 12px; border-radius: 6px; transition: all 0.2s; font-size: 0.95rem; }
+        .nav-list a:hover { background-color: #e2e8f0; color: #0f172a; }
+        .nav-list a.active { background-color: #fef3c7; color: var(--primary); font-weight: bold; }
+        
+        .content { margin-left: 300px; padding: 60px 80px; max-width: 1000px; width: 100%; box-sizing: border-box; }
+        .content h1 { font-size: 2.5rem; color: #0f172a; margin-bottom: 10px; }
+        .content .subtitle { font-size: 1.2rem; color: var(--text-light); margin-bottom: 50px; }
+        .content h2 { font-size: 1.8rem; color: var(--primary); margin-top: 50px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .content h3 { font-size: 1.4rem; color: #0f172a; margin-top: 30px; }
+        .content p { font-size: 1.1rem; margin-bottom: 20px; }
+        
+        pre { background-color: var(--code-bg); color: #f8fafc; padding: 20px; border-radius: 8px; overflow-x: auto; font-family: 'Fira Code', monospace; font-size: 1.05rem; margin: 20px 0; }
+        .kw { color: #f9a8d4; }
+        .func { color: #a7f3d0; }
+        .num { color: #fef08a; }
+        .str { color: #fca5a5; }
+        .cmt { color: #94a3b8; font-style: italic; }
+
+        .callout { background-color: var(--tip-bg); border-left: 5px solid var(--tip-border); padding: 20px; border-radius: 0 8px 8px 0; margin: 30px 0; }
+        .callout.info { background-color: #e0f2fe; border-left-color: var(--accent-blue); }
+        .callout h4 { margin: 0 0 10px 0; color: #b45309; font-size: 1.2rem; }
+        .callout.info h4 { color: var(--accent-blue); }
+
+        .img-container { text-align: center; margin: 40px 0; background: #fff; padding: 30px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .img-caption { margin-top: 15px; font-size: 0.95rem; color: var(--text-light); font-weight: 500; }
+        
+        .parts-list { display: flex; flex-wrap: wrap; gap: 15px; margin: 20px 0; }
+        .part-item { background: #f1f5f9; padding: 10px 20px; border-radius: 30px; font-size: 0.9rem; font-weight: 600; color: #475569; border: 1px solid #e2e8f0; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <h2>🤖 아두이노 기초</h2>
+        <ul class="nav-list">
+            <li><a href="arduino_01_intro.html">이론 과정 전체보기</a></li>
+        </ul>
+
+        <h2>🏆 미니 프로젝트</h2>
+        <ul class="nav-list">
+            <li><a href="project_01_traffic_light.html">01. 3색 신호등 시스템</a></li>
+            <li><a href="project_02_piano.html">02. 미니 피아노</a></li>
+            <li><a href="project_03_mood_light.html" class="active">03. 스마트 무드등</a></li>
+            <li><a href="project_04_alarm.html">04. 레이저 경보기</a></li>
+        </ul>
+    </aside>
+
+    <main class="content">
+        <h1>프로젝트 03: 🌙 감성 스마트 무드등</h1>
+        <div class="subtitle">주변이 어두워지면 스스로 은은한 불빛을 내뿜는 똑똑한 조명을 만들어 봅시다.</div>
+
+        <section>
+            <h2>1. 프로젝트 개요</h2>
+            <p>방 안의 불을 끄면 자동으로 켜지고, 아침이 되어 해가 뜨면 자동으로 꺼지는 스마트 가전의 원리를 배웁니다. 조도 센서로 들어오는 아날로그 값(0~1023)을 LED의 밝기 값(0~255)으로 변환하는 것이 핵심입니다.</p>
+            
+            <h3>📦 준비물</h3>
+            <div class="parts-list">
+                <span class="part-item">아두이노 우노 x 1</span>
+                <span class="part-item">고휘도 LED (흰색/노란색) x 1</span>
+                <span class="part-item">조도 센서 (CDS) x 1</span>
+                <span class="part-item">220Ω 저항 (LED용) x 1</span>
+                <span class="part-item">10kΩ 저항 (센서용) x 1</span>
+                <span class="part-item">브레드보드 & 와이어</span>
+            </div>
+        </section>
+
+        <section>
+            <h2>2. 상세 회로도 (Wiring Diagram)</h2>
+            <p>조도 센서는 빛의 양에 따라 저항이 변하므로, <strong>전압 분배 법칙</strong>을 이용해 10kΩ 저항과 함께 연결해야 합니다. LED는 밝기 조절을 위해 물결표시(~)가 있는 <strong>PWM 9번 핀</strong>에 연결합니다.</p>
+
+            <div class="img-container">
+                <svg width="100%" max-width="700" height="400" viewBox="0 0 700 400" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="50" y="250" width="600" height="120" rx="10" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2"/>
+                    
+                    <rect x="250" y="20" width="200" height="120" rx="5" fill="#1e293b"/>
+                    <text x="350" y="50" fill="white" font-weight="bold" text-anchor="middle">Arduino Uno</text>
+                    <rect x="270" y="100" width="160" height="30" fill="#0d9488" rx="3"/>
+                    <text x="350" y="120" fill="white" font-size="12" text-anchor="middle">~9(PWM) | A0 | 5V | GND</text>
+
+                    <g transform="translate(100, 310)">
+                        <circle cx="0" cy="0" r="12" fill="#fbbf24"/> <line x1="0" y1="12" x2="0" y2="40" stroke="#94a3b8" stroke-width="2"/>
+                        <rect x="-2" y="40" width="4" height="20" fill="#475569"/>
+                    </g>
+                    <path d="M 100 350 L 100 380 L 275 380 L 275 130" fill="none" stroke="#ef4444" stroke-width="2"/>
+                    <text x="210" y="395" fill="#ef4444" font-size="11" font-weight="bold">Pin 9 (PWM)</text>
+
+                    <g transform="translate(500, 310)">
+                        <circle cx="0" cy="0" r="15" fill="#fef08a" stroke="#ca8a04"/>
+                        <path d="M -10 -5 Q 0 -15 10 -5" fill="none" stroke="#ca8a04" stroke-width="2"/>
+                        <line x1="-5" y1="15" x2="-5" y2="40" stroke="#94a3b8" stroke-width="2"/>
+                        <line x1="5" y1="15" x2="5" y2="40" stroke="#94a3b8" stroke-width="2"/>
+                    </g>
+                    <path d="M 495 350 L 495 380 L 350 380 L 350 130" fill="none" stroke="#0d9488" stroke-width="2"/>
+                    <text x="360" y="395" fill="#0d9488" font-size="11" font-weight="bold">A0 (Analog)</text>
+
+                    <path d="M 505 350 L 505 370 L 420 370 L 420 130" fill="none" stroke="#3b82f6" stroke-width="2"/>
+                    <text x="430" y="160" fill="#3b82f6" font-size="11" font-weight="bold">5V / GND</text>
+
+                    <rect x="80" y="315" width="40" height="10" fill="#94a3b8" rx="2"/> <rect x="520" y="315" width="40" height="10" fill="#3b82f6" rx="2"/> </svg>
+                <div class="img-caption">▲ 스마트 무드등 회로도: 조도 센서와 LED의 연결 위치를 확인하세요.</div>
+            </div>
+        </section>
+
+        <section>
+            <h2>3. 코드 작성하기</h2>
+            <p>단순히 켜고 끄는 것이 아니라, <strong>어두울수록 더 밝게 빛나도록</strong> 수식을 반전시키는 것이 포인트입니다.</p>
+
+<pre><code><span class="type">int</span> sensorPin = A0;  <span class="cmt">// 조도 센서 핀</span>
+<span class="type">int</span> ledPin = <span class="num">9</span>;      <span class="cmt">// LED 핀 (PWM 핀)</span>
+
+<span class="kw">void</span> <span class="func">setup</span>() {
+    <span class="func">pinMode</span>(ledPin, OUTPUT);
+    <span class="func">Serial.begin</span>(<span class="num">9600</span>);
+}
+
+<span class="kw">void</span> <span class="func">loop</span>() {
+    <span class="cmt">// 1. 빛의 세기 읽기 (밝을수록 큰 값, 어두울수록 작은 값)</span>
+    <span class="type">int</span> value = <span class="func">analogRead</span>(sensorPin);
+    <span class="func">Serial.print</span>(<span class="str">"Sensor Value: "</span>);
+    <span class="func">Serial.println</span>(value);
+
+    <span class="cmt">// 2. 밝기 계산 (어두울 때 켜져야 하므로 범위를 뒤집습니다)</span>
+    <span class="cmt">// 입력: 300(밝음) ~ 800(어두움) -> 출력: 0(끔) ~ 255(최대 밝기)</span>
+    <span class="cmt">// ※ 실제 센서 값에 따라 300, 800 숫자는 조정이 필요할 수 있습니다.</span>
+    <span class="type">int</span> brightness = <span class="func">map</span>(value, <span class="num">300</span>, <span class="num">800</span>, <span class="num">0</span>, <span class="num">255</span>);
+
+    <span class="cmt">// 3. 값의 범위를 0~255로 제한 (안전을 위해)</span>
+    brightness = <span class="func">constrain</span>(brightness, <span class="num">0</span>, <span class="num">255</span>);
+
+    <span class="cmt">// 4. LED 밝기 조절</span>
+    <span class="func">analogWrite</span>(ledPin, brightness);
+
+    <span class="func">delay</span>(<span class="num">50</span>);
+}</code></pre>
+        </section>
+
+        <section>
+            <h2>4. 핵심 로직 설명</h2>
+            <div class="callout info">
+                <h4>💡 map() 함수의 마법: 거꾸로 변환하기</h4>
+                <p>일반적으로 조도 센서는 어두울수록 낮은 숫자(전압)를 냅니다. 하지만 무드등은 <strong>어두울 때(낮은 숫자) 더 밝게(높은 숫자)</strong> 빛나야 하죠. 그래서 <code>map(value, 300, 800, 255, 0)</code> 처럼 마지막 숫자의 순서를 바꿔주면 '반비례' 효과를 쉽게 낼 수 있습니다.</p>
+            </div>
+            <ul>
+                <li><strong>constrain(값, 최소, 최대):</strong> 계산된 밝기가 0보다 작아지거나 255보다 커지지 않도록 딱 잡아주는 안전장치 함수입니다.</li>
+                <li><strong>PWM 제어:</strong> <code>analogWrite</code>를 통해 전압의 세기를 조절하여 LED의 밝기를 부드럽게 변경합니다.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>5. 🎯 심화 챌린지: 무드등 색깔 바꾸기</h2>
+            <p>단색 LED 대신 <strong>RGB LED</strong>를 사용해 보세요! 주변이 어두워질수록 단순히 밝아지는 것이 아니라, 파란색에서 따뜻한 주황색으로 색상이 변하게 만들면 훨씬 감성적인 무드등이 됩니다.</p>
+        </section>
+    </main>
+</body>
+</html>
