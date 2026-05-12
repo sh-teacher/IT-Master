@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로젝트 01. 3색 신호등 시스템 - 아두이노 마스터 가이드</title>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #f59e0b; --sidebar-bg: #f8fafc; --text-main: #334155; --text-light: #64748b; --code-bg: #1e293b; --tip-bg: #fffbeb; --tip-border: #f59e0b; --border-color: #e2e8f0; --accent-red: #ef4444; --accent-green: #10b981; }
+        body { margin: 0; font-family: 'Pretendard', sans-serif; color: var(--text-main); display: flex; line-height: 1.6; }
+        
+        /* 사이드바 (프로젝트 테마 - 골드/오렌지) */
+        .sidebar { width: 300px; height: 100vh; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); position: fixed; overflow-y: auto; padding: 30px 20px; box-sizing: border-box; }
+        .sidebar h2 { font-size: 1.1rem; color: #0f172a; margin-top: 20px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 2px solid var(--primary); }
+        .nav-list { list-style: none; padding: 0; margin: 0; }
+        .nav-list li { margin-bottom: 8px; }
+        .nav-list a { text-decoration: none; color: var(--text-light); display: block; padding: 8px 12px; border-radius: 6px; transition: all 0.2s; font-size: 0.95rem; }
+        .nav-list a:hover { background-color: #e2e8f0; color: #0f172a; }
+        .nav-list a.active { background-color: #fef3c7; color: var(--primary); font-weight: bold; }
+        
+        /* 본문 영역 */
+        .content { margin-left: 300px; padding: 60px 80px; max-width: 1000px; width: 100%; box-sizing: border-box; }
+        .content h1 { font-size: 2.5rem; color: #0f172a; margin-bottom: 10px; }
+        .content .subtitle { font-size: 1.2rem; color: var(--text-light); margin-bottom: 50px; }
+        .content h2 { font-size: 1.8rem; color: var(--primary); margin-top: 50px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .content h3 { font-size: 1.4rem; color: #0f172a; margin-top: 30px; }
+        .content p { font-size: 1.1rem; margin-bottom: 20px; }
+        
+        /* 코드 블록 */
+        pre { background-color: var(--code-bg); color: #f8fafc; padding: 20px; border-radius: 8px; overflow-x: auto; font-family: 'Fira Code', monospace; font-size: 1.05rem; margin: 20px 0; }
+        .kw { color: #f9a8d4; }
+        .func { color: #a7f3d0; }
+        .num { color: #fef08a; }
+        .str { color: #fca5a5; }
+        .cmt { color: #94a3b8; font-style: italic; }
+
+        /* 콜아웃 박스 */
+        .callout { background-color: var(--tip-bg); border-left: 5px solid var(--tip-border); padding: 20px; border-radius: 0 8px 8px 0; margin: 30px 0; }
+        .callout.info { background-color: #f0fdf4; border-left-color: var(--accent-green); }
+        .callout h4 { margin: 0 0 10px 0; color: #b45309; font-size: 1.2rem; }
+        .callout.info h4 { color: var(--accent-green); }
+
+        /* 이미지 컨테이너 */
+        .img-container { text-align: center; margin: 40px 0; background: #fff; padding: 30px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .img-caption { margin-top: 15px; font-size: 0.95rem; color: var(--text-light); font-weight: 500; }
+        
+        /* 부품 리스트 스타일 */
+        .parts-list { display: flex; flex-wrap: wrap; gap: 15px; margin: 20px 0; }
+        .part-item { background: #f1f5f9; padding: 10px 20px; border-radius: 30px; font-size: 0.9rem; font-weight: 600; color: #475569; border: 1px solid #e2e8f0; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <h2>🤖 아두이노 기초</h2>
+        <ul class="nav-list">
+            <li><a href="arduino_01_intro.html">이론 과정 전체보기</a></li>
+        </ul>
+
+        <h2>🏆 미니 프로젝트</h2>
+        <ul class="nav-list">
+            <li><a href="project_01_traffic_light.html" class="active">01. 3색 신호등 시스템</a></li>
+            <li><a href="project_02_piano.html">02. 미니 피아노</a></li>
+            <li><a href="project_03_mood_light.html">03. 스마트 무드등</a></li>
+            <li><a href="project_04_alarm.html">04. 레이저 경보기</a></li>
+        </ul>
+    </aside>
+
+    <main class="content">
+        <h1>프로젝트 01: 나만의 3색 신호등 시스템 🚥</h1>
+        <div class="subtitle">세 개의 LED를 순차적으로 제어하여 도로 위의 안전을 책임지는 신호등을 만들어 봅시다.</div>
+
+        <section>
+            <h2>1. 프로젝트 개요</h2>
+            <p>이번 프로젝트의 목표는 <strong>빨간색, 노란색, 초록색 LED</strong>를 사용해 실제 교차로의 신호등 체계를 재현하는 것입니다. </p>
+            <p>단순히 불을 켜는 것이 아니라, <strong>C언어의 배열(Array)</strong>을 활용해 수많은 LED 핀번호를 스마트하게 관리하는 고급 기법을 익히게 됩니다.</p>
+
+            <h3>📦 준비물</h3>
+            <div class="parts-list">
+                <span class="part-item">아두이노 우노 x 1</span>
+                <span class="part-item">브레드보드 x 1</span>
+                <span class="part-item">빨강, 노랑, 초록 LED 각 1개</span>
+                <span class="part-item">330Ω 저항 x 3</span>
+                <span class="part-item">점퍼 와이어 다수</span>
+            </div>
+        </section>
+
+        <section>
+            <h2>2. 회로 구성 (Wiring)</h2>
+            <p>각 LED의 긴 다리(+)에는 저항을 연결해 아두이노의 디지털 핀에 꽂고, 짧은 다리(-)는 모두 모아 GND에 연결합니다.</p>
+
+            <div class="img-container">
+                <svg width="100%" max-width="600" height="300" viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="50" y="50" width="500" height="200" rx="10" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2"/>
+                    
+                    <g transform="translate(150, 100)">
+                        <circle cx="0" cy="0" r="15" fill="#ef4444" opacity="0.8"/> <rect x="-2" y="15" width="4" height="30" fill="#94a3b8"/>
+                        <text x="-15" y="-25" fill="#ef4444" font-weight="bold">Pin 12</text>
+                    </g>
+                    <g transform="translate(300, 100)">
+                        <circle cx="0" cy="0" r="15" fill="#f59e0b" opacity="0.8"/> <rect x="-2" y="15" width="4" height="30" fill="#94a3b8"/>
+                        <text x="-15" y="-25" fill="#f59e0b" font-weight="bold">Pin 11</text>
+                    </g>
+                    <g transform="translate(450, 100)">
+                        <circle cx="0" cy="0" r="15" fill="#10b981" opacity="0.8"/> <rect x="-2" y="15" width="4" height="30" fill="#94a3b8"/>
+                        <text x="-15" y="-25" fill="#10b981" font-weight="bold">Pin 10</text>
+                    </g>
+
+                    <line x1="150" y1="145" x2="450" y2="145" stroke="#334155" stroke-width="3"/>
+                    <path d="M 450 145 L 450 180 L 500 180" fill="none" stroke="#334155" stroke-width="3"/>
+                    <text x="510" y="185" fill="#334155" font-weight="bold">GND</text>
+                    
+                    <text x="300" y="270" text-anchor="middle" fill="#64748b" font-size="14">각 LED의 짧은 다리를 모두 GND 라인에 연결하세요.</text>
+                </svg>
+                <div class="img-caption">▲ 신호등 회로 연결 가이드: 12(빨), 11(노), 10(초) 핀을 사용합니다.</div>
+            </div>
+        </section>
+
+        <section>
+            <h2>3. 코드 작성하기 (배열 활용 버전)</h2>
+            <p>변수를 <code>redLED = 12;</code> 처럼 하나씩 만들 수도 있지만, LED가 많아지면 관리가 힘듭니다. **배열과 for문**을 사용해 아주 깔끔하게 코드를 짜보겠습니다.</p>
+
+<pre><code><span class="cmt">// 1. LED 핀 번호를 배열에 담습니다.</span>
+<span class="type">int</span> ledPins[] = {<span class="num">12</span>, <span class="num">11</span>, <span class="num">10</span>}; 
+<span class="type">int</span> ledCount = <span class="num">3</span>;
+
+<span class="kw">void</span> <span class="func">setup</span>() {
+    <span class="cmt">// 2. for문을 사용해 모든 핀을 한 번에 출력으로 설정!</span>
+    <span class="kw">for</span>(<span class="type">int</span> i = <span class="num">0</span>; i &lt; ledCount; i++) {
+        <span class="func">pinMode</span>(ledPins[i], OUTPUT);
+    }
+}
+
+<span class="kw">void</span> <span class="func">loop</span>() {
+    <span class="cmt">// 단계 1: 초록불 켜기 (5초)</span>
+    <span class="func">digitalWrite</span>(<span class="num">10</span>, HIGH);
+    <span class="func">digitalWrite</span>(<span class="num">11</span>, LOW);
+    <span class="func">digitalWrite</span>(<span class="num">12</span>, LOW);
+    <span class="func">delay</span>(<span class="num">5000</span>);
+
+    <span class="cmt">// 단계 2: 노란불 켜기 (주의! 2초)</span>
+    <span class="func">digitalWrite</span>(<span class="num">10</span>, LOW);
+    <span class="func">digitalWrite</span>(<span class="num">11</span>, HIGH);
+    <span class="func">delay</span>(<span class="num">2000</span>);
+
+    <span class="cmt">// 단계 3: 빨간불 켜기 (정지! 5초)</span>
+    <span class="func">digitalWrite</span>(<span class="num">11</span>, LOW);
+    <span class="func">digitalWrite</span>(<span class="num">12</span>, HIGH);
+    <span class="func">delay</span>(<span class="num">5000</span>);
+}</code></pre>
+        </section>
+
+        <section>
+            <h2>4. 💡 업그레이드: 함수(Function) 사용하기</h2>
+            <p>코드에서 <code>digitalWrite</code>가 반복되는 것이 불편해 보이죠? 6장에서 배운 **함수**를 만들어 코드를 더 아름답게 리팩토링해 봅시다.</p>
+
+<pre><code><span class="kw">void</span> <span class="func">setTrafficLight</span>(<span class="type">int</span> r, <span class="type">int</span> y, <span class="type">int</span> g) {
+    <span class="func">digitalWrite</span>(<span class="num">12</span>, r);
+    <span class="func">digitalWrite</span>(<span class="num">11</span>, y);
+    <span class="func">digitalWrite</span>(<span class="num">10</span>, g);
+}
+
+<span class="kw">void</span> <span class="func">loop</span>() {
+    <span class="func">setTrafficLight</span>(LOW, LOW, HIGH);  <span class="cmt">// 초록</span>
+    <span class="func">delay</span>(<span class="num">5000</span>);
+    
+    <span class="func">setTrafficLight</span>(LOW, HIGH, LOW);  <span class="cmt">// 노랑</span>
+    <span class="func">delay</span>(<span class="num">2000</span>);
+    
+    <span class="func">setTrafficLight</span>(HIGH, LOW, LOW);  <span class="cmt">// 빨강</span>
+    <span class="func">delay</span>(<span class="num">5000</span>);
+}</code></pre>
+            <div class="callout info">
+                <h4>✨ 무엇이 좋아졌나요?</h4>
+                <p>이제 <code>loop</code> 함수 안의 코드가 마치 영어 문장처럼 읽힙니다! 가독성이 높아지고, 나중에 핀 번호가 바뀌어도 <code>setTrafficLight</code> 함수 한 곳만 수정하면 되기 때문에 유지보수가 아주 쉬워집니다.</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>5. 🎯 심화 챌린지: 보행자 버튼 추가</h2>
+            <p>실제 길거리에는 보행자가 버튼을 눌렀을 때만 초록불로 바뀌는 신호등이 있죠? 2장에서 배운 <strong>버튼 입력</strong> 기능을 추가하여 **'수동 보행자 신호등'**으로 개조해 보세요!</p>
+            <ul>
+                <li>버튼을 누르지 않으면 계속 빨간불 유지</li>
+                <li>버튼을 누르면 잠시 후 노란불 → 초록불 순서로 변경</li>
+            </ul>
+        </section>
+    </main>
+</body>
+</html>
