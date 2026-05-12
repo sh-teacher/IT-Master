@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>01. Hello World - C언어 마스터 가이드</title>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        /* 기존 디자인 시스템 유지 */
+        :root {
+            --primary: #2563eb;
+            --sidebar-bg: #f8fafc;
+            --text-main: #334155;
+            --text-light: #64748b;
+            --code-bg: #1e293b;
+            --tip-bg: #eff6ff;
+            --tip-border: #60a5fa;
+            --border-color: #e2e8f0;
+            --accent-orange: #f59e0b;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Pretendard', sans-serif;
+            color: var(--text-main);
+            display: flex;
+            line-height: 1.6;
+        }
+
+        /* 사이드바 */
+        .sidebar {
+            width: 280px;
+            height: 100vh;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            position: fixed;
+            overflow-y: auto;
+            padding: 30px 20px;
+            box-sizing: border-box;
+        }
+
+        .sidebar h2 {
+            font-size: 1.2rem;
+            color: #0f172a;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .nav-list { list-style: none; padding: 0; margin: 0; }
+        .nav-list li { margin-bottom: 10px; }
+        .nav-list a {
+            text-decoration: none;
+            color: var(--text-light);
+            display: block;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .nav-list a:hover { background-color: #e2e8f0; color: #0f172a; }
+        .nav-list a.active { background-color: #dbeafe; color: var(--primary); font-weight: bold; }
+
+        /* 본문 */
+        .content {
+            margin-left: 280px;
+            padding: 60px 80px;
+            max-width: 900px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .content h1 { font-size: 2.5rem; color: #0f172a; margin-bottom: 10px; }
+        .content .subtitle { font-size: 1.2rem; color: var(--text-light); margin-bottom: 50px; }
+        .content h2 { font-size: 1.8rem; color: var(--primary); margin-top: 50px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .content h3 { font-size: 1.4rem; color: #0f172a; margin-top: 30px; }
+        .content p { font-size: 1.1rem; margin-bottom: 20px; }
+
+        /* 콜아웃 박스 */
+        .callout {
+            background-color: var(--tip-bg);
+            border-left: 5px solid var(--tip-border);
+            padding: 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 30px 0;
+        }
+        .callout.warning {
+            background-color: #fff7ed;
+            border-left-color: var(--accent-orange);
+        }
+        .callout h4 { margin: 0 0 10px 0; color: var(--primary); font-size: 1.2rem; }
+        .callout.warning h4 { color: #c2410c; }
+
+        /* 코드 블록 */
+        pre {
+            background-color: var(--code-bg);
+            color: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 1.05rem;
+            margin: 20px 0;
+        }
+        .kw { color: #f9a8d4; }
+        .type { color: #818cf8; }
+        .func { color: #a7f3d0; }
+        .str { color: #fca5a5; }
+        .cmt { color: #94a3b8; font-style: italic; }
+
+        /* 이미지 */
+        .img-container { text-align: center; margin: 40px 0; }
+        .img-container img { max-width: 100%; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border: 1px solid var(--border-color); }
+        .img-caption { margin-top: 10px; font-size: 0.95rem; color: var(--text-light); }
+
+        /* 스텝 순서 */
+        .step-badge {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            text-align: center;
+            line-height: 28px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <h2>📚 C언어 목차</h2>
+        <ul class="nav-list">
+            <li><a href="chapter_01_hello.html" class="active">01. Hello World</a></li>
+            <li><a href="#">02. 변수와 자료형</a></li>
+            <li><a href="#">03. 연산자의 세계</a></li>
+            <li><a href="#">04. 조건문 (if, switch)</a></li>
+            <li><a href="#">05. 반복문 (for, while)</a></li>
+            <li><a href="chapter_function.html">06. 함수 (Function)</a></li>
+            <li><a href="#">07. 배열 (Array)</a></li>
+            <li><a href="#">08. 포인터 (Pointer)</a></li>
+        </ul>
+    </aside>
+
+    <main class="content">
+        <h1>01. Hello World: 첫 번째 마법 주문</h1>
+        <div class="subtitle">모든 위대한 프로그래머들의 시작은 이 한 줄의 출력부터였습니다.</div>
+
+        <section>
+            <h2>1. C언어란 무엇인가요?</h2>
+            <p>C언어는 1972년 데니스 리치에 의해 개발된 아주 역사가 깊고 강력한 프로그래밍 언어입니다. 오늘날 우리가 사용하는 Windows, macOS 같은 운영체제나 최첨단 게임 엔진, 심지어 자동차의 임베디드 시스템까지도 C언어로 만들어져 있습니다.</p>
+            <p><strong>"컴퓨터와 대화하는 가장 근본적인 언어"</strong>를 배운다는 자부심을 가지고 시작해 봅시다!</p>
+        </section>
+
+        <section>
+            <h2>2. 대장간 준비하기 (Dev-C++ 설치)</h2>
+            <p>코드를 작성하고 실행해 보려면 <strong>컴파일러(Compiler)</strong>라는 도구가 필요합니다. 우리는 초보자가 가장 쉽고 가볍게 사용할 수 있는 <strong>Dev-C++</strong>을 사용할 것입니다.</p>
+
+            <div class="img-container">
+                
+                <div class="img-caption">▲ C언어 개발의 베스트셀러, Dev-C++</div>
+            </div>
+
+            <h3>🛠 설치 및 설정 단계</h3>
+            <p><span class="step-badge">1</span> <strong>Dev-C++ 다운로드:</strong> 공식 사이트나 소스포지에서 설치 파일을 내려받습니다.</p>
+            <p><span class="step-badge">2</span> <strong>설치 진행:</strong> 언어 설정은 'Korean'을 선택하고, 모든 옵션을 기본값으로 설치합니다.</p>
+            <p><span class="step-badge">3</span> <strong>새 소스 파일 만들기:</strong> 상단 메뉴에서 <code>[File] -> [New] -> [Source File]</code>을 클릭하거나 단축키 <code>Ctrl + N</code>을 누릅니다.</p>
+            
+            <div class="callout warning">
+                <h4>⚠️ 중요한 규칙: 확장자 확인!</h4>
+                <p>파일을 저장할 때 반드시 이름 뒤에 <strong>.c</strong>를 붙여주세요. (예: <code>hello.c</code>) 확장자가 다르면 컴퓨터가 C언어 코드인지 인식하지 못할 수도 있습니다.</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>3. 첫 번째 주문 외우기 (Hello World!)</h2>
+            <p>이제 아래의 코드를 Dev-C++ 화면에 똑같이 타이핑해 보세요. 대문자와 소문자, 그리고 세미콜론(;) 하나까지도 정확해야 합니다.</p>
+
+<pre><code><span class="cmt">#include &lt;stdio.h&gt; </span> <span class="cmt">// 1. 표준 입출력 도구 상자를 가져옵니다.</span>
+
+<span class="type">int</span> <span class="func">main</span>() {       <span class="cmt">// 2. 프로그램의 '시작점'입니다.</span>
+    <span class="func">printf</span>(<span class="str">"Hello, World!\n"</span>); <span class="cmt">// 3. 화면에 문자를 출력합니다.</span>
+    
+    <span class="kw">return</span> <span class="type">0</span>;       <span class="cmt">// 4. 프로그램을 안전하게 종료합니다.</span>
+}</code></pre>
+
+            <h3>🚀 실행 방법</h3>
+            <p>타이핑을 마쳤다면 키보드의 <strong>[F11]</strong> 키를 눌러보세요. 이 키는 '컴파일 후 실행' 단축키입니다. 검은색 화면이 나타나며 <code>Hello, World!</code>가 출력되었다면 당신은 이제 정식으로 프로그래밍의 세계에 입문하신 겁니다!</p>
+        </section>
+
+        <section>
+            <h2>4. 코드의 해부학 (코드 분석)</h2>
+            <p>방금 우리가 쓴 마법 주문의 뜻을 알아볼까요?</p>
+            
+            <div class="img-container">
+                
+                <div class="img-caption">▲ Hello World 코드의 구성 요소</div>
+            </div>
+
+            <ul>
+                <li><strong>#include &lt;stdio.h&gt;:</strong> <code>printf</code> 같은 출력 기능을 사용하기 위해 미리 만들어진 도구 세트(Standard Input Output)를 빌려오는 과정입니다.</li>
+                <li><strong>int main():</strong> 컴퓨터가 프로그램을 실행할 때 "어디서부터 시작할까?"를 찾는 장소입니다. 모든 C 프로그램에는 단 하나의 <code>main</code>이 반드시 있어야 합니다.</li>
+                <li><strong>printf:</strong> Print Formatted의 약자로, 화면에 글자를 찍어내는 함수입니다.</li>
+                <li><strong>\n:</strong> 줄 바꿈을 의미하는 특수 문자입니다. 엔터 키를 치는 것과 같죠.</li>
+                <li><strong>; (세미콜론):</strong> C언어에서 문장의 끝을 알리는 마침표입니다. 아주 중요해요!</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>5. ✨ 창의적 응용 예제: 미래의 나에게 보내는 메시지</h2>
+            <p>단순히 <code>Hello World</code>만 출력하지 말고, 프로그래밍을 배우기 시작한 오늘을 기념하는 나만의 메시지를 출력해 봅시다.</p>
+
+<pre><code><span class="cmt">#include &lt;stdio.h&gt;</span>
+
+<span class="type">int</span> <span class="func">main</span>() {
+    <span class="func">printf</span>(<span class="str">"************************************\n"</span>);
+    <span class="func">printf</span>(<span class="str">"* 안녕? 나는 오늘부터 개발자야!   *\n"</span>);
+    <span class="func">printf</span>(<span class="str">"* 포기하지 말고 함수까지 가보자!  *\n"</span>);
+    <span class="func">printf</span>(<span class="str">"************************************\n"</span>);
+    
+    <span class="kw">return</span> <span class="type">0</span>;
+}</code></pre>
+
+            <div class="callout">
+                <h4>💡 도전 과제</h4>
+                <p><code>printf</code>를 여러 번 사용하여 여러분의 이름, 오늘 날짜, 그리고 공부 목표를 멋진 상자 모양 안에 출력해 보세요!</p>
+            </div>
+        </section>
+    </main>
+
+</body>
+</html>
