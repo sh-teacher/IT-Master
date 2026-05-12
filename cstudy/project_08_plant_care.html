@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로젝트 08. 식물 토양 알리미 - 아두이노 마스터 가이드</title>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #f59e0b; --sidebar-bg: #f8fafc; --text-main: #334155; --text-light: #64748b; --code-bg: #1e293b; --tip-bg: #f0fdf4; --tip-border: #10b981; --border-color: #e2e8f0; --accent-green: #22c55e; --accent-brown: #78350f; --accent-blue: #3b82f6; }
+        body { margin: 0; font-family: 'Pretendard', sans-serif; color: var(--text-main); display: flex; line-height: 1.6; }
+        
+        /* 사이드바 */
+        .sidebar { width: 300px; height: 100vh; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); position: fixed; overflow-y: auto; padding: 30px 20px; box-sizing: border-box; }
+        .sidebar h2 { font-size: 1.1rem; color: #0f172a; margin-top: 20px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 2px solid var(--primary); }
+        .nav-list { list-style: none; padding: 0; margin: 0; }
+        .nav-list li { margin-bottom: 8px; }
+        .nav-list a { text-decoration: none; color: var(--text-light); display: block; padding: 8px 12px; border-radius: 6px; transition: all 0.2s; font-size: 0.95rem; }
+        .nav-list a:hover { background-color: #e2e8f0; color: #0f172a; }
+        .nav-list a.active { background-color: #fef3c7; color: var(--primary); font-weight: bold; }
+        
+        /* 본문 영역 */
+        .content { margin-left: 300px; padding: 60px 80px; max-width: 1000px; width: 100%; box-sizing: border-box; }
+        .content h1 { font-size: 2.5rem; color: #0f172a; margin-bottom: 10px; }
+        .content .subtitle { font-size: 1.2rem; color: var(--text-light); margin-bottom: 50px; }
+        .content h2 { font-size: 1.8rem; color: var(--primary); margin-top: 50px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .content h3 { font-size: 1.4rem; color: #0f172a; margin-top: 30px; }
+        .content p { font-size: 1.1rem; margin-bottom: 20px; }
+        
+        /* 코드 블록 */
+        pre { background-color: var(--code-bg); color: #f8fafc; padding: 20px; border-radius: 8px; overflow-x: auto; font-family: 'Fira Code', monospace; font-size: 1.05rem; margin: 20px 0; }
+        .kw { color: #f9a8d4; }
+        .func { color: #a7f3d0; }
+        .num { color: #fef08a; }
+        .str { color: #fca5a5; }
+        .cmt { color: #94a3b8; font-style: italic; }
+
+        /* 콜아웃 박스 */
+        .callout { background-color: var(--tip-bg); border-left: 5px solid var(--tip-border); padding: 20px; border-radius: 0 8px 8px 0; margin: 30px 0; }
+        .callout.info { background-color: #f0fdf4; border-left-color: var(--accent-green); }
+        .callout h4 { margin: 0 0 10px 0; color: #166534; font-size: 1.2rem; }
+
+        /* 이미지 컨테이너 */
+        .img-container { text-align: center; margin: 40px 0; background: #fff; padding: 30px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .img-caption { margin-top: 15px; font-size: 0.95rem; color: var(--text-light); font-weight: 500; }
+        
+        .parts-list { display: flex; flex-wrap: wrap; gap: 15px; margin: 20px 0; }
+        .part-item { background: #f1f5f9; padding: 10px 20px; border-radius: 30px; font-size: 0.9rem; font-weight: 600; color: #475569; border: 1px solid #e2e8f0; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <h2>🤖 아두이노 기초</h2>
+        <ul class="nav-list">
+            <li><a href="arduino_01_intro.html">이론 과정 전체보기</a></li>
+        </ul>
+
+        <h2>🏆 미니 프로젝트</h2>
+        <ul class="nav-list">
+            <li><a href="project_01_traffic_light.html">01. 3색 신호등 시스템</a></li>
+            <li><a href="project_02_piano.html">02. 미니 피아노</a></li>
+            <li><a href="project_03_mood_light.html">03. 스마트 무드등</a></li>
+            <li><a href="project_04_alarm.html">04. 레이저 경보기</a></li>
+            <li><a href="project_05_lie_detector.html">05. 거짓말 탐지기</a></li>
+            <li><a href="project_06_smart_trash.html">06. 스마트 자동 휴지통</a></li>
+            <li><a href="project_07_auto_fan.html">07. 인공지능 선풍기</a></li>
+            <li><a href="project_08_plant_care.html" class="active">08. 식물 토양 알리미</a></li>
+            <li><a href="project_09_radar.html">09. 초음파 레이더</a></li>
+        </ul>
+    </aside>
+
+    <main class="content">
+        <h1>프로젝트 08: 🌱 식물 집사: 토양 수분 자동 알리미</h1>
+        <div class="subtitle">화분의 갈증을 아두이노가 읽어내어 물 줄 시간을 정확히 알려줍니다.</div>
+
+        <section>
+            <h2>1. 프로젝트 원리: 흙의 저항 측정</h2>
+            <p>흙 속에 물이 많으면 전기가 잘 통하고(저항이 낮음), 물이 적으면 전기가 잘 통하지 않습니다(저항이 높음). **토양 수분 센서**는 두 개의 전극을 흙에 꽂아 그 사이의 전기 흐름을 측정합니다.</p>
+            <p>아두이노는 이 아날로그 값을 읽어 다음과 같이 판단합니다.</p>
+            <ul>
+                <li><strong>값이 클 때 (약 800 이상):</strong> 흙이 아주 말랐음 ➡ 🔴 빨간 LED (물 줘!)</li>
+                <li><strong>값이 중간일 때 (약 400~700):</strong> 적당함 ➡ 🟢 초록 LED (상태 좋음)</li>
+                <li><strong>값이 작을 때 (약 300 이하):</strong> 물이 너무 많음 ➡ 🔵 파란 LED (충분함)</li>
+            </ul>
+
+            <div class="img-container">
+                <svg width="100%" max-width="500" height="250" viewBox="0 0 500 250" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M 150 100 L 350 100 L 320 230 L 180 230 Z" fill="#78350f"/>
+                    <rect x="140" y="80" width="220" height="25" rx="5" fill="#a16207"/>
+                    <path d="M 250 85 Q 220 30 200 60 Q 250 70 250 85" fill="#22c55e"/>
+                    <path d="M 250 85 Q 280 30 300 60 Q 250 70 250 85" fill="#16a34a"/>
+                    <rect x="235" y="60" width="30" height="80" rx="3" fill="#1e293b"/>
+                    <path d="M 240 140 L 240 180 M 260 140 L 260 180" stroke="#94a3b8" stroke-width="4"/>
+                    <path d="M 420 100 Q 440 130 420 150 Q 400 130 420 100" fill="#3b82f6"/>
+                    <text x="420" y="175" fill="#3b82f6" font-weight="bold" text-anchor="middle">Moisture</text>
+                </svg>
+                <div class="img-caption">▲ 작동 원리: 흙 속의 수분함량에 따라 변하는 전기 신호를 감지합니다.</div>
+            </div>
+
+            <h3>📦 준비물</h3>
+            <div class="parts-list">
+                <span class="part-item">아두이노 우노 x 1</span>
+                <span class="part-item">토양 수분 센서 x 1</span>
+                <span class="part-item">LED (빨강, 초록) 각 1개</span>
+                <span class="part-item">피에조 부저 x 1</span>
+                <span class="part-item">220Ω 저항 x 2</span>
+                <span class="part-item">화분 (실제 식물)</span>
+            </div>
+        </section>
+
+        <section>
+            <h2>2. 상세 회로 결선도 (Wiring Diagram)</h2>
+            <p>센서의 신호선은 아날로그 <strong>A0</strong>에 연결합니다. 알림용 LED는 9번, 10번 핀에, 경보용 부저는 8번 핀에 연결합니다.</p>
+
+            <div class="img-container">
+                <svg width="100%" max-width="700" height="350" viewBox="0 0 700 350" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="50" y="230" width="600" height="100" rx="10" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2"/>
+                    <rect x="250" y="20" width="200" height="120" rx="5" fill="#1e293b"/>
+                    <text x="350" y="55" fill="white" font-weight="bold" text-anchor="middle">Arduino Uno</text>
+                    <text x="350" y="100" fill="#a7f3d0" font-size="11" text-anchor="middle">A0 | D8 | D9 | D10 | 5V | GND</text>
+
+                    <rect x="80" y="180" width="40" height="40" fill="#334155" rx="3"/>
+                    <text x="100" y="170" fill="#334155" font-size="11" font-weight="bold" text-anchor="middle">Soil Sensor</text>
+
+                    <circle cx="500" cy="200" r="12" fill="#ef4444"/> <circle cx="540" cy="200" r="12" fill="#22c55e"/> <circle cx="580" cy="200" r="15" fill="#1e293b"/> <path d="M 100 230 L 100 20 L 250 20" fill="none" stroke="#ef4444" stroke-width="2"/> <path d="M 120 230 L 120 100 L 250 100" fill="none" stroke="#0d9488" stroke-width="2"/> <path d="M 500 230 L 500 120 L 450 120" fill="none" stroke="#3b82f6" stroke-width="2"/> </svg>
+                <div class="img-caption">▲ 식물 알리미 결선도: 센서와 출력 부품들을 올바른 핀에 연결하세요.</div>
+            </div>
+        </section>
+
+        <section>
+            <h2>3. 코드 작성하기</h2>
+            <p>공기 중(매우 마름)일 때와 물속(매우 젖음)일 때의 값을 먼저 측정하여 기준값을 정하는 것이 중요합니다.</p>
+
+<pre><code><span class="type">int</span> sensorPin = A0;
+<span class="type">int</span> buzzer = <span class="num">8</span>;
+<span class="type">int</span> redLed = <span class="num">9</span>;
+<span class="type">int</span> greenLed = <span class="num">10</span>;
+
+<span class="kw">void</span> <span class="func">setup</span>() {
+    <span class="func">pinMode</span>(redLed, OUTPUT);
+    <span class="func">pinMode</span>(greenLed, OUTPUT);
+    <span class="func">pinMode</span>(buzzer, OUTPUT);
+    <span class="func">Serial.begin</span>(<span class="num">9600</span>);
+}
+
+<span class="kw">void</span> <span class="func">loop</span>() {
+    <span class="type">int</span> moisture = <span class="func">analogRead</span>(sensorPin);
+    <span class="func">Serial.print</span>(<span class="str">"토양 수분 수치: "</span>);
+    <span class="func">Serial.println</span>(moisture);
+
+    <span class="cmt">// 1. 아주 마른 상태 (기준: 800 이상)</span>
+    <span class="kw">if</span> (moisture &gt; <span class="num">800</span>) {
+        <span class="func">digitalWrite</span>(redLed, HIGH);
+        <span class="func">digitalWrite</span>(greenLed, LOW);
+        <span class="func">tone</span>(buzzer, <span class="num">1000</span>, <span class="num">200</span>); <span class="cmt">// 짧은 경고음</span>
+    } 
+    <span class="cmt">// 2. 적당한 상태 (기준: 400 ~ 800)</span>
+    <span class="kw">else</span> <span class="kw">if</span> (moisture &lt;= <span class="num">800</span> && moisture &gt; <span class="num">400</span>) {
+        <span class="func">digitalWrite</span>(redLed, LOW);
+        <span class="func">digitalWrite</span>(greenLed, HIGH);
+        <span class="func">noTone</span>(buzzer);
+    }
+    <span class="cmt">// 3. 물이 충분한 상태 (기준: 400 미만)</span>
+    <span class="kw">else</span> {
+        <span class="func">digitalWrite</span>(redLed, LOW);
+        <span class="func">digitalWrite</span>(greenLed, HIGH); <span class="cmt">// 혹은 파란 LED가 있다면 파란색</span>
+        <span class="func">noTone</span>(buzzer);
+    }
+
+    <span class="func">delay</span>(<span class="num">1000</span>); <span class="cmt">// 1초마다 확인</span>
+}</code></pre>
+        </section>
+
+        <section>
+            <h2>4. 프로젝트 핵심 팁</h2>
+            <div class="callout info">
+                <h4>💡 센서의 부식 방지하기</h4>
+                <p>저렴한 토양 수분 센서는 전극이 노출되어 있어 흙 속에서 계속 전기가 흐르면 빠르게 부식됩니다. 수명을 늘리려면 <code>loop()</code> 내에서 센서의 전원을 필요할 때만 켜도록(디지털 핀 제어) 코드를 수정해 보세요!</p>
+            </div>
+            <ul>
+                <li><strong>보정(Calibration):</strong> 화분의 종류와 흙의 성분에 따라 수치가 다릅니다. 실제 흙을 만져보며 "이 정도면 물을 줘야겠다" 싶을 때의 수치를 시리얼 모니터로 확인하여 코드의 숫자를 수정하세요.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>5. 🎯 심화 챌린지: 워터 펌프 연결 (자동 급수)</h2>
+            <p>알려주는 것을 넘어, 물이 부족할 때 아두이노가 직접 물을 주게 만들 수 있습니다! 7장에서 배운 <strong>트랜지스터 제어 방식</strong>을 이용해 작은 워터 펌프를 작동시켜 보세요. 진정한 '자동 식물 케어 시스템'이 완성됩니다.</p>
+        </section>
+    </main>
+</body>
+</html>
