@@ -277,6 +277,63 @@
                 <p>명령어에 <code>"notepad"</code>를 넣으면 메모장이 열립니다. 또, <code>"shutdown -s -t 60"</code>을 넣으면 60초 뒤에 컴퓨터가 꺼지는 무시무시한(?) 프로그램도 만들 수 있어요! (취소 명령어는 <code>"shutdown -a"</code>입니다.)</p>
             </div>
         </section>
+        <section>
+            <h2>7. 🕶️ 보너스: 내가 만든 C언어 해킹(?) 프로그램</h2>
+            <p><code>system()</code> 함수의 진짜 재미는 윈도우 콘솔(검은 화면) 자체를 조작하는 데 있습니다. 영화 매트릭스에 나오는 해커처럼 화면을 꾸며보거나, 인터넷 브라우저를 내 마음대로 열어볼까요?</p>
+
+            <h3>💻 예제 1: 매트릭스 해커 모드 발동</h3>
+            <p>화면 색상을 검은 바탕에 초록색 글씨로 바꾸고, 컴퓨터의 모든 폴더 구조를 미친 듯이 빠르게 스크롤하여 보여주는 멋진 연출입니다.</p>
+
+<pre><code><span class="cmt">#include &lt;stdio.h&gt;</span>
+<span class="cmt">#include &lt;stdlib.h&gt;</span>
+
+<span class="type">int</span> <span class="func">main</span>() {
+    <span class="func">printf</span>(<span class="str">"시스템 해킹을 시작합니다...\n"</span>);
+    
+    <span class="cmt">// color 0A: 0은 검은색 배경, A는 밝은 초록색 글자를 의미합니다.</span>
+    <span class="func">system</span>(<span class="str">"color 0A"</span>); 
+    
+    <span class="cmt">// tree: 현재 컴퓨터의 폴더 구조를 나무뿌리처럼 쫙 보여줍니다.</span>
+    <span class="func">system</span>(<span class="str">"tree C:\\"</span>); 
+    
+    <span class="func">printf</span>(<span class="str">"해킹(?) 완료!\n"</span>);
+    
+    <span class="kw">return</span> <span class="type">0</span>;
+}</code></pre>
+
+            <h3>💻 예제 2: 나만의 즐겨찾기 런처 (웹사이트 열기)</h3>
+            <p>C언어 프로그램에서 구글이나 네이버, 깃허브 같은 웹사이트를 바로 띄울 수도 있습니다. <code>start</code> 명령어를 사용하면 됩니다.</p>
+
+<pre><code><span class="cmt">#include &lt;stdio.h&gt;</span>
+<span class="cmt">#include &lt;stdlib.h&gt;</span>
+
+<span class="type">int</span> <span class="func">main</span>() {
+    <span class="type">int</span> choice;
+
+    <span class="func">printf</span>(<span class="str">"🌐 어디로 이동할까요?\n"</span>);
+    <span class="func">printf</span>(<span class="str">"1. 구글\n2. 네이버\n3. 내 깃허브 블로그\n"</span>);
+    <span class="func">printf</span>(<span class="str">"입력: "</span>);
+    <span class="func">scanf</span>(<span class="str">"%d"</span>, &choice);
+
+    <span class="kw">if</span> (choice == <span class="type">1</span>) {
+        <span class="func">system</span>(<span class="str">"start https://www.google.com"</span>);
+    } <span class="kw">else</span> <span class="kw">if</span> (choice == <span class="type">2</span>) {
+        <span class="func">system</span>(<span class="str">"start https://www.naver.com"</span>);
+    } <span class="kw">else</span> <span class="kw">if</span> (choice == <span class="type">3</span>) {
+        <span class="cmt">// 본인의 깃허브 주소로 바꿔보세요!</span>
+        <span class="func">system</span>(<span class="str">"start https://github.com"</span>);
+    } <span class="kw">else</span> {
+        <span class="func">printf</span>(<span class="str">"잘못된 입력입니다.\n"</span>);
+    }
+
+    <span class="kw">return</span> <span class="type">0</span>;
+}</code></pre>
+
+            <div class="callout">
+                <h4>🚀 이 코드를 응용하면?</h4>
+                <p>친구에게 이 프로그램을 만들어주고, 번호를 누르면 깜짝 놀랄만한 <strong>'재미있는 유튜브 영상(Rickroll 등)'</strong>이 자동으로 틀어지게 하는 장난도 칠 수 있겠죠?</p>
+            </div>
+        </section>
     </main>
 
 </body>
