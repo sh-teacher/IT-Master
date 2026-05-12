@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>06. 움직임 만들기 - 아두이노 마스터 가이드</title>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #0d9488; --sidebar-bg: #f8fafc; --text-main: #334155; --text-light: #64748b; --code-bg: #1e293b; --tip-bg: #f0fdf4; --tip-border: #10b981; --border-color: #e2e8f0; --accent-red: #ef4444; --accent-blue: #3b82f6; --accent-purple: #8b5cf6; --accent-orange: #f59e0b; }
+        body { margin: 0; font-family: 'Pretendard', sans-serif; color: var(--text-main); display: flex; line-height: 1.6; }
+        
+        /* 사이드바 */
+        .sidebar { width: 300px; height: 100vh; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); position: fixed; overflow-y: auto; padding: 30px 20px; box-sizing: border-box; }
+        .sidebar h2 { font-size: 1.1rem; color: #0f172a; margin-top: 20px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 2px solid var(--primary); }
+        .nav-list { list-style: none; padding: 0; margin: 0; }
+        .nav-list li { margin-bottom: 8px; }
+        .nav-list a { text-decoration: none; color: var(--text-light); display: block; padding: 8px 12px; border-radius: 6px; transition: all 0.2s; font-size: 0.95rem; }
+        .nav-list a:hover { background-color: #e2e8f0; color: #0f172a; }
+        .nav-list a.active { background-color: #ccfbf1; color: var(--primary); font-weight: bold; }
+        
+        /* 본문 영역 */
+        .content { margin-left: 300px; padding: 60px 80px; max-width: 1000px; width: 100%; box-sizing: border-box; }
+        .content h1 { font-size: 2.5rem; color: #0f172a; margin-bottom: 10px; }
+        .content .subtitle { font-size: 1.2rem; color: var(--text-light); margin-bottom: 50px; }
+        .content h2 { font-size: 1.8rem; color: var(--primary); margin-top: 50px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .content h3 { font-size: 1.4rem; color: #0f172a; margin-top: 30px; }
+        .content p { font-size: 1.1rem; margin-bottom: 20px; }
+        
+        /* 코드 블록 */
+        pre { background-color: var(--code-bg); color: #f8fafc; padding: 20px; border-radius: 8px; overflow-x: auto; font-family: 'Fira Code', monospace; font-size: 1.05rem; margin: 20px 0; }
+        .kw { color: #f9a8d4; }
+        .func { color: #a7f3d0; }
+        .num { color: #fef08a; }
+        .str { color: #fca5a5; }
+        .cmt { color: #94a3b8; font-style: italic; }
+
+        /* 콜아웃 박스 */
+        .callout { background-color: var(--tip-bg); border-left: 5px solid var(--tip-border); padding: 20px; border-radius: 0 8px 8px 0; margin: 30px 0; }
+        .callout.danger { background-color: #fef2f2; border-left-color: var(--accent-red); }
+        .callout.concept { background-color: #f5f3ff; border-left-color: var(--accent-purple); }
+        .callout.info { background-color: #fffbeb; border-left-color: var(--accent-orange); }
+        .callout h4 { margin: 0 0 10px 0; color: var(--primary); font-size: 1.2rem; }
+        .callout.danger h4 { color: var(--accent-red); }
+        .callout.concept h4 { color: var(--accent-purple); }
+        .callout.info h4 { color: var(--accent-orange); }
+
+        /* 이미지 컨테이너 */
+        .img-container { text-align: center; margin: 40px 0; background: #fff; padding: 30px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .img-caption { margin-top: 15px; font-size: 0.95rem; color: var(--text-light); font-weight: 500; }
+        
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; }
+        th, td { border: 1px solid var(--border-color); padding: 12px; text-align: left; }
+        th { background-color: var(--sidebar-bg); color: var(--primary); }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <h2>💻 C언어 기초</h2>
+        <ul class="nav-list">
+            <li><a href="index.html">C언어 과정 홈</a></li>
+        </ul>
+
+        <h2>🤖 아두이노 제어</h2>
+        <ul class="nav-list">
+            <li><a href="arduino_01_intro.html">01. 아두이노의 세계로</a></li>
+            <li><a href="arduino_02_digital.html">02. 디지털 입출력</a></li>
+            <li><a href="arduino_03_analog.html">03. 아날로그의 이해</a></li>
+            <li><a href="arduino_04_serial.html">04. 시리얼 통신</a></li>
+            <li><a href="arduino_05_sensor.html">05. 감각 불어넣기</a></li>
+            <li><a href="arduino_06_motor.html" class="active">06. 움직임 만들기</a></li>
+        </ul>
+        
+        <h2>🏆 미니 프로젝트</h2>
+        <ul class="nav-list">
+            <li><a href="project_01_traffic_light.html">01. 3색 신호등 시스템</a></li>
+        </ul>
+    </aside>
+
+    <main class="content">
+        <h1>06. 움직임 만들기: 서보모터 제어</h1>
+        <div class="subtitle">소프트웨어의 논리가 물리적인 세상의 움직임으로 변하는 짜릿한 순간입니다.</div>
+
+        <section>
+            <h2>1. DC 모터 vs 서보 모터(Servo Motor)</h2>
+            <p>미니카에 들어가는 모터처럼 전기를 주면 윙~ 하고 무한히 도는 것을 <strong>DC 모터</strong>라고 합니다. 반면, <strong>서보 모터</strong>는 내가 원하는 <strong>'각도'</strong>를 딱 지정하면 그 위치까지만 회전하고 멈추는 아주 똑똑한 모터입니다. 로봇 팔의 관절이나 자동문 등에 주로 쓰이죠.</p>
+
+            <div class="img-container">
+                <svg width="100%" max-width="500" height="220" viewBox="0 0 500 220" xmlns="http://www.w3.org/2000/svg" style="display: block; margin: 0 auto;">
+                    <path d="M 100 180 A 150 150 0 0 1 400 180" fill="none" stroke="#e2e8f0" stroke-width="40"/>
+                    <path d="M 100 180 A 150 150 0 0 1 250 30" fill="none" stroke="#0d9488" stroke-width="40"/>
+                    
+                    <text x="70" y="185" fill="#334155" font-weight="bold">0°</text>
+                    <text x="240" y="20" fill="#334155" font-weight="bold">90°</text>
+                    <text x="420" y="185" fill="#334155" font-weight="bold">180°</text>
+
+                    <rect x="210" y="160" width="80" height="50" fill="#1e293b" rx="5"/>
+                    <circle cx="250" cy="180" r="15" fill="#94a3b8"/>
+                    
+                    <path d="M 250 180 L 250 50 L 255 50 L 255 180 Z" fill="#ef4444"/>
+                    <circle cx="250" cy="180" r="5" fill="#334155"/>
+
+                    <path d="M 170 120 A 80 80 0 0 1 220 100" fill="none" stroke="#f59e0b" stroke-width="3"/>
+                    <polygon points="220,100 210,95 215,108" fill="#f59e0b"/>
+                </svg>
+                <div class="img-caption">▲ 서보 모터는 보통 0도에서 180도 사이를 우리가 지정한 각도로 정확하게 움직입니다.</div>
+            </div>
+        </section>
+
+        <section>
+            <h2>2. 서보모터 연결하기: 3가닥의 비밀</h2>
+            <p>일반 모터는 선이 2개(+, -)뿐이지만, 서보모터는 <strong>제어선(Signal)</strong>이 하나 더 있어서 총 3개의 선을 가집니다. 색깔을 잘 보고 아두이노에 연결해야 합니다.</p>
+
+            <table>
+                <tr>
+                    <th>선 색상 (제조사마다 다를 수 있음)</th>
+                    <th>역할</th>
+                    <th>아두이노 연결 핀</th>
+                </tr>
+                <tr>
+                    <td>🟤 <strong>갈색</strong> 또는 <strong>검은색</strong></td>
+                    <td>GND (전기가 빠져나가는 곳)</td>
+                    <td><strong>GND</strong></td>
+                </tr>
+                <tr>
+                    <td>🔴 <strong>빨간색</strong></td>
+                    <td>VCC (5V 전원 공급)</td>
+                    <td><strong>5V</strong></td>
+                </tr>
+                <tr>
+                    <td>🟠 <strong>주황색</strong> 또는 <strong>노란색</strong></td>
+                    <td>Signal (각도를 명령받는 신호선)</td>
+                    <td><strong>디지털 PWM 핀 (예: 9번 핀)</strong></td>
+                </tr>
+            </table>
+
+            <div class="callout concept">
+                <h4>💡 왜 PWM 핀(~ 표시)에 연결하나요?</h4>
+                <p>3장에서 배운 PWM 기억하시나요? 서보모터는 내부적으로 이 PWM 신호(펄스의 폭)를 감지하여 자신의 각도를 결정합니다. 따라서 <strong>~9, ~10</strong> 같은 물결무늬 핀에 꽂아야 정상 작동합니다.</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>3. 라이브러리(Library): 마법의 주문서</h2>
+            <p>PWM 신호로 각도를 제어하는 코드를 우리가 직접 처음부터 다 짜려면 엄청나게 복잡한 C언어 코드가 필요합니다. 다행히 전 세계의 똑똑한 개발자들이 <strong>'서보모터를 쉽게 다루는 코드 모음집'</strong>을 미리 만들어 두었습니다.</p>
+            <p>이러한 코드 모음집을 <strong>'라이브러리(Library)'</strong>라고 부르며, 코드 맨 윗줄에 <code>#include</code>라는 명령어로 불러와서 사용합니다.</p>
+
+            <h3>💡 실습 1: 서보모터 와이퍼 만들기 (0도 ➡ 180도)</h3>
+<pre><code><span class="cmt">// 1. 서보모터 라이브러리 불러오기 (마법 주문서 장착!)</span>
+<span class="kw">#include</span> <span class="str">&lt;Servo.h&gt;</span>
+
+<span class="cmt">// 2. 서보모터를 조종할 객체(리모컨) 만들기</span>
+<span class="type">Servo</span> myServo;  
+
+<span class="kw">void</span> <span class="func">setup</span>() {
+    <span class="cmt">// 3. 서보모터의 신호선(주황선)이 아두이노 9번 핀에 연결되었다고 알려줌</span>
+    myServo.<span class="func">attach</span>(<span class="num">9</span>); 
+}
+
+<span class="kw">void</span> <span class="func">loop</span>() {
+    <span class="cmt">// 0도 방향으로 이동!</span>
+    myServo.<span class="func">write</span>(<span class="num">0</span>);      
+    <span class="func">delay</span>(<span class="num">1000</span>); <span class="cmt">// 모터가 돌아갈 시간을 1초 줍니다.</span>
+    
+    <span class="cmt">// 90도 (정면) 방향으로 이동!</span>
+    myServo.<span class="func">write</span>(<span class="num">90</span>);     
+    <span class="func">delay</span>(<span class="num">1000</span>);
+    
+    <span class="cmt">// 180도 방향으로 이동!</span>
+    myServo.<span class="func">write</span>(<span class="num">180</span>);    
+    <span class="func">delay</span>(<span class="num">1000</span>);
+}</code></pre>
+            
+            <div class="callout danger">
+                <h4>⚠️ 모터가 돌아갈 '시간'을 꼭 주세요!</h4>
+                <p>아두이노의 명령 속도는 빛의 속도와 같지만, 물리적인 모터가 움직이는 데는 시간이 걸립니다. <code>myServo.write(180);</code> 명령 직후에 <code>delay()</code> 없이 바로 다음 각도를 명령하면, 모터가 목적지에 도달하기도 전에 다른 명령을 받아 바들바들 떨게 됩니다.</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>4. 🎯 심화 미션: 다이얼로 조종하는 로봇 팔 (가변저항 + 서보)</h2>
+            <p>3장에서 배운 <strong>가변저항(다이얼)</strong>과 오늘 배운 <strong>서보모터</strong>를 결합해 봅시다! 다이얼을 돌리는 각도 그대로 서보모터가 똑같이 따라 돌게 만드는 아주 실용적이고 멋진 예제입니다.</p>
+            <p>이때, 0~1023의 가변저항 값을 0~180의 각도로 찰떡같이 바꿔주는 <strong><code>map()</code></strong> 함수가 또다시 활약합니다.</p>
+
+<pre><code><span class="kw">#include</span> <span class="str">&lt;Servo.h&gt;</span>
+
+<span class="type">Servo</span> myServo;
+<span class="type">int</span> potPin = A0; <span class="cmt">// 가변저항은 아날로그 A0핀에 연결</span>
+
+<span class="kw">void</span> <span class="func">setup</span>() {
+    myServo.<span class="func">attach</span>(<span class="num">9</span>); <span class="cmt">// 서보는 9번 핀에 연결</span>
+}
+
+<span class="kw">void</span> <span class="func">loop</span>() {
+    <span class="cmt">// 1. 가변저항 손잡이를 얼마나 돌렸는지 읽어옴 (0 ~ 1023)</span>
+    <span class="type">int</span> potValue = <span class="func">analogRead</span>(potPin);
+    
+    <span class="cmt">// 2. 읽어온 값을 모터의 각도(0 ~ 180) 비율로 변환!</span>
+    <span class="type">int</span> angle = <span class="func">map</span>(potValue, <span class="num">0</span>, <span class="num">1023</span>, <span class="num">0</span>, <span class="num">180</span>);
+    
+    <span class="cmt">// 3. 변환된 각도(angle)로 모터를 회전시킴</span>
+    myServo.<span class="func">write</span>(angle);
+    
+    <span class="func">delay</span>(<span class="num">15</span>); <span class="cmt">// 모터가 부드럽게 따라오도록 아주 약간의 딜레이만 줍니다.</span>
+}</code></pre>
+            
+            <div class="callout info">
+                <h4>🎉 축하합니다! 아두이노의 핵심을 모두 마스터하셨습니다!</h4>
+                <p>입출력, 아날로그, 센서, 모터까지! 이제 이 조각들을 퍼즐처럼 조립하기만 하면 상상하는 거의 모든 것을 만들 수 있습니다. 다음 장부터는 배운 것들을 융합하여 만드는 <strong>'실전 미니 프로젝트'</strong>가 시작됩니다!</p>
+            </div>
+        </section>
+
+    </main>
+</body>
+</html>
