@@ -4,7 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>C언어 마스터 가이드</title>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* 메인 페이지 전용 추가 스타일 (가독성 향상) */
+        .toc-list li {
+            margin-bottom: 12px;
+            padding: 10px;
+            border-bottom: 1px solid #f1f5f9;
+            transition: all 0.2s;
+        }
+        .toc-list li:hover {
+            background-color: #f8fafc;
+            transform: translateX(10px);
+        }
+        .toc-list a {
+            display: block;
+            text-decoration: none;
+            color: #334155;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        .toc-list a span {
+            color: #2563eb;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -15,14 +41,16 @@
 
         <main>
             <section class="toc-section">
-                <h2>📚 목차</h2>
-                <ul class="toc-list">
-                    <li><a href="#">01. C언어의 시작 (Hello World)</a></li>
-                    <li><a href="#">02. 변수와 자료형</a></li>
-                    <li><a href="#">03. 연산자 (Operators)</a></li>
-                    <li><a href="#">04. 제어문 (조건문과 반복문)</a></li>
-                    <li><a href="#">05. 배열 (Array)</a></li>
-                    <li><a href="chapter09_function.html">06. 함수 (Function) 이해하기</a></li>
+                <h2>📚 교육 과정 목차</h2>
+                <ul class="toc-list" style="list-style: none; padding: 0;">
+                    <li><a href="chapter_01_hello.html"><span>01.</span> Hello World (환경 구축 및 출력)</a></li>
+                    <li><a href="chapter_02_variable.html"><span>02.</span> 변수와 자료형 (데이터 저장)</a></li>
+                    <li><a href="chapter_03_operator.html"><span>03.</span> 연산자의 세계 (데이터 계산)</a></li>
+                    <li><a href="chapter_04_condition.html"><span>04.</span> 조건문 (if, switch)</a></li>
+                    <li><a href="chapter_05_loop.html"><span>05.</span> 반복문 (for, while)</a></li>
+                    <li><a href="chapter_06_function.html"><span>06.</span> 함수 (Function) 이해하기</a></li>
+                    <li><a href="chapter_07_array.html"><span>07.</span> 배열 (Array) 기초</a></li>
+                    <li><a href="chapter_08_pointer.html"><span>08.</span> 포인터 (Pointer) 입문</a></li>
                 </ul>
             </section>
         </main>
