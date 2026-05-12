@@ -27,23 +27,16 @@
         }
         
         /* C언어 파트 넘버링 색상 (블루) */
-        .toc-list.c-list a span {
-            color: #2563eb;
-            margin-right: 10px;
-            font-weight: bold;
-        }
+        .toc-list.c-list a span { color: #2563eb; margin-right: 10px; font-weight: bold; }
 
-        /* 아두이노 파트 넘버링 색상 (청록색) */
-        .toc-list.arduino-list a span {
-            color: #0d9488; 
-            margin-right: 10px;
-            font-weight: bold;
-        }
+        /* 아두이노 이론 파트 넘버링 색상 (청록색) */
+        .toc-list.arduino-list a span { color: #0d9488; margin-right: 10px; font-weight: bold; }
+
+        /* 아두이노 프로젝트 파트 넘버링 색상 (오렌지/골드) */
+        .toc-list.project-list a span { color: #f59e0b; margin-right: 10px; font-weight: bold; }
 
         /* 섹션 간격 띄우기 */
-        .course-section {
-            margin-bottom: 50px;
-        }
+        .course-section { margin-bottom: 50px; }
     </style>
 </head>
 <body>
@@ -63,21 +56,36 @@
                     <li><a href="chapter_04_condition.html"><span>04.</span> 조건문 (if, switch)</a></li>
                     <li><a href="chapter_05_loop.html"><span>05.</span> 반복문 (for, while)</a></li>
                     <li><a href="chapter_06_function.html"><span>06.</span> 함수 (Function) 이해하기</a></li>
-                    <li><a href="chapter_07_array.html"><span>07.</span> 배열 (Array) 기초</a></li>
+                    <li><a href="chapter_07_array.html"><span>07.</span> 배열 (Array) 기초와 심화</a></li>
                     <li><a href="chapter_08_pointer.html"><span>08.</span> 포인터 (Pointer) 입문</a></li>
                 </ul>
             </section>
 
             <section class="course-section">
-                <h2>🤖 2단계: 아두이노(Arduino) 응용 과정</h2>
+                <h2>🤖 2단계: 아두이노(Arduino) 기초 제어</h2>
                 <ul class="toc-list arduino-list" style="list-style: none; padding: 0;">
                     <li><a href="arduino_01_intro.html"><span>01.</span> 아두이노의 세계로 (LED 깜빡이기)</a></li>
                     <li><a href="arduino_02_digital.html"><span>02.</span> 디지털 입출력 (버튼으로 LED 제어하기)</a></li>
                     <li><a href="arduino_03_analog.html"><span>03.</span> 아날로그의 이해 (가변저항과 PWM 빛 조절)</a></li>
-                    <li><a href="arduino_04_serial.html"><span>04.</span> 시리얼 통신 (센서값을 컴퓨터로 확인하기)</a></li>
-                    <li><a href="arduino_05_sensor.html"><span>05.</span> 감각 불어넣기 (초음파 센서로 거리 재기)</a></li>
-                    <li><a href="arduino_06_motor.html"><span>06.</span> 움직임 만들기 (서보모터 제어하기)</a></li>
-                    <li><a href="arduino_07_project.html"><span>07.</span> 🏆 미니 프로젝트 (스마트 자동 휴지통 만들기)</a></li>
+                    <li><a href="arduino_04_serial.html"><span>04.</span> 시리얼 통신 (컴퓨터와 대화하기)</a></li>
+                    <li><a href="arduino_05_sensor.html"><span>05.</span> 감각 불어넣기 (초음파, 조도 센서)</a></li>
+                    <li><a href="arduino_06_motor.html"><span>06.</span> 움직임 만들기 (서보모터와 DC모터)</a></li>
+                </ul>
+            </section>
+
+            <section class="course-section">
+                <h2>🏆 3단계: 실전 미니 프로젝트 10선</h2>
+                <ul class="toc-list project-list" style="list-style: none; padding: 0;">
+                    <li><a href="project_01_traffic_light.html"><span>01.</span> [프로젝트] 🚥 나만의 3색 신호등 시스템</a></li>
+                    <li><a href="project_02_piano.html"><span>02.</span> [프로젝트] 🎹 피에조 부저로 만드는 미니 피아노</a></li>
+                    <li><a href="project_03_mood_light.html"><span>03.</span> [프로젝트] 🌙 어두워지면 켜지는 스마트 무드등</a></li>
+                    <li><a href="project_04_alarm.html"><span>04.</span> [프로젝트] 🚨 꼼짝마! 레이저 도둑 경보기</a></li>
+                    <li><a href="project_05_lie_detector.html"><span>05.</span> [프로젝트] 🤥 찌릿찌릿 핑거 거짓말 탐지기</a></li>
+                    <li><a href="project_06_smart_trash.html"><span>06.</span> [프로젝트] 🗑️ 스르륵 열리는 스마트 자동 휴지통</a></li>
+                    <li><a href="project_07_auto_fan.html"><span>07.</span> [프로젝트] 🌬️ 온도에 따라 속도가 변하는 인공지능 선풍기</a></li>
+                    <li><a href="project_08_plant_care.html"><span>08.</span> [프로젝트] 🌱 식물 집사: 토양 수분 자동 알리미</a></li>
+                    <li><a href="project_09_radar.html"><span>09.</span> [프로젝트] 📡 장애물을 감지하는 초음파 레이더</a></li>
+                    <li><a href="project_10_rc_car.html"><span>10.</span> [프로젝트] 🏎️ 스마트폰으로 조종하는 블루투스 RC카</a></li>
                 </ul>
             </section>
         </main>
