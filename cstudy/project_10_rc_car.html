@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로젝트 10. 블루투스 RC카 - 아두이노 마스터 가이드</title>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #f59e0b; --sidebar-bg: #f8fafc; --text-main: #334155; --text-light: #64748b; --code-bg: #1e293b; --tip-bg: #fff7ed; --tip-border: #f59e0b; --border-color: #e2e8f0; --accent-blue: #3b82f6; --accent-red: #ef4444; }
+        body { margin: 0; font-family: 'Pretendard', sans-serif; color: var(--text-main); display: flex; line-height: 1.6; }
+        
+        /* 사이드바 */
+        .sidebar { width: 300px; height: 100vh; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); position: fixed; overflow-y: auto; padding: 30px 20px; box-sizing: border-box; }
+        .sidebar h2 { font-size: 1.1rem; color: #0f172a; margin-top: 20px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 2px solid var(--primary); }
+        .nav-list { list-style: none; padding: 0; margin: 0; }
+        .nav-list li { margin-bottom: 8px; }
+        .nav-list a { text-decoration: none; color: var(--text-light); display: block; padding: 8px 12px; border-radius: 6px; transition: all 0.2s; font-size: 0.95rem; }
+        .nav-list a:hover { background-color: #e2e8f0; color: #0f172a; }
+        .nav-list a.active { background-color: #fef3c7; color: var(--primary); font-weight: bold; }
+        
+        /* 본문 영역 */
+        .content { margin-left: 300px; padding: 60px 80px; max-width: 1000px; width: 100%; box-sizing: border-box; }
+        .content h1 { font-size: 2.5rem; color: #0f172a; margin-bottom: 10px; }
+        .content .subtitle { font-size: 1.2rem; color: var(--text-light); margin-bottom: 50px; }
+        .content h2 { font-size: 1.8rem; color: var(--primary); margin-top: 50px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .content h3 { font-size: 1.4rem; color: #0f172a; margin-top: 30px; }
+        .content p { font-size: 1.1rem; margin-bottom: 20px; }
+        
+        /* 코드 블록 */
+        pre { background-color: var(--code-bg); color: #f8fafc; padding: 20px; border-radius: 8px; overflow-x: auto; font-family: 'Fira Code', monospace; font-size: 1.05rem; margin: 20px 0; }
+        .kw { color: #f9a8d4; }
+        .func { color: #a7f3d0; }
+        .num { color: #fef08a; }
+        .str { color: #fca5a5; }
+        .cmt { color: #94a3b8; font-style: italic; }
+
+        /* 콜아웃 박스 */
+        .callout { background-color: var(--tip-bg); border-left: 5px solid var(--tip-border); padding: 20px; border-radius: 0 8px 8px 0; margin: 30px 0; }
+        .callout.danger { background-color: #fef2f2; border-left-color: var(--accent-red); }
+        .callout h4 { margin: 0 0 10px 0; color: #9a3412; font-size: 1.2rem; }
+
+        /* 이미지 컨테이너 */
+        .img-container { text-align: center; margin: 40px 0; background: #fff; padding: 30px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .img-caption { margin-top: 15px; font-size: 0.95rem; color: var(--text-light); font-weight: 500; }
+        
+        .parts-list { display: flex; flex-wrap: wrap; gap: 15px; margin: 20px 0; }
+        .part-item { background: #f1f5f9; padding: 10px 20px; border-radius: 30px; font-size: 0.9rem; font-weight: 600; color: #475569; border: 1px solid #e2e8f0; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <h2>🤖 아두이노 기초</h2>
+        <ul class="nav-list">
+            <li><a href="arduino_01_intro.html">이론 과정 전체보기</a></li>
+        </ul>
+
+        <h2>🏆 미니 프로젝트</h2>
+        <ul class="nav-list">
+            <li><a href="project_01_traffic_light.html">01. 3색 신호등 시스템</a></li>
+            <li><a href="project_06_smart_trash.html">06. 스마트 자동 휴지통</a></li>
+            <li><a href="project_09_radar.html">09. 초음파 레이더</a></li>
+            <li><a href="project_10_rc_car.html" class="active">10. 블루투스 RC카</a></li>
+        </ul>
+    </aside>
+
+    <main class="content">
+        <h1>프로젝트 10: 🏎️ 스마트폰 조종 블루투스 RC카</h1>
+        <div class="subtitle">무선 통신과 동력 제어의 결정체, 나만의 무선 자동차를 완성하고 조종해 봅시다.</div>
+
+        <section>
+            <h2>1. 프로젝트 개요</h2>
+            <p>이 프로젝트는 아두이노에 <strong>블루투스 모듈(HC-06)</strong>을 달아 스마트폰과 연결하고, 스마트폰 앱에서 보낸 명령('F': 전진, 'B': 후진 등)을 받아 <strong>모터 드라이버(L298N)</strong>를 통해 두 개의 DC 모터를 구동하는 프로젝트입니다.</p>
+            
+            <h3>📦 준비물</h3>
+            <div class="parts-list">
+                <span class="part-item">아두이노 우노 x 1</span>
+                <span class="part-item">RC카 섀시 세트 (프레임, 바퀴 2개)</span>
+                <span class="part-item">DC 모터 x 2</span>
+                <span class="part-item">L298N 모터 드라이버 x 1</span>
+                <span class="part-item">HC-06 블루투스 모듈 x 1</span>
+                <span class="part-item">9V 배터리 또는 18650 배터리 세트</span>
+            </div>
+        </section>
+
+        <section>
+            <h2>2. 상세 회로 결선도 (Wiring Diagram)</h2>
+            <p>블루투스 모듈은 <strong>SoftwareSerial</strong>을 사용해 2, 3번 핀에 연결하고, 모터 드라이버는 전력 소모가 크므로 배터리 전원을 직접 연결해야 합니다.</p>
+
+            <div class="img-container">
+                <svg width="100%" max-width="700" height="450" viewBox="0 0 700 450" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="250" y="150" width="200" height="150" rx="5" fill="#1e293b"/>
+                    <text x="350" y="185" fill="white" font-weight="bold" text-anchor="middle">Arduino Uno</text>
+                    <text x="350" y="240" fill="#fef08a" font-size="11" text-anchor="middle">D2(RX) | D3(TX) | D4~D7(Motor)</text>
+
+                    <rect x="50" y="50" width="80" height="40" fill="#3b82f6" rx="3"/>
+                    <text x="90" y="75" fill="white" font-size="10" font-weight="bold" text-anchor="middle">HC-06</text>
+                    <path d="M 130 70 L 250 170" fill="none" stroke="#3b82f6" stroke-width="2" stroke-dasharray="4,2"/>
+                    <text x="180" y="110" fill="#3b82f6" font-size="10" font-weight="bold">BT Signal</text>
+
+                    <rect x="500" y="175" width="120" height="100" fill="#ef4444" rx="5"/>
+                    <text x="560" y="210" fill="white" font-size="12" font-weight="bold" text-anchor="middle">L298N Driver</text>
+                    <path d="M 450 225 L 500 225" fill="none" stroke="#94a3b8" stroke-width="3"/>
+                    
+                    <circle cx="560" cy="80" r="25" fill="#475569"/>
+                    <circle cx="560" cy="370" r="25" fill="#475569"/>
+                    <text x="560" y="45" fill="#334155" font-size="11" font-weight="bold" text-anchor="middle">Left Motor</text>
+                    <text x="560" y="420" fill="#334155" font-size="11" font-weight="bold" text-anchor="middle">Right Motor</text>
+
+                    <rect x="50" y="350" width="100" height="60" rx="5" fill="#22c55e"/>
+                    <text x="100" y="385" fill="white" font-weight="bold" text-anchor="middle">Battery</text>
+                </svg>
+                <div class="img-caption">▲ RC카 하드웨어 구성도: 블루투스 신호를 받아 드라이버가 모터를 제어합니다.</div>
+            </div>
+        </section>
+
+        <section>
+            <h2>3. 코드 작성하기</h2>
+            <p>스마트폰에서 문자를 보내면 그에 맞춰 모터의 핀을 제어하는 <code>switch-case</code> 문을 사용합니다.</p>
+
+<pre><code><span class="kw">#include</span> <span class="str">&lt;SoftwareSerial.h&gt;</span>
+
+<span class="cmt">// 블루투스 설정: 2번(RX), 3번(TX)</span>
+<span class="type">SoftwareSerial</span> BTSerial(<span class="num">2</span>, <span class="num">3</span>);
+
+<span class="cmt">// 모터 핀 설정 (L298N 연결 핀)</span>
+<span class="type">int</span> IN1 = <span class="num">4</span>; <span class="type">int</span> IN2 = <span class="num">5</span>; <span class="cmt">// 왼쪽 모터</span>
+<span class="type">int</span> IN3 = <span class="num">6</span>; <span class="type">int</span> IN4 = <span class="num">7</span>; <span class="cmt">// 오른쪽 모터</span>
+
+<span class="kw">void</span> <span class="func">setup</span>() {
+    BTSerial.<span class="func">begin</span>(<span class="num">9600</span>);
+    <span class="kw">for</span>(<span class="type">int</span> i=<span class="num">4</span>; i&lt;=<span class="num">7</span>; i++) <span class="func">pinMode</span>(i, OUTPUT);
+}
+
+<span class="kw">void</span> <span class="func">loop</span>() {
+    <span class="kw">if</span> (BTSerial.<span class="func">available</span>()) {
+        <span class="type">char</span> cmd = BTSerial.<span class="func">read</span>();
+        
+        <span class="kw">switch</span>(cmd) {
+            <span class="kw">case</span> <span class="str">'F'</span>: <span class="func">moveForward</span>(); <span class="kw">break</span>;  <span class="cmt">// 전진</span>
+            <span class="kw">case</span> <span class="str">'B'</span>: <span class="func">moveBackward</span>(); <span class="kw">break</span>; <span class="cmt">// 후진</span>
+            <span class="kw">case</span> <span class="str">'L'</span>: <span class="func">turnLeft</span>(); <span class="kw">break</span>;     <span class="cmt">// 좌회전</span>
+            <span class="kw">case</span> <span class="str">'R'</span>: <span class="func">turnRight</span>(); <span class="kw">break</span>;    <span class="cmt">// 우회전</span>
+            <span class="kw">case</span> <span class="str">'S'</span>: <span class="func">stopCar</span>(); <span class="kw">break</span>;      <span class="cmt">// 정지</span>
+        }
+    }
+}
+
+<span class="kw">void</span> <span class="func">moveForward</span>() {
+    <span class="func">digitalWrite</span>(IN1, HIGH); <span class="func">digitalWrite</span>(IN2, LOW);
+    <span class="func">digitalWrite</span>(IN3, HIGH); <span class="func">digitalWrite</span>(IN4, LOW);
+}
+
+<span class="kw">void</span> <span class="func">stopCar</span>() {
+    <span class="kw">for</span>(<span class="type">int</span> i=<span class="num">4</span>; i&lt;=<span class="num">7</span>; i++) <span class="func">digitalWrite</span>(i, LOW);
+}
+
+<span class="cmt">// ... (나머지 방향 함수들도 위와 유사하게 작성합니다)</span>
+</code></pre>
+        </section>
+
+        <section>
+            <h2>4. 조종하는 방법</h2>
+            <div class="callout info">
+                <h4>📱 스마트폰 앱 사용법</h4>
+                <p>플레이스토어(Android)에서 **"Arduino Bluetooth Controller"** 앱을 다운로드하세요. 앱 설정에서 화살표 버튼들에 각각 'F', 'B', 'L', 'R', 'S' 문자를 매핑하면 준비 끝!</p>
+            </div>
+            <ul>
+                <li><strong>페어링:</strong> 스마트폰 설정에서 HC-06을 찾아 페어링합니다 (비밀번호는 주로 1234 또는 0000).</li>
+                <li><strong>전원 관리:</strong> 아두이노는 USB로 전원을 공급할 수 있지만, 모터는 힘이 많이 들기 때문에 반드시 별도의 외부 배터리를 드라이버에 연결해야 합니다.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>5. 🎉 마스터 가이드 종료: 새로운 시작</h2>
+            <p>축하합니다! 10개의 프로젝트를 통해 C언어의 기초부터 복잡한 로봇 제어까지 모두 섭렵하셨습니다. 이제 여러분은 단순히 코드를 짜는 사람이 아니라, <strong>현실의 물리적인 문제를 소프트웨어로 해결하는 '메이커(Maker)'</strong>가 되었습니다.</p>
+            <div class="callout">
+                <h4>🚀 다음 단계는 무엇인가요?</h4>
+                <p>이제 배운 내용들을 바탕으로 자신만의 창의적인 프로젝트를 시작해 보세요. 사물인터넷(IoT), 인공지능(AI) 카메라 등을 접목하면 더 놀라운 세상을 만들 수 있습니다. 여러분의 도전을 응원합니다!</p>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
