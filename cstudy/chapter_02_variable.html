@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>02. 변수와 자료형 - C언어 마스터 가이드</title>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* 기존 스타일 동일 적용 */
+        :root { --primary: #2563eb; --sidebar-bg: #f8fafc; --text-main: #334155; --code-bg: #1e293b; --tip-bg: #eff6ff; --tip-border: #60a5fa; --border-color: #e2e8f0; }
+        body { margin: 0; font-family: 'Pretendard', sans-serif; color: var(--text-main); display: flex; line-height: 1.6; }
+        .sidebar { width: 280px; height: 100vh; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); position: fixed; overflow-y: auto; padding: 30px 20px; box-sizing: border-box; }
+        .sidebar h2 { font-size: 1.2rem; color: #0f172a; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid var(--primary); }
+        .nav-list { list-style: none; padding: 0; margin: 0; }
+        .nav-list li { margin-bottom: 10px; }
+        .nav-list a { text-decoration: none; color: #64748b; display: block; padding: 8px 12px; border-radius: 6px; }
+        .nav-list a.active { background-color: #dbeafe; color: var(--primary); font-weight: bold; }
+        .content { margin-left: 280px; padding: 60px 80px; max-width: 900px; width: 100%; box-sizing: border-box; }
+        h1 { font-size: 2.5rem; color: #0f172a; }
+        h2 { font-size: 1.8rem; color: var(--primary); margin-top: 50px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        pre { background-color: var(--code-bg); color: #f8fafc; padding: 20px; border-radius: 8px; font-family: 'Fira Code', monospace; margin: 20px 0; }
+        .callout { background-color: var(--tip-bg); border-left: 5px solid var(--tip-border); padding: 20px; border-radius: 0 8px 8px 0; margin: 30px 0; }
+        .img-container { text-align: center; margin: 40px 0; }
+        .img-caption { margin-top: 10px; font-size: 0.95rem; color: #64748b; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <h2>📚 C언어 목차</h2>
+        <ul class="nav-list">
+            <li><a href="chapter_01_hello.html">01. Hello World</a></li>
+            <li><a href="chapter_02_variable.html" class="active">02. 변수와 자료형</a></li>
+            <li><a href="chapter_03_operator.html">03. 연산자의 세계</a></li>
+            <li><a href="chapter_04_condition.html">04. 조건문 (if, switch)</a></li>
+            <li><a href="chapter_05_loop.html">05. 반복문 (for, while)</a></li>
+            <li><a href="chapter_06_function.html">06. 함수 (Function)</a></li>
+            <li><a href="chapter_07_array.html">07. 배열 (Array)</a></li>
+            <li><a href="chapter_08_pointer.html">08. 포인터 (Pointer)</a></li>
+        </ul>
+    </aside>
+    <main class="content">
+        <h1>02. 변수와 자료형: 데이터 마법 상자</h1>
+        <section>
+            <h2>1. 변수(Variable)란?</h2>
+            <p>변수는 데이터를 담기 위해 메모리에 이름을 붙인 <strong>'상자'</strong>입니다. 이 상자에 숫자를 넣으면 정수형 변수, 글자를 넣으면 문자형 변수가 됩니다.</p>
+            <div class="img-container">
+                
+                <div class="img-caption">▲ 변수: 메모리라는 거대한 창고에 라벨(이름)을 붙인 상자를 만드는 것</div>
+            </div>
+        </section>
+        <section>
+            <h2>2. 🎨 창의적 예제: 용사의 스테이터스</h2>
+<pre><code>#include &lt;stdio.h&gt;
+int main() {
+    int level = 10;          // 정수 상자 (레벨)
+    float attack = 12.5;     // 실수 상자 (공격력)
+    char rank = 'S';         // 문자 상자 (등급)
+
+    printf("용사의 등급: %c\n", rank);
+    printf("현재 레벨: %d\n", level);
+    printf("현재 공격력: %.1f\n", attack);
+    return 0;
+}</code></pre>
+        </section>
+    </main>
+</body>
+</html>

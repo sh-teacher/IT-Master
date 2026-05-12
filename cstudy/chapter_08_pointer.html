@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>08. 포인터 입문 - C언어 마스터 가이드</title>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style> /* 위와 동일한 스타일 적용 */ </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <h2>📚 C언어 목차</h2>
+        <ul class="nav-list">
+            <li><a href="chapter_01_hello.html">01. Hello World</a></li>
+            <li><a href="chapter_02_variable.html">02. 변수와 자료형</a></li>
+            <li><a href="chapter_03_operator.html">03. 연산자의 세계</a></li>
+            <li><a href="chapter_04_condition.html">04. 조건문 (if, switch)</a></li>
+            <li><a href="chapter_05_loop.html">05. 반복문 (for, while)</a></li>
+            <li><a href="chapter_06_function.html">06. 함수 (Function)</a></li>
+            <li><a href="chapter_07_array.html">07. 배열 (Array)</a></li>
+            <li><a href="chapter_08_pointer.html" class="active">08. 포인터 (Pointer)</a></li>
+        </ul>
+    </aside>
+    <main class="content">
+        <h1>08. 포인터 (Pointer): 메모리 주소와 보물지도</h1>
+        <section>
+            <h2>1. 포인터란 무엇인가요?</h2>
+            <p>포인터는 데이터 자체가 아니라, 데이터가 저장된 <strong>'메모리 주소'</strong>를 가리키는 변수입니다. 마치 보물이 들어있는 상자가 아니라, <strong>그 상자가 어디 있는지 알려주는 보물지도</strong>와 같습니다.</p>
+            <div class="img-container">
+                
+                <div class="img-caption">▲ 포인터: "데이터가 어디 있지?" 주소를 찾아가는 나침반</div>
+            </div>
+        </section>
+        <section>
+            <h2>2. 🗺️ 창의적 예제: 보물찾기 (주소 연산)</h2>
+<pre><code>#include &lt;stdio.h&gt;
+int main() {
+    int gold = 1000;      // 실제 금 상자
+    int *map = &gold;    // 금 상자의 위치를 기록한 지도 (포인터)
+
+    printf("상자의 실제 내용물: %d골드\n", gold);
+    printf("상자의 위치(주소값): %p\n", map);
+    printf("지도를 보고 찾아간 내용물: %d골드\n", *map);
+
+    return 0;
+}</code></pre>
+            <div class="callout">
+                <h4>💡 핵심 기호 정리</h4>
+                <p><strong>& (주소 연산자):</strong> 변수의 주소를 알아낼 때 씁니다. (상자의 위치 찾기)</p>
+                <p><strong>* (참조 연산자):</strong> 주소로 가서 실제 값을 가져올 때 씁니다. (지도를 보고 보물 꺼내기)</p>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>07. 배열 (Array) - C언어 마스터 가이드</title>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style> /* 위와 동일한 스타일 적용 */ </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <h2>📚 C언어 목차</h2>
+        <ul class="nav-list">
+            <li><a href="chapter_01_hello.html">01. Hello World</a></li>
+            <li><a href="chapter_02_variable.html">02. 변수와 자료형</a></li>
+            <li><a href="chapter_03_operator.html">03. 연산자의 세계</a></li>
+            <li><a href="chapter_04_condition.html">04. 조건문 (if, switch)</a></li>
+            <li><a href="chapter_05_loop.html">05. 반복문 (for, while)</a></li>
+            <li><a href="chapter_06_function.html">06. 함수 (Function)</a></li>
+            <li><a href="chapter_07_array.html" class="active">07. 배열 (Array)</a></li>
+            <li><a href="chapter_08_pointer.html">08. 포인터 (Pointer)</a></li>
+        </ul>
+    </aside>
+    <main class="content">
+        <h1>07. 배열 (Array): 데이터 기차</h1>
+        <section>
+            <h2>1. 배열이란 무엇인가요?</h2>
+            <p>변수가 상자 하나라면, <strong>배열</strong>은 같은 크기의 상자들이 기차처럼 쭉 이어져 있는 형태입니다. 중요한 점은 상자 번호(인덱스)가 <strong>0번부터 시작</strong>한다는 것이죠!</p>
+            <div class="img-container">
+                
+                <div class="img-caption">▲ 배열: 여러 데이터를 한 번에 관리하는 효율적인 바구니</div>
+            </div>
+        </section>
+        <section>
+            <h2>2. 🎒 창의적 예제: RPG 아이템 인벤토리</h2>
+<pre><code>#include &lt;stdio.h&gt;
+int main() {
+    // 5개의 아이템 수량을 담는 배열
+    int inventory[5] = {10, 20, 0, 5, 1};
+
+    printf("--- 나의 인벤토리 ---\n");
+    for(int i = 0; i < 5; i++) {
+        printf("%d번 칸 아이템 수량: %d개\n", i, inventory[i]);
+    }
+    return 0;
+}</code></pre>
+        </section>
+    </main>
+</body>
+</html>
