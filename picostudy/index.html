@@ -29,6 +29,47 @@
                     <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">Pico 2 W와 함께하는 사물인터넷의 세계</p>
                 </div>
 
+                <h2>어떤 보드를 선택해야 할까? (Pico 시리즈 4종 비교)</h2>
+                <p>라즈베리 파이 Pico 시리즈는 세대(프로세서 성능)와 무선 통신(Wi-Fi/Bluetooth) 지원 여부에 따라 크게 4가지 핵심 모델로 나뉩니다. 우리가 이 교재에서 다룰 <strong>Pico 2 W</strong>가 얼마나 강력한 스펙을 가졌는지 아래 표에서 확인해 보세요.</p>
+
+                <table style="width:100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 40px; font-size: 0.95rem;">
+                    <tr style="background-color: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
+                        <th style="padding: 15px; text-align: center; border-right: 1px solid #e2e8f0;">구분</th>
+                        <th style="padding: 15px; text-align: center; border-right: 1px solid #e2e8f0;">Pico<br><span style="font-size: 0.8rem; font-weight: normal; color: #64748b;">(1세대 기본형)</span></th>
+                        <th style="padding: 15px; text-align: center; border-right: 1px solid #e2e8f0;">Pico W<br><span style="font-size: 0.8rem; font-weight: normal; color: #64748b;">(1세대 무선형)</span></th>
+                        <th style="padding: 15px; text-align: center; border-right: 1px solid #e2e8f0;">Pico 2<br><span style="font-size: 0.8rem; font-weight: normal; color: #64748b;">(2세대 기본형)</span></th>
+                        <th style="padding: 15px; text-align: center; color: #0ea5e9; background-color: #f0f9ff;">Pico 2 W<br><span style="font-size: 0.8rem; font-weight: normal; color: #0284c7;">(본 교재 실습용)</span></th>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                        <td style="padding: 15px; font-weight: 600; text-align: center; border-right: 1px solid #e2e8f0;">메인 칩셋(MCU)</td>
+                        <td style="padding: 15px; text-align: center; border-right: 1px solid #e2e8f0;">RP2040</td>
+                        <td style="padding: 15px; text-align: center; border-right: 1px solid #e2e8f0;">RP2040</td>
+                        <td style="padding: 15px; text-align: center; border-right: 1px solid #e2e8f0;"><strong>RP2350</strong></td>
+                        <td style="padding: 15px; text-align: center; background-color: #f0f9ff;"><strong>RP2350</strong></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                        <td style="padding: 15px; font-weight: 600; text-align: center; border-right: 1px solid #e2e8f0;">코어 및 클럭</td>
+                        <td style="padding: 15px; text-align: center; border-right: 1px solid #e2e8f0;">Cortex-M0+<br>(133 MHz)</td>
+                        <td style="padding: 15px; text-align: center; border-right: 1px solid #e2e8f0;">Cortex-M0+<br>(133 MHz)</td>
+                        <td style="padding: 15px; text-align: center; border-right: 1px solid #e2e8f0;"><strong>Cortex-M33</strong><br><strong>(150 MHz)</strong></td>
+                        <td style="padding: 15px; text-align: center; background-color: #f0f9ff;"><strong>Cortex-M33</strong><br><strong>(150 MHz)</strong></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                        <td style="padding: 15px; font-weight: 600; text-align: center; border-right: 1px solid #e2e8f0;">저장공간(Flash)</td>
+                        <td style="padding: 15px; text-align: center; border-right: 1px solid #e2e8f0;">2MB</td>
+                        <td style="padding: 15px; text-align: center; border-right: 1px solid #e2e8f0;">2MB</td>
+                        <td style="padding: 15px; text-align: center; border-right: 1px solid #e2e8f0;"><strong>4MB</strong></td>
+                        <td style="padding: 15px; text-align: center; background-color: #f0f9ff;"><strong>4MB</strong></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                        <td style="padding: 15px; font-weight: 600; text-align: center; border-right: 1px solid #e2e8f0;">Wi-Fi & Bluetooth</td>
+                        <td style="padding: 15px; text-align: center; color: #ef4444; border-right: 1px solid #e2e8f0;">미지원</td>
+                        <td style="padding: 15px; text-align: center; color: #10b981; border-right: 1px solid #e2e8f0;">지원 (CYW43439)</td>
+                        <td style="padding: 15px; text-align: center; color: #ef4444; border-right: 1px solid #e2e8f0;">미지원</td>
+                        <td style="padding: 15px; text-align: center; color: #10b981; background-color: #f0f9ff;"><strong>지원 (RM2)</strong></td>
+                    </tr>
+                </table>
+
                 <h2>학습 로드맵</h2>
                 <p>우리는 총 5개의 단계를 거쳐 나만의 IoT 시스템을 구축하게 됩니다.</p>
                 <ul>
