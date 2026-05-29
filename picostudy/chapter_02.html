@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Ch 1. 하드웨어 이해 - Pico 2 W 가이드</title>
+    <title>Ch 2. 펌웨어 세팅 - Pico 2 W 가이드</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -12,8 +12,8 @@
             <h2>PICO 2 W IoT GUIDE</h2>
             <ul>
                 <li><a href="index.html">HOME - 시작하기</a></li>
-                <li><a href="chapter_01.html" class="active">CHAPTER 1 - 하드웨어 이해</a></li>
-                <li><a href="chapter_02.html">CHAPTER 2 - 펌웨어 세팅</a></li>
+                <li><a href="chapter_01.html">CHAPTER 1 - 하드웨어 이해</a></li>
+                <li><a href="chapter_02.html" class="active">CHAPTER 2 - 펌웨어 세팅</a></li>
                 <li><a href="chapter_03.html">CHAPTER 3 - 기초 코딩(Blink)</a></li>
                 <li><a href="chapter_04.html">CHAPTER 4 - Wi-Fi 연결</a></li>
                 <li><a href="chapter_05.html">CHAPTER 5 - IoT 웹 서버</a></li>
@@ -21,108 +21,41 @@
         </nav>
         <main class="content">
             <div class="container">
-                <h1>Chapter 1. 하드웨어 및 환경 구축</h1>
-                
-                <h2>1.1 차세대 마이크로컨트롤러 RP2350 칩셋 스펙</h2>
-                <p>Pico 2 WH의 심장은 라즈베리 파이 재단이 직접 설계한 차세대 고성능 마이크로컨트롤러 <strong>RP2350</strong> 칩셋입니다. 이전 세대인 RP2040에 비해 프로세서 아키텍처가 대폭 업그레이드되었으며, 연산 속도와 메모리 효율, 그리고 IoT 보안 기술인 Arm TrustZone-M이 탑재되어 더욱 강력하고 안전한 프로젝트 환경을 제공합니다.</p>
-                
-                <table style="width:100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 40px; font-size: 0.95rem;">
-                    <tr style="background-color: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
-                        <th style="padding: 12px 15px; text-align: left; width: 25%;">항목 (Specification)</th>
-                        <th style="padding: 12px 15px; text-align: left; width: 35%; color: #64748b;">이전 세대 (RP2040)</th>
-                        <th style="padding: 12px 15px; text-align: left; width: 40%; color: #0ea5e9; background-color: #f0f9ff;">차세대 프로세서 (RP2350)</th>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 12px 15px; font-weight: 600;">코어 아키텍처 (CPU)</td>
-                        <td style="padding: 12px 15px; color: #64748b;">Dual Arm Cortex-M0+</td>
-                        <td style="padding: 12px 15px; background-color: #f0f9ff;"><strong>Dual Arm Cortex-M33</strong><br>(또는 Dual Hazard3 RISC-V 코어 선택 가능)</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 12px 15px; font-weight: 600;">기본 클럭 속도 (Clock)</td>
-                        <td style="padding: 12px 15px; color: #64748b;">133 MHz</td>
-                        <td style="padding: 12px 15px; background-color: #f0f9ff;"><strong>150 MHz</strong> (약 1.5배 연산 성능 향상)</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 12px 15px; font-weight: 600;">부동소수점 연산 (FPU)</td>
-                        <td style="padding: 12px 15px; color: #64748b;">하드웨어 FPU 미탑재 (소프트웨어 처리)</td>
-                        <td style="padding: 12px 15px; background-color: #f0f9ff;"><strong>하드웨어 부동소수점 연산 장치(FPU) 탑재</strong></td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 12px 15px; font-weight: 600;">내부 RAM (SRAM)</td>
-                        <td style="padding: 12px 15px; color: #64748b;">264 KB</td>
-                        <td style="padding: 12px 15px; background-color: #f0f9ff;"><strong>520 KB</strong> (데이터 적재 공간 약 2배 확장)</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 12px 15px; font-weight: 600;">하드웨어 보안 (Security)</td>
-                        <td style="padding: 12px 15px; color: #64748b;">기본적인 보안 기능 없음</td>
-                        <td style="padding: 12px 15px; background-color: #f0f9ff;"><strong>Arm TrustZone-M 하드웨어 보안 기술 안전 부팅(Secure Boot) 지원</strong></td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 12px 15px; font-weight: 600;">저전력 모드 효율</td>
-                        <td style="padding: 12px 15px; color: #64748b;">일반 저전력 상태 지원</td>
-                        <td style="padding: 12px 15px; background-color: #f0f9ff;">초저전력 상태에서의 <strong>전류 소모 대폭 감소 (배터리 효율 상승)</strong></td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 12px 15px; font-weight: 600;">PIO (Programmable I/O)</td>
-                        <td style="padding: 12px 15px; color: #64748b;">2개 블록 (총 8개 상태 머신)</td>
-                        <td style="padding: 12px 15px; background-color: #f0f9ff;"><strong>3개 블록 (총 12개 상태 머신)</strong>으로 커스텀 인터페이스 확장성 강화</td>
-                    </tr>
-                </table>
+                <h1>Chapter 2. 펌웨어 설치 및 초기 설정</h1>
+                <p>보드가 파이썬 언어를 알아듣게 하려면 <strong>MicroPython 펌웨어</strong>라는 소프트웨어를 보드의 두뇌에 심어줘야 합니다.</p>
 
-                <h2>1.2 하드웨어 제어의 핵심: 핀 배열(Pinout)</h2>
-                <p>센서와 모터 등 외부 부품을 연결하려면 보드 양쪽에 일렬로 늘어선 40개의 금속 핀(다리)들의 역할을 정확히 알아야 합니다. 아래의 핀맵(Pinout) 다이어그램은 앞으로 하드웨어 조립 시 가장 많이 참고하게 될 핵심 지도입니다.</p>
+                <h2>2.1 BOOTSEL 모드 진입</h2>
+                <p>펌웨어를 설치하기 위해서는 보드를 특별한 '파일 전송 모드'로 부팅해야 합니다.</p>
                 
-                <div style="text-align: center; margin: 40px 0; background-color: #f8fafc; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0;">
-                    <img src="https://www.raspberrypi.com/documentation/microcontrollers/images/pico-w-pinout.svg" alt="Pico W 공식 핀맵 다이어그램" style="max-width: 100%; height: auto; border-radius: 8px;">
-                    <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">Pico 시리즈 공식 핀 배열도 (Raspberry Pi 공식 제공)</p>
+                <div style="text-align: center; margin: 40px 0;">
+                    <img src="https://images.unsplash.com/photo-1614264669046-2490dcb15bbf?auto=format&fit=crop&w=800&q=80" alt="USB 연결" style="max-width: 100%; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+                    <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">BOOTSEL 버튼을 누른 채 PC와 USB로 연결하기</p>
                 </div>
 
-                <div class="callout info">
-                    <h4>💡 내가 가진 보드가 Pico 2 WH 라면?</h4>
-                    <p>보드 이름 뒤에 붙은 <strong>'H'</strong>는 <strong>Header(헤더 핀)</strong>의 약자입니다. 공장에서부터 금속 다리(핀)가 완벽하게 납땜되어 출고된 제품이므로, 별도의 인두기 납땜 작업 없이 곧바로 브레드보드(빵판)에 꽂아서 다양한 센서 실습을 시작할 수 있습니다.</p>
-                </div>
+                <ol>
+                    <li>보드에서 케이블을 분리합니다.</li>
+                    <li>보드 위의 <strong>하얀색 BOOTSEL 버튼</strong>을 꾹 누릅니다.</li>
+                    <li>버튼을 누른 상태에서 USB 케이블을 컴퓨터에 연결합니다.</li>
+                    <li>윈도우 탐색기에 <code>RP2350</code>이라는 이름의 이동식 디스크가 나타나면 버튼에서 손을 뗍니다.</li>
+                </ol>
 
-                <h3>📌 초보자가 반드시 알아야 할 4가지 핵심 핀</h3>
-                <p>40개의 핀을 당장 모두 외울 필요는 없습니다. 색상별로 구분된 아래의 4가지 역할만 이해하면 대부분의 부품을 연결할 수 있습니다.</p>
-                
-                <table style="width:100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 40px; font-size: 0.95rem;">
-                    <tr style="background-color: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
-                        <th style="padding: 15px; text-align: left; width: 25%;">핀 이름 (색상)</th>
-                        <th style="padding: 15px; text-align: left;">역할 및 설명</th>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 15px;"><strong>GPIO (연두색)</strong><br><span style="font-size: 0.85rem; color: #64748b;">GP0 ~ GP28</span></td>
-                        <td style="padding: 15px;"><strong>General Purpose Input/Output (범용 입출력)</strong><br>우리가 직접 코딩으로 제어하는 다리입니다. LED에 전기를 보내 켜게 하거나(출력), 버튼이 눌렸는지 신호를 읽어오는(입력) 역할을 합니다.</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 15px;"><strong>GND (검은색)</strong><br><span style="font-size: 0.85rem; color: #64748b;">Ground</span></td>
-                        <td style="padding: 15px;"><strong>접지 (전기의 마이너스 극)</strong><br>전기는 반드시 나간 곳으로 돌아와야 흐릅니다. 보드에서 출발한 전기가 센서를 거쳐 다시 보드로 돌아오는 '도착점' 역할을 합니다. 8개의 다리가 배치되어 있습니다.</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 15px;"><strong>3V3(OUT) (빨간색)</strong><br><span style="font-size: 0.85rem; color: #64748b;">3.3V 전원 출력</span></td>
-                        <td style="padding: 15px;"><strong>부품에 전원 공급 (전기의 플러스 극)</strong><br>보드가 USB로부터 전기를 받아서, 외부 센서나 디스플레이가 작동할 수 있도록 3.3V의 일정한 전기를 내어주는 다리입니다. 36번 핀 하나뿐입니다.</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 15px;"><strong>ADC (진한 초록색)</strong><br><span style="font-size: 0.85rem; color: #64748b;">아날로그 입력</span></td>
-                        <td style="padding: 15px;"><strong>연속적인 값 읽기</strong><br>버튼처럼 켜짐/꺼짐(1/0)만 있는 것이 아니라, 온도의 미세한 변화나 빛의 밝기처럼 '연속적인 아날로그 신호'를 숫자로 변환해서 읽어들이는 다리입니다.</td>
-                    </tr>
-                </table>
+                <h2>2.2 Thonny에서 펌웨어 설치</h2>
+                <p>이제 Thonny 소프트웨어를 통해 자동으로 펌웨어를 다운로드하겠습니다.</p>
+                <ul>
+                    <li>Thonny 우측 하단의 인터프리터 설정(예: Python 3.10)을 클릭합니다.</li>
+                    <li><strong>Configure interpreter...</strong>를 선택합니다.</li>
+                    <li>인터프리터 탭에서 <strong>MicroPython (Raspberry Pi Pico)</strong>를 고릅니다.</li>
+                    <li>하단의 <strong>Install or update MicroPython</strong> 버튼을 눌러 펌웨어를 보드에 굽습니다.</li>
+                </ul>
 
-                <h2>1.3 개발 환경 Thonny IDE 설치</h2>
-                <p>하드웨어 다리들의 이름을 알았다면, 이제 보드에 명령(코드)을 써서 전달해 줄 번역기 프로그램이 필요합니다. 우리는 초보자 친화적인 <strong>Thonny(토니)</strong> 에디터를 사용합니다.</p>
-                
-                <div class="callout info">
-                    <h4>💻 Thonny 다운로드 및 설치 방법</h4>
-                    <ol style="margin-top: 10px; margin-left: 15px;">
-                        <li>공식 웹사이트인 <a href="https://thonny.org" target="_blank" style="color: #0ea5e9; font-weight: 600;">thonny.org</a>에 접속합니다.</li>
-                        <li>화면 우측 상단의 <strong>Windows</strong> 글자를 클릭하여 설치 파일(exe)을 다운로드합니다.</li>
-                        <li>다운로드된 파일을 실행하고, 특별한 설정 변경 없이 [Next]를 눌러 설치를 완료합니다.</li>
-                    </ol>
+                <div class="callout warn">
+                    <h4>⚠️ 주의사항</h4>
+                    <p>펌웨어 설치가 끝나면 이동식 디스크 창이 사라집니다. 이는 정상적인 현상입니다. 이제 보드는 이동식 디스크가 아닌 <strong>컴퓨터 통신 포트(COM)</strong>로 인식됩니다.</p>
                 </div>
 
                 <div class="nav-btns">
-                    <a href="index.html" class="btn btn-prev">◀ HOME으로</a>
-                    <a href="chapter_02.html" class="btn btn-next">CHAPTER 2로 이동 ▶</a>
+                    <a href="chapter_01.html" class="btn btn-prev">◀ CHAPTER 1</a>
+                    <a href="chapter_03.html" class="btn btn-next">CHAPTER 3으로 이동 ▶</a>
                 </div>
             </div>
         </main>
