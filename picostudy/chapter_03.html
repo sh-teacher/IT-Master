@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 3. 내장 LED 제어 - Pico 2 W 입문 가이드</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="wrapper">
+        <nav class="sidebar">
+            <h2>Pico 2 W IoT 교재</h2>
+            <ul>
+                <li><a href="index.html" >홈 / 개요</a></li>
+<li><a href="chapter_01.html" >Ch 1. 하드웨어 및 환경 구축</a></li>
+<li><a href="chapter_02.html" >Ch 2. 펌웨어 설치 및 설정</a></li>
+<li><a href="chapter_03.html" class="active">Ch 3. 내장 LED 제어 (Blink)</a></li>
+<li><a href="chapter_04.html" >Ch 4. 무선 Wi-Fi 연결 테스트</a></li>
+<li><a href="chapter_05.html" >Ch 5. 실전 IoT 웹 서버 오픈</a></li>
+
+            </ul>
+        </nav>
+        <main class="main-content">
+            <div class="container">
+                
+            <h1>Chapter 3: 기초 제어 - 내장 LED 깜빡이기 (Blink)</h1>
+            <h2>3.1 하드웨어 제어를 위한 약속</h2>
+            <p>Pico 2 W 모델은 무선 칩이 내장 LED를 제어하기 때문에 핀 번호를 숫자 <code>25</code>가 아닌 문자열 <code>"LED"</code>로 명시해야 합니다.</p>
+            
+            <h2>3.2 예제 코드</h2>
+            <p>아래 코드를 작성한 후 보드 내부에 <code>main.py</code>로 저장하세요.</p>
+            <pre><code>from machine import Pin
+import time
+
+# 숫자 25 대신 문자열 "LED"를 사용하여 객체 생성
+led = Pin("LED", Pin.OUT)
+
+# 무한 루프를 돌며 0.5초 간격으로 토글
+while True:
+    led.toggle()
+    time.sleep(0.5)</code></pre>
+            
+            <div class="callout">
+                <p><strong>참고:</strong> 파일명을 <code>main.py</code>로 저장하면, PC와 분리 후 배터리만 연결해도 전원이 켜지자마자 스스로 위 코드를 실행합니다.</p>
+            </div>
+        
+            </div>
+        </main>
+    </div>
+</body>
+</html>

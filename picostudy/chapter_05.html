@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 5. 웹 서버 제어 - Pico 2 W 입문 가이드</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="wrapper">
+        <nav class="sidebar">
+            <h2>Pico 2 W IoT 교재</h2>
+            <ul>
+                <li><a href="index.html" >홈 / 개요</a></li>
+<li><a href="chapter_01.html" >Ch 1. 하드웨어 및 환경 구축</a></li>
+<li><a href="chapter_02.html" >Ch 2. 펌웨어 설치 및 설정</a></li>
+<li><a href="chapter_03.html" >Ch 3. 내장 LED 제어 (Blink)</a></li>
+<li><a href="chapter_04.html" >Ch 4. 무선 Wi-Fi 연결 테스트</a></li>
+<li><a href="chapter_05.html" class="active">Ch 5. 실전 IoT 웹 서버 오픈</a></li>
+
+            </ul>
+        </nav>
+        <main class="main-content">
+            <div class="container">
+                
+            <h1>Chapter 5: 실전 IoT - 웹 서버 구축을 통한 원격 LED 제어</h1>
+            <h2>5.1 동작 원리 및 아키텍처</h2>
+            <p>Pico 2 W 보드가 IP를 할당받은 후 TCP 80번 포트를 열어 웹 서버 역할을 수행합니다. 사용자가 스마트폰 브라우저로 접속하면 보드가 HTML 버튼 양식을 띄워주고 클릭 시 LED를 제어합니다.</p>
+            
+            <div class="image-placeholder">[Image of IoT Client-Server Architecture for Pico 2 W]</div>
+            
+            <h2>5.2 통합 사물인터넷(IoT) 소스 코드</h2>
+            <pre><code>import network
+import socket
+import time
+from machine import Pin
+
+# 네트워크 연결
+ssid = '와이파이_이름'
+password = '비밀번호'
+led = Pin("LED", Pin.OUT)
+
+wlan = network.WLAN(network.STA_IF)
+wlan.active(True)
+wlan.connect(ssid, password)
+
+while not wlan.isconnected():
+    time.sleep(1)
+
+ip = wlan.ifconfig()[0]
+print(f"🎉 웹 서버 가동! 브라우저 주소: http://{ip}")
+
+# 소켓 바인딩
+addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
+s = socket.socket()
+s.bind(addr)
+s.listen(1)
+
+def web_page():
+    return '''&lt;!DOCTYPE html&gt;
+    &lt;html&gt;
+    &lt;body style="text-align:center; font-family:sans-serif; margin-top:50px;"&gt;
+        &lt;h1&gt;Pico 2 W 원격 제어 센터&lt;/h1&gt;
+        &lt;a href="/?led=on"&gt;&lt;button style="padding:15px; background:lightgreen;"&gt;LED 켜기&lt;/button&gt;&lt;/a&gt;
+        &lt;a href="/?led=off"&gt;&lt;button style="padding:15px; background:salmon;"&gt;LED 끄기&lt;/button&gt;&lt;/a&gt;
+    &lt;/body&gt;
+    &lt;/html&gt;'''
+
+while True:
+    cl, addr = s.accept()
+    request = cl.recv(1024).decode('utf-8')
+    
+    if '/?led=on' in request:
+        led.value(1)
+    if '/?led=off' in request:
+        led.value(0)
+        
+    response = web_page()
+    cl.send('HTTP/1.0 200 OK\r\nContent-type: text/html\r\n\r\n')
+    cl.send(response)
+    cl.close()</code></pre>
+        
+            </div>
+        </main>
+    </div>
+</body>
+</html>

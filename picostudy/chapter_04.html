@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ch 4. 무선 네트워크 - Pico 2 W 입문 가이드</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="wrapper">
+        <nav class="sidebar">
+            <h2>Pico 2 W IoT 교재</h2>
+            <ul>
+                <li><a href="index.html" >홈 / 개요</a></li>
+<li><a href="chapter_01.html" >Ch 1. 하드웨어 및 환경 구축</a></li>
+<li><a href="chapter_02.html" >Ch 2. 펌웨어 설치 및 설정</a></li>
+<li><a href="chapter_03.html" >Ch 3. 내장 LED 제어 (Blink)</a></li>
+<li><a href="chapter_04.html" class="active">Ch 4. 무선 Wi-Fi 연결 테스트</a></li>
+<li><a href="chapter_05.html" >Ch 5. 실전 IoT 웹 서버 오픈</a></li>
+
+            </ul>
+        </nav>
+        <main class="main-content">
+            <div class="container">
+                
+            <h1>Chapter 4: 무선 네트워크(Wi-Fi) 연결 테스트</h1>
+            <h2>4.1 2.4GHz 주파수 대역 한계</h2>
+            <p>Pico 2 W는 <strong>2.4GHz 주파수 신호만 수신</strong>할 수 있습니다. 5GHz 대역(_5G)에는 연결할 수 없으니 일반 2.4GHz 와이파이를 준비하세요.</p>
+            
+            <h2>4.2 연결 테스트 소스 코드</h2>
+            <pre><code>import network
+import time
+
+ssid = '여기에_와이파이_이름'
+password = '여기에_비밀번호'
+
+def connect_wifi():
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    wlan.connect(ssid, password)
+    
+    print("와이파이 연결 시도 중...")
+    max_wait = 10
+    
+    while max_wait > 0:
+        if wlan.status() < 0 or wlan.status() >= 3:
+            break
+        max_wait -= 1
+        time.sleep(1)
+        
+    if wlan.status() != 3:
+        print("❌ 연결 실패!")
+    else:
+        print("🎉 연결 성공! IP 주소:", wlan.ifconfig()[0])
+
+connect_wifi()</code></pre>
+        
+            </div>
+        </main>
+    </div>
+</body>
+</html>
