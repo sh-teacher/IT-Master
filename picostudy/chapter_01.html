@@ -2,50 +2,56 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ch 1. 하드웨어 - Pico 2 W 입문 가이드</title>
+    <title>Ch 1. 하드웨어 이해 - Pico 2 W 가이드</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
-    <div class="wrapper">
+    <div class="layout">
         <nav class="sidebar">
-            <h2>Pico 2 W IoT 교재</h2>
+            <h2>PICO 2 W IoT GUIDE</h2>
             <ul>
-                <li><a href="index.html" >홈 / 개요</a></li>
-<li><a href="chapter_01.html" class="active">Ch 1. 하드웨어 및 환경 구축</a></li>
-<li><a href="chapter_02.html" >Ch 2. 펌웨어 설치 및 설정</a></li>
-<li><a href="chapter_03.html" >Ch 3. 내장 LED 제어 (Blink)</a></li>
-<li><a href="chapter_04.html" >Ch 4. 무선 Wi-Fi 연결 테스트</a></li>
-<li><a href="chapter_05.html" >Ch 5. 실전 IoT 웹 서버 오픈</a></li>
-a
+                <li><a href="index.html">HOME - 시작하기</a></li>
+                <li><a href="chapter_01.html" class="active">CHAPTER 1 - 하드웨어 이해</a></li>
+                <li><a href="chapter_02.html">CHAPTER 2 - 펌웨어 세팅</a></li>
+                <li><a href="chapter_03.html">CHAPTER 3 - 기초 코딩(Blink)</a></li>
+                <li><a href="chapter_04.html">CHAPTER 4 - Wi-Fi 연결</a></li>
+                <li><a href="chapter_05.html">CHAPTER 5 - IoT 웹 서버</a></li>
             </ul>
         </nav>
-        <main class="main-content">
+        <main class="content">
             <div class="container">
+                <h1>Chapter 1. 하드웨어 및 환경 구축</h1>
                 
-            <h1>Chapter 1: 하드웨어 및 개발 환경 구축</h1>
-            <h2>1.1 Raspberry Pi Pico 2 W란?</h2>
-            <p>라즈베리 파이 재단에서 직접 설계한 강력한 차세대 메인 프로세서 <strong>RP2350</strong> 칩셋을 탑재한 모델입니다. 기존 RP2040 칩셋 대비 연산 속도와 안정성이 크게 개선되었으며, 무선 통신(Wi-Fi 4 및 Bluetooth 5.2)을 지원합니다.</p>
-            
-            <div class="image-placeholder">[Image of Raspberry Pi Pico 2 W pinout diagram]</div>
-            
-            <h2>1.2 하드웨어 비교 요약</h2>
-            <table>
-                <thead>
-                    <tr><th>구분</th><th>Raspberry Pi Pico (기존)</th><th>Raspberry Pi Pico 2 W (현재)</th></tr>
-                </thead>
-                <tbody>
-                    <tr><td>메인 MCU</td><td>RP2040 (Dual Cortex-M0+)</td><td>RP2350 (Dual Cortex-M33)</td></tr>
-                    <tr><td>내장 LED 핀</td><td>GPIO 25번 고정</td><td>무선 칩 내부 할당 ("LED")</td></tr>
-                    <tr><td>네트워크</td><td>지원 안 함</td><td>Wi-Fi 4 (2.4GHz) / BT 5.2</td></tr>
-                </tbody>
-            </table>
-            
-            <h2>1.3 통합개발환경(IDE) Thonny 설치</h2>
-            <p>보드와 소통하기 위해서는 코드를 작성하고 전달해 줄 에디터 프로그램이 필요합니다. 초보자에게 가장 친숙한 Thonny를 활용합니다.</p>
-            <pre><code>1. https://thonny.org 에 접속
-2. Windows용 설치 파일 다운로드 및 설치 진행</code></pre>
-        
+                <h2>1.1 차세대 프로세서 RP2350</h2>
+                <p>Pico 2 W의 심장은 라즈베리 파이 재단이 직접 설계한 <strong>RP2350</strong> 칩셋입니다. 이전 모델인 RP2040에 비해 속도가 약 1.5배 빨라졌으며, 보안 기능(TrustZone)이 강화되어 더욱 안정적인 IoT 프로젝트가 가능합니다.</p>
+                
+                <div class="img-placeholder">
+                    <i class="fa-solid fa-diagram-project"></i>
+                    <p>이미지: Pico 2 W의 핀맵(Pinout) 다이어그램</p>
+                    <span>(GPIO 번호와 전원 핀이 색상별로 구분된 상세 도표)</span>
+                </div>
+
+                <h2>1.2 주요 핀 사양</h2>
+                <p>보드 양쪽에 배치된 40개의 핀을 통해 센서와 부품을 연결합니다.</p>
+                <ul>
+                    <li><strong>GPIO (General Purpose Input/Output):</strong> 디지털 입출력을 담당하는 26개의 핀이 있습니다.</li>
+                    <li><strong>ADC (Analog to Digital Converter):</strong> 센서의 전압 값을 읽는 3개의 아날로그 입력 핀이 있습니다.</li>
+                    <li><strong>Power:</strong> 3.3V 출력 핀과 5V 입력을 받는 VSYS 핀이 포함되어 있습니다.</li>
+                </ul>
+
+                <h2>1.3 개발 환경 Thonny IDE 설치</h2>
+                <p>우리는 파이썬 코드를 작성하고 보드로 전송하기 위해 <strong>Thonny(토니)</strong>를 사용합니다. 윈도우 사용자는 아래 절차를 따르세요.</p>
+                <ol>
+                    <li><a href="https://thonny.org" target="_blank">thonny.org</a>에 접속합니다.</li>
+                    <li>우측 상단 Windows 배너를 클릭하여 설치 파일을 다운로드합니다.</li>
+                    <li>설치 완료 후 실행하면 깔끔한 편집창이 나타납니다.</li>
+                </ol>
+
+                <div class="nav-btns">
+                    <a href="index.html" class="btn btn-prev">◀ HOME으로</a>
+                    <a href="chapter_02.html" class="btn btn-next">CHAPTER 2로 이동 ▶</a>
+                </div>
             </div>
         </main>
     </div>

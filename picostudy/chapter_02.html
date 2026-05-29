@@ -2,44 +2,62 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ch 2. 펌웨어 설치 - Pico 2 W 입문 가이드</title>
+    <title>Ch 2. 펌웨어 세팅 - Pico 2 W 가이드</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
-    <div class="wrapper">
+    <div class="layout">
         <nav class="sidebar">
-            <h2>Pico 2 W IoT 교재</h2>
+            <h2>PICO 2 W IoT GUIDE</h2>
             <ul>
-                <li><a href="index.html" >홈 / 개요</a></li>
-<li><a href="chapter_01.html" >Ch 1. 하드웨어 및 환경 구축</a></li>
-<li><a href="chapter_02.html" class="active">Ch 2. 펌웨어 설치 및 설정</a></li>
-<li><a href="chapter_03.html" >Ch 3. 내장 LED 제어 (Blink)</a></li>
-<li><a href="chapter_04.html" >Ch 4. 무선 Wi-Fi 연결 테스트</a></li>
-<li><a href="chapter_05.html" >Ch 5. 실전 IoT 웹 서버 오픈</a></li>
-
+                <li><a href="index.html">HOME - 시작하기</a></li>
+                <li><a href="chapter_01.html">CHAPTER 1 - 하드웨어 이해</a></li>
+                <li><a href="chapter_02.html" class="active">CHAPTER 2 - 펌웨어 세팅</a></li>
+                <li><a href="chapter_03.html">CHAPTER 3 - 기초 코딩(Blink)</a></li>
+                <li><a href="chapter_04.html">CHAPTER 4 - Wi-Fi 연결</a></li>
+                <li><a href="chapter_05.html">CHAPTER 5 - IoT 웹 서버</a></li>
             </ul>
         </nav>
-        <main class="main-content">
+        <main class="content">
             <div class="container">
+                <h1>Chapter 2. 펌웨어 설치 및 초기 설정</h1>
+                <p>보드가 파이썬 언어를 알아듣게 하려면 <strong>MicroPython 펌웨어</strong>라는 소프트웨어를 보드의 두뇌에 심어줘야 합니다.</p>
+
+                <h2>2.1 BOOTSEL 모드 진입</h2>
+                <p>펌웨어를 설치하기 위해서는 보드를 특별한 '파일 전송 모드'로 부팅해야 합니다.</p>
                 
-            <h1>Chapter 2: MicroPython 펌웨어 설치 및 초기 설정</h1>
-            <h2>2.1 BOOTSEL 모드 연결 및 플래싱</h2>
-            <p>새로운 펌웨어를 보드에 주입하기 위해 보드를 부팅 파일 전송 모드로 전환해야 합니다.</p>
-            
-            <div class="image-placeholder">[Image of Raspberry Pi Pico 2 W BOOTSEL button location]</div>
-            
-            <ol>
-                <li>보드의 <strong>BOOTSEL 버튼</strong>을 누른 상태로 마이크로 5핀 케이블을 PC에 연결합니다.</li>
-                <li>화면에 이동식 디스크(<code>RP2350</code>)가 인식되면 버튼에서 손을 뗍니다.</li>
-                <li>Thonny 프로그램을 실행한 뒤 우측 하단 인터프리터 설정에서 <strong>MicroPython (Raspberry Pi Pico)</strong>를 선택하고 설치를 진행합니다.</li>
-            </ol>
-            
-            <div class="callout warning">
-                <h3>⚠️ 초보자가 가장 많이 하는 실수 (SyntaxError)</h3>
-                <p>Thonny 하단의 셸(Shell) 창에 <code>pip install machine</code>을 입력하면 에러가 납니다. <code>machine</code>은 펌웨어에 이미 내장되어 있으므로 설치할 필요가 없습니다.</p>
-            </div>
-        
+                <div class="img-placeholder">
+                    <i class="fa-solid fa-hand-pointer"></i>
+                    <p>이미지: BOOTSEL 버튼을 누른 채 USB를 연결하는 모습</p>
+                    <span>(버튼 위치와 케이블 연결 방향을 보여주는 실사 이미지)</span>
+                </div>
+
+                <ol>
+                    <li>보드에서 케이블을 분리합니다.</li>
+                    <li>보드 위의 <strong>하얀색 BOOTSEL 버튼</strong>을 꾹 누릅니다.</li>
+                    <li>버튼을 누른 상태에서 USB 케이블을 컴퓨터에 연결합니다.</li>
+                    <li>윈도우 탐색기에 <code>RP2350</code>이라는 이름의 이동식 디스크가 나타나면 버튼에서 손을 뗍니다.</li>
+                </ol>
+
+                <h2>2.2 Thonny에서 펌웨어 설치</h2>
+                <p>이제 Thonny 소프트웨어를 통해 자동으로 펌웨어를 다운로드하겠습니다.</p>
+                <ul>
+                    <li>Thonny 우측 하단의 인터프리터 설정(예: Python 3.10)을 클릭합니다.</li>
+                    <li><strong>Configure interpreter...</strong>를 선택합니다.</li>
+                    <li>인터프리터 탭에서 <strong>MicroPython (Raspberry Pi Pico)</strong>를 고릅니다.</li>
+                    <li>하단의 <strong>Install or update MicroPython</strong> 버튼을 눌러 펌웨어를 보드에 굽습니다.</li>
+                </ul>
+
+                <div class="callout warn">
+                    <h4>⚠️ 주의사항</h4>
+                    <p>펌웨어 설치가 끝나면 이동식 디스크 창이 사라집니다. 이는 정상적인 현상입니다. 이제 보드는 이동식 디스크가 아닌 <strong>컴퓨터 통신 포트(COM)</strong>로 인식됩니다.</p>
+                </div>
+
+                <div class="nav-btns">
+                    <a href="chapter_01.html" class="btn btn-prev">◀ CHAPTER 1</a>
+                    <a href="chapter_03.html" class="btn btn-next">CHAPTER 3으로 이동 ▶</a>
+                </div>
             </div>
         </main>
     </div>

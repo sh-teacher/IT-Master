@@ -2,59 +2,69 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ch 4. 무선 네트워크 - Pico 2 W 입문 가이드</title>
+    <title>Ch 4. Wi-Fi 연결 - Pico 2 W 가이드</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
-    <div class="wrapper">
+    <div class="layout">
         <nav class="sidebar">
-            <h2>Pico 2 W IoT 교재</h2>
+            <h2>PICO 2 W IoT GUIDE</h2>
             <ul>
-                <li><a href="index.html" >홈 / 개요</a></li>
-<li><a href="chapter_01.html" >Ch 1. 하드웨어 및 환경 구축</a></li>
-<li><a href="chapter_02.html" >Ch 2. 펌웨어 설치 및 설정</a></li>
-<li><a href="chapter_03.html" >Ch 3. 내장 LED 제어 (Blink)</a></li>
-<li><a href="chapter_04.html" class="active">Ch 4. 무선 Wi-Fi 연결 테스트</a></li>
-<li><a href="chapter_05.html" >Ch 5. 실전 IoT 웹 서버 오픈</a></li>
-
+                <li><a href="index.html">HOME - 시작하기</a></li>
+                <li><a href="chapter_01.html">CHAPTER 1 - 하드웨어 이해</a></li>
+                <li><a href="chapter_02.html">CHAPTER 2 - 펌웨어 세팅</a></li>
+                <li><a href="chapter_03.html">CHAPTER 3 - 기초 코딩(Blink)</a></li>
+                <li><a href="chapter_04.html" class="active">CHAPTER 4 - Wi-Fi 연결</a></li>
+                <li><a href="chapter_05.html">CHAPTER 5 - IoT 웹 서버</a></li>
             </ul>
         </nav>
-        <main class="main-content">
+        <main class="content">
             <div class="container">
-                
-            <h1>Chapter 4: 무선 네트워크(Wi-Fi) 연결 테스트</h1>
-            <h2>4.1 2.4GHz 주파수 대역 한계</h2>
-            <p>Pico 2 W는 <strong>2.4GHz 주파수 신호만 수신</strong>할 수 있습니다. 5GHz 대역(_5G)에는 연결할 수 없으니 일반 2.4GHz 와이파이를 준비하세요.</p>
-            
-            <h2>4.2 연결 테스트 소스 코드</h2>
-            <pre><code>import network
+                <h1>Chapter 4. 무선 Wi-Fi 연결 테스트</h1>
+                <p>이제 Pico 2 W의 핵심인 무선 인터넷 기능을 활성화해 보겠습니다.</p>
+
+                <h2>4.1 네트워크 주파수 확인</h2>
+                <div class="callout warn">
+                    <h4>⚠️ 중요한 제약 조건</h4>
+                    <p>Pico 2 W는 <strong>2.4GHz</strong> 대역의 와이파이만 지원합니다. 공유기 이름 끝에 '5G'가 붙은 주파수에는 연결할 수 없으므로 주의하세요.</p>
+                </div>
+
+                <div class="img-placeholder">
+                    <i class="fa-solid fa-wifi"></i>
+                    <p>이미지: 공유기와 보드 간의 데이터 송수신 개념도</p>
+                    <span>(공유기 신호를 잡아 IP를 부여받는 과정 설명)</span>
+                </div>
+
+                <h2>4.2 연결 코드 실습</h2>
+                <pre><code>import network
 import time
 
 ssid = '여기에_와이파이_이름'
 password = '여기에_비밀번호'
 
-def connect_wifi():
-    wlan = network.WLAN(network.STA_IF)
+def connect():
+    wlan = network.WLAN(network.STA_IF) # 스테이션 모드 활성
     wlan.active(True)
     wlan.connect(ssid, password)
     
-    print("와이파이 연결 시도 중...")
-    max_wait = 10
-    
-    while max_wait > 0:
-        if wlan.status() < 0 or wlan.status() >= 3:
-            break
-        max_wait -= 1
+    print("연결 중...", end="")
+    while not wlan.isconnected():
+        print(".", end="")
         time.sleep(1)
         
-    if wlan.status() != 3:
-        print("❌ 연결 실패!")
-    else:
-        print("🎉 연결 성공! IP 주소:", wlan.ifconfig()[0])
+    print("\n🎉 연결 성공!")
+    print("보드 IP 주소:", wlan.ifconfig()[0])
 
-connect_wifi()</code></pre>
-        
+connect()</code></pre>
+
+                <h2>4.3 결과 확인</h2>
+                <p>코드를 실행했을 때 하단 셸 창에 <code>192.168.x.x</code>와 같은 숫자가 나오면 성공입니다. 이 숫자는 보드가 공유기로부터 부여받은 <strong>고유 주소(IP)</strong>입니다.</p>
+
+                <div class="nav-btns">
+                    <a href="chapter_03.html" class="btn btn-prev">◀ CHAPTER 3</a>
+                    <a href="chapter_05.html" class="btn btn-next">최종 CHAPTER 5로 이동 ▶</a>
+                </div>
             </div>
         </main>
     </div>

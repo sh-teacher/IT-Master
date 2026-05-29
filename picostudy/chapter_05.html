@@ -2,84 +2,103 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ch 5. 웹 서버 제어 - Pico 2 W 입문 가이드</title>
+    <title>Ch 5. IoT 웹 서버 - Pico 2 W 가이드</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
-    <div class="wrapper">
+    <div class="layout">
         <nav class="sidebar">
-            <h2>Pico 2 W IoT 교재</h2>
+            <h2>PICO 2 W IoT GUIDE</h2>
             <ul>
-                <li><a href="index.html" >홈 / 개요</a></li>
-<li><a href="chapter_01.html" >Ch 1. 하드웨어 및 환경 구축</a></li>
-<li><a href="chapter_02.html" >Ch 2. 펌웨어 설치 및 설정</a></li>
-<li><a href="chapter_03.html" >Ch 3. 내장 LED 제어 (Blink)</a></li>
-<li><a href="chapter_04.html" >Ch 4. 무선 Wi-Fi 연결 테스트</a></li>
-<li><a href="chapter_05.html" class="active">Ch 5. 실전 IoT 웹 서버 오픈</a></li>
-
+                <li><a href="index.html">HOME - 시작하기</a></li>
+                <li><a href="chapter_01.html">CHAPTER 1 - 하드웨어 이해</a></li>
+                <li><a href="chapter_02.html">CHAPTER 2 - 펌웨어 세팅</a></li>
+                <li><a href="chapter_03.html">CHAPTER 3 - 기초 코딩(Blink)</a></li>
+                <li><a href="chapter_04.html">CHAPTER 4 - Wi-Fi 연결</a></li>
+                <li><a href="chapter_05.html" class="active">CHAPTER 5 - IoT 웹 서버</a></li>
             </ul>
         </nav>
-        <main class="main-content">
+        <main class="content">
             <div class="container">
-                
-            <h1>Chapter 5: 실전 IoT - 웹 서버 구축을 통한 원격 LED 제어</h1>
-            <h2>5.1 동작 원리 및 아키텍처</h2>
-            <p>Pico 2 W 보드가 IP를 할당받은 후 TCP 80번 포트를 열어 웹 서버 역할을 수행합니다. 사용자가 스마트폰 브라우저로 접속하면 보드가 HTML 버튼 양식을 띄워주고 클릭 시 LED를 제어합니다.</p>
-            
-            <div class="image-placeholder">[Image of IoT Client-Server Architecture for Pico 2 W]</div>
-            
-            <h2>5.2 통합 사물인터넷(IoT) 소스 코드</h2>
-            <pre><code>import network
+                <h1>Chapter 5. 실전 IoT: 웹 기반 원격 LED 제어</h1>
+                <p>우리의 최종 목표입니다. 보드가 서버가 되어, 전 세계 어디서든(같은 와이파이 내) 스마트폰으로 LED를 켜고 끌 수 있게 만듭니다.</p>
+
+                <div class="img-placeholder">
+                    <i class="fa-solid fa-mobile-screen-button"></i>
+                    <p>이미지: 스마트폰 브라우저에 뜬 버튼과 보드의 LED 동작</p>
+                    <span>(브라우저 화면의 "LED ON" 버튼 클릭 시 보드 불이 켜지는 모습)</span>
+                </div>
+
+                <h2>5.1 전체 프로젝트 코드</h2>
+                <p>아래 코드를 <code>main.py</code>로 저장하여 실행하세요.</p>
+                <pre><code>import network
 import socket
 import time
 from machine import Pin
 
-# 네트워크 연결
+# 네트워크 설정 (본인 정보 기입)
 ssid = '와이파이_이름'
 password = '비밀번호'
+
 led = Pin("LED", Pin.OUT)
 
+# Wi-Fi 연결 함수
 wlan = network.WLAN(network.STA_IF)
 wlan.active(True)
 wlan.connect(ssid, password)
-
 while not wlan.isconnected():
     time.sleep(1)
-
 ip = wlan.ifconfig()[0]
-print(f"🎉 웹 서버 가동! 브라우저 주소: http://{ip}")
+print(f'서버 가동! 접속 주소: http://{ip}')
 
-# 소켓 바인딩
+# 웹 서버 대기 (Socket)
 addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
 s = socket.socket()
 s.bind(addr)
 s.listen(1)
 
-def web_page():
-    return '''&lt;!DOCTYPE html&gt;
+# 웹사이트 화면 구성
+def get_html():
+    return """&lt;!DOCTYPE html&gt;
     &lt;html&gt;
-    &lt;body style="text-align:center; font-family:sans-serif; margin-top:50px;"&gt;
-        &lt;h1&gt;Pico 2 W 원격 제어 센터&lt;/h1&gt;
-        &lt;a href="/?led=on"&gt;&lt;button style="padding:15px; background:lightgreen;"&gt;LED 켜기&lt;/button&gt;&lt;/a&gt;
-        &lt;a href="/?led=off"&gt;&lt;button style="padding:15px; background:salmon;"&gt;LED 끄기&lt;/button&gt;&lt;/a&gt;
+    &lt;body style="text-align:center;"&gt;
+        &lt;h1&gt;Pico 2 W 원격 제어&lt;/h1&gt;
+        &lt;a href="/?led=on"&gt;&lt;button style="font-size:30px; background:green; color:white;"&gt;LED ON&lt;/button&gt;&lt;/a&gt;
+        &lt;a href="/?led=off"&gt;&lt;button style="font-size:30px; background:red; color:white;"&gt;LED OFF&lt;/button&gt;&lt;/a&gt;
     &lt;/body&gt;
-    &lt;/html&gt;'''
+    &lt;/html&gt;"""
 
 while True:
-    cl, addr = s.accept()
-    request = cl.recv(1024).decode('utf-8')
-    
-    if '/?led=on' in request:
-        led.value(1)
-    if '/?led=off' in request:
-        led.value(0)
+    try:
+        cl, addr = s.accept()
+        request = cl.recv(1024).decode('utf-8')
         
-    response = web_page()
-    cl.send('HTTP/1.0 200 OK\r\nContent-type: text/html\r\n\r\n')
-    cl.send(response)
-    cl.close()</code></pre>
-        
+        if '/?led=on' in request: led.value(1)
+        if '/?led=off' in request: led.value(0)
+            
+        cl.send('HTTP/1.0 200 OK\r\nContent-type: text/html\r\n\r\n')
+        cl.send(get_html())
+        cl.close()
+    except Exception as e:
+        cl.close()</code></pre>
+
+                <h2>5.2 실습 마무리</h2>
+                <ol>
+                    <li>코드를 실행하고 출력된 <code>http://192.168.x.x</code> 주소를 확인합니다.</li>
+                    <li>같은 와이파이에 연결된 스마트폰 브라우저에 이 주소를 입력합니다.</li>
+                    <li>화면에 뜬 <strong>LED ON/OFF</strong> 버튼을 눌러보세요!</li>
+                </ol>
+
+                <div class="callout info">
+                    <h4>🎉 축하합니다!</h4>
+                    <p>이제 당신은 보이지 않는 전파를 통해 물리적인 하드웨어를 제어하는 진정한 IoT 메이커가 되었습니다.</p>
+                </div>
+
+                <div class="nav-btns">
+                    <a href="chapter_04.html" class="btn btn-prev">◀ CHAPTER 4</a>
+                    <span></span>
+                </div>
             </div>
         </main>
     </div>
