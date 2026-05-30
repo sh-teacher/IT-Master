@@ -148,5 +148,77 @@ connect_wifi()
             </div>
         </main>
     </div>
+
+    <script>
+    window.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('pre').forEach((preBlock) => {
+            // 안전장치: 내부의 code 태그가 없으면 에러 방지를 위해 건너뜀
+            const codeBlock = preBlock.querySelector('code');
+            if (!codeBlock) return;
+
+            // 1. 코드를 감싸는 부모 박스(Wrapper) 동적 생성
+            const wrapper = document.createElement('div');
+            wrapper.className = 'code-wrapper';
+            preBlock.parentNode.insertBefore(wrapper, preBlock);
+            wrapper.appendChild(preBlock);
+
+            // 2. 우측 상단 복사 버튼 생성
+            const topBtn = document.createElement('button');
+            topBtn.className = 'copy-btn btn-top';
+            topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
+            
+            // 3. 우측 하단 복사 버튼 생성
+            const bottomBtn = document.createElement('button');
+            bottomBtn.className = 'copy-btn btn-bottom';
+            bottomBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
+
+            wrapper.appendChild(topBtn);
+            wrapper.appendChild(bottomBtn);
+
+            // 4. 복사 핵심 기능 구현
+            const codeText = codeBlock.innerText;
+            
+            const copyToClipboard = (btn) => {
+                // [구형/로컬 보안 대응용] file:// 환경이거나 클립보드 API가 차단된 경우 우회법
+                if (!navigator.clipboard) {
+                    const textArea = document.createElement("textarea");
+                    textArea.value = codeText;
+                    textArea.style.position = "fixed"; // 화면 왜곡 방지
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        showSuccess(btn);
+                    } catch (err) {
+                        console.error('우회 복사 실패:', err);
+                    }
+                    document.body.removeChild(textArea);
+                    return;
+                }
+
+                // [최신/웹서버 환경용] 최신 브라우저 표준 복사
+                navigator.clipboard.writeText(codeText).then(() => {
+                    showSuccess(btn);
+                }).catch(err => {
+                    console.error('표준 복사 실패:', err);
+                });
+            };
+
+            // 복사 성공 시 UI 변경 함수
+            const showSuccess = (btn) => {
+                btn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> 완료';
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
+                    btn.classList.remove('copied');
+                }, 2000);
+            };
+
+            topBtn.addEventListener('click', () => copyToClipboard(topBtn));
+            bottomBtn.addEventListener('click', () => copyToClipboard(bottomBtn));
+        });
+    });
+    </script>
 </body>
 </html>
