@@ -49,11 +49,16 @@ while not wlan.isconnected():
     time.sleep(0.5)
 print('와이파이 연결 성공! IP 주소:', wlan.ifconfig()[0])
 
-# 80번 포트(웹 기본 포트)를 열고 대기 상태로 들어갑니다.
+# 웹 서버 대기 (Socket)
 addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
 s = socket.socket()
+
+# ◀ [핵심] 이 한 줄을 bind 직전에 추가해줘! 포트 재사용을 허용하는 명령이야.
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
 s.bind(addr)
 s.listen(1)
+
 print("1단계 기본 통신 서버 가동...")
 
 while True:
