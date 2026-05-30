@@ -85,41 +85,49 @@ time.sleep(5)
 print("연결 성공 여부:", wlan.isconnected())
 </code></pre>
 
-                <h3>[3단계] 완벽한 무한 대기 루프와 IP 주소 확인하기 (완성형)</h3>
-                <p>2단계처럼 무작정 5초를 기다리는 것은 비효율적입니다. 공유기 상태에 따라 2초 만에 붙을 수도 있고 7초가 걸릴 수도 있기 때문입니다. <code>while</code> 문을 사용해 연결될 때까지 점(.)을 찍으며 기다리고, 연결이 완료되면 부여받은 IP 주소를 출력하는 최종 코드입니다.</p>
+                <h3>[3단계] 강제 재접속 기능과 무한 대기 루프 (완성형)</h3>
+                <p>보드가 이미 기존 와이파이에 연결되어 있다면 매번 접속 과정을 거치지 않아 효율적이지만, <strong>와이파이를 다른 곳으로 변경하거나 강제로 끊고 재접속(새로고침)</strong>하고 싶을 때는 문제가 됩니다. 기존 연결을 확실하게 파기(Disconnect)하고 처음부터 다시 안전하게 접속하는 실전 완성형 코드입니다.</p>
                 <pre><code>import network
 import time
 
 ssid = '여기에_와이파이_이름'
 password = '여기에_비밀번호'
 
-def connect_wifi():
+def connect_wifi(force_reconnect=True):
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
     
-    # 이미 연결되어 있다면 함수를 바로 종료합니다.
-    if wlan.isconnected():
+    # 만약 이미 연결되어 있는 상태인데, 강제 재접속(force_reconnect)이 True라면!
+    if wlan.isconnected() and force_reconnect:
+        print("기존 Wi-Fi 연결이 감지되었습니다. 연결을 끊고 재접속을 시도합니다...")
+        wlan.disconnect() # ◀ 기존 연결 계약을 즉시 해제합니다.
+        
+        # 연결이 완전히 끊어질 때까지 안전하게 대기합니다.
+        while wlan.isconnected():
+            print("x", end="")
+            time.sleep(0.5)
+        print("\n기존 연결 해제 완료.")
+    
+    # 이미 연결되어 있고, 강제 재접속을 원하지 않는 경우
+    elif wlan.isconnected() and not force_reconnect:
         print("이미 와이파이에 연결되어 있습니다.")
         print("IP 주소:", wlan.ifconfig()[0])
         return
 
-    # 연결 시도
+    # [새로운 연결 프로세스 시작]
     wlan.connect(ssid, password)
     
-    print("연결 중", end="")
-    # 와이파이가 연결될 때까지(True가 될 때까지) 반복해서 점을 찍으며 대기합니다.
+    print(f"{ssid}에 연결 중", end="")
+    # 와이파이가 완전히 붙을 때까지 점(.)을 찍으며 대기합니다.
     while not wlan.isconnected():
         print(".", end="")
         time.sleep(0.5)
         
     print("\n🎉 와이파이 연결 성공!")
-    
-    # 연결된 네트워크 정보(IP, 서브넷마스크, 게이트웨이, DNS)를 가져옵니다.
-    status = wlan.ifconfig()
-    print("보드가 부여받은 고유 IP 주소:", status[0])
+    print("보드가 부여받은 고유 IP 주소:", wlan.ifconfig()[0])
 
-# 함수 실행
-connect_wifi()
+# 함수 실행 (기본적으로 기존 연결을 끊고 새로 접속함)
+connect_wifi(force_reconnect=True)
 </code></pre>
                 
 
@@ -132,13 +140,10 @@ connect_wifi()
                 </div>
 
                 <div class="callout info">
-                    <h4>💡 ifconfig() 배열의 비밀</h4>
-                    <p><code>wlan.ifconfig()</code> 함수는 총 4개의 중요한 네트워크 정보를 반환합니다. 
-                    <br>• <strong>[0]번방:</strong> 보드의 IP 주소 (예: 192.168.0.15)
-                    <br>• <strong>[1]번방:</strong> 서브넷 마스크 (네트워크 영역 크기)
-                    <br>• <strong>[2]번방:</strong> 게이트웨이 주소 (공유기의 원래 주소)
-                    <br>• <strong>[3]번방:</strong> DNS 주소 (도메인 이름을 바꾸어주는 주소)
-                    <br>우리는 이 중에서 주로 0번방에 있는 IP 주소를 사용하여 다음 장에서 웹 서버를 열게 됩니다.</p>
+                    <h4>💡 알아두면 좋은 무선 통신 함수 요약</h4>
+                    <p>• <code>wlan.disconnect()</code>: 현재 공유기와의 무선 연결을 강제로 끊어버립니다. 네트워크 정보를 갱신하거나 재시험할 때 필수적입니다.
+                    <br>• <code>wlan.isconnected()</code>: 현재 보드가 인터넷에 잘 붙어있는지 유무를 True/False로 알려줍니다.
+                    <br>• <code>wlan.ifconfig()</code>: 연결된 네트워크의 상세 배열을 반환하며, <code>[0]</code>번 방에 저장된 IP 주소는 다음 장인 'IoT 웹 서버' 제작 시 외부 접속 주소로 사용됩니다.</p>
                 </div>
 
                 <div class="nav-btns">
@@ -152,7 +157,6 @@ connect_wifi()
     <script>
     window.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('pre').forEach((preBlock) => {
-            // 안전장치: 내부의 code 태그가 없으면 에러 방지를 위해 건너뜀
             const codeBlock = preBlock.querySelector('code');
             if (!codeBlock) return;
 
@@ -175,15 +179,15 @@ connect_wifi()
             wrapper.appendChild(topBtn);
             wrapper.appendChild(bottomBtn);
 
-            // 4. 복사 핵심 기능 구현
+            // 4. 복사 기능 정의
             const codeText = codeBlock.innerText;
             
             const copyToClipboard = (btn) => {
-                // [구형/로컬 보안 대응용] file:// 환경이거나 클립보드 API가 차단된 경우 우회법
+                // 로컬 컴퓨터(file://) 환경 보안 우회법 (Clipboard API 미지원 대응)
                 if (!navigator.clipboard) {
                     const textArea = document.createElement("textarea");
                     textArea.value = codeText;
-                    textArea.style.position = "fixed"; // 화면 왜곡 방지
+                    textArea.style.position = "fixed"; 
                     document.body.appendChild(textArea);
                     textArea.select();
                     try {
@@ -196,7 +200,7 @@ connect_wifi()
                     return;
                 }
 
-                // [최신/웹서버 환경용] 최신 브라우저 표준 복사
+                // 일반적인 최신 웹 환경에서의 표준 복사
                 navigator.clipboard.writeText(codeText).then(() => {
                     showSuccess(btn);
                 }).catch(err => {
@@ -204,7 +208,7 @@ connect_wifi()
                 });
             };
 
-            // 복사 성공 시 UI 변경 함수
+            // 복사 성공 UI 연출
             const showSuccess = (btn) => {
                 btn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> 완료';
                 btn.classList.add('copied');
