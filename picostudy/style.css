@@ -115,70 +115,106 @@ pre code { background: none; color: inherit; padding: 0; }
     bottom: 10px;
     right: 10px;
 }
-/* 팝업창(모달) 전체 배경 영역 (기본적으론 숨김) */
-.custom-modal {
-    display: none; 
-    position: fixed; 
-    z-index: 9999; /* 화면 최상단에 띄움 */
-    left: 0;
-    top: 0;
+/* 사이드바 하단 핀아웃 버튼 영역 */
+.sidebar-footer {
+    padding: 20px 15px;
+    margin-top: 30px;
+}
+
+.pinout-btn {
     width: 100%;
-    height: 100%;
-    background-color: rgba(15, 23, 42, 0.7); /* 어두운 반투명 배경 */
-    backdrop-filter: blur(4px); /* 뒷배경 흐리게 처리 (고급 기술) */
-    justify-content: center;
-    align-items: center;
-}
-
-/* 실제 내용이 들어가는 흰색 팝업 박스 */
-.modal-window {
-    background-color: #ffffff;
-    padding: 30px;
-    border-radius: 16px;
-    max-width: 700px;
-    width: 90%;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
-    position: relative;
-    text-align: center;
-    animation: popUpEffect 0.3s ease-out; /* 나타날 때 뿅 하고 나타나는 효과 */
-}
-
-@keyframes popUpEffect {
-    from { transform: scale(0.9); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-}
-
-/* 팝업창 내부 이미지와 글씨 */
-.modal-window h3 {
-    margin-top: 0;
-    color: #1e293b;
-    font-size: 1.3rem;
-}
-.modal-window img {
-    width: 100%;
-    max-height: 400px;
-    object-fit: contain;
+    padding: 12px;
+    background: #2563eb; /* 신뢰감을 주는 파란색 */
+    color: white;
+    border: none;
     border-radius: 8px;
-    margin: 15px 0;
-    border: 1px solid #e2e8f0;
-}
-.modal-window p {
-    color: #475569;
-    font-size: 0.95rem;
-    margin-bottom: 0;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
 }
 
-/* 우측 상단 닫기(X) 버튼 */
-.close-modal-btn {
-    position: absolute;
-    top: 15px;
-    right: 20px;
-    font-size: 28px;
-    font-weight: bold;
-    color: #94a3b8;
-    cursor: pointer;
-    transition: color 0.2s;
+.pinout-btn:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
 }
-.close-modal-btn:hover {
-    color: #ef4444; /* 마우스 올리면 빨갛게 변함 */
+
+/* 팝업 모달 전체 배경 오버레이 */
+.pinout-modal {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 2000; /* 최상단에 띄우기 */
+    display: none; /* 기본 상태는 숨김 */
+    align-items: center;
+    justify-content: center;
+}
+
+/* 모달이 활성화되었을 때 클래스 */
+.pinout-modal.active {
+    display: flex;
+}
+
+.modal-backdrop {
+    position: absolute; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.6); /* 어두운 투명 배경 */
+    backdrop-filter: blur(4px); /* 뒷배경 흐리게 효과 */
+}
+
+/* 팝업 창 본체 */
+.modal-box {
+    position: relative;
+    background: white;
+    padding: 30px 20px 20px 20px;
+    border-radius: 16px;
+    width: 85%;
+    max-width: 1000px;
+    height: 80%;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+    z-index: 2001;
+    animation: modalSlideUp 0.3s ease-out;
+}
+
+/* 팝업 우측 상단 닫기 X 버튼 */
+.modal-close-btn {
+    position: absolute; top: 15px; right: 20px;
+    font-size: 28px; border: none; background: none;
+    cursor: pointer; color: #94a3b8; transition: color 0.2s;
+}
+.modal-close-btn:hover { color: #1e293b; }
+
+.modal-box h3 {
+    margin: 0 0 15px 0;
+    font-size: 1.2rem; color: #1e293b;
+    display: flex; align-items: center; gap: 8px;
+}
+
+/* 도면 이미지가 담기는 스크롤 박스 */
+.modal-img-container {
+    overflow: auto; /* 도면이 크므로 스크롤바가 생기도록 설정 */
+    flex-grow: 1;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #f8fafc;
+    padding: 10px;
+}
+
+.modal-img-container img {
+    display: block;
+    margin: 0 auto;
+    min-width: 850px; /* 핀 이름 글씨가 깨지지 않고 보이도록 최소 너비 유지 */
+    max-width: 100%;
+    height: auto;
+}
+
+/* 팝업이 아래서 위로 통 튀어오르는 애니메이션 */
+@keyframes modalSlideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
