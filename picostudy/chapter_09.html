@@ -24,6 +24,9 @@
                 <li><a href="chapter_09.html" class="active">CHAPTER 9 - LCD 디스플레이</a></li>
                 <li><a href="chapter_10.html">CHAPTER 10 - 무선 통신 & 입력</a></li>
             </ul>
+            <div class="sidebar-footer">
+                <button class="pinout-btn" id="openPinout"><i class="fa-solid fa-diagram-project"></i> GPIO 핀아웃 맵 보기</button>
+            </div>
         </nav>
         <main class="content">
             <div class="container">
@@ -83,5 +86,40 @@ while True:
             </div>
         </main>
     </div>
+    <div class="pinout-modal" id="pinoutModal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-box">
+            <button class="modal-close-btn" id="closePinout">&times;</button>
+            <h3><i class="fa-solid fa-circle-info" style="color:#2563eb;"></i> Raspberry Pi Pico 2 W Pinout Spec</h3>
+            <div class="modal-img-container">
+                <img src="https://www.raspberrypi.com/documentation/microcontrollers/images/pico2w-pinout.svg" alt="Pico 2 W Pinout Map">
+            </div>
+        </div>
+    </div>
+
+    <script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const openBtn = document.getElementById('openPinout');
+        const closeBtn = document.getElementById('closePinout');
+        const modal = document.getElementById('pinoutModal');
+        const backdrop = modal.querySelector('.modal-backdrop');
+
+        if (openBtn && modal) {
+            // 버튼 누르면 열기
+            openBtn.addEventListener('click', () => modal.classList.add('active'));
+            // X 버튼 누르면 닫기
+            closeBtn.addEventListener('click', () => modal.classList.remove('active'));
+            // 흐린 배경 누르면 닫기
+            backdrop.addEventListener('click', () => modal.classList.remove('active'));
+            
+            // ESC 키 누르면 닫히는 센스있는 단축키 기능 추가
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && modal.classList.contains('active')) {
+                    modal.classList.remove('active');
+                }
+            });
+        }
+    });
+    </script>
 </body>
 </html>

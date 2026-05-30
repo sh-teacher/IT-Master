@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -24,6 +25,9 @@
                 <li><a href="chapter_09.html">CHAPTER 9 - LCD 디스플레이</a></li>
                 <li><a href="chapter_10.html">CHAPTER 10 - 무선 통신 & 입력</a></li>
             </ul>
+            <div class="sidebar-footer">
+                <button class="pinout-btn" id="openPinout"><i class="fa-solid fa-diagram-project"></i> GPIO 핀아웃 맵 보기</button>
+            </div>
         </nav>
         <main class="content">
             <div class="container">
@@ -104,19 +108,102 @@ buzzer.deinit()
         document.querySelectorAll('pre').forEach((preBlock) => {
             const codeBlock = preBlock.querySelector('code');
             if (!codeBlock) return;
+
+            // 1. 코드를 감싸는 부모 박스(Wrapper) 동적 생성
             const wrapper = document.createElement('div');
             wrapper.className = 'code-wrapper';
             preBlock.parentNode.insertBefore(wrapper, preBlock);
             wrapper.appendChild(preBlock);
+
+            // 2. 우측 상단 복사 버튼 생성
             const topBtn = document.createElement('button');
             topBtn.className = 'copy-btn btn-top';
             topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
+            
+            // 3. 우측 하단 복사 버튼 생성
             const bottomBtn = document.createElement('button');
             bottomBtn.className = 'copy-btn btn-bottom';
             bottomBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
+
             wrapper.appendChild(topBtn);
             wrapper.appendChild(bottomBtn);
+
+            // 4. 복사 기능 정의
             const codeText = codeBlock.innerText;
+            
             const copyToClipboard = (btn) => {
                 if (!navigator.clipboard) {
-                    const ...
+                    const textArea = document.createElement("textarea");
+                    textArea.value = codeText;
+                    textArea.style.position = "fixed"; 
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        showSuccess(btn);
+                    } catch (err) {
+                        console.error('우회 복사 실패:', err);
+                    }
+                    document.body.removeChild(textArea);
+                    return;
+                }
+
+                navigator.clipboard.writeText(codeText).then(() => {
+                    showSuccess(btn);
+                }).catch(err => {
+                    console.error('표준 복사 실패:', err);
+                });
+            };
+
+            const showSuccess = (btn) => {
+                btn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> 완료';
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
+                    btn.classList.remove('copied');
+                }, 2000);
+            };
+
+            topBtn.addEventListener('click', () => copyToClipboard(topBtn));
+            bottomBtn.addEventListener('click', () => copyToClipboard(bottomBtn));
+        });
+    });
+    </script>
+    <div class="pinout-modal" id="pinoutModal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-box">
+            <button class="modal-close-btn" id="closePinout">&times;</button>
+            <h3><i class="fa-solid fa-circle-info" style="color:#2563eb;"></i> Raspberry Pi Pico 2 W Pinout Spec</h3>
+            <div class="modal-img-container">
+                <img src="https://www.raspberrypi.com/documentation/microcontrollers/images/pico2w-pinout.svg" alt="Pico 2 W Pinout Map">
+            </div>
+        </div>
+    </div>
+
+    <script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const openBtn = document.getElementById('openPinout');
+        const closeBtn = document.getElementById('closePinout');
+        const modal = document.getElementById('pinoutModal');
+        const backdrop = modal.querySelector('.modal-backdrop');
+
+        if (openBtn && modal) {
+            // 버튼 누르면 열기
+            openBtn.addEventListener('click', () => modal.classList.add('active'));
+            // X 버튼 누르면 닫기
+            closeBtn.addEventListener('click', () => modal.classList.remove('active'));
+            // 흐린 배경 누르면 닫기
+            backdrop.addEventListener('click', () => modal.classList.remove('active'));
+            
+            // ESC 키 누르면 닫히는 센스있는 단축키 기능 추가
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && modal.classList.contains('active')) {
+                    modal.classList.remove('active');
+                }
+            });
+        }
+    });
+    </script>
+    </body>
+</html>
