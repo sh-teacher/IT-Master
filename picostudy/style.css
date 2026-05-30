@@ -59,3 +59,59 @@ pre code { background: none; color: inherit; padding: 0; }
     .sidebar { display: none; }
     .content { margin-left: 0; padding: 40px 20px; }
 }
+/* 코드 복사 버튼 스타일 */
+.code-wrapper {
+    position: relative;
+    margin-bottom: 25px;
+}
+
+/* 예제 코드 박스 자체의 여백 조정 (버튼과 겹치지 않게) */
+.code-wrapper pre {
+    padding-top: 40px;
+    padding-bottom: 40px;
+    margin: 0;
+}
+
+/* 복사 버튼 공통 스타일 */
+.copy-btn {
+    position: absolute;
+    background: rgba(241, 245, 249, 0.9); /* 연한 회색 반투명 */
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 5;
+}
+
+.copy-btn i {
+    margin-right: 4px;
+}
+
+/* 마우스 올렸을 때 효과 */
+.copy-btn:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+/* 복사 완료되었을 때 효과 */
+.copy-btn.copied {
+    background: #ecfdf5;
+    border-color: #10b981;
+    color: #065f46;
+}
+
+/* 위치 지정: 우측 상단 */
+.btn-top {
+    top: 10px;
+    right: 10px;
+}
+
+/* 위치 지정: 우측 하단 */
+.btn-bottom {
+    bottom: 10px;
+    right: 10px;
+}

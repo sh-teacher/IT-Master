@@ -101,5 +101,50 @@ while True:
             </div>
         </main>
     </div>
+    <script>
+document.querySelectorAll('pre').forEach((preBlock) => {
+    // 1. 코드를 감싸는 부모 박스(Wrapper) 동적 생성
+    const wrapper = document.createElement('div');
+    wrapper.className = 'code-wrapper';
+    preBlock.parentNode.insertBefore(wrapper, preBlock);
+    wrapper.appendChild(preBlock);
+
+    // 2. 우측 상단 복사 버튼 생성
+    const topBtn = document.createElement('button');
+    topBtn.className = 'copy-btn btn-top';
+    topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
+    
+    // 3. 우측 하단 복사 버튼 생성
+    const bottomBtn = document.createElement('button');
+    bottomBtn.className = 'copy-btn btn-bottom';
+    bottomBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
+
+    // 부모 박스에 버튼들 추가
+    wrapper.appendChild(topBtn);
+    wrapper.appendChild(bottomBtn);
+
+    // 4. 복사 기능 구현 (버튼 클릭 시 동작)
+    const codeText = preBlock.querySelector('code').innerText;
+    
+    const copyToClipboard = (btn) => {
+        navigator.clipboard.writeText(codeText).then(() => {
+            // 복사 성공 시 아이콘과 텍스트 변경
+            btn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> 완료';
+            btn.classList.add('copied');
+            
+            // 2초 후에 다시 원래대로 복구
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(err => {
+            console.error('복사 실패:', err);
+        });
+    };
+
+    topBtn.addEventListener('click', () => copyToClipboard(topBtn));
+    bottomBtn.addEventListener('click', () => copyToClipboard(bottomBtn));
+});
+</script>
 </body>
 </html>
