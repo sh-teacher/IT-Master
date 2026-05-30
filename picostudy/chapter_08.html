@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Ch 7. 센서 제어 - Pico 2 가이드</title>
+    <title>Ch 8. 아날로그 & 모터 - Pico 2 가이드</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -19,79 +19,72 @@
                 <li><a href="chapter_05.html">CHAPTER 5 - IoT 웹 서버</a></li>
                 <li class="menu-divider">실전 부품 프로젝트</li>
                 <li><a href="chapter_06.html">CHAPTER 6 - 기본 입출력(스위치/부저)</a></li>
-                <li><a href="chapter_07.html" class="active">CHAPTER 7 - 센서 제어(초음파/PIR)</a></li>
-                <li><a href="chapter_08.html">CHAPTER 8 - 아날로그 & 모터</a></li>
+                <li><a href="chapter_07.html">CHAPTER 7 - 센서 제어(초음파/PIR)</a></li>
+                <li><a href="chapter_08.html" class="active">CHAPTER 8 - 아날로그 & 모터</a></li>
                 <li><a href="chapter_09.html">CHAPTER 9 - LCD 디스플레이</a></li>
                 <li><a href="chapter_10.html">CHAPTER 10 - 무선 통신 & 입력</a></li>
             </ul>
         </nav>
         <main class="content">
             <div class="container">
-                <h1>Chapter 7. 공간 인지 센서 제어 (초음파 센서, PIR 모션 센서)</h1>
-                <p>주변 환경을 인식하는 두 가지 핵심 센서를 제어합니다. 거리를 재는 초음파 센서와 인간의 움직임을 잡아내는 인체 감지 센서입니다.</p>
+                <h1>Chapter 8. 아날로그 입력 및 모터 제어 (가변저항, SG90 서보모터)</h1>
+                <p>0과 1뿐만 아니라 연속적인 아날로그 값을 다뤄봅니다. 가변저항의 아날로그 값을 읽어 정밀 제어용 관절 소자인 서보모터의 회전 각도를 제어해 봅니다.</p>
 
-                <h2>7.1 HC-SR04 초음파 센서 거리 측정</h2>
-                <p>Trig 핀으로 초음파를 쏘고 Echo 핀으로 되돌아오는 시간을 마이크로초(us) 단위로 정밀 측정하여 물체와의 거리를 cm 단위로 계산해 냅니다.</p>
-                <pre><code>from machine import Pin
+                <h2>8.1 가변저항의 아날로그 값(ADC) 읽기</h2>
+                <p>Pico 2는 12비트 아날로그-디지털 변환기(ADC)를 내장하고 있으나, 마이크로파이썬 내부 표준에 의해 16비트 범위인 <code>0 ~ 65535</code> 값으로 변환되어 읽힙니다.</p>
+                <pre><code>from machine import ADC, Pin
 import time
 
-# 핀 설정
-trig = Pin(17, Pin.OUT)
-echo = Pin(16, Pin.IN)
-
-def get_distance():
-    # 1. Trig 핀을 깨끗하게 비운 뒤 10us 동안 초음파 발사 신호를 줍니다.
-    trig.value(0)
-    time.sleep_us(2)
-    trig.value(1)
-    time.sleep_us(10)
-    trig.value(0)
-    
-    # 2. Echo 핀이 High(1)로 올라가는 순간(시작 시간)을 기록합니다.
-    while echo.value() == 0:
-        signaloff = time.ticks_us()
-        
-    # 3. Echo 핀이 다시 Low(0)로 떨어지는 순간(도착 시간)을 기록합니다.
-    while echo.value() == 1:
-        signalon = time.ticks_us()
-        
-    # 4. 시간 차이를 계산하여 거리(cm)로 환산합니다. (음속 340m/s 반영)
-    time_passed = signalon - signaloff
-    distance = (time_passed * 0.0343) / 2
-    return distance
+# Pico 2의 ADC0번 채널(GPIO 26번 핀)에 가변저항 가운데 핀 연결
+potentiometer = ADC(Pin(26))
 
 while True:
-    dist = get_distance()
-    print(f"물체와의 거리: {dist:.1f} cm")
-    time.sleep(0.5)
+    # 아날로그 전압 읽기 (범위: 0 ~ 65535)
+    raw_value = potentiometer.read_u16()
+    
+    # 아날로그 값을 실제 인가되는 전압(0.0V ~ 3.3V) 값으로 환산계산
+    voltage = (raw_value * 3.3) / 65535
+    
+    print(f"정밀 ADC 데이터: {raw_value} | 환산 전압: {voltage:.2f} V")
+    time.sleep(0.3)
 </code></pre>
 
-                <h2>7.2 PIR 적외선 인체 감지 센서</h2>
-                <p>사람이나 동물의 움직임으로 발생하는 적외선의 변화량을 측정하여 움직임 유무를 디지털 값(0 또는 1)으로 반환합니다.</p>
-                <pre><code>from machine import Pin
+                <h2>8.2 SG90 서보모터 정밀 각도 통제</h2>
+                <p>서보모터는 50Hz 주기의 PWM 펄스 폭을 조절하여 0도부터 180도까지의 원하는 각도를 정밀 조율합니다.</p>
+                
+                <h3>[응용 실습] 가변저항 돌리는 대로 서보모터 동적 조각하기</h3>
+                <pre><code>from machine import Pin, PWM, ADC
 import time
 
-# GPIO 18번에 PIR 센서의 Out 핀 연결
-pir = Pin(18, Pin.IN)
+pot = ADC(Pin(26))
+servo = PWM(Pin(19))
+servo.freq(50) # 서보모터 표준 동작 주파수 50Hz 설정
 
-print("침입 감지 시스템 가동중...")
-time.sleep(2) # 센서 안정화를 위한 초기 대기
+# SG90 서보모터 마이크로파이썬 16비트 기준 듀티값 정의
+# 0도 일 때 대략 1638 / 180도 일 때 대략 8192
+def set_angle(angle):
+    duty = int(1638 + (angle * (8192 - 1638) / 180))
+    servo.duty_u16(duty)
+
+print("연동 제어 시스템 가동. 가변저항을 돌려보세요.")
 
 while True:
-    if pir.value() == 1:
-        print("🚨 경고: 구역 내 움직임이 감지되었습니다!")
-        time.sleep(2) # 중복 경고 방지 대기
-    else:
-        print("안전 - 움직임 없음")
-    time.sleep(0.5)
+    pot_val = pot.read_u16()
+    
+    # 0~65535 의 가변저항 범위를 0~180도 모터 각도 범위로 매핑변환
+    target_angle = (pot_val * 180) / 65535
+    
+    set_angle(target_angle)
+    print(f"가변저항 위치: {pot_val} -> 모터 제어 각도: {target_angle:.1f}°")
+    time.sleep(0.05)
 </code></pre>
 
                 <div class="nav-btns">
-                    <a href="chapter_06.html" class="btn btn-prev">◀ CHAPTER 6</a>
-                    <a href="chapter_08.html" class="btn btn-next">CHAPTER 8로 이동 ▶</a>
+                    <a href="chapter_07.html" class="btn btn-prev">◀ CHAPTER 7</a>
+                    <a href="chapter_09.html" class="btn btn-next">CHAPTER 9로 이동 ▶</a>
                 </div>
             </div>
         </main>
     </div>
-    </body>
+</body>
 </html>
