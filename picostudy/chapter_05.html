@@ -2,14 +2,14 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Ch 5. IoT 웹 서버 - Pico 2 W 가이드</title>
+    <title>Ch 5. IoT 웹 서버 - Pico 2 가이드</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
     <div class="layout">
         <nav class="sidebar">
-            <h2>PICO 2 W IoT GUIDE</h2>
+            <h2>PICO 2 IoT GUIDE</h2>
             <ul>
                 <li><a href="index.html">HOME - 시작하기</a></li>
                 <li><a href="chapter_01.html">CHAPTER 1 - 하드웨어 이해</a></li>
@@ -22,76 +22,195 @@
         <main class="content">
             <div class="container">
                 <h1>Chapter 5. 실전 IoT: 웹 기반 원격 LED 제어</h1>
-                <p>우리의 최종 목표입니다. 보드가 서버가 되어, 전 세계 어디서든(같은 와이파이 내) 스마트폰으로 LED를 켜고 끌 수 있게 만듭니다.</p>
+                <p>우리가 와이파이를 연결한 진짜 이유입니다. 보드가 직접 웹 서버가 되어, 같은 네트워크 안의 스마트폰이나 PC의 브라우저 명령을 받아 동작하는 사물인터넷(IoT) 시스템의 기초를 다져봅니다.</p>
 
                 <div style="text-align: center; margin: 40px 0;">
                     <img src="https://images.unsplash.com/photo-1558389186-438424b00c34?auto=format&fit=crop&w=800&q=80" alt="스마트폰 IoT 제어" style="max-width: 100%; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
-                    <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">스마트폰 웹 브라우저를 통해 원격으로 보드 제어하기</p>
+                    <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">네트워크망을 이용해 무선으로 하드웨어를 통제하는 기술</p>
                 </div>
 
-                <h2>5.1 전체 프로젝트 코드</h2>
-                <p>아래 코드를 <code>main.py</code>로 저장하여 실행하세요.</p>
+                <h2>5.1 단계별 웹 서버 빌드업 실습</h2>
+                <p>단번에 복잡한 코드를 실행하기보다, 통신의 흐름을 이해하기 위해 쉬운 단계부터 접근해 보겠습니다. (※ Chapter 4에서 배운 와이파이 접속 코드가 기본적으로 포함됩니다.)</p>
+
+                <h3>[1단계] 웹 브라우저 접속 감지하고 한 줄 인사하기</h3>
+                <p>소켓(Socket)을 열고, 사용자가 인터넷 창에 보드의 IP 주소를 치고 들어왔을 때 발생하는 '요청 신호'를 셸 창에 출력한 뒤 간단한 영문 텍스트를 던져주는 가장 단순한 서버 구조입니다.</p>
                 <pre><code>import network
 import socket
 import time
-from machine import Pin
 
-# 네트워크 설정 (본인 정보 기입)
-ssid = '와이파이_이름'
-password = '비밀번호'
+ssid = '본인의_와이파이_이름'
+password = '본인의_비밀번호'
 
-led = Pin("LED", Pin.OUT)
-
-# Wi-Fi 연결 함수
+# Wi-Fi 연결 프로세스
 wlan = network.WLAN(network.STA_IF)
 wlan.active(True)
 wlan.connect(ssid, password)
 while not wlan.isconnected():
-    time.sleep(1)
-ip = wlan.ifconfig()[0]
-print(f'서버 가동! 접속 주소: http://{ip}')
+    time.sleep(0.5)
+print('와이파이 연결 성공! IP 주소:', wlan.ifconfig()[0])
 
-# 웹 서버 대기 (Socket)
+# 80번 포트(웹 기본 포트)를 열고 대기 상태로 들어갑니다.
+addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
+s = socket.socket()
+s.bind(addr)
+s.listen(1)
+print("1단계 기본 통신 서버 가동...")
+
+while True:
+    # 누군가 접속할 때까지 멈춰서 기다립니다. (Accept)
+    cl, client_addr = s.accept()
+    print("클라이언트 접속 감지! 주소:", client_addr)
+    
+    # 사용자가 요청한 데이터(HTTP Request)를 읽어옵니다.
+    request = cl.recv(1024).decode('utf-8')
+    print("--- 받은 요청문 ---")
+    print(request)
+    print("-------------------")
+    
+    # 접속한 브라우저 화면에 간단한 문자열을 전달하고 소켓을 닫습니다.
+    cl.send('HTTP/1.0 200 OK\r\n\r\n')
+    cl.send('Hello! Connection Success from Pico 2.')
+    cl.close()
+</code></pre>
+
+                <h3>[2단계] 한글 글자 깨짐 해결 및 웹 화면 꾸미기</h3>
+                <p>마이크로파이썬 서버에서 한글이 깨지는 이유는 웹 브라우저에게 한글 규격방식인 UTF-8로 해석하라는 명시적 헤더를 주지 않았고, 문자열을 바이트 형태로 인코딩하지 않았기 때문입니다. 이를 보완해 완벽한 한글 웹페이지를 띄우는 코드입니다.</p>
+                <pre><code>import network
+import socket
+import time
+
+ssid = '본인의_와이파이_이름'
+password = '본인의_비밀번호'
+
+wlan = network.WLAN(network.STA_IF)
+wlan.active(True)
+wlan.connect(ssid, password)
+while not wlan.isconnected():
+    time.sleep(0.5)
+ip = wlan.ifconfig()[0]
+print(f'2단계 서버 가동! 접속 주소: http://{ip}')
+
 addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
 s = socket.socket()
 s.bind(addr)
 s.listen(1)
 
-# 웹사이트 화면 구성
+# 사용자에게 띄워줄 HTML 화면 구조 정의
 def get_html():
-    return """&#60;!DOCTYPE html&#62;
-    &#60;html&#62;
-    &#60;body style="text-align:center;"&#62;
-        &#60;h1&#62;Pico 2 W 원격 제어&#60;/h1&#62;
-        &#60;a href="/?led=on"&#62;&#60;button style="font-size:30px; background:green; color:white;"&#62;LED ON&#60;/button&#62;&#60;/a&#62;
-        &#60;a href="/?led=off"&#62;&#60;button style="font-size:30px; background:red; color:white;"&#62;LED OFF&#60;/button&#62;&#60;/a&#62;
-    &#60;/body&#62;
-    &#60;/html&#62;"""
+    return """&lt;!DOCTYPE html&gt;
+    &lt;html&gt;
+    &lt;head&gt;&lt;meta charset="UTF-8"&gt;&lt;/head&gt;
+    &lt;body style="text-align:center; font-family:sans-serif; padding-top:50px;"&gt;
+        &lt;h1 style="color:#2563eb;"&gt;Pico 2 무선 웹 서버 웹사이트&lt;/h1&gt;
+        &lt;p&gt;보드가 직접 생성한 데이터가 정상적으로 출력되고 있습니다.&lt;/p&gt;
+        &lt;p style="font-weight:bold; color:#10b981;"&gt;한글 깨짐 현상이 완전히 해결되었습니다!&lt;/p&gt;
+    &lt;/body&gt;
+    &lt;/html&gt;"""
 
 while True:
     try:
-        cl, addr = s.accept()
+        cl, addr_info = s.accept()
         request = cl.recv(1024).decode('utf-8')
         
-        if '/?led=on' in request: led.value(1)
-        if '/?led=off' in request: led.value(0)
-            
-        cl.send('HTTP/1.0 200 OK\r\nContent-type: text/html\r\n\r\n')
-        cl.send(get_html())
+        # [핵심] Content-Type 헤더에 charset=utf-8을 명시해 브라우저에게 안내합니다.
+        cl.send('HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n'.encode('utf-8'))
+        
+        # [핵심] HTML 스트링 문자열을 .encode('utf-8')을 통해 안전하게 변환하여 송신합니다.
+        cl.send(get_html().encode('utf-8'))
         cl.close()
     except Exception as e:
-        cl.close()</code></pre>
+        print("에러 발생:", e)
+        cl.close()
+</code></pre>
 
-                <h2>5.2 실습 마무리</h2>
+                <h3>[3단계] 실전 IoT: 웹 쿼리 분석을 통한 원격 LED 제어 (완성형)</h3>
+                <p>이제 화면에 ON/OFF 버튼을 만들고, 버튼을 누를 때 주소창 뒤에 붙는 파라미터(<code>/?led=on</code>과 <code>/?led=off</code>) 문자열을 보드가 실시간으로 해부 및 검사하여 실제 하드웨어 핀을 물리적으로 켜고 끄는 마스터 코드입니다.</p>
+                <pre><code>import network
+import socket
+import time
+from machine import Pin
+
+ssid = '본인의_와이파이_이름'
+password = '본인의_비밀번호'
+
+# 내장 LED 제어 핀 생성
+led = Pin("LED", Pin.OUT)
+
+wlan = network.WLAN(network.STA_IF)
+wlan.active(True)
+wlan.connect(ssid, password)
+while not wlan.isconnected():
+    time.sleep(0.5)
+ip = wlan.ifconfig()[0]
+print(f'★실전 IoT 서버 가동! 접속 주소: http://{ip}')
+
+addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
+s = socket.socket()
+s.bind(addr)
+s.listen(1)
+
+# 제어 상태를 시각적으로 보여줄 동적 UI 생성 함수
+def get_iot_html(led_status):
+    # LED 상태에 따라 다르게 보일 라벨 색상 지정
+    status_color = "#10b981" if led_status == "켜짐" else "#ef4444"
+    
+    return f"""&lt;!DOCTYPE html&gt;
+    &lt;html&gt;
+    &lt;head&gt;
+        &lt;meta charset="UTF-8"&gt;
+        &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+        &lt;title&gt;Pico 2 IoT Control&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body style="text-align:center; font-family:sans-serif; background-color:#f8fafc; padding-top:50px;"&gt;
+        &lt;h1 style="color:#1e293b;"&gt;Pico 2 W 원격 제어 센터&lt;/h1&gt;
+        &lt;div style="margin:20px; font-size:20px;"&gt;현재 LED 상태: &lt;span style="color:{status_color}; font-weight:bold;"&gt;{led_status}&lt;/span&gt;&lt;/div&gt;
+        &lt;div style="margin-top:40px;"&gt;
+            &lt;a href="/?led=on" style="text-decoration:none;"&gt;
+                &lt;button style="font-size:24px; padding:15px 35px; background:#10b981; color:white; border:none; border-radius:10px; cursor:pointer; margin:10px; font-weight:bold;"&gt;LED 켜기 (ON)&lt;/button&gt;
+            &lt;/a&gt;
+            &lt;a href="/?led=off" style="text-decoration:none;"&gt;
+                &lt;button style="font-size:24px; padding:15px 35px; background:#ef4444; color:white; border:none; border-radius:10px; cursor:pointer; margin:10px; font-weight:bold;"&gt;LED 끄기 (OFF)&lt;/button&gt;
+            &lt;/a&gt;
+        &lt;/div&gt;
+    &lt;/body&gt;
+    &lt;/html&gt;"""
+
+# 현재 핀의 상태값 저장용 변수
+current_status = "꺼짐"
+
+while True:
+    try:
+        cl, addr_info = s.accept()
+        request = cl.recv(1024).decode('utf-8')
+        
+        # 브라우저가 전송한 HTTP 요청문 안에 주소 파라미터 키워드가 있는지 감별합니다.
+        if '/?led=on' in request:
+            led.value(1)
+            current_status = "켜짐"
+            print("웹 명령 접수: LED ON")
+        elif '/?led=off' in request:
+            led.value(0)
+            current_status = "꺼짐"
+            print("웹 명령 접수: LED OFF")
+            
+        # 응답 규격 송신 및 HTML 바이트 변환 출력
+        cl.send('HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n'.encode('utf-8'))
+        cl.send(get_iot_html(current_status).encode('utf-8'))
+        cl.close()
+    except Exception as e:
+        cl.close()
+</code></pre>
+
+                <h2>5.2 웹 제어 작동 확인</h2>
                 <ol>
-                    <li>코드를 실행하고 출력된 <code>http://192.168.x.x</code> 주소를 확인합니다.</li>
-                    <li>같은 와이파이에 연결된 스마트폰 브라우저에 이 주소를 입력합니다.</li>
-                    <li>화면에 뜬 <strong>LED ON/OFF</strong> 버튼을 눌러보세요!</li>
+                    <li>최종 3단계 코드를 실행하고 하단 콘솔 셸 창에 찍히는 <code>http://192.168.x.x</code> 형태의 주소를 확인합니다.</li>
+                    <li>보드와 <strong>반드시 같은 와이파이(공유기)에 물려 있는</strong> 스마트폰이나 노트북의 인터넷 주소창에 해당 주소를 입력하고 접속합니다.</li>
+                    <li>한글이 깨지지 않고 깔끔하게 열리는 대시보드 화면을 마주했다면 성공입니다. 버튼을 누르면 나의 내장 LED가 즉각적으로 연동하여 켜지고 꺼집니다.</li>
                 </ol>
 
                 <div class="callout info">
-                    <h4>🎉 축하합니다!</h4>
-                    <p>이제 당신은 보이지 않는 전파를 통해 물리적인 하드웨어를 제어하는 진정한 IoT 메이커가 되었습니다.</p>
+                    <h4>🚀 다음 단계로 나아갈 준비</h4>
+                    <p>우리는 이제 웹을 통한 원격 제어 프로토콜을 온전하게 이해하게 되었습니다. 지금은 단순한 내장 LED 하나만을 통제하고 있지만, 이 핀에 외부 릴레이 부품을 연결하면 실제 가정용 220V 전등이나 전동 커튼을 제어하는 고차원 스마트홈 시스템으로 무궁무진하게 뻗어나갈 수 있습니다. 다음 파트에서는 다양한 센서 데이터를 반대로 웹에 실시간으로 전송하는 실습을 이어 나가겠습니다.</p>
                 </div>
 
                 <div class="nav-btns">
@@ -101,50 +220,75 @@ while True:
             </div>
         </main>
     </div>
+
     <script>
-document.querySelectorAll('pre').forEach((preBlock) => {
-    // 1. 코드를 감싸는 부모 박스(Wrapper) 동적 생성
-    const wrapper = document.createElement('div');
-    wrapper.className = 'code-wrapper';
-    preBlock.parentNode.insertBefore(wrapper, preBlock);
-    wrapper.appendChild(preBlock);
+    window.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('pre').forEach((preBlock) => {
+            const codeBlock = preBlock.querySelector('code');
+            if (!codeBlock) return;
 
-    // 2. 우측 상단 복사 버튼 생성
-    const topBtn = document.createElement('button');
-    topBtn.className = 'copy-btn btn-top';
-    topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
-    
-    // 3. 우측 하단 복사 버튼 생성
-    const bottomBtn = document.createElement('button');
-    bottomBtn.className = 'copy-btn btn-bottom';
-    bottomBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
+            // 1. 코드를 감싸는 부모 박스(Wrapper) 동적 생성
+            const wrapper = document.createElement('div');
+            wrapper.className = 'code-wrapper';
+            preBlock.parentNode.insertBefore(wrapper, preBlock);
+            wrapper.appendChild(preBlock);
 
-    // 부모 박스에 버튼들 추가
-    wrapper.appendChild(topBtn);
-    wrapper.appendChild(bottomBtn);
-
-    // 4. 복사 기능 구현 (버튼 클릭 시 동작)
-    const codeText = preBlock.querySelector('code').innerText;
-    
-    const copyToClipboard = (btn) => {
-        navigator.clipboard.writeText(codeText).then(() => {
-            // 복사 성공 시 아이콘과 텍스트 변경
-            btn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> 완료';
-            btn.classList.add('copied');
+            // 2. 우측 상단 복사 버튼 생성
+            const topBtn = document.createElement('button');
+            topBtn.className = 'copy-btn btn-top';
+            topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
             
-            // 2초 후에 다시 원래대로 복구
-            setTimeout(() => {
-                btn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
-                btn.classList.remove('copied');
-            }, 2000);
-        }).catch(err => {
-            console.error('복사 실패:', err);
-        });
-    };
+            // 3. 우측 하단 복사 버튼 생성
+            const bottomBtn = document.createElement('button');
+            bottomBtn.className = 'copy-btn btn-bottom';
+            bottomBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
 
-    topBtn.addEventListener('click', () => copyToClipboard(topBtn));
-    bottomBtn.addEventListener('click', () => copyToClipboard(bottomBtn));
-});
-</script>
+            wrapper.appendChild(topBtn);
+            wrapper.appendChild(bottomBtn);
+
+            // 4. 복사 핵심 기능 구현
+            const codeText = codeBlock.innerText;
+            
+            const copyToClipboard = (btn) => {
+                // Clipboard API 미지원 환경 백업 우회
+                if (!navigator.clipboard) {
+                    const textArea = document.createElement("textarea");
+                    textArea.value = codeText;
+                    textArea.style.position = "fixed"; 
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        showSuccess(btn);
+                    } catch (err) {
+                        console.error('우회 복사 실패:', err);
+                    }
+                    document.body.removeChild(textArea);
+                    return;
+                }
+
+                // 일반 표준 브라우저 환경 복사
+                navigator.clipboard.writeText(codeText).then(() => {
+                    showSuccess(btn);
+                }).catch(err => {
+                    console.error('표준 복사 실패:', err);
+                });
+            };
+
+            const showSuccess = (btn) => {
+                btn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> 완료';
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
+                    btn.classList.remove('copied');
+                }, 2000);
+            };
+
+            topBtn.addEventListener('click', () => copyToClipboard(topBtn));
+            bottomBtn.addEventListener('click', () => copyToClipboard(bottomBtn));
+        });
+    });
+    </script>
 </body>
 </html>
