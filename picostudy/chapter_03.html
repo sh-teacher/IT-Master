@@ -23,6 +23,21 @@
                 <li><a href="chapter_08.html">CHAPTER 8 - 아날로그 & 모터</a></li>
                 <li><a href="chapter_09.html">CHAPTER 9 - LCD 디스플레이</a></li>
                 <li><a href="chapter_10.html">CHAPTER 10 - 무선 통신 & 입력</a></li>
+                
+                <li class="sidebar-popup-item">
+                    <a href="#" id="openModalBtn" style="background: #1e293b; color: #f8fafc; font-weight: bold; margin-top: 15px; border-left: 4px solid #38bdf8;">
+                        <i class="fa-solid fa-circle-info"></i> 보드 연결 구조 보기
+                    </a>
+                </li>
+            </ul>
+        </nav> <div id="imageModal" class="custom-modal">
+            <div class="modal-window">
+                <span class="close-modal-btn">&times;</span>
+                <h3>💡 Raspberry Pi Pico 2 연결 및 구조</h3>
+                <img src="https://electrocredible.com/wp-content/uploads/2024/02/press-the-BOOTSEL-button-while-connecting-Raspberry-Pi-Pico-to-USB-cable-1024x582.webp" alt="Pico 2 Connection Guide">
+                <p>컴퓨터와 연결할 때 <strong>BOOTSEL 버튼을 누른 채로</strong> USB 선을 꽂아야 펌웨어 업로드 모드로 진입합니다.</p>
+            </div>
+        </div>
             </ul>
         </nav>
         <main class="content">
@@ -158,6 +173,30 @@ document.querySelectorAll('pre').forEach((preBlock) => {
     topBtn.addEventListener('click', () => copyToClipboard(topBtn));
     bottomBtn.addEventListener('click', () => copyToClipboard(bottomBtn));
 });
+// 🌟 [기존 스크립트 내부에 추가] 보드 구조 보기 팝업 제어 로직
+            const modal = document.getElementById('imageModal');
+            const openBtn = document.getElementById('openModalBtn');
+            const closeBtn = document.querySelector('.close-modal-btn');
+
+            if (openBtn && modal && closeBtn) {
+                // 버튼 누르면 팝업 열기 (flex로 중앙 정렬)
+                openBtn.addEventListener('click', (e) => {
+                    e.preventDefault(); // 링크 기본 동작 방지
+                    modal.style.display = 'flex';
+                });
+
+                // X 버튼 누르면 팝업 닫기
+                closeBtn.addEventListener('click', () => {
+                    modal.style.display = 'none';
+                });
+
+                // 팝업창 바깥 어두운 배경 누르면 팝업 닫기
+                window.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            }
 </script>
 </body>
 </html>

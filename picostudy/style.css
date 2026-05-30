@@ -115,3 +115,70 @@ pre code { background: none; color: inherit; padding: 0; }
     bottom: 10px;
     right: 10px;
 }
+/* 팝업창(모달) 전체 배경 영역 (기본적으론 숨김) */
+.custom-modal {
+    display: none; 
+    position: fixed; 
+    z-index: 9999; /* 화면 최상단에 띄움 */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(15, 23, 42, 0.7); /* 어두운 반투명 배경 */
+    backdrop-filter: blur(4px); /* 뒷배경 흐리게 처리 (고급 기술) */
+    justify-content: center;
+    align-items: center;
+}
+
+/* 실제 내용이 들어가는 흰색 팝업 박스 */
+.modal-window {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 16px;
+    max-width: 700px;
+    width: 90%;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+    position: relative;
+    text-align: center;
+    animation: popUpEffect 0.3s ease-out; /* 나타날 때 뿅 하고 나타나는 효과 */
+}
+
+@keyframes popUpEffect {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* 팝업창 내부 이미지와 글씨 */
+.modal-window h3 {
+    margin-top: 0;
+    color: #1e293b;
+    font-size: 1.3rem;
+}
+.modal-window img {
+    width: 100%;
+    max-height: 400px;
+    object-fit: contain;
+    border-radius: 8px;
+    margin: 15px 0;
+    border: 1px solid #e2e8f0;
+}
+.modal-window p {
+    color: #475569;
+    font-size: 0.95rem;
+    margin-bottom: 0;
+}
+
+/* 우측 상단 닫기(X) 버튼 */
+.close-modal-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.close-modal-btn:hover {
+    color: #ef4444; /* 마우스 올리면 빨갛게 변함 */
+}
