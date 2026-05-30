@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Ch 6. 기본 입출력 - Pico 2 가이드</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="layout">
+        <nav class="sidebar">
+            <h2>PICO 2 IoT GUIDE</h2>
+            <ul>
+                <li><a href="index.html">HOME - 시작하기</a></li>
+                <li><a href="chapter_01.html">CHAPTER 1 - 하드웨어 이해</a></li>
+                <li><a href="chapter_02.html">CHAPTER 2 - 펌웨어 세팅</a></li>
+                <li><a href="chapter_03.html">CHAPTER 3 - 기초 코딩(Blink)</a></li>
+                <li><a href="chapter_04.html">CHAPTER 4 - Wi-Fi 연결</a></li>
+                <li><a href="chapter_05.html">CHAPTER 5 - IoT 웹 서버</a></li>
+                <li class="menu-divider">실전 부품 프로젝트</li>
+                <li><a href="chapter_06.html" class="active">CHAPTER 6 - 기본 입출력(스위치/부저)</a></li>
+                <li><a href="chapter_07.html">CHAPTER 7 - 센서 제어(초음파/PIR)</a></li>
+                <li><a href="chapter_08.html">CHAPTER 8 - 아날로그 & 모터</a></li>
+                <li><a href="chapter_09.html">CHAPTER 9 - LCD 디스플레이</a></li>
+                <li><a href="chapter_10.html">CHAPTER 10 - 무선 통신 & 입력</a></li>
+            </ul>
+        </nav>
+        <main class="content">
+            <div class="container">
+                <h1>Chapter 6. 기본 디지털 입출력 (LED, 스위치, 부저)</h1>
+                <p>브레드보드를 활용해 외부 소자들을 연결해 봅시다. 전기를 내보내는 출력(Output)과 외부 상태를 읽어들이는 입력(Input)의 기초를 다집니다.</p>
+
+                <h2>6.1 스위치 입력을 받아 외장 LED 제어하기</h2>
+                <p>스위치가 눌렸을 때 발생하는 전류 신호를 읽어 외부 LED를 켜는 조건문 실습입니다. 안정적인 입력을 위해 내부 풀다운(Pull-Down) 저항을 활성화합니다.</p>
+                <pre><code>from machine import Pin
+import time
+
+# GPIO 15번에 외장 LED 연결 (출력 모드)
+external_led = Pin(15, Pin.OUT)
+
+# GPIO 14번에 푸시 스위치 연결 (입력 모드 및 내부 풀다운 저항 활성화)
+# 버튼을 누르면 1(High), 떼면 0(Low)이 입력됩니다.
+switch = Pin(14, Pin.IN, Pin.PULL_DOWN)
+
+print("스위치 감지 시스템 가동...")
+
+while True:
+    if switch.value() == 1:       # 스위치가 눌렸다면
+        external_led.value(1)     # 외장 LED 켜기
+        print("버튼 클릭 -> LED ON")
+    else:                         # 스위치가 떨어졌다면
+        external_led.value(0)     # 외장 LED 끄기
+        
+    time.sleep(0.05)              # 채터링(흔들림) 방지를 위한 짧은 대기
+</code></pre>
+
+                <h2>6.2 능동 부저 vs 수동 부저 제어</h2>
+                <p>능동 부저(Active Buzzer)는 전원만 주면 단일 경고음이 나고, 수동 부저(Passive Buzzer)는 주파수 신호(PWM)를 주어야 원하는 음계(도레미파)를 연주할 수 있습니다.</p>
+                
+                <h3>[실습] 수동 부저를 이용한 도레미파 멜로디 연주</h3>
+                <pre><code>from machine import Pin, PWM
+import time
+
+# GPIO 16번에 수동 부저 연결 후 PWM 인스턴스 생성
+buzzer = PWM(Pin(16))
+
+# 음계별 주파수 정의 (도, 레, 미, 파)
+tones = {
+    'DO': 262,
+    'RE': 294,
+    'MI': 330,
+    'FA': 349
+}
+
+def play_tone(frequency, duration):
+    if frequency == 0:
+        buzzer.duty_u16(0) # 소리 끄기
+    else:
+        buzzer.freq(frequency)       # 주파수 설정
+        buzzer.duty_u16(32768)       # 소리 크기 설정 (50% 듀티폭)
+    time.sleep(duration)
+    buzzer.duty_u16(0)               # 음과 음 사이 음소거
+    time.sleep(0.05)
+
+print("멜로디 연주를 시작합니다.")
+play_tone(tones['DO'], 0.5)
+play_tone(tones['RE'], 0.5)
+play_tone(tones['MI'], 0.5)
+play_tone(tones['FA'], 0.5)
+
+# 사용이 끝난 PWM 객체 해제
+buzzer.deinit()
+</code></pre>
+
+                <div class="nav-btns">
+                    <a href="chapter_05.html" class="btn btn-prev">◀ CHAPTER 5</a>
+                    <a href="chapter_07.html" class="btn btn-next">CHAPTER 7로 이동 ▶</a>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+    window.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('pre').forEach((preBlock) => {
+            const codeBlock = preBlock.querySelector('code');
+            if (!codeBlock) return;
+            const wrapper = document.createElement('div');
+            wrapper.className = 'code-wrapper';
+            preBlock.parentNode.insertBefore(wrapper, preBlock);
+            wrapper.appendChild(preBlock);
+            const topBtn = document.createElement('button');
+            topBtn.className = 'copy-btn btn-top';
+            topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
+            const bottomBtn = document.createElement('button');
+            bottomBtn.className = 'copy-btn btn-bottom';
+            bottomBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
+            wrapper.appendChild(topBtn);
+            wrapper.appendChild(bottomBtn);
+            const codeText = codeBlock.innerText;
+            const copyToClipboard = (btn) => {
+                if (!navigator.clipboard) {
+                    const ...

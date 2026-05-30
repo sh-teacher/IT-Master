@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Ch 10. 무선 통신 & 입력 - Pico 2 가이드</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="layout">
+        <nav class="sidebar">
+            <h2>PICO 2 IoT GUIDE</h2>
+            <ul>
+                <li><a href="index.html">HOME - 시작하기</a></li>
+                <li><a href="chapter_01.html">CHAPTER 1 - 하드웨어 이해</a></li>
+                <li><a href="chapter_02.html">CHAPTER 2 - 펌웨어 세팅</a></li>
+                <li><a href="chapter_03.html">CHAPTER 3 - 기초 코딩(Blink)</a></li>
+                <li><a href="chapter_04.html">CHAPTER 4 - Wi-Fi 연결</a></li>
+                <li><a href="chapter_05.html">CHAPTER 5 - IoT 웹 서버</a></li>
+                <li class="menu-divider">실전 부품 프로젝트</li>
+                <li><a href="chapter_06.html">CHAPTER 6 - 기본 입출력(스위치/부저)</a></li>
+                <li><a href="chapter_07.html">CHAPTER 7 - 센서 제어(초음파/PIR)</a></li>
+                <li><a href="chapter_08.html">CHAPTER 8 - 아날로그 & 모터</a></li>
+                <li><a href="chapter_09.html">CHAPTER 9 - LCD 디스플레이</a></li>
+                <li><a href="chapter_10.html" class="active">CHAPTER 10 - 무선 통신 & 입력</a></li>
+            </ul>
+        </nav>
+        <main class="content">
+            <div class="container">
+                <h1>Chapter 10. 외부 입력 통신 (블루투스 모듈, IR 리모컨)</h1>
+                <p>가이드북의 종착지입니다. 스마트폰 블루투스 앱을 이용한 시리얼 UART 무선 통신과 가전제품에 쓰이는 적외선(IR) 신호 원격 디코딩 수신 기술을 학습합니다.</p>
+
+                <h2>10.1 HC-06 블루투스 직렬(UART) 무선 제어</h2>
+                <p>Pico 2의 하드웨어 직렬 포트(UART)를 개방하여 스마트폰 블루투스 시리얼 모니터 앱과 무선 글자 데이터를 주고받는 통신 교안입니다.</p>
+                <pre><code>from machine import UART, Pin
+import time
+
+# UART0 채널 개방 (보레이트 9600, TX: GPIO 0, RX: GPIO 1)
+bluetooth = UART(0, baudrate=9600, tx=Pin(0), rx=Pin(1))
+
+print("블루투스 페어링 대기중...")
+
+while True:
+    # 스마트폰으로부터 무선 데이터가 들어왔는지 검사
+    if bluetooth.any():
+        # 데이터 바이트 단위로 읽기 및 문자열 변환
+        incoming_msg = bluetooth.readline().decode('utf-8').strip()
+        print(f"수신된 블루투스 명령어: {incoming_msg}")
+        
+        # 무선 폰 제어 문자열 명령어 매칭
+        if incoming_msg == "on":
+            print("명령 확인: 전체 시스템 기동")
+            bluetooth.write("System Started OK\n")
+        elif incoming_msg == "off":
+            print("명령 확인: 전체 시스템 전원 차단")
+            bluetooth.write("System Stopped OK\n")
+            
+    time.sleep(0.1)
+</code></pre>
+
+                <h2>10.2 적외선(IR) 리모컨 수신 디코딩</h2>
+                <p>IR 수신 센서(예: VS1838B)에 리모컨 버튼을 누르면 고유한 파형 데이터 코드가 날아옵니다. 해당 신호 세트를 해독하는 핵심 프레임워크 예시입니다.</p>
+                <pre><code>from machine import Pin
+import time
+
+# GPIO 2번에 IR 수신 핀 배치
+ir_sensor = Pin(2, Pin.IN)
+
+print("리모컨 적외선 수신 대기중... 버튼을 눌러보세요.")
+
+while True:
+    # 수신 센서 파형 신호가 Low로 요동치기 시작하면 (신호 감지 순간)
+    if ir_sensor.value() == 0:
+        pulse_start = time.ticks_us()
+        
+        # 신호 지속 처리 감지
+        while ir_sensor.value() == 0:
+            pass
+        pulse_end = time.ticks_us()
+        
+        duration = pulse_end - pulse_start
+        # 펄스 신호의 길이에 따라 리모컨 고유 식별 코드가 생성됩니다.
+        print(f"적외선 신호 포착! 고유 펄스 길이: {duration} us")
+        
+        time.sleep(0.2) # 연속 중복 입력 필터링 여유 대기
+    time.sleep(0.01)
+</code></pre>
+
+                <div class="nav-btns">
+                    <a href="chapter_09.html" class="btn btn-prev">◀ CHAPTER 9</a>
+                    <span></span>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
