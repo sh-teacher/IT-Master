@@ -2,14 +2,14 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Pico 2 W IoT 마스터 가이드</title>
+    <title>Pico 2 IoT 가이드북 - 홈</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
     <div class="layout">
         <nav class="sidebar">
-            <h2>PICO 2 W IoT GUIDE</h2>
+            <h2>PICO 2 IoT GUIDE</h2>
             <ul>
                 <li><a href="index.html" class="active">HOME - 시작하기</a></li>
                 <li><a href="chapter_01.html">CHAPTER 1 - 하드웨어 이해</a></li>
@@ -17,75 +17,74 @@
                 <li><a href="chapter_03.html">CHAPTER 3 - 기초 코딩(Blink)</a></li>
                 <li><a href="chapter_04.html">CHAPTER 4 - Wi-Fi 연결</a></li>
                 <li><a href="chapter_05.html">CHAPTER 5 - IoT 웹 서버</a></li>
+                <li class="menu-divider">실전 부품 프로젝트</li>
+                <li><a href="chapter_06.html">CHAPTER 6 - 기본 입출력(스위치/부저)</a></li>
+                <li><a href="chapter_07.html">CHAPTER 7 - 센서 제어(초음파/PIR)</a></li>
+                <li><a href="chapter_08.html">CHAPTER 8 - 아날로그 & 모터</a></li>
+                <li><a href="chapter_09.html">CHAPTER 9 - LCD 디스플레이</a></li>
+                <li><a href="chapter_10.html">CHAPTER 10 - 무선 통신 & 입력</a></li>
             </ul>
         </nav>
         <main class="content">
             <div class="container">
-                <h1>사물인터넷의 시작,<br>Pico 2 W와 함께.</h1>
-                <p>본 교재는 <strong>Raspberry Pi Pico 2 W</strong> 보드를 구매하고 윈도우 환경에서 처음 시작하는 메이커들을 위한 딥-다이브 가이드입니다. 단순히 코드를 복사하는 것을 넘어, 하드웨어의 원리와 네트워크 통신 과정을 깊이 있게 다룹니다.</p>
-
-                <div style="text-align: center; margin: 40px 0;">
-                    <img src="https://www.raspberrypi.com/documentation/microcontrollers/images/pico-1s.png?hash=8881db65b212b342000997d49ec1eb15" alt="Pico 보드 메인" style="max-width: 100%; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
-                    <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">Pico의 진화하는 보드(Pico -> Pico W -> Pico 2 -> Pico 2 W)</p>
+                <h1>RP2350 라즈베리 파이 Pico 2 IoT 가이드북</h1>
+                <p>안녕하세요! RP2350 기반의 강력한 Pico 2 보드를 활용한 사물인터넷 및 하드웨어 제어 가이드북입니다. 기초 문법부터 시작하여 다양한 외장 센서 액추에이터를 직접 제어하며 실전 메이커 역량을 키워봅시다.</p>
+                
+                <div style="text-align: center; margin: 30px 0;">
+                    <img src="https://images.unsplash.com/photo-1608564697171-2f22c7e113a8?auto=format&fit=crop&w=800&q=80" alt="임베디드 하드웨어" style="max-width: 100%; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
                 </div>
 
-                <h2>어떤 보드를 선택해야 할까? (Pico 시리즈 4종 비교)</h2>
-                <p>라즈베리 파이 Pico 시리즈는 세대(프로세서 성능)와 무선 통신(Wi-Fi/Bluetooth) 지원 여부에 따라 크게 4가지 핵심 모델로 나뉩니다. 우리가 이 교재에서 다룰 <strong>Pico 2 W</strong>가 얼마나 강력한 스펙을 가졌는지 아래 표에서 확인해 보세요.</p>
-
-                <table style="width:100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 40px; font-size: 0.95rem;">
-                    <tr style="background-color: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
-                        <th style="padding: 15px; text-align: center; border-right: 1px solid #e2e8f0;">구분</th>
-                        <th style="padding: 15px; text-align: center; border-right: 1px solid #e2e8f0;">Pico<br><span style="font-size: 0.8rem; font-weight: normal; color: #64748b;">(1세대 기본형)</span></th>
-                        <th style="padding: 15px; text-align: center; border-right: 1px solid #e2e8f0;">Pico W<br><span style="font-size: 0.8rem; font-weight: normal; color: #64748b;">(1세대 무선형)</span></th>
-                        <th style="padding: 15px; text-align: center; border-right: 1px solid #e2e8f0;">Pico 2<br><span style="font-size: 0.8rem; font-weight: normal; color: #64748b;">(2세대 기본형)</span></th>
-                        <th style="padding: 15px; text-align: center; color: #0ea5e9; background-color: #f0f9ff;">Pico 2 W<br><span style="font-size: 0.8rem; font-weight: normal; color: #0284c7;">(본 교재 실습용)</span></th>
+                <h2>📘 학습 커리큘럼 안내</h2>
+                <table style="width:100%; border-collapse: collapse; margin-top: 20px;">
+                    <tr style="background: #f1f5f9; text-align: left;">
+                        <th style="padding: 12px; border: 1px solid #cbd5e1;">파트</th>
+                        <th style="padding: 12px; border: 1px solid #cbd5e1;">챕터명</th>
+                        <th style="padding: 12px; border: 1px solid #cbd5e1;">주요 학습 내용</th>
                     </tr>
-                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 15px; font-weight: 600; text-align: center; border-right: 1px solid #e2e8f0;">메인 칩셋(MCU)</td>
-                        <td style="padding: 15px; text-align: center; border-right: 1px solid #e2e8f0;">RP2040</td>
-                        <td style="padding: 15px; text-align: center; border-right: 1px solid #e2e8f0;">RP2040</td>
-                        <td style="padding: 15px; text-align: center; border-right: 1px solid #e2e8f0;"><strong>RP2350</strong></td>
-                        <td style="padding: 15px; text-align: center; background-color: #f0f9ff;"><strong>RP2350</strong></td>
+                    <tr>
+                        <td rowspan="5" style="padding: 12px; border: 1px solid #cbd5e1; font-weight: bold; color: #475569;">기초 & 통신</td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;">Ch 1 ~ Ch 2</td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;">RP2350 핀아웃 이해 및 마이크로파이썬 펌웨어 세팅</td>
                     </tr>
-                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 15px; font-weight: 600; text-align: center; border-right: 1px solid #e2e8f0;">코어 및 클럭</td>
-                        <td style="padding: 15px; text-align: center; border-right: 1px solid #e2e8f0;">Cortex-M0+<br>(133 MHz)</td>
-                        <td style="padding: 15px; text-align: center; border-right: 1px solid #e2e8f0;">Cortex-M0+<br>(133 MHz)</td>
-                        <td style="padding: 15px; text-align: center; border-right: 1px solid #e2e8f0;"><strong>Cortex-M33</strong><br><strong>(150 MHz)</strong></td>
-                        <td style="padding: 15px; text-align: center; background-color: #f0f9ff;"><strong>Cortex-M33</strong><br><strong>(150 MHz)</strong></td>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;">Ch 3. 기초 코딩</td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;">내장 LED 제어 및 토글, 무한 루프 기본 문법</td>
                     </tr>
-                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 15px; font-weight: 600; text-align: center; border-right: 1px solid #e2e8f0;">저장공간(Flash)</td>
-                        <td style="padding: 15px; text-align: center; border-right: 1px solid #e2e8f0;">2MB</td>
-                        <td style="padding: 15px; text-align: center; border-right: 1px solid #e2e8f0;">2MB</td>
-                        <td style="padding: 15px; text-align: center; border-right: 1px solid #e2e8f0;"><strong>4MB</strong></td>
-                        <td style="padding: 15px; text-align: center; background-color: #f0f9ff;"><strong>4MB</strong></td>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;">Ch 4. Wi-Fi 연결</td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;">2.4GHz 무선망 탐색, 강제 재접속 및 IP 주소 할당 원리</td>
                     </tr>
-                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 15px; font-weight: 600; text-align: center; border-right: 1px solid #e2e8f0;">Wi-Fi & Bluetooth</td>
-                        <td style="padding: 15px; text-align: center; color: #ef4444; border-right: 1px solid #e2e8f0;">미지원</td>
-                        <td style="padding: 15px; text-align: center; color: #10b981; border-right: 1px solid #e2e8f0;">지원 (CYW43439)</td>
-                        <td style="padding: 15px; text-align: center; color: #ef4444; border-right: 1px solid #e2e8f0;">미지원</td>
-                        <td style="padding: 15px; text-align: center; color: #10b981; background-color: #f0f9ff;"><strong>지원 (RM2)</strong></td>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;">Ch 5. IoT 웹 서버</td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;">POST 방식을 활용한 브라우저 오작동 없는 원격 LED 제어</td>
+                    </tr>
+                    <tr style="border-bottom: 2px solid #94a3b8;">
+                        <td colspan="2" style="background:#f8fafc; padding:4px;"></td>
+                    </tr>
+                    <tr>
+                        <td rowspan="5" style="padding: 12px; border: 1px solid #cbd5e1; font-weight: bold; color: #2563eb;">실전 하드웨어</td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;">Ch 6. 기본 입출력</td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;">외장 LED, 풀다운 스위치 입력 제어, 능동/수동 부저 멜로디</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;">Ch 7. 센서 제어</td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;">HC-SR04 초음파 거리 측정, PIR 모션 감지 센서 연동</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;">Ch 8. 아날로그&모터</td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;">가변저항 ADC 값 정밀 매핑, SG90 서보모터 각도 PWM 제어</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;">Ch 9. 디스플레이</td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;">I2C 통신 기반 LCD1602 문자열 출력 및 실시간 모니터링</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;">Ch 10. 무선 통신</td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;">UART 블루투스 데이터 송수신, 적외선(IR) 리모컨 디코딩</td>
                     </tr>
                 </table>
 
-                <h2>학습 로드맵</h2>
-                <p>우리는 총 5개의 단계를 거쳐 나만의 IoT 시스템을 구축하게 됩니다.</p>
-                <ul>
-                    <li><strong>Step 1:</strong> 보드의 강력한 성능(RP2350)과 핀 배열을 숙지합니다.</li>
-                    <li><strong>Step 2:</strong> MicroPython을 설치하여 보드에 생명력을 불어넣습니다.</li>
-                    <li><strong>Step 3:</strong> 하드웨어 제어의 기초인 GPIO 제어와 Blink 테스트를 마스터합니다.</li>
-                    <li><strong>Step 4:</strong> 보드를 무선 네트워크에 연결하여 외부 세계와 소통합니다.</li>
-                    <li><strong>Step 5:</strong> 스마트폰으로 원격 제어하는 웹 기반 IoT 서버를 직접 구축합니다.</li>
-                </ul>
-
-                <div class="callout info">
-                    <h4>💡 준비물 확인</h4>
-                    <p>Raspberry Pi Pico 2 W 보드, 데이터 통신용 Micro 5핀 케이블, 윈도우 PC만 있으면 모든 준비가 끝납니다.</p>
-                </div>
-
-                <div class="nav-btns">
+                <div class="nav-btns" style="margin-top: 40px;">
                     <span></span>
                     <a href="chapter_01.html" class="btn btn-next">CHAPTER 1로 이동 ▶</a>
                 </div>
