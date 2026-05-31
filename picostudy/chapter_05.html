@@ -222,8 +222,8 @@ while True:
 
                 <h2>5.2 스마트한 코딩 습관: 와이파이 설정 모듈화하기</h2>
                 <p>앞으로 다양한 응용 프로젝트를 만들 텐데, 매번 긴 와이파이 접속 코드를 복사해서 붙여넣는 것은 비효율적입니다. 실무 개발자들처럼 네트워크 설정을 별도의 모듈(파일)로 분리해 두고, 필요할 때 단 한 줄의 코드로 불러와서 사용하는 방법을 적용해 보겠습니다.</p>
-                <div class="callout info">
-                    <p>Thonny에서 새 파일을 열고 아래 코드를 작성한 뒤, Pico 보드 내부에 <strong><code>wifi.py</code></strong>라는 이름으로 저장하세요.</p>
+                <div style="background-color: #f0fdf4; padding: 15px; border-radius: 8px; border-left: 4px solid #10b981; margin-bottom: 20px;">
+                    <p style="margin: 0; color: #166534;"><i class="fa-solid fa-file-code"></i> Thonny에서 새 파일을 열고 아래 코드를 작성한 뒤, Pico 보드 내부에 <strong><code>wifi.py</code></strong>라는 이름으로 저장하세요.</p>
                 </div>
                 <pre><code># wifi.py
 import network
@@ -250,7 +250,15 @@ def connect():
                 <p>이제 <code>wifi.py</code> 파일을 활용해 메인 코드를 아주 깔끔하게 유지하면서, 단순한 ON/OFF를 넘어서는 세 가지 실전 응용 기법을 실습해 봅니다.</p>
 
                 <h3>[응용 1] 내장 온도 센서 모니터링하기</h3>
-                <p>웹 서버는 외부의 명령을 받는 것뿐만 아니라, 보드의 상태를 사용자에게 보여주는(모니터링) 것도 가능합니다. 외부 센서 없이도 실습할 수 있도록, RP2350 칩 내부에 기본 탑재된 온도 센서의 값을 읽어 웹 페이지에 실시간으로 표시해 봅니다.</p>
+                <p>웹 서버는 외부의 명령을 받는 것뿐만 아니라, 보드의 상태를 사용자에게 보여주는(모니터링) 것도 가능합니다. 외부 센서 없이도 실습할 수 있도록, 기판 정중앙에 있는 까만 핵심 칩(<strong>RP2350</strong>) 내부에 탑재된 온도 센서의 값을 읽어 웹 페이지에 실시간으로 표시해 봅니다.</p>
+                
+                <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; border-left: 4px solid #3b82f6; margin-bottom: 20px; font-size: 0.95rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+                    <h4 style="margin-top:0; margin-bottom:12px; color: #1e293b;"><i class="fa-solid fa-microchip" style="color:#3b82f6;"></i> 내 온도 센서의 비밀 위치</h4>
+                    <p style="margin-bottom: 10px; line-height: 1.6;">기판을 이리저리 살펴봐도 온도 센서 부품은 따로 보이지 않을 것입니다. 이 센서는 방 안의 날씨를 재는 용도가 아니라, 스마트폰이나 컴퓨터의 CPU처럼 칩 자신이 일하면서 얼마나 열을 받고 있는지(코어 온도)를 스스로 체크하기 위해 <strong>칩 내부(Silicon Die)에 아예 일체형으로 숨어 있기 때문</strong>입니다.</p>
+                    <p style="margin-bottom: 15px; line-height: 1.6;">따라서 아래 코드에서 사용하는 <code>ADC(4)</code> 채널은 외부 핀이 아닌, 이 칩 내부의 온도 센서와 직통으로 연결된 비밀 통로입니다.</p>
+                    <p style="margin-bottom: 0; color: #475569; font-weight: 500;"><i class="fa-solid fa-lightbulb" style="color:#eab308;"></i> <strong>실전 IoT 팁:</strong> 측정 시 칩 자체의 '체온'이 섞이므로 실제 실내 온도보다 1~2도 높게 측정되는 경향이 있습니다. 정밀한 온도/습도 측정기나 스마트 온실을 만들 때는 향후 챕터에서 배울 <strong>DHT11</strong>이나 <strong>BME280</strong> 같은 전용 외부 온습도 센서를 연결하는 것이 정석입니다!</p>
+                </div>
+
                 <pre><code>import socket
 import wifi      # 우리가 만든 모듈을 불러옵니다
 import time
@@ -303,8 +311,13 @@ while True:
         except: pass
 </code></pre>
 
-                <h3>[응용 2] 슬라이더로 LED 밝기 미세 조절 (PWM 제어)</h3>
+                <h3>[응용 2] 슬라이더로 외부 LED 밝기 미세 조절 (PWM 제어)</h3>
                 <p>디지털 제어(0과 1)를 넘어, HTML의 <code>&lt;input type="range"&gt;</code> 태그를 이용해 LED의 밝기를 0%에서 100%까지 부드럽게 제어하는 아날로그(PWM) 제어 방식입니다.</p>
+                
+                <div style="background-color: #fef2f2; padding: 15px; border-radius: 8px; border-left: 4px solid #ef4444; margin-bottom: 20px; font-size: 0.95rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+                    <p style="margin: 0; line-height: 1.6; color: #991b1b;"><i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i> <strong>Pico 2 W 사용 시 주의사항:</strong> 내장 LED(<code>"LED"</code>)는 메인 칩(RP2350)이 아닌 와이파이 보조 칩에 연결되어 있어, 메인 칩의 고유 기능인 PWM(미세 밝기 조절)을 직접 사용할 수 없습니다(ValueError 발생). 단순 ON/OFF는 가능하지만 아날로그 제어를 위해서는 <strong>반드시 일반 GPIO 15번 핀에 외부 LED와 저항(220Ω)을 연결</strong>한 뒤 실습해야 합니다!</p>
+                </div>
+
                 <pre><code>import socket
 import wifi
 import time
@@ -319,8 +332,8 @@ s.bind(addr)
 s.listen(1)
 print(f'PWM 제어 서버 가동! 접속: http://{ip}')
 
-# LED를 PWM 모드로 설정 (밝기 조절용)
-led_pwm = PWM(Pin("LED"))
+# 15번 핀에 연결된 외부 LED를 PWM 모드로 설정 (밝기 조절용)
+led_pwm = PWM(Pin(15))
 led_pwm.freq(1000)
 
 def get_pwm_html():
@@ -328,7 +341,7 @@ def get_pwm_html():
     &lt;html&gt;
     &lt;head&gt;&lt;meta charset="UTF-8"&gt;&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;&lt;/head&gt;
     &lt;body style="text-align:center; padding-top:50px;"&gt;
-        &lt;h1&gt;LED 밝기 미세 조절기&lt;/h1&gt;
+        &lt;h1&gt;외부 LED 밝기 미세 조절기&lt;/h1&gt;
         &lt;form action="/set_light" method="POST"&gt;
             &lt;!-- 0부터 65535까지 조절 가능한 슬라이더 바 --&gt;
             &lt;input type="range" name="brightness" min="0" max="65535" value="32768" style="width:80%; margin:30px 0;"&gt;&lt;br&gt;
@@ -376,7 +389,8 @@ s.bind(addr)
 s.listen(1)
 print(f'비동기 제어 서버 가동! 접속: http://{ip}')
 
-led = Pin("LED", Pin.OUT)
+# 앞선 실습과 통일성을 위해 15번 외부 핀을 사용합니다.
+led = Pin(15, Pin.OUT)
 
 def get_fetch_html():
     return """&lt;!DOCTYPE html&gt;
@@ -398,7 +412,7 @@ def get_fetch_html():
     &lt;/head&gt;
     &lt;body style="text-align:center; padding-top:50px; font-family:sans-serif;"&gt;
         &lt;h1&gt;비동기 스마트홈 제어&lt;/h1&gt;
-        &lt;div style="font-size:24px; margin:30px;"&gt;LED 상태: &lt;span id="status" style="color:#2563eb; font-weight:bold;"&gt;대기중&lt;/span&gt;&lt;/div&gt;
+        &lt;div style="font-size:24px; margin:30px;"&gt;외부 LED 상태: &lt;span id="status" style="color:#2563eb; font-weight:bold;"&gt;대기중&lt;/span&gt;&lt;/div&gt;
         
         &lt;!-- 버튼을 눌러도 form처럼 제출(Submit)되지 않고 JS 함수만 실행됩니다. --&gt;
         &lt;button onclick="controlLED('on')" style="font-size:20px; padding:10px 20px;"&gt;조명 켜기&lt;/button&gt;
@@ -440,7 +454,7 @@ while True:
                 <ol>
                     <li>최종 코드를 실행하고 하단 콘솔 셸 창에 찍히는 <code>http://192.168.x.x</code> 형태의 주소를 확인합니다.</li>
                     <li>보드와 <strong>반드시 같은 와이파이(공유기)에 물려 있는</strong> 스마트폰이나 노트북의 인터넷 주소창에 해당 주소를 입력하고 접속합니다.</li>
-                    <li>한글 깨짐과 한 박자 늦게 꺼지던 꼬임 현상이 완벽히 해결된 대시보드가 열립니다. 버튼이나 슬라이더를 조작하면 단 1번 만에 나의 내장 LED 및 센서가 완벽하게 연동하여 반응합니다.</li>
+                    <li>한글 깨짐과 한 박자 늦게 꺼지던 꼬임 현상이 완벽히 해결된 대시보드가 열립니다. 버튼이나 슬라이더를 조작하면 단 1번 만에 외부 LED 및 센서가 완벽하게 연동하여 반응합니다.</li>
                 </ol>
 
                 <div class="callout info">
