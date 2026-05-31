@@ -33,8 +33,218 @@
                 <h1>Chapter 9. I2C LCD 디스플레이 문자열 출력</h1>
                 <p>컴퓨터 모니터 없이도 보드의 현재 상태나 센서 데이터 값을 시각적으로 뿌려줄 수 있는 I2C 규격의 LCD1602 모듈을 통제해 봅니다.</p>
 
-                <h2>9.1 I2C 디바이스 주소 스캔 및 라이브러리 준비</h2>
-                <p>I2C LCD를 다루려면 외부 구동용 외부 라이브러리(<code>pico_i2c_lcd.py</code>) 파일이 내장 공간에 미리 업로드되어 있어야 합니다. 우선 하드웨어가 올바른 물리 채널에 접속되었는지 확인하는 탐색 코드입니다.</p>
+                <div style="text-align: center; margin: 40px 0;">
+                    
+                    <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">뒷면에 부착된 검은색 I2C 백팩 모듈 덕분에 단 4가닥의 선만으로 화면 제어가 가능합니다.</p>
+                </div>
+
+                <h2>9.1 사전 준비: 구동 라이브러리 파일 업로드 (매우 중요)</h2>
+                <p>LCD를 파이썬 코드로 쉽게 제어하려면, 전 세계 마이크로파이썬 개발자들이 표준으로 사용하는 오픈소스 라이브러리 파일 <strong>2개</strong>가 Pico 보드 내부에 미리 저장되어 있어야 합니다. 아래 두 코드를 각각 복사하여 Thonny에서 새 파일로 만든 뒤, 지정된 이름으로 저장해 주세요.</p>
+
+                <div class="callout info">
+                    <p><i class="fa-solid fa-file-code"></i> <strong>첫 번째 파일:</strong> 공통 뼈대 역할을 하는 파일입니다. 아래 코드를 <code>lcd_api.py</code> 이름으로 저장하세요.</p>
+                </div>
+                <pre><code>import time
+
+class LcdApi:
+    # HD44780 LCD controller command set
+    LCD_CLR             = 0x01
+    LCD_HOME            = 0x02
+    LCD_ENTRY_MODE      = 0x04
+    LCD_ENTRY_INC       = 0x02
+    LCD_ENTRY_SHIFT     = 0x01
+    LCD_ON_CTRL         = 0x08
+    LCD_ON_DISPLAY      = 0x04
+    LCD_ON_CURSOR       = 0x02
+    LCD_ON_BLINK        = 0x01
+    LCD_MOVE            = 0x10
+    LCD_MOVE_DISP       = 0x08
+    LCD_MOVE_RIGHT      = 0x04
+    LCD_FUNCTION        = 0x20
+    LCD_FUNCTION_8BIT   = 0x10
+    LCD_FUNCTION_2LINES = 0x08
+    LCD_FUNCTION_10DOTS = 0x04
+    LCD_CGRAM           = 0x40
+    LCD_DDRAM           = 0x80
+    LCD_RS_CMD          = 0
+    LCD_RS_DATA         = 1
+    LCD_RW_WRITE        = 0
+    LCD_RW_READ         = 1
+
+    def __init__(self, num_lines, num_columns):
+        self.num_lines = num_lines
+        if self.num_lines > 4:
+            self.num_lines = 4
+        self.num_columns = num_columns
+        if self.num_columns > 40:
+            self.num_columns = 40
+        self.cursor_x = 0
+        self.cursor_y = 0
+        self.implied_newline = False
+        self.backlight = True
+        self.display_off()
+        self.backlight_on()
+        self.clear()
+        self.hal_write_command(self.LCD_ENTRY_MODE | self.LCD_ENTRY_INC)
+        self.hide_cursor()
+        self.display_on()
+
+    def clear(self):
+        self.hal_write_command(self.LCD_CLR)
+        self.hal_write_command(self.LCD_HOME)
+        self.cursor_x = 0
+        self.cursor_y = 0
+
+    def show_cursor(self):
+        self.hal_write_command(self.LCD_ON_CTRL | self.LCD_ON_DISPLAY | self.LCD_ON_CURSOR)
+
+    def hide_cursor(self):
+        self.hal_write_command(self.LCD_ON_CTRL | self.LCD_ON_DISPLAY)
+
+    def blink_cursor_on(self):
+        self.hal_write_command(self.LCD_ON_CTRL | self.LCD_ON_DISPLAY | self.LCD_ON_CURSOR | self.LCD_ON_BLINK)
+
+    def blink_cursor_off(self):
+        self.hal_write_command(self.LCD_ON_CTRL | self.LCD_ON_DISPLAY | self.LCD_ON_CURSOR)
+
+    def display_on(self):
+        self.hal_write_command(self.LCD_ON_CTRL | self.LCD_ON_DISPLAY)
+
+    def display_off(self):
+        self.hal_write_command(self.LCD_ON_CTRL)
+
+    def backlight_on(self):
+        self.backlight = True
+        self.hal_backlight_on()
+
+    def backlight_off(self):
+        self.backlight = False
+        self.hal_backlight_off()
+
+    def move_to(self, cursor_x, cursor_y):
+        self.cursor_x = cursor_x
+        self.cursor_y = cursor_y
+        addr = cursor_x & 0x3f
+        if cursor_y & 1:
+            addr += 0x40
+        if cursor_y & 2:
+            addr += self.num_columns
+        self.hal_write_command(self.LCD_DDRAM | addr)
+
+    def putchar(self, char):
+        if char == '\n':
+            if self.implied_newline:
+                pass
+            else:
+                self.cursor_x = self.num_columns
+        else:
+            self.hal_write_data(ord(char))
+            self.cursor_x += 1
+        if self.cursor_x >= self.num_columns:
+            self.cursor_x = 0
+            self.cursor_y += 1
+            self.implied_newline = (char != '\n')
+        if self.cursor_y >= self.num_lines:
+            self.cursor_y = 0
+        self.move_to(self.cursor_x, self.cursor_y)
+
+    def putstr(self, string):
+        for char in string:
+            self.putchar(char)
+
+    def custom_char(self, location, charmap):
+        location &= 0x07
+        self.hal_write_command(self.LCD_CGRAM | (location << 3))
+        self.hal_sleep_us(40)
+        for i in range(8):
+            self.hal_write_data(charmap[i])
+            self.hal_sleep_us(40)
+        self.move_to(self.cursor_x, self.cursor_y)
+
+    def hal_backlight_on(self):
+        pass
+    def hal_backlight_off(self):
+        pass
+    def hal_write_command(self, cmd):
+        raise NotImplementedError
+    def hal_write_data(self, data):
+        raise NotImplementedError
+    def hal_sleep_us(self, usecs):
+        time.sleep_us(usecs)
+</code></pre>
+
+                <div class="callout info">
+                    <p><i class="fa-solid fa-file-code"></i> <strong>두 번째 파일:</strong> I2C 통신 규격을 다루는 파일입니다. 아래 코드를 <code>pico_i2c_lcd.py</code> 이름으로 저장하세요.</p>
+                </div>
+                <pre><code>from lcd_api import LcdApi
+from machine import I2C
+from time import sleep_ms
+
+# The PCF8574 has a jumper selectable address: 0x20 - 0x27
+DEFAULT_I2C_ADDR = 0x27
+
+MASK_RS = 0x01
+MASK_RW = 0x02
+MASK_E = 0x04
+SHIFT_BACKLIGHT = 3
+SHIFT_DATA = 4
+
+class I2cLcd(LcdApi):
+    """Implements a HD44780 character LCD connected via PCF8574 on I2C."""
+
+    def __init__(self, i2c, i2c_addr, num_lines, num_columns):
+        self.i2c = i2c
+        self.i2c_addr = i2c_addr
+        self.i2c.writeto(self.i2c_addr, bytearray([0]))
+        sleep_ms(20)   # Allow LCD time to powerup
+        # Send reset 3 times
+        self.hal_write_init_nibble(self.LCD_FUNCTION_RESET)
+        sleep_ms(5)    # need to delay at least 4.1 msec
+        self.hal_write_init_nibble(self.LCD_FUNCTION_RESET)
+        sleep_ms(1)
+        self.hal_write_init_nibble(self.LCD_FUNCTION_RESET)
+        sleep_ms(1)
+        # Put LCD into 4 bit mode
+        self.hal_write_init_nibble(self.LCD_FUNCTION)
+        sleep_ms(1)
+        LcdApi.__init__(self, num_lines, num_columns)
+        cmd = self.LCD_FUNCTION
+        if num_lines > 1:
+            cmd |= self.LCD_FUNCTION_2LINES
+        self.hal_write_command(cmd)
+
+    def hal_write_init_nibble(self, nibble):
+        byte = ((nibble >> 4) & 0x0f) << SHIFT_DATA
+        self.i2c.writeto(self.i2c_addr, bytearray([byte | MASK_E]))
+        self.i2c.writeto(self.i2c_addr, bytearray([byte]))
+
+    def hal_backlight_on(self):
+        self.i2c.writeto(self.i2c_addr, bytearray([1 << SHIFT_BACKLIGHT]))
+
+    def hal_backlight_off(self):
+        self.i2c.writeto(self.i2c_addr, bytearray([0]))
+
+    def hal_write_command(self, cmd):
+        byte = ((self.backlight << SHIFT_BACKLIGHT) | (((cmd >> 4) & 0x0f) << SHIFT_DATA))
+        self.i2c.writeto(self.i2c_addr, bytearray([byte | MASK_E]))
+        self.i2c.writeto(self.i2c_addr, bytearray([byte]))
+        byte = ((self.backlight << SHIFT_BACKLIGHT) | ((cmd & 0x0f) << SHIFT_DATA))
+        self.i2c.writeto(self.i2c_addr, bytearray([byte | MASK_E]))
+        self.i2c.writeto(self.i2c_addr, bytearray([byte]))
+        if cmd <= 3:
+            sleep_ms(5)
+
+    def hal_write_data(self, data):
+        byte = (MASK_RS | (self.backlight << SHIFT_BACKLIGHT) | (((data >> 4) & 0x0f) << SHIFT_DATA))
+        self.i2c.writeto(self.i2c_addr, bytearray([byte | MASK_E]))
+        self.i2c.writeto(self.i2c_addr, bytearray([byte]))
+        byte = (MASK_RS | (self.backlight << SHIFT_BACKLIGHT) | ((data & 0x0f) << SHIFT_DATA))
+        self.i2c.writeto(self.i2c_addr, bytearray([byte | MASK_E]))
+        self.i2c.writeto(self.i2c_addr, bytearray([byte]))
+</code></pre>
+
+                <h2>9.2 I2C 디바이스 주소 스캔하기</h2>
+                <p>라이브러리 준비가 끝났다면 하드웨어가 올바른 물리 채널에 접속되었는지 확인해야 합니다. 아래 코드를 실행하여 내 디스플레이의 고유 16진수 주소(Address)를 알아냅니다.</p>
                 <pre><code>from machine import I2C, Pin
 
 # Pico 2의 I2C0번 채널 활성화 (SDA: GPIO 8, SCL: GPIO 9)
@@ -50,16 +260,18 @@ else:
         print(f"발견된 디바이스 16진수 고유 주소: {hex(device)}")
 </code></pre>
 
-                <h2>9.2 LCD 화면에 센서 실시간 문자열 시각화</h2>
-                <p>LCD 화면에 고정 문자를 찍고, 아래 행에는 실시간 데이터 변동 수치를 출력하는 정형화 대시보드 출력 코드입니다.</p>
+                <h2>9.3 LCD 화면에 실시간 문자열 시각화</h2>
+                <p>위에서 저장한 라이브러리를 임포트(import)하여 LCD 화면을 통제합니다. 화면 상단에는 고정 문자를 찍고, 하단에는 실시간으로 데이터가 변동되는 대시보드 출력 마스터 코드입니다.</p>
                 <pre><code>from machine import I2C, Pin
 import time
-# 미리 Thonny 패키지로 저장해둔 LCD 모듈 컴포넌트 임포트
+# 미리 저장해둔 라이브러리 파일에서 클래스를 불러옵니다.
 from pico_i2c_lcd import I2cLcd
 
 i2c = I2C(0, sda=Pin(8), scl=Pin(9), freq=400000)
+
 # 위 스캔에서 발견된 16진수 주소값(보통 0x27) 입력
-lcd = I2cLcd(i2c, 0x27, 2, 16)
+lcd_address = 0x27
+lcd = I2cLcd(i2c, lcd_address, 2, 16)
 
 # 화면 초기화 및 백라이트 점등
 lcd.clear()
@@ -92,18 +304,15 @@ while True:
             const codeBlock = preBlock.querySelector('code');
             if (!codeBlock) return;
 
-            // 1. 코드를 감싸는 부모 박스(Wrapper) 동적 생성
             const wrapper = document.createElement('div');
             wrapper.className = 'code-wrapper';
             preBlock.parentNode.insertBefore(wrapper, preBlock);
             wrapper.appendChild(preBlock);
 
-            // 2. 우측 상단 복사 버튼 생성
             const topBtn = document.createElement('button');
             topBtn.className = 'copy-btn btn-top';
             topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
             
-            // 3. 우측 하단 복사 버튼 생성
             const bottomBtn = document.createElement('button');
             bottomBtn.className = 'copy-btn btn-bottom';
             bottomBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
@@ -111,7 +320,6 @@ while True:
             wrapper.appendChild(topBtn);
             wrapper.appendChild(bottomBtn);
 
-            // 4. 복사 기능 정의
             const codeText = codeBlock.innerText;
             
             const copyToClipboard = (btn) => {
@@ -172,14 +380,10 @@ while True:
         const backdrop = modal.querySelector('.modal-backdrop');
 
         if (openBtn && modal) {
-            // 버튼 누르면 열기
             openBtn.addEventListener('click', () => modal.classList.add('active'));
-            // X 버튼 누르면 닫기
             closeBtn.addEventListener('click', () => modal.classList.remove('active'));
-            // 흐린 배경 누르면 닫기
             backdrop.addEventListener('click', () => modal.classList.remove('active'));
             
-            // ESC 키 누르면 닫히는 센스있는 단축키 기능 추가
             window.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && modal.classList.contains('active')) {
                     modal.classList.remove('active');
