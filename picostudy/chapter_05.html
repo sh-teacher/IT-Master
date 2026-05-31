@@ -312,7 +312,7 @@ while True:
 </code></pre>
 
                 <h3>[응용 2] 슬라이더로 외부 LED 밝기 미세 조절 (PWM 제어)</h3>
-                <p>디지털 제어(0과 1)를 넘어, HTML의 <code>&lt;input type="range"&gt;</code> 태그를 이용해 LED의 밝기를 0%에서 100%까지 부드럽게 제어하는 아날로그(PWM) 제어 방식입니다.</p>
+                <p>디지털 제어(0과 1)를 넘어, HTML의 <code>&lt;input type="range"&gt;</code> 태그를 이용해 LED의 밝기를 0%에서 100%까지 부드럽게 제어하는 아날로그(PWM) 제어 방식입니다. 수치를 적용한 후에도 슬라이더 위치와 화면의 밝기 값이 그대로 유지되도록 상태 관리를 추가했습니다.</p>
                 
                 <div style="background-color: #fef2f2; padding: 15px; border-radius: 8px; border-left: 4px solid #ef4444; margin-bottom: 20px; font-size: 0.95rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
                     <p style="margin: 0; line-height: 1.6; color: #991b1b;"><i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i> <strong>Pico 2 W 사용 시 주의사항:</strong> 내장 LED(<code>"LED"</code>)는 메인 칩(RP2350)이 아닌 와이파이 보조 칩에 연결되어 있어, 메인 칩의 고유 기능인 PWM(미세 밝기 조절)을 직접 사용할 수 없습니다(ValueError 발생). 단순 ON/OFF는 가능하지만 아날로그 제어를 위해서는 <strong>반드시 일반 GPIO 15번 핀에 외부 LED와 저항(220Ω)을 연결</strong>한 뒤 실습해야 합니다!</p>
@@ -336,16 +336,26 @@ print(f'PWM 제어 서버 가동! 접속: http://{ip}')
 led_pwm = PWM(Pin(15))
 led_pwm.freq(1000)
 
-def get_pwm_html():
-    return """&lt;!DOCTYPE html&gt;
+# 현재 밝기를 기억할 변수 설정 (초기값: 32768)
+current_brightness = 32768
+led_pwm.duty_u16(current_brightness)
+
+# 현재 밝기 값을 전달받아 HTML을 동적으로 생성합니다.
+def get_pwm_html(brightness):
+    return f"""&lt;!DOCTYPE html&gt;
     &lt;html&gt;
     &lt;head&gt;&lt;meta charset="UTF-8"&gt;&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;&lt;/head&gt;
-    &lt;body style="text-align:center; padding-top:50px;"&gt;
+    &lt;body style="text-align:center; padding-top:50px; font-family:sans-serif;"&gt;
         &lt;h1&gt;외부 LED 밝기 미세 조절기&lt;/h1&gt;
+        
+        &lt;div style="font-size:20px; margin:20px;"&gt;현재 적용된 밝기: &lt;strong style="color:#2563eb;"&gt;{brightness}&lt;/strong&gt; / 65535&lt;/div&gt;
+        
         &lt;form action="/set_light" method="POST"&gt;
-            &lt;!-- 0부터 65535까지 조절 가능한 슬라이더 바 --&gt;
-            &lt;input type="range" name="brightness" min="0" max="65535" value="32768" style="width:80%; margin:30px 0;"&gt;&lt;br&gt;
-            &lt;button type="submit" style="padding:15px 30px; font-size:18px;"&gt;밝기 적용하기&lt;/button&gt;
+            &lt;!-- value 속성에 현재 밝기를 넣어 슬라이더 위치를 유지하고, oninput으로 실시간 수치를 보여줍니다 --&gt;
+            &lt;input type="range" name="brightness" min="0" max="65535" value="{brightness}" style="width:80%; margin:20px 0;" oninput="document.getElementById('live_val').innerText = this.value"&gt;&lt;br&gt;
+            &lt;div style="margin-bottom: 20px; color:#64748b;"&gt;조절 중인 수치: &lt;span id="live_val"&gt;{brightness}&lt;/span&gt;&lt;/div&gt;
+            
+            &lt;button type="submit" style="padding:15px 30px; font-size:18px; background-color:#10b981; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold;"&gt;밝기 적용하기&lt;/button&gt;
         &lt;/form&gt;
     &lt;/body&gt;
     &lt;/html&gt;"""
@@ -360,13 +370,17 @@ while True:
             try:
                 body = request.split('\r\n\r\n')[1]
                 brightness_value = int(body.split('=')[1])
-                led_pwm.duty_u16(brightness_value) # 추출한 숫자를 PWM 밝기로 적용
-                print(f"밝기 변경 완료: {brightness_value}")
+                
+                # 추출한 값을 전역 변수에 저장하고 LED에 적용
+                current_brightness = brightness_value 
+                led_pwm.duty_u16(current_brightness) 
+                print(f"밝기 변경 완료: {current_brightness}")
             except:
                 pass
 
         cl.send('HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n'.encode('utf-8'))
-        cl.send(get_pwm_html().encode('utf-8'))
+        # 업데이트된 밝기 변수를 함수에 넣어 전송
+        cl.send(get_pwm_html(current_brightness).encode('utf-8'))
         cl.close()
     except Exception:
         try: cl.close()
