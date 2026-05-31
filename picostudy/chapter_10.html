@@ -31,30 +31,29 @@
         <main class="content">
             <div class="container">
                 <h1>Chapter 10. 외부 입력 통신 (내장 블루투스, IR 리모컨)</h1>
-                <p>본 가이드북의 최종장입니다. Pico 2 W에 내장된 무선 안테나를 깨워 스마트폰과 1:1로 비밀 통신을 나누는 블루투스 기술과, 가전제품의 핵심인 적외선(IR) 리모컨 신호 디코딩 제어 기법을 마스터해 봅니다.</p>
+                <p>본 가이드북의 최종장입니다. 복잡한 통신 코드를 별도의 파일로 쪼개어 관리하는 <strong>모듈화(상속) 기법</strong>을 통해 Pico 2 W의 내장 블루투스(BLE)를 제어하고, 홈 가전의 핵심인 적외선(IR) 리모컨 신호를 디코딩하는 고급 사물인터넷 기술을 학습합니다.</p>
 
-                ---
+                <hr>
 
-                <h2>10.1 내장 블루투스(BLE) 세팅 방법과 원리</h2>
-                <p>Pico 2 W는 무선 LAN 칩셋 안에 <strong>Bluetooth Low Energy (BLE)</strong> 기능을 기본 탑재하고 있습니다. 과거 HC-06 같은 외장 모듈처럼 Classic Bluetooth 통신을 쓰는 것이 아니라, 전력을 극도로 아끼는 최신 BLE 표준 프로토콜을 사용합니다.</p>
+                <h2>10.1 내장 블루투스(BLE) 원리와 라이브러리 세팅</h2>
+                <p>Pico 2 W는 무선 칩셋 안에 <strong>Bluetooth Low Energy (BLE)</strong> 안테나를 기본 내장하고 있습니다. 전력을 극도로 아끼는 최신 BLE 프로토콜은 일반 Classic 블루투스처럼 스마트폰 스마트폰 기본 설정 창에서 잡히지 않습니다. 반드시 <code>Serial Bluetooth Terminal</code> 같은 전문 BLE 통신 앱을 다운받아 사용해야 합니다.</p>
                 
+                <p>통신을 처리하는 핵심 엔진 코드가 매우 길기 때문에, 우리는 이 코드를 메인 코드와 분리하여 독립된 라이브러리 파일로 보드에 먼저 저장해 둘 것입니다.</p>
+
                 <div class="callout info">
-                    <h4>💡 스마트폰 연동 전 필수 체크 사항</h4>
-                    <p>BLE는 일반 블루투스처럼 스마트폰의 기본 [설정] -> [블루투스] 메뉴에서 검색하면 잡히지 않습니다! 반드시 플레이스토어나 앱스토어에서 <strong>"Serial Bluetooth Terminal"</strong> 이나 <strong>"nRF Connect"</strong> 같은 전문 BLE 지원 통신 앱을 설치하여 앱 안에서 장치를 검색하고 연결해야 합니다.</p>
+                    <h4>💾 [파일 1] 라이브러리 파일 저장 규칙</h4>
+                    <p>아래 코드를 Thonny 편집창에 복사한 뒤, [다른 이름으로 저장] -> [Raspberry Pi Pico]를 선택하고 파일 이름을 반드시 <strong><code>ble_uart.py</code></strong>로 저장하세요. (이 코드는 통신 엔진이므로 단독 실행해도 반응이 없는 것이 정상입니다.)</p>
                 </div>
 
-                <h2>10.2 블루투스(BLE) 연동 기본 코드</h2>
-                <p>마이크로파이썬 표준 <code>ubluetooth</code> 모듈을 사용해 내 보드를 주변 스마트폰이 검색할 수 있도록 무선 신호(Advertising)를 뿌려주고, 가상의 시리얼 포트(Nordic UART 서비스)를 개방하는 표준 기본 베이스라인 코드입니다.</p>
                 <pre><code>import bluetooth
 import time
 from micropython import const
 
-# BLE 이벤트 상수 설정
 _IRQ_CENTRAL_CONNECT = const(1)
 _IRQ_CENTRAL_DISCONNECT = const(2)
 _IRQ_GATTS_WRITE = const(3)
 
-# 표준 Nordic UART 서비스(NUS) UUID 정의
+# 표준 Nordic UART 서비스(NUS) UUID 규격 정의
 _UART_UUID = bluetooth.UUID("6E400001-B5A3-F393-E0A9-E50E24DCCA9E")
 _UART_TX = (bluetooth.UUID("6E400003-B5A3-F393-E0A9-E50E24DCCA9E"), bluetooth.FLAG_NOTIFY,)
 _UART_RX = (bluetooth.UUID("6E400002-B5A3-F393-E0A9-E50E24DCCA9E"), bluetooth.FLAG_WRITE_NO_RESPONSE,)
@@ -68,7 +67,7 @@ class PicoBLEUART:
         ((self._tx_handle, self._rx_handle),) = self._ble.gatts_register_services((_UART_SERVICE,))
         self._connections = set()
         self._advertise(name)
-        print(f"[{name}] 블루투스 신호 송출 중... 페어링을 대기합니다.")
+        print(f"[{name}] 블루투스 엔진 가동... 페어링을 대기합니다.")
 
     def _irq(self, event, data):
         if event == _IRQ_CENTRAL_CONNECT:
@@ -95,50 +94,55 @@ class PicoBLEUART:
             self._ble.gatts_notify(conn_handle, self._tx_handle, data + '\n')
 
     def on_rx(self, msg):
-        # 수신된 메시지를 터미널 창에 그대로 출력 (기본 동작)
-        print(f"📱 스마트폰 수신 데이터: {msg}")
-
-# 가동 테스트
-ble = PicoBLEUART()
+        print(f"수신 데이터: {msg}")
 </code></pre>
 
-                <h2>10.3 블루투스 연동 응용 예제 코드 (무선 원격 제어)</h2>
-                <p>위에서 구현한 BLE 통신 클래스 구조를 상속받아, 스마트폰 앱에서 무선으로 <code>on</code> 또는 <code>off</code> 텍스트 명령을 전달했을 때 내장 LED를 제어하고 보드가 스마트폰 화면으로 처리 완료 답장을 보내주는 실전 사물인터넷 응용 스크립트입니다.</p>
-                <pre><code>from machine import Pin
+                <h2>10.2 블루투스(BLE) 연동 응용 제어</h2>
+                <p>방금 저장한 블루투스 엔진 파일(<code>ble_uart.py</code>)을 불러와서(Import), 내가 원하는 스마트홈 원격 제어 기능만 덧붙이는 실제 메인 제어 코드입니다. 클래스 상속 기법 덕분에 코드가 믿을 수 없을 정도로 간결해집니다.</p>
+
+                <div class="callout info">
+                    <h4>🚀 [파일 2] 메인 구동 파일 저장 규칙</h4>
+                    <p>아래 코드를 Thonny의 완전히 새로운 창에 복사한 뒤, 보드 내부에 반드시 <strong><code>main.py</code></strong>라는 이름으로 저장하세요. 저장 후 실행 버튼을 누르면 스마트폰 앱에서 보드가 검색됩니다.</p>
+                </div>
+
+                <pre><code># 앞서 내부에 저장한 ble_uart 파일로부터 통신 엔진 클래스를 불러옵니다.
+from ble_uart import PicoBLEUART  
+from machine import Pin
 import time
 
-# 10.2에서 만든 클래스를 고스란히 확장하여 사용합니다.
+# 제어 대상인 내장 LED 설정
 led = Pin("LED", Pin.OUT)
 
+# 부모인 PicoBLEUART의 강력한 무선 통신 기능을 그대로 물려받습니다(상속).
 class CustomIoTController(PicoBLEUART):
-    def on_rx(self, msg):
-        print(f" 명령 접수: {msg}")
+    def on_rx(self, msg):  # 스마트폰으로부터 글자가 도착했을 때 실행할 행동만 정의!
+        print(f"📱 블루투스 명령 접수: {msg}")
         
         if msg == "on":
             led.value(1)
             self.send("Pico2W > LED가 켜졌습니다!")
-            print("-> 하드웨어 작동: LED ON")
+            print("-> 하드웨어 처리: LED ON")
         elif msg == "off":
             led.value(0)
             self.send("Pico2W > LED가 꺼졌습니다!")
-            print("-> 하드웨어 작동: LED OFF")
+            print("-> 하드웨어 처리: LED OFF")
         else:
-            self.send(f"unknown command: {msg}")
+            self.send(f"알 수 없는 명령어: {msg}")
 
-# 실전 스마트홈 컨트롤러 가동
+# 실전 스마트홈 서버 구동 (원하는 블루투스 검색 이름을 적어줍니다)
 iot_server = CustomIoTController("Pico2W_SmartHome")
 
 while True:
-    time.sleep(1) # 통신 이벤트 대기를 위한 루프 유지
+    time.sleep(1) # 무선 이벤트 수신을 위해 루프를 유지합니다.
 </code></pre>
 
-                ---
+                <hr>
 
-                <h2>10.4 IR 적외선 수신기 기본 세팅 방법과 원리</h2>
-                <p>적외선(IR) 수신 모듈(VS1838B 기준)은 눈에 보이지 않는 940nm 파장의 적외선 빛 신호를 감지합니다. 핀 배선 시 플러스(VCC)와 마이너스(GND)가 반대로 교차하면 센서 내부 소자가 손상되므로 아래의 지도를 엄격하게 지켜 연결해야 합니다.</p>
+                <h2>10.3 IR 적외선 수신기 기본 세팅 방법과 원리</h2>
+                <p>적외선(IR) 수신 모듈(VS1838B 기준)은 눈에 보이지 않는 940nm 파장의 적외선 빛 신호를 감지하여 전기 신호로 바꾸어 줍니다. 핀 배선 시 플러스(VCC)와 마이너스(GND)가 반대로 교차하면 센서 내부 소자가 손상되므로 아래의 지도를 엄격하게 지켜 연결해야 합니다.</p>
                 
                 <div class="callout warn">
-                    <h4>⚠️ 하드웨어 배선 규격 (둥근 감지 렌즈가 나를 바라보는 기준)</h4>
+                    <h4>📍 하드웨어 배선 가이드 (둥근 감지 렌즈가 내 얼굴을 바라보는 기준)</h4>
                     <p>
                         • <strong>1번 핀 (맨 왼쪽, OUT):</strong> 나의 <strong>GPIO 2번</strong> (물리 핀 4번)<br>
                         • <strong>2번 핀 (가운데, GND):</strong> 나의 <strong>GND</strong> (물리 핀 3번)<br>
@@ -146,11 +150,11 @@ while True:
                     </p>
                 </div>
 
-                <h2>10.5 적외선(IR) 리모컨의 동작 원리 (NEC 프로토콜)</h2>
-                <p>우리가 리모컨 버튼을 누르면 내부 IC 칩이 고유 데이터(주소 및 명령)를 디지털 신호로 변환한 뒤, 38kHz 주파수로 적외선 LED를 깜빡여 전송합니다. 이를 <strong>NEC 프로토콜</strong>이라고 부르며, 신호는 시작을 알리는 '리더 펄스(약 9000us)'로 문을 열고 데이터 비트 간의 간격을 측정해 0과 1을 판별해 냅니다.</p>
+                <h2>10.4 적외선(IR) 리모컨의 동작 원리</h2>
+                <p>우리가 리모컨 버튼을 누르면 내부 칩셋이 버튼 고유의 데이터 코드를 송신하기 위해 38kHz 주파수로 적외선 LED를 격렬하게 깜빡입니다. 이를 <strong>NEC 프로토콜</strong>이라고 부르며, 신호는 시작을 알리는 '리더 펄스(약 9000us 동안 신호가 Low로 유지됨)'로 시작합니다. 보드는 이 신호가 지속되는 마이크로초(us) 시간의 간격을 측정해 버튼을 식별합니다.</p>
 
-                <h2>10.6 IR 수신기 연동 테스트 (펄스 마이크로초 측정)</h2>
-                <p>센서가 리모컨 적외선 파형을 감지해 신호가 떨어지는(Low, 0) 순간의 총 지속 시간을 마이크로초(us) 단위로 정확히 가로채어 출력해 내는 통신 물리 계층 테스트 코드입니다.</p>
+                <h2>10.5 IR 수신기 연동 테스트 (펄스 시간 측정)</h2>
+                <p>센서가 리모컨 적외선 파형을 감지해 신호가 떨어지는(Low, 0) 순간의 총 지속 시간을 마이크로초(us) 단위로 정확히 가로채어 셸 창에 출력해 보는 연동 테스트 코드입니다.</p>
                 <pre><code>from machine import Pin
 import time
 
@@ -164,7 +168,7 @@ while True:
     if ir_sensor.value() == 0:
         pulse_start = time.ticks_us()
         
-        # 신호 지속 처리 감지
+        # 신호가 지속되는 동안 멈춰서 대기합니다.
         while ir_sensor.value() == 0:
             pass
         pulse_end = time.ticks_us()
@@ -177,8 +181,8 @@ while True:
     time.sleep(0.01)
 </code></pre>
 
-                <h2>10.7 리모컨 연동 동작 구현 및 응용 (가전제품 제어 모델)</h2>
-                <p>10.6의 테스트를 통해 리모컨의 특정 버튼을 눌렀을 때의 펄스 길이를 파악했다면, 그 수치 데이터 범위를 파이썬의 오차 범위 조건문(<code>if</code>) 설계로 가두어 특정 버튼을 누를 때마다 내장 LED를 토글(Toggle) 전환하는 완벽한 가전 원격 제어 실습입니다.</p>
+                <h2>10.6 리모컨 연동 동작 구현 및 응용</h2>
+                <p>10.5의 테스트를 통해 알아낸 리모컨 특정 버튼의 펄스 길이 데이터 범위를 파이썬의 오차 범위 조건문(<code>if</code>) 설계로 가두어, 실제 가전제품처럼 리모컨을 누를 때마다 내장 LED를 토글(Toggle) 전환하는 완성형 제어 실습입니다.</p>
                 <pre><code>from machine import Pin
 import time
 
@@ -196,11 +200,11 @@ while True:
         
         duration = pulse_end - pulse_start
         
-        # [실전 응용] 리모컨의 특정 버튼 리더 펄스가 대략 8500~9500us 사이로 들어온다면!
+        # [실전 응용] 특정 버튼의 리더 펄스가 대략 8500~9500us 사이로 들어온다면!
         if 8500 &lt; duration &lt; 9500:
             print(f"인증된 리모컨 버튼 입력 확인! ({duration} us)")
-            target_led.toggle() # 내장 LED를 반전시킵니다.
-            print("-> 상태 제어: LED 상태가 변경되었습니다.")
+            target_led.toggle() # 내장 LED 상태를 반전시킵니다.
+            print("-> 하드웨어 상태 제어: LED 변경 완료")
             
         time.sleep(0.25)
     time.sleep(0.01)
