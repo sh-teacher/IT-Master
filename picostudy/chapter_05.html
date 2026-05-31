@@ -220,11 +220,162 @@ while True:
         except: pass
 </code></pre>
 
-                <h2>5.2 웹 제어 작동 확인</h2>
+                <h2>5.2 심화 응용: 웹 서버 200% 활용하기</h2>
+                <p>단순한 ON/OFF 원격 제어를 넘어, 웹 서버의 활용도를 극대화할 수 있는 세 가지 실전 응용 기법을 소개합니다.</p>
+
+                <h3>[응용 1] 내장 온도 센서 모니터링하기</h3>
+                <p>웹 서버는 외부의 명령을 받는 것뿐만 아니라, 보드의 상태를 사용자에게 보여주는(모니터링) 것도 가능합니다. 외부 센서 없이도 실습할 수 있도록, RP2350 칩 내부에 기본 탑재된 온도 센서의 값을 읽어 웹 페이지에 실시간으로 표시해 봅니다.</p>
+                <pre><code>import network, socket, time
+from machine import ADC
+
+# RP2350의 내장 온도 센서는 4번 ADC 채널에 연결되어 있습니다.
+temp_sensor = ADC(4)
+conversion_factor = 3.3 / (65535)
+
+def read_temperature():
+    reading = temp_sensor.read_u16() * conversion_factor
+    # 온도 계산 공식 (칩의 스펙시트 기준)
+    temperature = 27 - (reading - 0.706) / 0.001721
+    return round(temperature, 1)
+
+# (와이파이 및 소켓 연결 코드는 3단계와 동일하므로 생략)
+
+def get_temp_html(temp):
+    return f"""&lt;!DOCTYPE html&gt;
+    &lt;html&gt;
+    &lt;head&gt;&lt;meta charset="UTF-8"&gt;&lt;/head&gt;
+    &lt;body style="text-align:center; font-family:sans-serif; padding-top:50px;"&gt;
+        &lt;h1&gt;Pico 2 시스템 모니터링&lt;/h1&gt;
+        &lt;div style="font-size:30px; margin:30px;"&gt;현재 코어 온도: &lt;strong style="color:#ef4444;"&gt;{temp}°C&lt;/strong&gt;&lt;/div&gt;
+        &lt;button onclick="location.reload()" style="padding:10px 20px; font-size:18px; cursor:pointer;"&gt;온도 새로고침&lt;/button&gt;
+    &lt;/body&gt;
+    &lt;/html&gt;"""
+
+while True:
+    cl, addr_info = s.accept()
+    request = cl.recv(1024).decode('utf-8')
+    
+    # 클라이언트 접속 시 온도를 읽고 HTML에 포매팅하여 전송
+    current_temp = read_temperature()
+    
+    cl.send('HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n'.encode('utf-8'))
+    cl.send(get_temp_html(current_temp).encode('utf-8'))
+    cl.close()
+</code></pre>
+
+                <h3>[응용 2] 슬라이더로 LED 밝기 미세 조절 (PWM 제어)</h3>
+                <p>디지털 제어(0과 1)를 넘어, HTML의 <code>&lt;input type="range"&gt;</code> 태그를 이용해 LED의 밝기를 0%에서 100%까지 부드럽게 제어하는 아날로그(PWM) 제어 방식입니다.</p>
+                <pre><code>import network, socket, time
+from machine import Pin, PWM
+
+# LED를 PWM 모드로 설정 (밝기 조절용)
+led_pwm = PWM(Pin("LED"))
+led_pwm.freq(1000)
+
+# (와이파이 및 소켓 연결 코드 생략)
+
+def get_pwm_html():
+    return """&lt;!DOCTYPE html&gt;
+    &lt;html&gt;
+    &lt;head&gt;&lt;meta charset="UTF-8"&gt;&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;&lt;/head&gt;
+    &lt;body style="text-align:center; padding-top:50px;"&gt;
+        &lt;h1&gt;LED 밝기 미세 조절기&lt;/h1&gt;
+        &lt;form action="/set_light" method="POST"&gt;
+            &lt;!-- 0부터 65535까지 조절 가능한 슬라이더 바 --&gt;
+            &lt;input type="range" name="brightness" min="0" max="65535" value="32768" style="width:80%; margin:30px 0;"&gt;&lt;br&gt;
+            &lt;button type="submit" style="padding:15px 30px; font-size:18px;"&gt;밝기 적용하기&lt;/button&gt;
+        &lt;/form&gt;
+    &lt;/body&gt;
+    &lt;/html&gt;"""
+
+while True:
+    cl, addr_info = s.accept()
+    request = cl.recv(1024).decode('utf-8')
+    
+    # POST 요청의 데이터 본문(Body)에서 brightness 값 추출
+    if 'POST /set_light' in request:
+        try:
+            # HTTP 헤더와 본문을 분리하여 데이터 파싱
+            body = request.split('\r\n\r\n')[1]
+            brightness_value = int(body.split('=')[1])
+            led_pwm.duty_u16(brightness_value) # 추출한 숫자를 PWM 밝기로 적용
+            print(f"밝기 변경 완료: {brightness_value}")
+        except:
+            pass
+
+    cl.send('HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n'.encode('utf-8'))
+    cl.send(get_pwm_html().encode('utf-8'))
+    cl.close()
+</code></pre>
+
+                <h3>[응용 3] 깜빡임 없는 진짜 스마트홈 UI (JavaScript Fetch API)</h3>
+                <p>기존의 <code>&lt;form&gt;</code> 태그는 전송 시 화면이 하얗게 새로고침되는 단점이 있습니다. 프론트엔드 자바스크립트의 비동기 통신 기술인 <code>fetch()</code>를 도입하면 화면 전환 없이 백그라운드에서 부드럽게 하드웨어를 제어하는 실제 상용 스마트홈 앱 같은 퀄리티를 낼 수 있습니다.</p>
+                <pre><code>import network, socket, time
+from machine import Pin
+
+led = Pin("LED", Pin.OUT)
+
+# (와이파이 및 소켓 연결 코드 생략)
+
+def get_fetch_html():
+    return """&lt;!DOCTYPE html&gt;
+    &lt;html&gt;
+    &lt;head&gt;
+        &lt;meta charset="UTF-8"&gt;
+        &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+        &lt;script&gt;
+            // 화면 새로고침 없이 백그라운드에서 Pico로 명령을 보내는 JS 함수
+            function controlLED(action) {
+                fetch('/' + action)
+                .then(response =&gt; response.text())
+                .then(data =&gt; {
+                    // 응답을 받아 웹페이지의 텍스트만 살짝 변경합니다.
+                    document.getElementById('status').innerText = data;
+                });
+            }
+        &lt;/script&gt;
+    &lt;/head&gt;
+    &lt;body style="text-align:center; padding-top:50px; font-family:sans-serif;"&gt;
+        &lt;h1&gt;비동기 스마트홈 제어&lt;/h1&gt;
+        &lt;div style="font-size:24px; margin:30px;"&gt;LED 상태: &lt;span id="status" style="color:#2563eb; font-weight:bold;"&gt;대기중&lt;/span&gt;&lt;/div&gt;
+        
+        &lt;!-- 버튼을 눌러도 form처럼 제출(Submit)되지 않고 JS 함수만 실행됩니다. --&gt;
+        &lt;button onclick="controlLED('on')" style="font-size:20px; padding:10px 20px;"&gt;조명 켜기&lt;/button&gt;
+        &lt;button onclick="controlLED('off')" style="font-size:20px; padding:10px 20px;"&gt;조명 끄기&lt;/button&gt;
+    &lt;/body&gt;
+    &lt;/html&gt;"""
+
+while True:
+    cl, addr_info = s.accept()
+    request = cl.recv(1024).decode('utf-8')
+    
+    if not request or 'favicon.ico' in request:
+        cl.close()
+        continue
+        
+    # Fetch API가 요청한 경로에 따라 LED 제어 후, 단순 텍스트만 응답 (전체 HTML 아님)
+    if 'GET /on' in request:
+        led.value(1)
+        cl.send('HTTP/1.1 200 OK\r\n\r\n켜짐 (ON)'.encode('utf-8'))
+        cl.close()
+        continue
+    elif 'GET /off' in request:
+        led.value(0)
+        cl.send('HTTP/1.1 200 OK\r\n\r\n꺼짐 (OFF)'.encode('utf-8'))
+        cl.close()
+        continue
+
+    # 최초 접속 시에만 전체 HTML 페이지를 전송
+    cl.send('HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n'.encode('utf-8'))
+    cl.send(get_fetch_html().encode('utf-8'))
+    cl.close()
+</code></pre>
+
+                <h2>5.3 웹 제어 작동 확인</h2>
                 <ol>
-                    <li>최종 3단계 코드를 실행하고 하단 콘솔 셸 창에 찍히는 <code>http://192.168.x.x</code> 형태의 주소를 확인합니다.</li>
+                    <li>최종 코드를 실행하고 하단 콘솔 셸 창에 찍히는 <code>http://192.168.x.x</code> 형태의 주소를 확인합니다.</li>
                     <li>보드와 <strong>반드시 같은 와이파이(공유기)에 물려 있는</strong> 스마트폰이나 노트북의 인터넷 주소창에 해당 주소를 입력하고 접속합니다.</li>
-                    <li>한글 깨짐과 한 박자 늦게 꺼지던 꼬임 현상이 완벽히 해결된 대시보드가 열립니다. 버튼을 누르면 단 1번 만에 나의 내장 LED가 완벽하게 연동하여 반응합니다.</li>
+                    <li>한글 깨짐과 한 박자 늦게 꺼지던 꼬임 현상이 완벽히 해결된 대시보드가 열립니다. 버튼이나 슬라이더를 조작하면 단 1번 만에 나의 내장 LED 및 센서가 완벽하게 연동하여 반응합니다.</li>
                 </ol>
 
                 <div class="callout info">
