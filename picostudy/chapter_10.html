@@ -164,7 +164,7 @@ while True:
                 <p>테스트 중 동일한 버튼을 눌러도 측정 시간이 <code>8900us</code>, <code>9150us</code> 등으로 조금씩 다르게 측정되는 것은 매우 정상적인 현상입니다. 
                 리모컨을 조준하는 각도, 배터리 잔량, 방 안의 형광등 빛(노이즈), 그리고 보드 내부의 백그라운드 연산 타이밍 때문에 ±100~500us 수준의 하드웨어적 오차가 발생하기 때문입니다. 따라서 하드웨어 코딩 시에는 정확한 정수 매칭 대신 <strong>범위(Range) 조건문</strong>을 활용해야 합니다.</p>
 
-                <h2>10.6 실전 IoT: 스마트 리모컨 자동 학습 및 영구 저장 시스템</h2>
+                <h2>10.6 실전 IoT: 기초 리모컨 자동 학습 및 영구 저장</h2>
                 <p>번거롭게 리모컨 코드를 일일이 확인하여 하드코딩할 필요가 없습니다. 새로운 리모컨 버튼을 누르면 보드가 실시간으로 감지하여 Thonny 셸 창을 통해 이름을 물어보고, 이를 마이크로파이썬 내부 공간에 JSON 형태의 데이터베이스 파일(<code>remote_db.json</code>)로 저장하는 스마트 자동 영구 학습 시스템 소스 코드입니다.</p>
 
                 <div class="callout warn" style="border-left: 5px solid #ef4444; background-color: #fef2f2;">
@@ -184,85 +184,141 @@ DB_FILE = "remote_db.json"
 
 # --- [저장소 관리 함수 (마이크로파이썬 경량 규격)] ---
 def load_remote_db():
-    """Pico 내부 저장소에서 json 파일을 읽어옵니다."""
     if DB_FILE in os.listdir():
         with open(DB_FILE, "r") as f:
-            try:
-                return json.load(f)
-            except:
-                return {}
+            try: return json.load(f)
+            except: return {}
     return {}
 
 def save_remote_db(data):
-    """새로 등록된 버튼 데이터를 파일로 영구 저장합니다."""
     with open(DB_FILE, "w") as f:
-        json.dump(data, f) # 마이크로파이썬 호환을 위해 부가 옵션 제거
+        json.dump(data, f)
 
 # 시스템 구동 시 기존 데이터 자동 로드
 remote_mapping = load_remote_db()
-print(f"💾 기존 학습 데이터베이스 로드 완료: 총 {len(remote_mapping)}개의 버튼을 기억하고 있습니다.")
+print(f"💾 기존 학습 데이터베이스 로드 완료: 총 {len(remote_mapping)}개의 코드를 기억하고 있습니다.")
 
-# --- [실시간 32비트 전체 데이터 디코딩 함수] ---
 def read_ir_command():
-    while ir_sensor.value() == 1:
-        pass
-
+    while ir_sensor.value() == 1: pass
     start = time.ticks_us()
-    while ir_sensor.value() == 0:
-        pass
+    while ir_sensor.value() == 0: pass
     leader_duration = time.ticks_diff(time.ticks_us(), start)
 
-    # 오차 범위를 감안한 리더 펄스 검증 (8000us ~ 10000us)
-    if not (8000 &lt; leader_duration &lt; 10000):
-        return None
-
-    while ir_sensor.value() == 1:
-        pass
+    if not (8000 &lt; leader_duration &lt; 10000): return None
+    while ir_sensor.value() == 1: pass
 
     data = 0
-    # 뒤따라오는 고유 32비트 데이터 파형 정밀 가로채기
     for i in range(32):
-        while ir_sensor.value() == 0:
-            pass
+        while ir_sensor.value() == 0: pass
         t_start = time.ticks_us()
-        while ir_sensor.value() == 1:
-            pass
+        while ir_sensor.value() == 1: pass
         high_duration = time.ticks_diff(time.ticks_us(), t_start)
-
-        # 펄스 신호의 길이를 기준으로 디지털 0과 1 판별
         if high_duration &gt; 1000:
             data |= (1 &lt;&lt; i)
-
     return hex(data)
 
-# --- [실시간 자동 매핑 학습 루프] ---
-print("\n🤖 [스마트 리모컨 AI 자동 학습 모드 가동]")
-print("👉 버튼 등록 시 반드시 영문이나 숫자로 이름을 입력하세요!\n")
+print("\n🤖 [기초 리모컨 자동 학습 모드 가동]")
+while True:
+    cmd = read_ir_command()
+    if cmd:
+        if cmd in remote_mapping:
+            print(f"▶ [인식 성공] '{remote_mapping[cmd]}' 버튼이 눌렸습니다!")
+        else:
+            print(f"\n✨ [새로운 버튼 포착] 고유 코드: {cmd}")
+            button_name = input("이 버튼의 이름을 정해주세요 (영문/숫자 입력, 취소는 엔터): ").strip()
+            if button_name:
+                remote_mapping[cmd] = button_name
+                save_remote_db(remote_mapping)
+                print(f"💾 '{button_name}' 버튼이 저장되었습니다!\n")
+    time.sleep(0.2)
+</code></pre>
+
+                <h2>10.7 심화 IoT: 중복/변형 코드 대응 스마트 링크 학습 시스템</h2>
+                <p>일부 리모컨은 오작동을 막기 위해 동일한 버튼을 누르더라도 매번 신호를 바꾸는 '토글 비트'를 전송하거나, 누르는 길이에 따라 미세한 '변형 코드'를 추가로 발생시킵니다. 이 경우 하나의 버튼이 여러 개의 고유 코드를 가질 수 있습니다.</p>
+                <p>아래 코드는 동일한 버튼에서 새로운 변형 코드가 포착되었을 때, 기존에 등록된 버튼 목록을 화면에 띄워주고 <strong>리스트 번호 선택만으로 하나의 버튼 이름에 복수의 코드를 중복 링크(다대일 매핑)</strong>해주는 고도화된 펌웨어 학습 시스템입니다.</p>
+                <pre><code>import json
+import os
+import time
+from machine import Pin
+
+ir_sensor = Pin(2, Pin.IN)
+DB_FILE = "remote_db.json"
+
+def load_remote_db():
+    if DB_FILE in os.listdir():
+        with open(DB_FILE, "r") as f:
+            try: return json.load(f)
+            except: return {}
+    return {}
+
+def save_remote_db(data):
+    with open(DB_FILE, "w") as f:
+        json.dump(data, f)
+
+remote_mapping = load_remote_db()
+print(f"💾 기존 학습 데이터 로드 완료. (총 {len(remote_mapping)}개 코드 기억 중)")
+
+def read_ir_command():
+    while ir_sensor.value() == 1: pass
+    start = time.ticks_us()
+    while ir_sensor.value() == 0: pass
+    leader_duration = time.ticks_diff(time.ticks_us(), start)
+
+    if not (8000 &lt; leader_duration &lt; 10000): return None
+    while ir_sensor.value() == 1: pass
+
+    data = 0
+    for i in range(32):
+        while ir_sensor.value() == 0: pass
+        t_start = time.ticks_us()
+        while ir_sensor.value() == 1: pass
+        high_duration = time.ticks_diff(time.ticks_us(), t_start)
+        if high_duration &gt; 1000:
+            data |= (1 &lt;&lt; i)
+    return hex(data)
+
+print("\n🤖 [업그레이드: 스마트 복수 코드 학습기 가동]")
 
 while True:
     cmd = read_ir_command()
     if cmd:
-        # 1. 이미 아는 버튼인 경우 -> 저장된 커스텀 이름 매핑 출력
         if cmd in remote_mapping:
             print(f"▶ [인식 성공] '{remote_mapping[cmd]}' 버튼이 눌렸습니다!")
-        
-        # 2. 처음 마주하는 버튼인 경우 -> 즉석 인터랙티브 학습 가동
         else:
-            print(f"\n✨ [새로운 버튼 포착] 고유 코드: {cmd}")
-            button_name = input("이 버튼의 이름을 정해주세요 (영문/숫자 입력, 취소는 엔터): ").strip()
+            print(f"\n✨ [새로운 변형 코드 포착] 고유 코드: {cmd}")
+            
+            # 현재까지 등록된 유니크한 버튼 이름 목록 추출 후 정렬
+            existing_names = list(set(remote_mapping.values()))
+            existing_names.sort()
+            
+            if existing_names:
+                print("--- 📋 현재 등록된 버튼 목록 ---")
+                for idx, name in enumerate(existing_names):
+                    print(f" [{idx + 1}] {name}")
+                print("--------------------------------")
+                print("👉 위 목록의 '번호'를 입력하면 해당 버튼의 서브 코드로 즉시 추가됩니다!")
 
-            if button_name:
+            user_input = input("버튼 번호(숫자) 선택 또는 새 이름 입력 (취소는 엔터): ").strip()
+
+            if user_input:
+                # 사용자가 목록의 번호(숫자)를 선택한 경우 기존 이름 매핑
+                if user_input.isdigit() and 0 &lt; int(user_input) &lt;= len(existing_names):
+                    button_name = existing_names[int(user_input) - 1]
+                else:
+                    # 새로운 이름을 직접 타이핑한 경우
+                    button_name = user_input
+
                 remote_mapping[cmd] = button_name
                 save_remote_db(remote_mapping)
-                print(f"💾 '{button_name}' 버튼이 데이터베이스 파일에 영구 저장되었습니다!\n")
+                print(f"💾 코드 {cmd}가 '{button_name}' 버튼에 추가 매핑되었습니다!\n")
             else:
                 print("❌ 등록이 취소되었습니다.\n")
 
     time.sleep(0.2)
 </code></pre>
 
-                <h2>10.7 리모컨 데이터베이스 연동 제어 및 활용 응용</h2>
-                <p>10.6을 통해 버튼 등록을 마치면 보드 내부 저장소에 <code>remote_db.json</code> 파일이 형성됩니다. 이 파일에 누적된 매핑 키워드 데이터를 매치하여, 실제 등록된 스마트 리모컨 키워드 분기문으로 외부 부품이나 시스템 전원을 컨트롤하는 소프트웨어 최종 응용 메커니즘 예시입니다.</p>
+                <h2>10.8 최종 응용: 리모컨 데이터베이스 연동 실전 제어</h2>
+                <p>10.7 과정을 통해 변형 코드들까지 축적된 <code>remote_db.json</code> 지도를 기반으로 동작하는 최종 실전 구동 프로그램입니다. 32비트 디코딩 엔진 루프와 데이터베이스 조회 기능이 실시간으로 맞물려 작동하며, 어떤 변형 코드가 들어오더라도 자석처럼 필터링하여 매핑된 정형화 동작(내장 LED 토글, 서보모터 구동 등)을 안전하게 실행해 냅니다.</p>
                 <pre><code>import json
 import time
 from machine import Pin
@@ -271,76 +327,57 @@ from machine import Pin
 ir_sensor = Pin(2, Pin.IN)
 target_led = Pin("LED", Pin.OUT)
 
-# 1) 10.6단계에서 영구 저장했던 리모컨 DB 파일(JSON)을 읽어옵니다.
+# 1) 앞선 단계에서 영구 저장했던 리모컨 DB 파일(JSON)을 가집니다.
 try:
     with open("remote_db.json", "r") as f:
         remote_db = json.load(f)
-    print(
-        f"💾 리모컨 DB 로드 완료! 학습된 버튼 목록: {list(remote_db.values())}"
-    )
+    print(f"💾 리모컨 DB 로드 완료! 학습된 버튼 목록: {list(remote_db.values())}")
 except Exception as e:
-    print(
-        "❌ 에러: remote_db.json 파일이 없습니다. 10.6 코드로 버튼을 먼저 등록해주세요!"
-    )
+    print("❌ 에러: remote_db.json 파일이 없습니다. 앞선 코드로 버튼을 먼저 등록해주세요!")
     remote_db = {}
-
 
 # 2) 32비트 전체 데이터를 정확히 파싱하는 해독 엔진 함수
 def read_ir_command():
-    while ir_sensor.value() == 1:
-        pass
-
+    while ir_sensor.value() == 1: pass
     start = time.ticks_us()
-    while ir_sensor.value() == 0:
-        pass
+    while ir_sensor.value() == 0: pass
     leader_duration = time.ticks_diff(time.ticks_us(), start)
 
-    if not (8000 < leader_duration < 10000):
-        return None
-
-    while ir_sensor.value() == 1:
-        pass
+    if not (8000 &lt; leader_duration &lt; 10000): return None
+    while ir_sensor.value() == 1: pass
 
     data = 0
     for i in range(32):
-        while ir_sensor.value() == 0:
-            pass
+        while ir_sensor.value() == 0: pass
         t_start = time.ticks_us()
-        while ir_sensor.value() == 1:
-            pass
+        while ir_sensor.value() == 1: pass
         high_duration = time.ticks_diff(time.ticks_us(), t_start)
-
-        if high_duration > 1000:
-            data |= (1 << i)
-
+        if high_duration &gt; 1000:
+            data |= (1 &lt;&lt; i)
     return hex(data)
 
-
-# 3) 실시간 명령 감지 무한 루프
+# 3) 실시간 명령 감지 및 하드웨어 매핑 통제 루프
 print("\n📡 [실전 가전 제어 모드 가동] 리모컨 버튼을 눌러보세요...")
 
 while True:
-    cmd = read_ir_command()  # ◀ [원인 해결] 여기서 cmd 변수를 실시간으로 정의합니다!
+    cmd = read_ir_command()  # 실시간으로 변수를 정의하여 수신합니다.
 
     if cmd:
-        # 내가 누른 리모컨 코드가 DB(JSON) 안에 등록되어 있는지 확인
+        # 내가 누른 코드가 DB(JSON) 안에 등록되어 있는지 확인
         if cmd in remote_db:
             action_name = remote_db[cmd]
             print(f"▶ [명령 판독] '{action_name}' 버튼 입력 감지!")
 
             # -------------------------------------------------------------
-            # 📌 [실전 응용 인터페이스] 네가 등록한 이름에 맞게 동작을 지정해봐!
+            # 📌 [실전 응용 인터페이스] 등록한 이름에 맞게 동작을 조각하는 영역
             # -------------------------------------------------------------
             if action_name == "power" or action_name == "1":
-                target_led.toggle()  # 내장 LED를 켜고 끕니다!
-                print("-> 🛠️ [하드웨어 작동] 내장 LED 상태를 반전했습니다.")
-
-            elif action_name == "vol_up":
-                print("-> ⚙️ [액추에이터 제어] 서보모터를 +10도 회전합니다. (동작 예시)")
-
-            elif action_name == "vol_down":
-                print("-> ⚙️ [액추에이터 제어] 서보모터를 -10도 회전합니다. (동작 예시)")
-
+                target_led.toggle()  # 내장 LED를 제어합니다.
+                print("-&gt; 🛠️ [하드웨어 작동] 내장 LED 상태를 반전했습니다.")
+            elif action_name == "vol_up" or action_name == "2":
+                print("-&gt; ⚙️ [액추에이터 제어] 서보모터를 +10도 회전합니다. (동작 예시)")
+            elif action_name == "vol_down" or action_name == "3":
+                print("-&gt; ⚙️ [액추에이터 제어] 서보모터를 -10도 회전합니다. (동작 예시)")
         else:
             print(f"❓ 등록되지 않은 버튼입니다. 고유 코드: {cmd}")
 
