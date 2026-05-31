@@ -36,9 +36,15 @@
                 <hr>
 
                 <h2>10.1 내장 블루투스(BLE) 원리와 라이브러리 세팅</h2>
-                <p>Pico 2 W는 무선 칩셋 안에 <strong>Bluetooth Low Energy (BLE)</strong> 안테나를 기본 내장하고 있습니다. 전력을 극도로 아끼는 최신 BLE 프로토콜은 일반 Classic 블루투스처럼 스마트폰 스마트폰 기본 설정 창에서 잡히지 않습니다. 반드시 <code>Serial Bluetooth Terminal</code> 같은 전문 BLE 통신 앱을 다운받아 사용해야 합니다.</p>
+                <p>Pico 2 W는 무선 LAN 칩셋 안에 <strong>Bluetooth Low Energy (BLE)</strong> 안테나를 기본 내장하고 있습니다. 전력을 극도로 아끼는 최신 BLE 프로토콜은 일반 Classic 블루투스처럼 스마트폰 기본 설정 창에서 잡히지 않습니다. 반드시 <code>Serial Bluetooth Terminal</code> 같은 전문 BLE 통신 앱을 다운받아 사용해야 합니다.</p>
                 
                 <p>통신을 처리하는 핵심 엔진 코드가 매우 길기 때문에, 우리는 이 코드를 메인 코드와 분리하여 독립된 라이브러리 파일로 보드에 먼저 저장해 둘 것입니다.</p>
+
+                <div class="callout warn" style="border-left: 5px solid #ef4444; background-color: #fef2f2;">
+                    <h4 style="color: #ef4444;"><i class="fa-solid fa-triangle-exclamation"></i> ⚠️ 블루투스 이름 중복 금지 경고!</h4>
+                    <p>학교 강의실이나 동아리방처럼 여러 사람이 동시에 실습할 때 블루투스 명칭이 같으면 스마트폰 앱에서 누구의 보드인지 전혀 구별할 수 없습니다!</p>
+                    <p>아래 라이브러리 코드의 <strong style="color: #ef4444; font-size: 1.1rem; background: #fee2e2; padding: 2px 6px; border-radius: 4px;">name="Pico2W_BLE"</strong> 파라미터 부분을 반드시 <strong>자신만의 고유한 이름(예: name="Pico2W_Yuna")</strong>으로 수정하여 저장해야 오작동을 피할 수 있습니다.</p>
+                </div>
 
                 <div class="callout info">
                     <h4>💾 [파일 1] 라이브러리 파일 저장 규칙</h4>
@@ -60,6 +66,7 @@ _UART_RX = (bluetooth.UUID("6E400002-B5A3-F393-E0A9-E50E24DCCA9E"), bluetooth.FL
 _UART_SERVICE = (_UART_UUID, (_UART_TX, _UART_RX),)
 
 class PicoBLEUART:
+    # ⬇ 바로 아래의 name="Pico2W_BLE" 값을 고유한 이름으로 꼭 변경하세요!
     def __init__(self, name="Pico2W_BLE"):
         self._ble = bluetooth.BLE()
         self._ble.active(True)
@@ -129,8 +136,8 @@ class CustomIoTController(PicoBLEUART):
         else:
             self.send(f"알 수 없는 명령어: {msg}")
 
-# 실전 스마트홈 서버 구동 (원하는 블루투스 검색 이름을 적어줍니다)
-iot_server = CustomIoTController("Pico2W_SmartHome")
+# 실전 스마트홈 서버 구동 (10.1에서 커스텀한 이름 클래스 생성이 연동됩니다)
+iot_server = CustomIoTController()
 
 while True:
     time.sleep(1) # 무선 이벤트 수신을 위해 루프를 유지합니다.
