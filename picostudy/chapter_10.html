@@ -263,27 +263,88 @@ while True:
 
                 <h2>10.7 리모컨 데이터베이스 연동 제어 및 활용 응용</h2>
                 <p>10.6을 통해 버튼 등록을 마치면 보드 내부 저장소에 <code>remote_db.json</code> 파일이 형성됩니다. 이 파일에 누적된 매핑 키워드 데이터를 매치하여, 실제 등록된 스마트 리모컨 키워드 분기문으로 외부 부품이나 시스템 전원을 컨트롤하는 소프트웨어 최종 응용 메커니즘 예시입니다.</p>
-                <pre><code>from machine import Pin
+                <pre><code>import json
 import time
-import json
+from machine import Pin
 
-# 저장된 리모컨 DB 파일 열기
-with open("remote_db.json", "r") as f:
-    remote_db = json.load(f)
+# IR 수신기 및 제어할 하드웨어(내장 LED) 설정
+ir_sensor = Pin(2, Pin.IN)
+target_led = Pin("LED", Pin.OUT)
 
-# 리모컨 코드를 읽어오는 부분은 10.6의 read_ir_command() 함수를 결합해 사용합니다.
-print("📡 실전 가전 제어 모드 가동 중...")
+# 1) 10.6단계에서 영구 저장했던 리모컨 DB 파일(JSON)을 읽어옵니다.
+try:
+    with open("remote_db.json", "r") as f:
+        remote_db = json.load(f)
+    print(
+        f"💾 리모컨 DB 로드 완료! 학습된 버튼 목록: {list(remote_db.values())}"
+    )
+except Exception as e:
+    print(
+        "❌ 에러: remote_db.json 파일이 없습니다. 10.6 코드로 버튼을 먼저 등록해주세요!"
+    )
+    remote_db = {}
 
-# [시나리오 조건문 구조 예시]
-# 사용자가 실시간으로 누른 코드가 복사된 'cmd' 변수 값에 매칭될 때:
-if cmd in remote_db:
-    action_name = remote_db[cmd]
-    print(f"[{action_name}] 명령을 판독했습니다.")
-    
-    if action_name == "power":
-        print("-> 하드웨어 제어: 메인 전원 릴레이 토글 가동")
-    elif action_name == "vol_up":
-        print("-> 액추에이터 제어: 서보모터 각도 +10도 회전")
+
+# 2) 32비트 전체 데이터를 정확히 파싱하는 해독 엔진 함수
+def read_ir_command():
+    while ir_sensor.value() == 1:
+        pass
+
+    start = time.ticks_us()
+    while ir_sensor.value() == 0:
+        pass
+    leader_duration = time.ticks_diff(time.ticks_us(), start)
+
+    if not (8000 < leader_duration < 10000):
+        return None
+
+    while ir_sensor.value() == 1:
+        pass
+
+    data = 0
+    for i in range(32):
+        while ir_sensor.value() == 0:
+            pass
+        t_start = time.ticks_us()
+        while ir_sensor.value() == 1:
+            pass
+        high_duration = time.ticks_diff(time.ticks_us(), t_start)
+
+        if high_duration > 1000:
+            data |= (1 << i)
+
+    return hex(data)
+
+
+# 3) 실시간 명령 감지 무한 루프
+print("\n📡 [실전 가전 제어 모드 가동] 리모컨 버튼을 눌러보세요...")
+
+while True:
+    cmd = read_ir_command()  # ◀ [원인 해결] 여기서 cmd 변수를 실시간으로 정의합니다!
+
+    if cmd:
+        # 내가 누른 리모컨 코드가 DB(JSON) 안에 등록되어 있는지 확인
+        if cmd in remote_db:
+            action_name = remote_db[cmd]
+            print(f"▶ [명령 판독] '{action_name}' 버튼 입력 감지!")
+
+            # -------------------------------------------------------------
+            # 📌 [실전 응용 인터페이스] 네가 등록한 이름에 맞게 동작을 지정해봐!
+            # -------------------------------------------------------------
+            if action_name == "power" or action_name == "1":
+                target_led.toggle()  # 내장 LED를 켜고 끕니다!
+                print("-> 🛠️ [하드웨어 작동] 내장 LED 상태를 반전했습니다.")
+
+            elif action_name == "vol_up":
+                print("-> ⚙️ [액추에이터 제어] 서보모터를 +10도 회전합니다. (동작 예시)")
+
+            elif action_name == "vol_down":
+                print("-> ⚙️ [액추에이터 제어] 서보모터를 -10도 회전합니다. (동작 예시)")
+
+        else:
+            print(f"❓ 등록되지 않은 버튼입니다. 고유 코드: {cmd}")
+
+    time.sleep(0.1)
 </code></pre>
 
                 <div class="nav-btns">
