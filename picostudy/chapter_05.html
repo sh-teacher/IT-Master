@@ -220,25 +220,61 @@ while True:
         except: pass
 </code></pre>
 
-                <h2>5.2 심화 응용: 웹 서버 200% 활용하기</h2>
-                <p>단순한 ON/OFF 원격 제어를 넘어, 웹 서버의 활용도를 극대화할 수 있는 세 가지 실전 응용 기법을 소개합니다.</p>
+                <h2>5.2 스마트한 코딩 습관: 와이파이 설정 모듈화하기</h2>
+                <p>앞으로 다양한 응용 프로젝트를 만들 텐데, 매번 긴 와이파이 접속 코드를 복사해서 붙여넣는 것은 비효율적입니다. 실무 개발자들처럼 네트워크 설정을 별도의 모듈(파일)로 분리해 두고, 필요할 때 단 한 줄의 코드로 불러와서 사용하는 방법을 적용해 보겠습니다.</p>
+                <div class="callout info">
+                    <p>Thonny에서 새 파일을 열고 아래 코드를 작성한 뒤, Pico 보드 내부에 <strong><code>wifi.py</code></strong>라는 이름으로 저장하세요.</p>
+                </div>
+                <pre><code># wifi.py
+import network
+import time
+
+SSID = '본인의_와이파이_이름'
+PASSWORD = '본인의_비밀번호'
+
+def connect():
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    wlan.connect(SSID, PASSWORD)
+    
+    print("와이파이 연결 중...")
+    while not wlan.isconnected():
+        time.sleep(0.5)
+        
+    ip = wlan.ifconfig()[0]
+    print(f'와이파이 연결 성공! IP 주소: {ip}')
+    return ip
+</code></pre>
+
+                <h2>5.3 심화 응용: 웹 서버 200% 활용하기</h2>
+                <p>이제 <code>wifi.py</code> 파일을 활용해 메인 코드를 아주 깔끔하게 유지하면서, 단순한 ON/OFF를 넘어서는 세 가지 실전 응용 기법을 실습해 봅니다.</p>
 
                 <h3>[응용 1] 내장 온도 센서 모니터링하기</h3>
                 <p>웹 서버는 외부의 명령을 받는 것뿐만 아니라, 보드의 상태를 사용자에게 보여주는(모니터링) 것도 가능합니다. 외부 센서 없이도 실습할 수 있도록, RP2350 칩 내부에 기본 탑재된 온도 센서의 값을 읽어 웹 페이지에 실시간으로 표시해 봅니다.</p>
-                <pre><code>import network, socket, time
+                <pre><code>import socket
+import wifi      # 우리가 만든 모듈을 불러옵니다
+import time
 from machine import ADC
 
-# RP2350의 내장 온도 센서는 4번 ADC 채널에 연결되어 있습니다.
+# 1. 단축된 와이파이 연결 및 IP 획득
+ip = wifi.connect()
+
+# 2. 웹 서버 소켓 설정
+addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
+s = socket.socket()
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+s.bind(addr)
+s.listen(1)
+print(f'온도 모니터링 서버 가동! 접속: http://{ip}')
+
+# 3. RP2350 내장 온도 센서 설정 (4번 ADC 채널)
 temp_sensor = ADC(4)
-conversion_factor = 3.3 / (65535)
+conversion_factor = 3.3 / 65535
 
 def read_temperature():
     reading = temp_sensor.read_u16() * conversion_factor
-    # 온도 계산 공식 (칩의 스펙시트 기준)
     temperature = 27 - (reading - 0.706) / 0.001721
     return round(temperature, 1)
-
-# (와이파이 및 소켓 연결 코드는 3단계와 동일하므로 생략)
 
 def get_temp_html(temp):
     return f"""&lt;!DOCTYPE html&gt;
@@ -252,27 +288,40 @@ def get_temp_html(temp):
     &lt;/html&gt;"""
 
 while True:
-    cl, addr_info = s.accept()
-    request = cl.recv(1024).decode('utf-8')
-    
-    # 클라이언트 접속 시 온도를 읽고 HTML에 포매팅하여 전송
-    current_temp = read_temperature()
-    
-    cl.send('HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n'.encode('utf-8'))
-    cl.send(get_temp_html(current_temp).encode('utf-8'))
-    cl.close()
+    try:
+        cl, addr_info = s.accept()
+        request = cl.recv(1024).decode('utf-8')
+        
+        # 클라이언트 접속 시 온도를 읽고 HTML에 포매팅하여 전송
+        current_temp = read_temperature()
+        
+        cl.send('HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n'.encode('utf-8'))
+        cl.send(get_temp_html(current_temp).encode('utf-8'))
+        cl.close()
+    except Exception:
+        try: cl.close()
+        except: pass
 </code></pre>
 
                 <h3>[응용 2] 슬라이더로 LED 밝기 미세 조절 (PWM 제어)</h3>
                 <p>디지털 제어(0과 1)를 넘어, HTML의 <code>&lt;input type="range"&gt;</code> 태그를 이용해 LED의 밝기를 0%에서 100%까지 부드럽게 제어하는 아날로그(PWM) 제어 방식입니다.</p>
-                <pre><code>import network, socket, time
+                <pre><code>import socket
+import wifi
+import time
 from machine import Pin, PWM
+
+ip = wifi.connect()
+
+addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
+s = socket.socket()
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+s.bind(addr)
+s.listen(1)
+print(f'PWM 제어 서버 가동! 접속: http://{ip}')
 
 # LED를 PWM 모드로 설정 (밝기 조절용)
 led_pwm = PWM(Pin("LED"))
 led_pwm.freq(1000)
-
-# (와이파이 및 소켓 연결 코드 생략)
 
 def get_pwm_html():
     return """&lt;!DOCTYPE html&gt;
@@ -289,33 +338,45 @@ def get_pwm_html():
     &lt;/html&gt;"""
 
 while True:
-    cl, addr_info = s.accept()
-    request = cl.recv(1024).decode('utf-8')
-    
-    # POST 요청의 데이터 본문(Body)에서 brightness 값 추출
-    if 'POST /set_light' in request:
-        try:
-            # HTTP 헤더와 본문을 분리하여 데이터 파싱
-            body = request.split('\r\n\r\n')[1]
-            brightness_value = int(body.split('=')[1])
-            led_pwm.duty_u16(brightness_value) # 추출한 숫자를 PWM 밝기로 적용
-            print(f"밝기 변경 완료: {brightness_value}")
-        except:
-            pass
+    try:
+        cl, addr_info = s.accept()
+        request = cl.recv(1024).decode('utf-8')
+        
+        # POST 요청의 데이터 본문(Body)에서 brightness 값 추출
+        if 'POST /set_light' in request:
+            try:
+                body = request.split('\r\n\r\n')[1]
+                brightness_value = int(body.split('=')[1])
+                led_pwm.duty_u16(brightness_value) # 추출한 숫자를 PWM 밝기로 적용
+                print(f"밝기 변경 완료: {brightness_value}")
+            except:
+                pass
 
-    cl.send('HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n'.encode('utf-8'))
-    cl.send(get_pwm_html().encode('utf-8'))
-    cl.close()
+        cl.send('HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n'.encode('utf-8'))
+        cl.send(get_pwm_html().encode('utf-8'))
+        cl.close()
+    except Exception:
+        try: cl.close()
+        except: pass
 </code></pre>
 
                 <h3>[응용 3] 깜빡임 없는 진짜 스마트홈 UI (JavaScript Fetch API)</h3>
                 <p>기존의 <code>&lt;form&gt;</code> 태그는 전송 시 화면이 하얗게 새로고침되는 단점이 있습니다. 프론트엔드 자바스크립트의 비동기 통신 기술인 <code>fetch()</code>를 도입하면 화면 전환 없이 백그라운드에서 부드럽게 하드웨어를 제어하는 실제 상용 스마트홈 앱 같은 퀄리티를 낼 수 있습니다.</p>
-                <pre><code>import network, socket, time
+                <pre><code>import socket
+import wifi
+import time
 from machine import Pin
 
-led = Pin("LED", Pin.OUT)
+ip = wifi.connect()
 
-# (와이파이 및 소켓 연결 코드 생략)
+addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
+s = socket.socket()
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+s.bind(addr)
+s.listen(1)
+print(f'비동기 제어 서버 가동! 접속: http://{ip}')
+
+led = Pin("LED", Pin.OUT)
 
 def get_fetch_html():
     return """&lt;!DOCTYPE html&gt;
@@ -346,32 +407,36 @@ def get_fetch_html():
     &lt;/html&gt;"""
 
 while True:
-    cl, addr_info = s.accept()
-    request = cl.recv(1024).decode('utf-8')
-    
-    if not request or 'favicon.ico' in request:
-        cl.close()
-        continue
+    try:
+        cl, addr_info = s.accept()
+        request = cl.recv(1024).decode('utf-8')
         
-    # Fetch API가 요청한 경로에 따라 LED 제어 후, 단순 텍스트만 응답 (전체 HTML 아님)
-    if 'GET /on' in request:
-        led.value(1)
-        cl.send('HTTP/1.1 200 OK\r\n\r\n켜짐 (ON)'.encode('utf-8'))
-        cl.close()
-        continue
-    elif 'GET /off' in request:
-        led.value(0)
-        cl.send('HTTP/1.1 200 OK\r\n\r\n꺼짐 (OFF)'.encode('utf-8'))
-        cl.close()
-        continue
+        if not request or 'favicon.ico' in request:
+            cl.close()
+            continue
+            
+        # Fetch API가 요청한 경로에 따라 LED 제어 후, 단순 텍스트만 응답 (전체 HTML 아님)
+        if 'GET /on' in request:
+            led.value(1)
+            cl.send('HTTP/1.1 200 OK\r\n\r\n켜짐 (ON)'.encode('utf-8'))
+            cl.close()
+            continue
+        elif 'GET /off' in request:
+            led.value(0)
+            cl.send('HTTP/1.1 200 OK\r\n\r\n꺼짐 (OFF)'.encode('utf-8'))
+            cl.close()
+            continue
 
-    # 최초 접속 시에만 전체 HTML 페이지를 전송
-    cl.send('HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n'.encode('utf-8'))
-    cl.send(get_fetch_html().encode('utf-8'))
-    cl.close()
+        # 최초 접속 시에만 전체 HTML 페이지를 전송
+        cl.send('HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n'.encode('utf-8'))
+        cl.send(get_fetch_html().encode('utf-8'))
+        cl.close()
+    except Exception:
+        try: cl.close()
+        except: pass
 </code></pre>
 
-                <h2>5.3 웹 제어 작동 확인</h2>
+                <h2>5.4 웹 제어 작동 확인</h2>
                 <ol>
                     <li>최종 코드를 실행하고 하단 콘솔 셸 창에 찍히는 <code>http://192.168.x.x</code> 형태의 주소를 확인합니다.</li>
                     <li>보드와 <strong>반드시 같은 와이파이(공유기)에 물려 있는</strong> 스마트폰이나 노트북의 인터넷 주소창에 해당 주소를 입력하고 접속합니다.</li>
