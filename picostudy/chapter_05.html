@@ -34,8 +34,50 @@
                 <p>우리가 와이파이를 연결한 진짜 이유입니다. 보드가 직접 웹 서버가 되어, 같은 네트워크 안의 스마트폰이나 PC의 브라우저 명령을 받아 동작하는 사물인터넷(IoT) 시스템의 원리를 단계별로 마스터해 봅니다.</p>
 
                 <div style="text-align: center; margin: 40px 0;">
-                    <img src="./chapter0501_new.svg" alt="스마트폰 IoT 제어" style="max-width: 100%; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
-                    <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">네트워크망을 이용해 무선으로 하드웨어를 통제하는 기술</p>
+                    <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 16px; background: #ffffff; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+                        <!-- 배경 선 -->
+                        <line x1="100" y1="200" x2="700" y2="200" stroke="#f1f5f9" stroke-width="2" stroke-dasharray="10"/>
+                        
+                        <!-- 1. 클라이언트 (스마트폰) -->
+                        <g transform="translate(100, 120)">
+                            <rect width="80" height="160" rx="10" fill="#1e293b"/>
+                            <rect x="5" y="10" width="70" height="130" rx="5" fill="#3b82f6" opacity="0.9"/>
+                            <rect x="15" y="100" width="50" height="20" rx="4" fill="white" opacity="0.3"/>
+                            <text x="40" y="115" text-anchor="middle" fill="white" font-size="10" font-weight="bold">LED ON</text>
+                            <circle cx="40" cy="150" r="5" fill="white" opacity="0.5"/>
+                            <text x="40" y="185" text-anchor="middle" fill="#64748b" font-size="12" font-weight="bold">1. 요청 (HTTP POST)</text>
+                        </g>
+
+                        <!-- 와이파이 신호 -->
+                        <g transform="translate(220, 180)">
+                            <path d="M0 20 Q 25 -10 50 20" fill="none" stroke="#3b82f6" stroke-width="3">
+                                <animate attributeName="stroke-dashoffset" from="100" to="0" dur="1.5s" repeatCount="indefinite" />
+                            </path>
+                            <path d="M10 30 Q 25 10 40 30" fill="none" stroke="#60a5fa" stroke-width="2"/>
+                            <text x="25" y="60" text-anchor="middle" fill="#3b82f6" font-size="11">Wi-Fi (TCP/IP)</text>
+                        </g>
+
+                        <!-- 2. 서버 (Pico 2 W) -->
+                        <g transform="translate(350, 100)">
+                            <rect width="100" height="200" rx="5" fill="#059669"/>
+                            <rect x="10" y="20" width="80" height="40" rx="2" fill="#065f46"/>
+                            <text x="50" y="45" text-anchor="middle" fill="white" font-size="12" font-weight="bold">RP2350</text>
+                            <path d="M20 80 H80 M20 100 H80 M20 120 H80" stroke="white" stroke-width="1" opacity="0.3"/>
+                            <text x="50" y="225" text-anchor="middle" fill="#64748b" font-size="12" font-weight="bold">2. 서버 처리 (Python)</text>
+                        </g>
+
+                        <!-- 3. 하드웨어 (LED) -->
+                        <g transform="translate(580, 150)">
+                            <path d="M-130 150 H10 V30" fill="none" stroke="#ef4444" stroke-width="2" stroke-dasharray="5"/>
+                            <rect x="0" y="0" width="20" height="30" rx="5" fill="#ef4444">
+                                <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite" />
+                            </rect>
+                            <path d="M10 30 V60" stroke="#94a3b8" stroke-width="2"/>
+                            <rect x="-5" y="60" width="30" height="10" rx="2" fill="#d97706"/>
+                            <text x="10" y="95" text-anchor="middle" fill="#64748b" font-size="12" font-weight="bold">3. 출력 (GP15)</text>
+                        </g>
+                    </svg>
+                    <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">웹 브라우저의 버튼 클릭이 실제 전기 신호로 바뀌는 과정</p>
                 </div>
 
                 <h2>5.1 단계별 웹 서버 빌드업 실습</h2>
