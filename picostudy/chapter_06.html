@@ -34,6 +34,35 @@
                 <h1>Chapter 6. 기본 디지털 입출력 (LED, 스위치, 부저)</h1>
                 <p>브레드보드를 활용해 외부 소자들을 연결해 봅시다. 전기를 내보내는 출력(Output)과 외부 상태를 읽어들이는 입력(Input)의 기초를 다집니다.</p>
 
+                <div style="text-align: center; margin: 40px 0;">
+                    <svg viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 16px; background: #ffffff; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+                        <!-- 회로 연결 개념도 -->
+                        <rect x="350" y="50" width="100" height="200" rx="10" fill="#059669"/>
+                        <text x="400" y="155" text-anchor="middle" fill="white" font-weight="bold">Pico 2</text>
+                        
+                        <!-- 입력 섹션 -->
+                        <circle cx="150" cy="150" r="40" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+                        <line x1="135" y1="135" x2="165" y2="135" stroke="#1e293b" stroke-width="4"/>
+                        <text x="150" y="220" text-anchor="middle" fill="#64748b" font-weight="bold">스위치 (Input)</text>
+                        <path d="M190 150 H350" stroke="#3b82f6" stroke-width="3" marker-end="url(#arr)"/>
+                        <text x="270" y="140" text-anchor="middle" fill="#3b82f6" font-size="12">GP14</text>
+
+                        <!-- 출력 섹션 -->
+                        <rect x="620" y="130" width="30" height="40" rx="5" fill="#ef4444"/>
+                        <path d="M635 170 V200" stroke="#94a3b8" stroke-width="2"/>
+                        <text x="635" y="220" text-anchor="middle" fill="#64748b" font-weight="bold">LED (Output)</text>
+                        <path d="M450 150 H620" stroke="#ef4444" stroke-width="3" marker-end="url(#arr)"/>
+                        <text x="530" y="140" text-anchor="middle" fill="#ef4444" font-size="12">GP15</text>
+                        
+                        <defs>
+                            <marker id="arr" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" fill="#64748b"/>
+                            </marker>
+                        </defs>
+                    </svg>
+                    <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">디지털 입출력의 흐름: 스위치 신호 입력 → 보드 판단 → LED 전기 출력</p>
+                </div>
+
                 <h2>6.1 스위치 입력을 받아 외장 LED 제어하기</h2>
                 <p>스위치가 눌렸을 때 발생하는 전류 신호를 읽어 외부 LED를 켜는 조건문 실습입니다. 안정적인 입력을 위해 내부 풀다운(Pull-Down) 저항을 활성화합니다.</p>
                 <pre><code>from machine import Pin
