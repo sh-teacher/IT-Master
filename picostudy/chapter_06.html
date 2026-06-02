@@ -86,14 +86,17 @@ def play_tone(frequency, duration):
     buzzer.duty_u16(0)               # 음과 음 사이 음소거
     time.sleep(0.05)
 
-print("멜로디 연주를 시작합니다.")
-play_tone(tones['DO'], 0.5)
-play_tone(tones['RE'], 0.5)
-play_tone(tones['MI'], 0.5)
-play_tone(tones['FA'], 0.5)
-
-# 사용이 끝난 PWM 객체 해제
-buzzer.deinit()
+try:
+    print("멜로디 연주를 시작합니다.")
+    play_tone(tones['DO'], 0.5)
+    play_tone(tones['RE'], 0.5)
+    play_tone(tones['MI'], 0.5)
+    play_tone(tones['FA'], 0.5)
+finally:
+    # 에러가 발생하거나 연주가 끝나면 안전하게 소리를 끄고 객체 해제
+    buzzer.duty_u16(0)
+    buzzer.deinit()
+    print("시스템이 안전하게 종료되었습니다.")
 </code></pre>
 
                 <div class="nav-btns">

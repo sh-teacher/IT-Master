@@ -1,0 +1,152 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 380" width="900" height="380">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#eef2ff"/>
+      <stop offset="100%" style="stop-color:#dbeafe"/>
+    </linearGradient>
+    <linearGradient id="phoneGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1"/>
+      <stop offset="100%" style="stop-color:#4f46e5"/>
+    </linearGradient>
+    <linearGradient id="picoGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0ea5e9"/>
+      <stop offset="100%" style="stop-color:#0284c7"/>
+    </linearGradient>
+    <linearGradient id="ledGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24"/>
+      <stop offset="100%" style="stop-color:#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="routerGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981"/>
+      <stop offset="100%" style="stop-color:#059669"/>
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="rgba(0,0,0,0.15)"/>
+    </filter>
+    <filter id="ledGlow">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="380" rx="20" fill="url(#bgGrad)"/>
+
+  <!-- Title -->
+  <text x="450" y="40" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="18" font-weight="700" fill="#1e3a8a">웹 기반 원격 IoT 제어 시스템 (Raspberry Pi Pico W)</text>
+
+  <!-- ── Arrow 1: Browser → Router ── -->
+  <line x1="200" y1="190" x2="300" y2="190" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="6,3" marker-end="url(#arr1)"/>
+  <defs>
+    <marker id="arr1" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8"/>
+    </marker>
+    <marker id="arr2" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8"/>
+    </marker>
+    <marker id="arr3" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8"/>
+    </marker>
+  </defs>
+  <text x="250" y="178" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">HTTP 요청</text>
+
+  <!-- ── Arrow 2: Router → Pico ── -->
+  <line x1="430" y1="190" x2="530" y2="190" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="6,3" marker-end="url(#arr2)"/>
+  <text x="480" y="178" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">소켓 통신</text>
+
+  <!-- ── Arrow 3: Pico → LED ── -->
+  <line x1="680" y1="190" x2="750" y2="190" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="6,3" marker-end="url(#arr3)"/>
+  <text x="715" y="178" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">GPIO</text>
+
+  <!-- ══ BROWSER / SMARTPHONE ══ -->
+  <rect x="30" y="110" width="170" height="160" rx="14" fill="url(#phoneGrad)" filter="url(#shadow)"/>
+  <!-- Screen -->
+  <rect x="42" y="128" width="146" height="110" rx="8" fill="#f8fafc"/>
+  <!-- Browser bar -->
+  <rect x="42" y="128" width="146" height="22" rx="8" fill="#e2e8f0"/>
+  <rect x="42" y="140" width="146" height="10" fill="#e2e8f0"/>
+  <circle cx="58" cy="139" r="5" fill="#f87171"/>
+  <circle cx="74" cy="139" r="5" fill="#fbbf24"/>
+  <circle cx="90" cy="139" r="5" fill="#34d399"/>
+  <rect x="100" y="133" width="80" height="12" rx="6" fill="#fff"/>
+  <text x="140" y="143" text-anchor="middle" font-family="Arial" font-size="8" fill="#64748b">192.168.x.x</text>
+  <!-- Web UI content -->
+  <text x="115" y="170" text-anchor="middle" font-family="Arial" font-size="10" font-weight="bold" fill="#1e3a8a">LED 원격 제어</text>
+  <rect x="55" y="178" width="55" height="22" rx="6" fill="#22c55e"/>
+  <text x="82" y="193" text-anchor="middle" font-family="Arial" font-size="11" font-weight="bold" fill="white">ON</text>
+  <rect x="118" y="178" width="55" height="22" rx="6" fill="#ef4444"/>
+  <text x="145" y="193" text-anchor="middle" font-family="Arial" font-size="11" font-weight="bold" fill="white">OFF</text>
+  <rect x="55" y="208" width="118" height="2" rx="1" fill="#e2e8f0"/>
+  <text x="115" y="228" text-anchor="middle" font-family="Arial" font-size="9" fill="#64748b">상태: ON 🟢</text>
+  <!-- Home button -->
+  <circle cx="115" cy="260" r="8" fill="#818cf8"/>
+  <!-- Label -->
+  <text x="115" y="292" text-anchor="middle" font-family="'Segoe UI', Arial" font-size="13" font-weight="700" fill="#1e40af">스마트폰 / PC</text>
+  <text x="115" y="308" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">웹 브라우저</text>
+
+  <!-- ══ WI-FI ROUTER ══ -->
+  <rect x="310" y="130" width="120" height="110" rx="14" fill="url(#routerGrad)" filter="url(#shadow)"/>
+  <!-- Wi-Fi arcs -->
+  <path d="M370 155 Q370 155 370 155" fill="none"/>
+  <path d="M350 175 Q370 150 390 175" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <path d="M340 188 Q370 155 400 188" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <path d="M330 201 Q370 160 410 201" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="370" cy="213" r="5" fill="white"/>
+  <!-- Router body -->
+  <rect x="335" y="222" width="70" height="10" rx="4" fill="rgba(255,255,255,0.3)"/>
+  <circle cx="352" cy="227" r="3" fill="#86efac"/>
+  <circle cx="364" cy="227" r="3" fill="#86efac"/>
+  <circle cx="376" cy="227" r="3" fill="#fbbf24"/>
+  <text x="370" y="262" text-anchor="middle" font-family="'Segoe UI', Arial" font-size="13" font-weight="700" fill="#064e3b">Wi-Fi 라우터</text>
+  <text x="370" y="278" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">네트워크 허브</text>
+
+  <!-- ══ PICO W ══ -->
+  <rect x="540" y="120" width="140" height="140" rx="14" fill="url(#picoGrad)" filter="url(#shadow)"/>
+  <!-- Board detail -->
+  <rect x="555" y="135" width="110" height="90" rx="6" fill="#0c4a6e"/>
+  <!-- GPIO pins left -->
+  <rect x="550" y="148" width="8" height="4" rx="1" fill="#fbbf24"/>
+  <rect x="550" y="158" width="8" height="4" rx="1" fill="#fbbf24"/>
+  <rect x="550" y="168" width="8" height="4" rx="1" fill="#fbbf24"/>
+  <rect x="550" y="178" width="8" height="4" rx="1" fill="#fbbf24"/>
+  <rect x="550" y="188" width="8" height="4" rx="1" fill="#fbbf24"/>
+  <rect x="550" y="198" width="8" height="4" rx="1" fill="#fbbf24"/>
+  <!-- GPIO pins right -->
+  <rect x="647" y="148" width="8" height="4" rx="1" fill="#fbbf24"/>
+  <rect x="647" y="158" width="8" height="4" rx="1" fill="#fbbf24"/>
+  <rect x="647" y="168" width="8" height="4" rx="1" fill="#fbbf24"/>
+  <rect x="647" y="178" width="8" height="4" rx="1" fill="#fbbf24"/>
+  <rect x="647" y="188" width="8" height="4" rx="1" fill="#fbbf24"/>
+  <rect x="647" y="198" width="8" height="4" rx="1" fill="#fbbf24"/>
+  <!-- Chip -->
+  <rect x="585" y="155" width="50" height="40" rx="4" fill="#1e293b"/>
+  <text x="610" y="172" text-anchor="middle" font-family="Arial" font-size="7" fill="#94a3b8">RP2040</text>
+  <text x="610" y="183" text-anchor="middle" font-family="Arial" font-size="7" fill="#94a3b8">+ CYW43439</text>
+  <!-- USB -->
+  <rect x="597" y="135" width="26" height="8" rx="2" fill="#64748b"/>
+  <!-- Status LED -->
+  <circle cx="620" cy="210" r="5" fill="#22c55e"/>
+  <circle cx="620" cy="210" r="3" fill="#86efac"/>
+  <!-- Label -->
+  <text x="610" y="283" text-anchor="middle" font-family="'Segoe UI', Arial" font-size="13" font-weight="700" fill="#0c4a6e">Raspberry Pi</text>
+  <text x="610" y="299" text-anchor="middle" font-family="'Segoe UI', Arial" font-size="13" font-weight="700" fill="#0c4a6e">Pico W</text>
+  <text x="610" y="315" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">웹 서버 (포트 80)</text>
+
+  <!-- ══ LED ══ -->
+  <circle cx="810" cy="175" r="55" fill="rgba(251,191,36,0.15)"/>
+  <circle cx="810" cy="175" r="42" fill="rgba(251,191,36,0.25)" filter="url(#ledGlow)"/>
+  <circle cx="810" cy="175" r="30" fill="url(#ledGrad)" filter="url(#shadow)"/>
+  <circle cx="810" cy="175" r="18" fill="#fde68a"/>
+  <circle cx="802" cy="167" r="6" fill="rgba(255,255,255,0.6)"/>
+  <!-- LED legs -->
+  <line x1="803" y1="205" x2="798" y2="235" stroke="#78716c" stroke-width="3"/>
+  <line x1="817" y1="205" x2="822" y2="235" stroke="#78716c" stroke-width="3"/>
+  <line x1="798" y1="235" x2="798" y2="245" stroke="#78716c" stroke-width="2"/>
+  <line x1="822" y1="238" x2="822" y2="245" stroke="#78716c" stroke-width="2"/>
+  <text x="810" y="292" text-anchor="middle" font-family="'Segoe UI', Arial" font-size="13" font-weight="700" fill="#78350f">LED</text>
+  <text x="810" y="308" text-anchor="middle" font-family="Arial" font-size="11" fill="#475569">GPIO 제어 출력</text>
+
+  <!-- Bottom caption -->
+  <rect x="200" y="338" width="500" height="28" rx="14" fill="rgba(255,255,255,0.6)"/>
+  <text x="450" y="357" text-anchor="middle" font-family="'Segoe UI', Arial" font-size="12" fill="#475569">📶 같은 Wi-Fi 네트워크 안에서 브라우저로 Pico W에 HTTP 요청 → GPIO로 LED 점멸 제어</text>
+</svg>
