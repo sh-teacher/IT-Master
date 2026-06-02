@@ -23,15 +23,8 @@ body {
     -webkit-font-smoothing: antialiased; line-height: 1.6;
 }
 .mono { font-family: "IBM Plex Mono", monospace; }
-.serif { font-family: "Fraunces", serif; }
 a { color: inherit; text-decoration: none; }
 button { font: inherit; cursor: pointer; }
-
-/* grain */
-body::before {
-    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 1; opacity: .035; mix-blend-mode: multiply;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
 
 /* top bar */
 header {
@@ -62,21 +55,41 @@ h1 { font-family: "Fraunces", serif; font-weight: 600; font-size: clamp(2rem, 4v
 
 /* map container */
 .map-frame {
-    width: 100%; height: 65vh; min-height: 500px;
+    width: 100%; height: 75vh; min-height: 600px;
     background: var(--paper-2); border-radius: 24px; border: 1px solid var(--line);
     overflow: hidden; box-shadow: var(--shadow); position: relative;
 }
-.map-placeholder {
-    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-    flex-direction: column; color: var(--ink-soft); font-size: .9rem;
+
+/* 🌟 추가된 CSS: 커스텀 마커(학교 이름표) 스타일 */
+.map-pin {
+    display: flex; flex-direction: column; align-items: center;
+    transform: translateY(-100%); cursor: default;
 }
+.map-pin .name {
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid var(--now); /* 4년제 기본 색상 (노을빛) */
+    padding: 5px 12px; border-radius: 999px;
+    font-weight: 800; font-size: 0.8rem; color: var(--ink);
+    box-shadow: 0 4px 12px rgba(22, 24, 31, 0.15);
+    white-space: nowrap; backdrop-filter: blur(4px);
+}
+.map-pin .pointer {
+    width: 2px; height: 12px; background: var(--now);
+}
+.map-pin.type2 .name {
+    border-color: var(--new); /* 2년제 색상 (새벽빛) */
+}
+.map-pin.type2 .pointer {
+    background: var(--new);
+}
+.map-pin:hover { z-index: 999 !important; }
+.map-pin:hover .name { transform: scale(1.05); transition: 0.2s ease; }
 </style>
 </head>
 <body>
 
 <header>
   <div class="bar">
-    <!-- 메인 페이지(index.html)로 돌아가는 링크 -->
     <a class="logo" href="index.html">
       <span class="mark" aria-hidden="true">
         <svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="none" stroke="#16181F" stroke-width="1.4"/><circle cx="17" cy="17" r="10" fill="none" stroke="#16181F" stroke-width="1.1" opacity=".5"/><circle cx="17" cy="17" r="4" fill="none" stroke="#16181F" stroke-width="1.1" opacity=".5"/><path d="M17 17 L31 9" stroke="#BE4B1E" stroke-width="2" stroke-linecap="round"/><circle cx="26" cy="11.5" r="2.3" fill="#0E7C6B"/></svg>
@@ -96,86 +109,121 @@ h1 { font-family: "Fraunces", serif; font-weight: 600; font-size: clamp(2rem, 4v
       <div class="eyebrow">전국 단위 위치 탐색</div>
       <h1>캠퍼스 맵</h1>
     </div>
-    
-    <!-- 필터링 버튼 -->
     <div class="tracks" id="mapFilter">
       <button class="on" data-type="all">전체 대학</button>
-      <button data-type="4">4년제</button>
-      <button data-type="2">전문대(2년제)</button>
+      <button data-type="4">4년제 (노을빛)</button>
+      <button data-type="2">전문대 (새벽빛)</button>
     </div>
   </div>
 
-  <!-- 카카오 지도가 들어갈 공간 -->
-  <div class="map-frame" id="map">
-      <div class="map-placeholder">
-          지도를 불러오는 중이거나 API 키가 설정되지 않았습니다.<br>
-          (카카오 지도 API 연동 필요)
-      </div>
-  </div>
+  <div class="map-frame" id="map"></div>
 </div>
 
-<!-- 카카오 지도 API 스크립트 (YOUR_APP_KEY_HERE 를 실제 키로 변경하세요) -->
 <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=d8e18dd09077526ad1095af2610ff5a8"></script>
+
 <script>
-  // 1. 전국 대학 예시 데이터 (필요에 따라 데이터 추가)
+  // 대규모 대학 데이터 (전국 주요 거점 4년제 & 2년제)
   const univData = [
+    // --- 서울/수도권 4년제 ---
     { name: "서울대학교", lat: 37.459882, lng: 126.951905, type: "4" },
     { name: "연세대학교", lat: 37.565784, lng: 126.938572, type: "4" },
-    { name: "명지전문대학", lat: 37.584742, lng: 126.923236, type: "2" },
+    { name: "고려대학교", lat: 37.590799, lng: 127.027777, type: "4" },
+    { name: "서강대학교", lat: 37.550944, lng: 126.941002, type: "4" },
+    { name: "성균관대학교", lat: 37.588227, lng: 126.993606, type: "4" },
+    { name: "한양대학교", lat: 37.557232, lng: 127.045322, type: "4" },
+    { name: "이화여자대학교", lat: 37.561872, lng: 126.946824, type: "4" },
+    { name: "중앙대학교", lat: 37.505088, lng: 126.957101, type: "4" },
+    { name: "경희대학교", lat: 37.596195, lng: 127.052544, type: "4" },
+    { name: "한국외국어대학교", lat: 37.597319, lng: 127.057843, type: "4" },
+    { name: "서울시립대학교", lat: 37.583865, lng: 127.058777, type: "4" },
+    { name: "건국대학교", lat: 37.540762, lng: 127.079342, type: "4" },
+    { name: "동국대학교", lat: 37.558273, lng: 126.998243, type: "4" },
+    { name: "홍익대학교", lat: 37.551464, lng: 126.925010, type: "4" },
+    { name: "인하대학교", lat: 37.449552, lng: 126.653457, type: "4" },
+    { name: "아주대학교", lat: 37.282806, lng: 127.046187, type: "4" },
+    { name: "가천대학교", lat: 37.450143, lng: 127.129759, type: "4" },
+    { name: "단국대학교(죽전)", lat: 37.321876, lng: 127.126620, type: "4" },
+    
+    // --- 지방 거점 및 국립 4년제 ---
+    { name: "카이스트(KAIST)", lat: 36.372142, lng: 127.360394, type: "4" },
+    { name: "포항공과대학교(POSTECH)", lat: 36.011980, lng: 129.322896, type: "4" },
     { name: "부산대학교", lat: 35.233221, lng: 129.080517, type: "4" },
-    { name: "영진전문대학교", lat: 35.895315, lng: 128.622579, type: "2" },
+    { name: "경북대학교", lat: 35.890313, lng: 128.611295, type: "4" },
+    { name: "전남대학교", lat: 35.176882, lng: 126.905786, type: "4" },
+    { name: "전북대학교", lat: 35.846875, lng: 127.129486, type: "4" },
+    { name: "충남대학교", lat: 36.362243, lng: 127.344445, type: "4" },
+    { name: "충북대학교", lat: 36.628876, lng: 127.456079, type: "4" },
+    { name: "강원대학교", lat: 37.869408, lng: 127.744158, type: "4" },
+    { name: "제주대학교", lat: 33.456074, lng: 126.561937, type: "4" },
     { name: "조선대학교", lat: 35.142835, lng: 126.934812, type: "4" },
-    { name: "동아방송예술대학교", lat: 37.042784, lng: 127.316886, type: "2" }
+    { name: "영남대학교", lat: 35.831518, lng: 128.758416, type: "4" },
+    { name: "동아대학교", lat: 35.116518, lng: 128.968254, type: "4" },
+
+    // --- 주요 전문대 (2~3년제) ---
+    { name: "명지전문대학", lat: 37.584742, lng: 126.923236, type: "2" },
+    { name: "서울예술대학교", lat: 37.319502, lng: 126.840742, type: "2" },
+    { name: "인하공업전문대학", lat: 37.448552, lng: 126.655823, type: "2" },
+    { name: "동아방송예술대학교", lat: 37.042784, lng: 127.316886, type: "2" },
+    { name: "영진전문대학교", lat: 35.895315, lng: 128.622579, type: "2" },
+    { name: "대림대학교", lat: 37.404229, lng: 126.931535, type: "2" },
+    { name: "부천대학교", lat: 37.487042, lng: 126.776602, type: "2" },
+    { name: "동남보건대학교", lat: 37.297442, lng: 126.988019, type: "2" },
+    { name: "연암공과대학교", lat: 35.163900, lng: 128.100918, type: "2" },
+    { name: "울산과학대학교", lat: 35.539352, lng: 129.351239, type: "2" },
+    { name: "조선이공대학교", lat: 35.143224, lng: 126.932822, type: "2" },
+    { name: "계명문화대학교", lat: 35.856980, lng: 128.487513, type: "2" },
+    { name: "제주한라대학교", lat: 33.475143, lng: 126.467431, type: "2" }
   ];
 
-  // API가 로드되었는지 확인 후 실행
   if(typeof kakao !== "undefined" && kakao.maps) {
-      document.querySelector('.map-placeholder').style.display = 'none';
-
       const mapContainer = document.getElementById('map'); 
       const mapOption = { 
-        center: new kakao.maps.LatLng(36.350411, 127.384548), // 대한민국 중심부 (대전 인근)
-        level: 12 // 축척 (숫자가 클수록 넓은 지역이 보임)
+        center: new kakao.maps.LatLng(36.150411, 127.784548), // 대한민국 중앙으로 살짝 조정
+        level: 13 
       };
       const kakaoMap = new kakao.maps.Map(mapContainer, mapOption);
 
-      let markers = []; // 마커 관리 배열
+      let overlayList = []; // 커스텀 오버레이 관리 배열
 
-      // 마커 그리기 함수
       function renderMarkers(type) {
-        // 기존 마커 지도에서 제거
-        markers.forEach(marker => marker.setMap(null));
-        markers = [];
+        // 기존 오버레이 모두 제거
+        overlayList.forEach(overlay => overlay.setMap(null));
+        overlayList = [];
 
-        // 타입(4년제/2년제/전체)에 따라 필터링
         const filteredData = type === "all" ? univData : univData.filter(univ => univ.type === type);
 
         filteredData.forEach(univ => {
           const markerPosition = new kakao.maps.LatLng(univ.lat, univ.lng);
           
-          // 마커 생성
-          const marker = new kakao.maps.Marker({
+          // 학교 이름이 바로 보이는 커스텀 HTML 작성 (type에 따라 클래스 다르게 적용)
+          const customHtml = `
+            <div class="map-pin ${univ.type === '2' ? 'type2' : ''}">
+                <div class="name">${univ.name}</div>
+                <div class="pointer"></div>
+            </div>
+          `;
+
+          // 마커 대신 CustomOverlay 생성
+          const customOverlay = new kakao.maps.CustomOverlay({
             position: markerPosition,
-            title: univ.name
+            content: customHtml,
+            yAnchor: 1 // 오버레이의 끝부분이 좌표에 닿도록 정렬
           });
           
-          marker.setMap(kakaoMap);
-          markers.push(marker);
+          customOverlay.setMap(kakaoMap);
+          overlayList.push(customOverlay);
         });
       }
 
-      // 처음 페이지 로드 시 전체 대학 렌더링
+      // 초기 렌더링
       renderMarkers("all");
 
-      // 버튼 클릭 이벤트 바인딩
+      // 필터 버튼 이벤트
       const filterBtns = document.querySelectorAll('#mapFilter button');
       filterBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-          // 활성화 UI 변경
           filterBtns.forEach(x => x.classList.remove('on'));
           btn.classList.add('on');
-          
-          // 데이터 필터링 실행
           renderMarkers(btn.dataset.type);
         });
       });
