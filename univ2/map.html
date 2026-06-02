@@ -98,6 +98,24 @@ h1 { font-family: "Fraunces", serif; font-weight: 600; font-size: clamp(2rem, 4v
 /* 🌟 지도가 확대되었을 때 (map-zoomed-in 클래스가 붙었을 때) */
 .map-zoomed-in .map-pin .dot { display: none; } /* 점 숨기기 */
 .map-zoomed-in .map-pin .label-group { display: flex; } /* 이름표 보이기 */
+/* 🌟 검색 및 지역 필터 바 */
+.search-wrap {
+    display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center;
+    background: #fff; padding: 14px 20px; border-radius: 18px; border: 1px solid var(--line);
+    box-shadow: 0 10px 30px -15px rgba(22,24,31,.1);
+}
+.search-wrap select, .search-wrap input {
+    padding: 10px 14px; border: 1px solid var(--line); border-radius: 12px;
+    font-family: inherit; font-size: .9rem; background: var(--paper); color: var(--ink);
+    outline: none; transition: .2s; min-width: 140px; flex: 1;
+}
+.search-wrap select:focus, .search-wrap input:focus { border-color: var(--now); background: #fff; }
+.search-wrap button {
+    background: var(--ink); color: #fff; border: none; border-radius: 12px;
+    padding: 10px 24px; font-weight: 700; font-size: .95rem; transition: .2s; white-space: nowrap;
+}
+.search-wrap button:hover { background: var(--now); }
+
 </style>
 </head>
 <body>
@@ -129,7 +147,20 @@ h1 { font-family: "Fraunces", serif; font-weight: 600; font-size: clamp(2rem, 4v
       <button data-type="2">전문대 (새벽빛)</button>
     </div>
   </div>
-
+  <div class="search-wrap">
+    <select id="regionSelect">
+      <option value="all">전국 전체 보기</option>
+      <option value="서울">서울특별시</option>
+      <option value="수도권">경기/인천 (수도권)</option>
+      <option value="강원">강원권</option>
+      <option value="충청">충청/대전권</option>
+      <option value="경상">경상/대구/부산/울산권</option>
+      <option value="전라">전라/광주권</option>
+      <option value="제주">제주권</option>
+    </select>
+    <input type="text" id="univSearch" placeholder="대학명 검색 (예: 서울대, 카이스트)">
+    <button id="searchBtn">위치 찾기</button>
+  </div>
   <div class="map-frame" id="map"></div>
 </div>
 
@@ -289,39 +320,41 @@ h1 { font-family: "Fraunces", serif; font-weight: 600; font-size: clamp(2rem, 4v
       const mapContainer = document.getElementById('map'); 
       const mapOption = { 
         center: new kakao.maps.LatLng(36.150411, 127.784548),
-        level: 13 // 초기 화면은 전국이 보이게 축소 (13레벨)
+        level: 13
       };
       const kakaoMap = new kakao.maps.Map(mapContainer, mapOption);
 
       let overlayList = []; 
-      
-      // 🌟 [핵심] 확대 레벨 임계값 설정 (숫자가 작을수록 확대된 상태)
-      // 레벨 8 이하면 이름이 보이고, 9 이상이면 점만 보입니다.
       const ZOOM_THRESHOLD = 8; 
 
-      // 현재 지도 레벨을 체크해서 CSS 클래스를 넣거나 빼는 함수
+      // 줌 레벨 감지 (이름표 보이기/숨기기)
       function checkZoomLevel() {
         const currentLevel = kakaoMap.getLevel();
         if(currentLevel <= ZOOM_THRESHOLD) {
-            mapContainer.classList.add('map-zoomed-in'); // 확대됨 -> 이름표 켬
+            mapContainer.classList.add('map-zoomed-in');
         } else {
-            mapContainer.classList.remove('map-zoomed-in'); // 축소됨 -> 점으로 바꿈
+            mapContainer.classList.remove('map-zoomed-in');
         }
       }
-
-      // 지도가 줌(Zoom) 될 때마다 체크 함수 실행
       kakao.maps.event.addListener(kakaoMap, 'zoom_changed', checkZoomLevel);
 
-      function renderMarkers(type) {
+      // 🌟 [핵심] 지도 업데이트 통합 로직
+      function updateMap() {
+        // 현재 선택된 필터값 가져오기
+        const activeType = document.querySelector('#mapFilter button.on').dataset.type;
+        const activeRegion = document.getElementById('regionSelect').value;
+
+        // 1. 데이터 필터링
+        let filteredData = univData;
+        if (activeType !== "all") filteredData = filteredData.filter(u => u.type === activeType);
+        if (activeRegion !== "all") filteredData = filteredData.filter(u => u.region === activeRegion);
+
+        // 2. 마커 다시 그리기
         overlayList.forEach(overlay => overlay.setMap(null));
         overlayList = [];
 
-        const filteredData = type === "all" ? univData : univData.filter(univ => univ.type === type);
-
         filteredData.forEach(univ => {
           const markerPosition = new kakao.maps.LatLng(univ.lat, univ.lng);
-          
-          // HTML 구조: 점(dot)과 이름표(label-group)를 둘 다 넣어둡니다.
           const customHtml = `
             <div class="map-pin ${univ.type === '2' ? 'type2' : ''}">
                 <div class="dot"></div>
@@ -331,30 +364,62 @@ h1 { font-family: "Fraunces", serif; font-weight: 600; font-size: clamp(2rem, 4v
                 </div>
             </div>
           `;
-
           const customOverlay = new kakao.maps.CustomOverlay({
-            position: markerPosition,
-            content: customHtml,
-            yAnchor: 1 
+            position: markerPosition, content: customHtml, yAnchor: 1 
           });
-          
           customOverlay.setMap(kakaoMap);
           overlayList.push(customOverlay);
         });
+
+        // 3. 지역을 선택했을 경우, 해당 마커들이 모두 보이게 지도 범위(Bounds) 자동 조절
+        if (activeRegion !== "all" && filteredData.length > 0) {
+            const bounds = new kakao.maps.LatLngBounds();
+            filteredData.forEach(u => bounds.extend(new kakao.maps.LatLng(u.lat, u.lng)));
+            kakaoMap.setBounds(bounds);
+        } else if (activeRegion === "all") {
+            kakaoMap.setLevel(13);
+            kakaoMap.setCenter(new kakao.maps.LatLng(36.150411, 127.784548));
+        }
+        
+        checkZoomLevel(); // 범위 이동 후 이름표 표시 여부 체크
       }
 
-      // 초기 렌더링 및 줌 상태 체크
-      renderMarkers("all");
-      checkZoomLevel();
+      // 초기화
+      updateMap();
 
-      // 필터 버튼 이벤트
+      // [이벤트] 4년제/전문대 필터 버튼 클릭
       const filterBtns = document.querySelectorAll('#mapFilter button');
       filterBtns.forEach(btn => {
         btn.addEventListener('click', () => {
           filterBtns.forEach(x => x.classList.remove('on'));
           btn.classList.add('on');
-          renderMarkers(btn.dataset.type);
+          updateMap();
         });
+      });
+
+      // [이벤트] 지역 드롭다운 변경
+      document.getElementById('regionSelect').addEventListener('change', updateMap);
+
+      // 🌟 [이벤트] 대학 이름 검색 기능
+      function searchUniv() {
+          const keyword = document.getElementById('univSearch').value.trim();
+          if (!keyword) return alert('검색할 대학 이름을 입력해 주세요.');
+
+          // 검색어 포함하는 대학 찾기
+          const target = univData.find(u => u.name.includes(keyword));
+          if (target) {
+              // 해당 대학 위치로 중심 이동 및 줌인 (4레벨 = 학교가 뚜렷이 보이는 축척)
+              kakaoMap.setCenter(new kakao.maps.LatLng(target.lat, target.lng));
+              kakaoMap.setLevel(4);
+              checkZoomLevel();
+          } else {
+              alert('검색된 대학이 없습니다. 띄어쓰기나 이름을 확인해 주세요.\n(예: "서울대" 또는 "서울대학교")');
+          }
+      }
+
+      document.getElementById('searchBtn').addEventListener('click', searchUniv);
+      document.getElementById('univSearch').addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') searchUniv(); // 엔터키로도 검색되도록 지원
       });
   }
 </script>
