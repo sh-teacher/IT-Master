@@ -77,9 +77,14 @@ section{position:relative;z-index:2}
 /* ---------- hero ---------- */
 .hero{padding:64px 0 30px}
 .hero .eyebrow{margin-bottom:22px}
-.hero h1{
-    font-family:"Fraunces",serif;font-weight:900;
-    font-size:clamp(2.5rem,6.4vw,5.3rem);line-height:.98;letter-spacing:-.02em;margin:0;
+.hero h1 {
+    font-family: "Fraunces", serif;
+    font-weight: 900;
+    font-size: clamp(2.5rem, 6.4vw, 5.3rem);
+    line-height: .98;
+    letter-spacing: -.02em;
+    margin: 0;
+    word-break: keep-all; /* 👈 이 속성을 추가하세요! */
 }
 .hero h1 .now{color:var(--now);font-style:italic}
 .hero h1 .new{color:var(--new);font-style:italic}
@@ -239,7 +244,7 @@ footer{padding:40px 0 60px;border-top:1px solid var(--line);margin-top:10px}
   <div class="hero-grid">
     <div>
       <div class="eyebrow rv">제도 분기점 내비게이션 · 고1–고3</div>
-      <h1 class="rv"><span class="now">2027</span>과 <span class="new">2028</span> 사이,<br>입시의 지층이<br>바뀝니다.</h1>
+      <h1 class="rv"><span style="white-space: nowrap;"><span class="now">2027</span>과 <span class="new">2028</span> 사이,</span><br>입시의 지층이<br>바뀝니다.</h1>
       <p class="lede rv">성적표 검색기는 많습니다. 입시 레이더는 다릅니다 — 2024·2025·2026 입시가 만든 흐름을 읽고, <b>당신이 현행 제도(~2027)의 마지막 세대인지, 개편 제도(2028~)의 첫 세대인지</b>부터 짚어 전략을 다르게 안내합니다.</p>
     </div>
     <div class="radar-stage rv">
