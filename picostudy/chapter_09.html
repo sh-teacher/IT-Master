@@ -36,6 +36,62 @@
                     <img src="./chapter0901.jpg" alt="스마트폰 IoT 제어" style="max-width: 100%; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
                     <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">뒷면에 부착된 검은색 I2C 백팩 모듈 덕분에 단 4가닥의 선만으로 화면 제어가 가능합니다.</p>
                 </div>
+
+                <div style="text-align: center; margin: 20px 0;">
+                    <svg viewBox="0 0 640 215" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 12px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.06);">
+                        <!-- Pico 2 board -->
+                        <rect x="40" y="20" width="110" height="175" rx="8" fill="#059669"/>
+                        <text x="95" y="47" text-anchor="middle" fill="white" font-size="13" font-weight="bold" font-family="Arial,sans-serif">Pico 2</text>
+                        <text x="143" y="79" text-anchor="end" fill="white" font-size="11" font-family="Arial,sans-serif">3V3</text>
+                        <text x="143" y="114" text-anchor="end" fill="white" font-size="11" font-family="Arial,sans-serif">GP8 (SDA)</text>
+                        <text x="143" y="149" text-anchor="end" fill="white" font-size="11" font-family="Arial,sans-serif">GP9 (SCL)</text>
+                        <text x="143" y="184" text-anchor="end" fill="white" font-size="11" font-family="Arial,sans-serif">GND</text>
+                        <circle cx="150" cy="75" r="6" fill="#ef4444"/>
+                        <circle cx="150" cy="110" r="6" fill="#2563eb"/>
+                        <circle cx="150" cy="145" r="6" fill="#7c3aed"/>
+                        <circle cx="150" cy="180" r="6" fill="#374151"/>
+
+                        <!-- Wires -->
+                        <line x1="156" y1="75" x2="395" y2="75" stroke="#ef4444" stroke-width="2.5"/>
+                        <line x1="156" y1="110" x2="395" y2="110" stroke="#2563eb" stroke-width="2.5"/>
+                        <line x1="156" y1="145" x2="395" y2="145" stroke="#7c3aed" stroke-width="2.5"/>
+                        <line x1="156" y1="180" x2="395" y2="180" stroke="#374151" stroke-width="2.5"/>
+
+                        <!-- LCD1602 I2C module body -->
+                        <rect x="395" y="48" width="185" height="148" rx="8" fill="#f0f4ff" stroke="#1d4ed8" stroke-width="1.5"/>
+                        <rect x="395" y="48" width="185" height="28" rx="8" fill="#1d4ed8"/>
+                        <text x="487" y="67" text-anchor="middle" fill="white" font-size="12" font-weight="bold" font-family="Arial,sans-serif">LCD1602 (I2C)</text>
+                        <!-- LCD screen area -->
+                        <rect x="415" y="88" width="145" height="60" rx="3" fill="#1a2e1a"/>
+                        <!-- LCD character grid (simulated) -->
+                        <g fill="#00e676" opacity="0.85">
+                            <rect x="420" y="93" width="6" height="10" rx="1"/><rect x="429" y="93" width="6" height="10" rx="1"/>
+                            <rect x="438" y="93" width="6" height="10" rx="1"/><rect x="447" y="93" width="6" height="10" rx="1"/>
+                            <rect x="456" y="93" width="6" height="10" rx="1"/><rect x="465" y="93" width="6" height="10" rx="1"/>
+                            <rect x="420" y="108" width="6" height="10" rx="1"/><rect x="429" y="108" width="6" height="10" rx="1"/>
+                            <rect x="438" y="108" width="6" height="10" rx="1"/>
+                        </g>
+                        <!-- I2C backpack indicator -->
+                        <rect x="415" y="158" width="145" height="22" rx="3" fill="#dbeafe" stroke="#3b82f6" stroke-width="1"/>
+                        <text x="487" y="173" text-anchor="middle" fill="#1d4ed8" font-size="9" font-weight="bold" font-family="Arial,sans-serif">I2C 백팩 (PCF8574) addr: 0x27</text>
+
+                        <!-- Component pin dots and labels -->
+                        <circle cx="395" cy="75" r="4" fill="#ef4444"/>
+                        <circle cx="395" cy="110" r="4" fill="#2563eb"/>
+                        <circle cx="395" cy="145" r="4" fill="#7c3aed"/>
+                        <circle cx="395" cy="180" r="4" fill="#374151"/>
+                        <text x="390" y="72" text-anchor="end" fill="#ef4444" font-size="10" font-weight="bold" font-family="Arial,sans-serif">VCC</text>
+                        <text x="390" y="107" text-anchor="end" fill="#2563eb" font-size="10" font-weight="bold" font-family="Arial,sans-serif">SDA</text>
+                        <text x="390" y="142" text-anchor="end" fill="#7c3aed" font-size="10" font-weight="bold" font-family="Arial,sans-serif">SCL</text>
+                        <text x="390" y="177" text-anchor="end" fill="#374151" font-size="10" font-weight="bold" font-family="Arial,sans-serif">GND</text>
+
+                        <!-- I2C label -->
+                        <text x="272" y="104" text-anchor="middle" fill="#2563eb" font-size="10" font-family="Arial,sans-serif">↔ I2C 데이터(SDA)</text>
+                        <text x="272" y="139" text-anchor="middle" fill="#7c3aed" font-size="10" font-family="Arial,sans-serif">↔ I2C 클럭(SCL)</text>
+                    </svg>
+                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">LCD I2C 백팩: VCC→3V3, SDA→GP8(8번 핀), SCL→GP9(9번 핀), GND→GND. I2C 버스 덕분에 4가닥만으로 16×2 LCD 전체를 제어합니다.</p>
+                </div>
+
                 <h2>9.1 사전 준비: 구동 라이브러리 파일 업로드 (매우 중요)</h2>
                 <p>LCD를 파이썬 코드로 쉽게 제어하려면, 전 세계 마이크로파이썬 개발자들이 표준으로 사용하는 오픈소스 라이브러리 파일 <strong>2개</strong>가 Pico 보드 내부에 미리 저장되어 있어야 합니다. 아래 두 코드를 각각 복사하여 Thonny에서 새 파일로 만든 뒤, 지정된 이름으로 저장해 주세요.</p>
 
