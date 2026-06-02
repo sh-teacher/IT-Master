@@ -19,16 +19,12 @@
     --shadow: 0 24px 60px -28px rgba(22,24,31,.45);
 }
 * { box-sizing: border-box; }
-body {
-    margin: 0; font-family: "Pretendard", system-ui, sans-serif;
-    color: var(--ink); background: var(--paper);
-    -webkit-font-smoothing: antialiased; line-height: 1.6;
-}
+body { margin: 0; font-family: "Pretendard", system-ui, sans-serif; color: var(--ink); background: var(--paper); -webkit-font-smoothing: antialiased; line-height: 1.6; }
 .mono { font-family: "IBM Plex Mono", monospace; }
 a { color: inherit; text-decoration: none; }
 button { font: inherit; cursor: pointer; }
 
-/* top bar */
+/* top bar & header */
 header { position: sticky; top: 0; z-index: 40; backdrop-filter: blur(12px); background: rgba(250,245,236,.82); border-bottom: 1px solid var(--line); }
 .bar { max-width: 1180px; margin: 0 auto; padding: 14px 26px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
 .logo { display: flex; align-items: center; gap: 11px; }
@@ -40,7 +36,6 @@ nav.menu a { font-size: .85rem; font-weight: 700; color: var(--ink-soft); paddin
 nav.menu a:hover { color: var(--ink); background: var(--paper-2); }
 .year-pill { font-family: "IBM Plex Mono", monospace; font-size: .72rem; border: 1px solid var(--line); padding: 7px 12px; border-radius: 999px; color: var(--ink-soft); }
 
-/* layout */
 .wrap { max-width: 1180px; margin: 0 auto; padding: 40px 26px; position: relative; z-index: 2; }
 .eyebrow { font-family: "IBM Plex Mono", monospace; font-size: .74rem; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
 .eyebrow::before { content: ""; width: 26px; height: 1px; background: var(--gold); display: inline-block; }
@@ -58,10 +53,8 @@ h1 { font-family: "Fraunces", serif; font-weight: 600; font-size: clamp(2rem, 4v
 .search-wrap select, .search-wrap input { padding: 10px 14px; border: 1px solid var(--line); border-radius: 12px; font-family: inherit; font-size: .9rem; background: var(--paper); color: var(--ink); outline: none; transition: .2s; min-width: 160px; flex: 1; }
 .search-wrap select:focus, .search-wrap input:focus { border-color: var(--now); background: #fff; }
 
-/* 🌟 목록 & 지도 레이아웃 */
-.map-layout { display: flex; gap: 20px; height: 65vh; min-height: 600px; }
-
-/* 왼쪽 대학 목록 패널 */
+/* 🌟 레이아웃 구조 */
+.map-layout { display: flex; gap: 20px; height: 70vh; min-height: 650px; }
 .list-panel { width: 320px; background: #fff; border: 1px solid var(--line); border-radius: 24px; overflow-y: auto; box-shadow: var(--shadow); padding: 14px; display: flex; flex-direction: column; gap: 6px; }
 .list-panel::-webkit-scrollbar { width: 6px; }
 .list-panel::-webkit-scrollbar-thumb { background: #DED3C0; border-radius: 4px; }
@@ -70,16 +63,31 @@ h1 { font-family: "Fraunces", serif; font-weight: 600; font-size: clamp(2rem, 4v
 .list-item:hover { background: var(--paper-2); border-color: var(--line); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
 .list-item .name { font-weight: 800; font-size: 1rem; color: var(--ink); }
 .list-item .tags { display: flex; gap: 6px; margin-top: 8px; }
-.list-item .badge { font-family: "IBM Plex Mono", monospace; font-size: .65rem; padding: 4px 8px; border-radius: 6px; font-weight: 600; }
-.list-item .badge.b4 { background: var(--now-soft); color: var(--now); }
-.list-item .badge.b2 { background: var(--new-soft); color: var(--new); }
-.list-item .badge.reg { background: var(--paper); border: 1px solid var(--line); color: var(--ink-soft); }
+.badge { font-family: "IBM Plex Mono", monospace; font-size: .65rem; padding: 4px 8px; border-radius: 6px; font-weight: 600; }
+.badge.b4 { background: var(--now-soft); color: var(--now); }
+.badge.b2 { background: var(--new-soft); color: var(--new); }
+.badge.reg { background: var(--paper); border: 1px solid var(--line); color: var(--ink-soft); }
 
-/* 오른쪽 지도 영역 */
-.map-frame { flex: 1; border-radius: 24px; border: 1px solid var(--line); overflow: hidden; position: relative; height: 100%; box-shadow: var(--shadow); }
+/* 오른쪽 영역 (지도 + 정보 패널) */
+.right-col { flex: 1; display: flex; flex-direction: column; gap: 16px; overflow: hidden; }
+.map-frame { flex: 1; border-radius: 24px; border: 1px solid var(--line); overflow: hidden; position: relative; box-shadow: var(--shadow); }
+
+/* 🌟 대학 정보 공시 패널 (처음엔 숨김) */
+.info-panel { background: #fff; border: 1px solid var(--line); border-radius: 24px; padding: 24px; box-shadow: var(--shadow); display: none; animation: slideUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.info-panel .header-row { display: flex; justify-content: space-between; align-items: flex-start; }
+.info-panel h3 { margin: 0 0 10px 0; font-size: 1.4rem; color: var(--ink); letter-spacing: -0.02em; }
+.info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 16px; margin-top: 18px; border-top: 1px dashed var(--line-soft); padding-top: 18px; }
+.info-item { display: flex; flex-direction: column; gap: 4px; }
+.info-item span { font-size: 0.75rem; color: var(--ink-soft); font-family: "IBM Plex Mono", monospace; letter-spacing: -0.02em; }
+.info-item b { font-size: 0.95rem; color: var(--ink); font-weight: 800; }
+.info-item a { font-size: 0.85rem; color: #fff; background: var(--ink); padding: 5px 10px; border-radius: 8px; text-align: center; font-weight: 700; transition: .2s; }
+.info-item a:hover { background: var(--now); }
+.close-btn { background: none; border: none; font-size: 1.5rem; color: var(--ink-soft); cursor: pointer; line-height: 1; padding: 0; }
+.close-btn:hover { color: var(--ink); }
 
 /* 커스텀 마커 */
-.map-pin { display: flex; flex-direction: column; align-items: center; cursor: default; position: relative; }
+.map-pin { display: flex; flex-direction: column; align-items: center; cursor: pointer; position: relative; }
 .map-pin .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--now); border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.3); transition: .2s; }
 .map-pin.type2 .dot { background: var(--new); }
 .map-pin:hover .dot { transform: scale(1.5); z-index: 100; }
@@ -91,15 +99,14 @@ h1 { font-family: "Fraunces", serif; font-weight: 600; font-size: clamp(2rem, 4v
 .map-pin:hover { z-index: 999 !important; }
 .map-pin:hover .pname { transform: scale(1.05); }
 
-/* 확대되었을 때 */
 .map-zoomed-in .map-pin .dot { display: none; }
 .map-zoomed-in .map-pin .label-group { display: flex; }
 
 /* 모바일 반응형 */
 @media(max-width: 900px) {
     .map-layout { flex-direction: column; height: auto; }
-    .list-panel { width: 100%; height: 350px; }
-    .map-frame { height: 50vh; }
+    .list-panel { width: 100%; height: 300px; }
+    .map-frame { height: 45vh; }
 }
 </style>
 </head>
@@ -142,19 +149,38 @@ h1 { font-family: "Fraunces", serif; font-weight: 600; font-size: clamp(2rem, 4v
         <option value="전라">전라/광주권</option>
         <option value="제주">제주권</option>
       </select>
-      <input type="text" id="univSearch" placeholder="🔍 대학명 일부를 입력하세요 (예: 서울, 카이스트)">
+      <input type="text" id="univSearch" placeholder="🔍 영문 대소문자 상관없이 검색 가능 (예: unist, 서울)">
     </div>
   </div>
 
   <div class="map-layout">
     <div class="list-panel" id="univList"></div>
-    <div class="map-frame" id="map"></div>
+    
+    <div class="right-col">
+      <div class="map-frame" id="map"></div>
+      
+      <div class="info-panel" id="infoPanel">
+        <div class="header-row">
+            <div>
+                <h3 id="infoName">대학명</h3>
+                <div class="tags" id="infoTags"></div>
+            </div>
+            <button class="close-btn" onclick="document.getElementById('infoPanel').style.display='none'">&times;</button>
+        </div>
+        <div class="info-grid">
+            <div class="info-item"><span>설립 유형</span><b id="infoType">국공립/사립</b></div>
+            <div class="info-item"><span>재적 학생수</span><b id="infoStudents">0명</b></div>
+            <div class="info-item"><span>평균 취업률</span><b id="infoEmp">0%</b></div>
+            <div class="info-item"><span>공식 홈페이지</span><a href="#" id="infoUrl" target="_blank">바로가기 ↗</a></div>
+        </div>
+      </div>
+
+    </div>
   </div>
 </div>
 
 <script src="univData.js"></script>
-
-<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=d8e18dd09077526ad1095af2610ff5a8"></script>
+<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_APP_KEY_HERE"></script>
 
 <script>
   if(typeof kakao !== "undefined" && kakao.maps && typeof univData !== "undefined") {
@@ -177,12 +203,15 @@ h1 { font-family: "Fraunces", serif; font-weight: 600; font-size: clamp(2rem, 4v
       function updateMapAndList() {
         const activeType = document.querySelector('#mapFilter button.on').dataset.type;
         const activeRegion = document.getElementById('regionSelect').value;
-        const keyword = document.getElementById('univSearch').value.trim();
+        // 🌟 1. 검색어를 무조건 소문자로 변환 (Case-insensitive)
+        const keyword = document.getElementById('univSearch').value.trim().toLowerCase();
 
         let filteredData = univData;
         if (activeType !== "all") filteredData = filteredData.filter(u => u.type === activeType);
         if (activeRegion !== "all") filteredData = filteredData.filter(u => u.region === activeRegion);
-        if (keyword) filteredData = filteredData.filter(u => u.name.includes(keyword));
+        
+        // 🌟 1. 대학 이름도 소문자로 변환해서 비교
+        if (keyword) filteredData = filteredData.filter(u => u.name.toLowerCase().includes(keyword));
 
         overlayList.forEach(overlay => overlay.setMap(null));
         overlayList = [];
@@ -192,7 +221,7 @@ h1 { font-family: "Fraunces", serif; font-weight: 600; font-size: clamp(2rem, 4v
             listEl.innerHTML = `<div style="padding:40px 10px; text-align:center; color:var(--ink-soft); font-size:.95rem;">검색 조건에 맞는 대학이 없습니다.</div>`;
         } else {
             listEl.innerHTML = filteredData.map(u => `
-                <div class="list-item" onclick="moveToMap(${u.lat}, ${u.lng})">
+                <div class="list-item" onclick="selectUniv(${u.lat}, ${u.lng}, '${u.name}')">
                     <div class="name">${u.name}</div>
                     <div class="tags">
                         <span class="badge ${u.type === '4' ? 'b4' : 'b2'}">${u.type === '4' ? '4년제' : '전문대'}</span>
@@ -207,8 +236,10 @@ h1 { font-family: "Fraunces", serif; font-weight: 600; font-size: clamp(2rem, 4v
 
         filteredData.forEach(univ => {
           const markerPosition = new kakao.maps.LatLng(univ.lat, univ.lng);
+          
+          // 🌟 2. 마커(지도 핀)를 클릭해도 selectUniv 함수가 실행되도록 onclick 이벤트 추가
           const customHtml = `
-            <div class="map-pin ${univ.type === '2' ? 'type2' : ''}">
+            <div class="map-pin ${univ.type === '2' ? 'type2' : ''}" onclick="selectUniv(${univ.lat}, ${univ.lng}, '${univ.name}')">
                 <div class="dot"></div>
                 <div class="label-group">
                     <div class="pname">${univ.name}</div>
@@ -240,13 +271,44 @@ h1 { font-family: "Fraunces", serif; font-weight: 600; font-size: clamp(2rem, 4v
         checkZoomLevel();
       }
 
-      window.moveToMap = function(lat, lng) {
+      // 🌟 2. 지도를 이동시키고 정보 패널을 띄우는 통합 함수
+      window.selectUniv = function(lat, lng, name) {
+          // 지도 이동
           kakaoMap.setCenter(new kakao.maps.LatLng(lat, lng));
           kakaoMap.setLevel(4); 
           checkZoomLevel();
           
+          // 선택된 대학 정보 찾기
+          const univ = univData.find(u => u.name === name);
+          
+          // 정보 패널 UI 업데이트
+          const panel = document.getElementById('infoPanel');
+          document.getElementById('infoName').textContent = univ.name;
+          document.getElementById('infoTags').innerHTML = `
+              <span class="badge ${univ.type === '4' ? 'b4' : 'b2'}">${univ.type === '4' ? '4년제' : '전문대'}</span>
+              <span class="badge reg">${univ.region}</span>
+          `;
+          
+          // 💡 추후 univData.js에 실제 데이터가 추가되면 연동되도록 짜여 있습니다.
+          // 데이터가 없으면 그럴듯한 무작위/기본 데이터(예시)를 띄웁니다.
+          const isNational = univ.name.includes("국립") || univ.name.includes("과학기술원") || univ.name.includes("서울대") || univ.name.includes("부산대");
+          const mockStudents = Math.floor(Math.random() * 15000) + 3000;
+          const mockEmp = (Math.random() * 20 + 60).toFixed(1);
+          
+          document.getElementById('infoType').textContent = univ.estType || (isNational ? "국공립" : "사립");
+          document.getElementById('infoStudents').textContent = univ.students ? `${univ.students.toLocaleString()}명` : `약 ${mockStudents.toLocaleString()}명 (예시)`;
+          document.getElementById('infoEmp').textContent = univ.empRate ? `${univ.empRate}%` : `${mockEmp}% (예시)`;
+          
+          // 공식 홈페이지 주소 자동완성 (단순 네이버 검색 링크로 fallback)
+          const searchUrl = `https://search.naver.com/search.naver?query=${encodeURIComponent(univ.name)}`;
+          document.getElementById('infoUrl').href = univ.url || searchUrl;
+          
+          // 패널 띄우기
+          panel.style.display = 'block';
+
+          // 모바일 화면일 경우 정보 패널로 스크롤 내려주기
           if(window.innerWidth <= 900) {
-              document.getElementById('map').scrollIntoView({behavior: 'smooth', block: 'center'});
+              panel.scrollIntoView({behavior: 'smooth', block: 'center'});
           }
       };
 
