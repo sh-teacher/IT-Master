@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>전국 대학 지도 — 입시 레이더</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+    --paper: #FAF5EC; --paper-2: #F2EADD;
+    --ink: #16181F; --ink-soft: #54586A;
+    --line: #DED3C0; --line-soft: #EBE2D4;
+    --now: #BE4B1E; --new: #0E7C6B; --gold: #9A6A12;
+    --shadow: 0 24px 60px -28px rgba(22,24,31,.45);
+}
+* { box-sizing: border-box; }
+body {
+    margin: 0; font-family: "Pretendard", system-ui, sans-serif;
+    color: var(--ink); background: var(--paper);
+    -webkit-font-smoothing: antialiased; line-height: 1.6;
+}
+.mono { font-family: "IBM Plex Mono", monospace; }
+.serif { font-family: "Fraunces", serif; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; cursor: pointer; }
+
+/* grain */
+body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 1; opacity: .035; mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* top bar */
+header {
+    position: sticky; top: 0; z-index: 40; backdrop-filter: blur(12px); background: rgba(250,245,236,.82); border-bottom: 1px solid var(--line);
+}
+.bar { max-width: 1180px; margin: 0 auto; padding: 14px 26px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+.logo { display: flex; align-items: center; gap: 11px; }
+.logo .mark { width: 34px; height: 34px; position: relative; flex: none; }
+.logo b { font-size: 1.06rem; letter-spacing: -.01em; }
+.logo small { display: block; font-size: .62rem; letter-spacing: .22em; color: var(--ink-soft); text-transform: uppercase; }
+nav.menu { display: flex; gap: 6px; }
+nav.menu a { font-size: .85rem; font-weight: 700; color: var(--ink-soft); padding: 8px 12px; border-radius: 999px; transition: .18s; }
+nav.menu a:hover { color: var(--ink); background: var(--paper-2); }
+.year-pill { font-family: "IBM Plex Mono", monospace; font-size: .72rem; border: 1px solid var(--line); padding: 7px 12px; border-radius: 999px; color: var(--ink-soft); }
+
+/* layout */
+.wrap { max-width: 1180px; margin: 0 auto; padding: 40px 26px; position: relative; z-index: 2; }
+.eyebrow { font-family: "IBM Plex Mono", monospace; font-size: .74rem; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); display: flex; align-items: center; gap: 10px; }
+.eyebrow::before { content: ""; width: 26px; height: 1px; background: var(--gold); display: inline-block; }
+.page-header { margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 20px; }
+h1 { font-family: "Fraunces", serif; font-weight: 600; font-size: clamp(2rem, 4vw, 3rem); line-height: 1.1; margin: 10px 0 0; letter-spacing: -.02em; }
+
+/* map controls */
+.tracks { display: flex; flex-wrap: wrap; gap: 8px; }
+.tracks button { border: 1.5px solid var(--line); background: #fff; border-radius: 999px; padding: 10px 18px; font-weight: 700; font-size: .9rem; color: var(--ink-soft); transition: .16s; }
+.tracks button:hover { border-color: var(--ink-soft); }
+.tracks button.on { background: var(--ink); color: #fff; border-color: var(--ink); box-shadow: var(--shadow); }
+
+/* map container */
+.map-frame {
+    width: 100%; height: 65vh; min-height: 500px;
+    background: var(--paper-2); border-radius: 24px; border: 1px solid var(--line);
+    overflow: hidden; box-shadow: var(--shadow); position: relative;
+}
+.map-placeholder {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    flex-direction: column; color: var(--ink-soft); font-size: .9rem;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <!-- 메인 페이지(index.html)로 돌아가는 링크 -->
+    <a class="logo" href="index.html">
+      <span class="mark" aria-hidden="true">
+        <svg viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="none" stroke="#16181F" stroke-width="1.4"/><circle cx="17" cy="17" r="10" fill="none" stroke="#16181F" stroke-width="1.1" opacity=".5"/><circle cx="17" cy="17" r="4" fill="none" stroke="#16181F" stroke-width="1.1" opacity=".5"/><path d="M17 17 L31 9" stroke="#BE4B1E" stroke-width="2" stroke-linecap="round"/><circle cx="26" cy="11.5" r="2.3" fill="#0E7C6B"/></svg>
+      </span>
+      <span><b>입시 레이더</b><small>Admission Radar</small></span>
+    </a>
+    <nav class="menu">
+      <a href="index.html">← 메인으로 돌아가기</a>
+    </nav>
+    <span class="year-pill">Map Explorer</span>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="page-header">
+    <div>
+      <div class="eyebrow">전국 단위 위치 탐색</div>
+      <h1>캠퍼스 맵</h1>
+    </div>
+    
+    <!-- 필터링 버튼 -->
+    <div class="tracks" id="mapFilter">
+      <button class="on" data-type="all">전체 대학</button>
+      <button data-type="4">4년제</button>
+      <button data-type="2">전문대(2년제)</button>
+    </div>
+  </div>
+
+  <!-- 카카오 지도가 들어갈 공간 -->
+  <div class="map-frame" id="map">
+      <div class="map-placeholder">
+          지도를 불러오는 중이거나 API 키가 설정되지 않았습니다.<br>
+          (카카오 지도 API 연동 필요)
+      </div>
+  </div>
+</div>
+
+<!-- 카카오 지도 API 스크립트 (YOUR_APP_KEY_HERE 를 실제 키로 변경하세요) -->
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=2bba866b4e4a61fad02383ab2618a9fcE"></script>
+<script>
+  // 1. 전국 대학 예시 데이터 (필요에 따라 데이터 추가)
+  const univData = [
+    { name: "서울대학교", lat: 37.459882, lng: 126.951905, type: "4" },
+    { name: "연세대학교", lat: 37.565784, lng: 126.938572, type: "4" },
+    { name: "명지전문대학", lat: 37.584742, lng: 126.923236, type: "2" },
+    { name: "부산대학교", lat: 35.233221, lng: 129.080517, type: "4" },
+    { name: "영진전문대학교", lat: 35.895315, lng: 128.622579, type: "2" },
+    { name: "조선대학교", lat: 35.142835, lng: 126.934812, type: "4" },
+    { name: "동아방송예술대학교", lat: 37.042784, lng: 127.316886, type: "2" }
+  ];
+
+  // API가 로드되었는지 확인 후 실행
+  if(typeof kakao !== "undefined" && kakao.maps) {
+      document.querySelector('.map-placeholder').style.display = 'none';
+
+      const mapContainer = document.getElementById('map'); 
+      const mapOption = { 
+        center: new kakao.maps.LatLng(36.350411, 127.384548), // 대한민국 중심부 (대전 인근)
+        level: 12 // 축척 (숫자가 클수록 넓은 지역이 보임)
+      };
+      const kakaoMap = new kakao.maps.Map(mapContainer, mapOption);
+
+      let markers = []; // 마커 관리 배열
+
+      // 마커 그리기 함수
+      function renderMarkers(type) {
+        // 기존 마커 지도에서 제거
+        markers.forEach(marker => marker.setMap(null));
+        markers = [];
+
+        // 타입(4년제/2년제/전체)에 따라 필터링
+        const filteredData = type === "all" ? univData : univData.filter(univ => univ.type === type);
+
+        filteredData.forEach(univ => {
+          const markerPosition = new kakao.maps.LatLng(univ.lat, univ.lng);
+          
+          // 마커 생성
+          const marker = new kakao.maps.Marker({
+            position: markerPosition,
+            title: univ.name
+          });
+          
+          marker.setMap(kakaoMap);
+          markers.push(marker);
+        });
+      }
+
+      // 처음 페이지 로드 시 전체 대학 렌더링
+      renderMarkers("all");
+
+      // 버튼 클릭 이벤트 바인딩
+      const filterBtns = document.querySelectorAll('#mapFilter button');
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          // 활성화 UI 변경
+          filterBtns.forEach(x => x.classList.remove('on'));
+          btn.classList.add('on');
+          
+          // 데이터 필터링 실행
+          renderMarkers(btn.dataset.type);
+        });
+      });
+  }
+</script>
+
+</body>
+</html>
