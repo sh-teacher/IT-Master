@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>입시 레이더 - 고1·고2 대학 탐색</title>
+    <style>
+        :root {
+            --ink: #172033;
+            --muted: #667085;
+            --line: #d9e2ef;
+            --paper: #ffffff;
+            --mist: #f5f8fb;
+            --blue: #2563eb;
+            --green: #16a34a;
+            --rose: #e11d48;
+            --amber: #d97706;
+            --teal: #0891b2;
+            --violet: #7c3aed;
+            --shadow: 0 16px 40px rgba(23, 32, 51, 0.10);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Pretendard", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--ink);
+            background:
+                linear-gradient(120deg, rgba(37,99,235,0.09), transparent 34%),
+                linear-gradient(230deg, rgba(8,145,178,0.10), transparent 38%),
+                var(--mist);
+        }
+
+        button, input, select {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .app {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            padding: 24px;
+            background: rgba(255,255,255,0.88);
+            border-right: 1px solid var(--line);
+            backdrop-filter: blur(14px);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .brand-mark {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            background: conic-gradient(from 160deg, var(--blue), var(--teal), var(--green), var(--amber), var(--rose), var(--blue));
+            position: relative;
+            box-shadow: var(--shadow);
+        }
+
+        .brand-mark::after {
+            content: "";
+            position: absolute;
+            inset: 11px;
+            border-radius: 50%;
+            background: white;
+        }
+
+        .brand strong {
+            display: block;
+            font-size: 1.12rem;
+            letter-spacing: 0;
+        }
+
+        .brand span {
+            display: block;
+            color: var(--muted);
+            font-size: 0.82rem;
+            margin-top: 2px;
+        }
+
+        .nav {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .nav a {
+            color: #344054;
+            text-decoration: none;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.92rem;
+        }
+
+        .nav a:hover {
+            background: #edf4ff;
+            color: var(--blue);
+        }
+
+        .profile-panel {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--paper);
+            padding: 14px;
+        }
+
+        .profile-panel h2 {
+            margin: 0 0 10px;
+            font-size: 0.98rem;
+        }
+
+        .mini-stat {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 8px;
+            padding: 9px 0;
+            border-top: 1px solid #edf2f7;
+            color: var(--muted);
+            font-size: 0.86rem;
+        }
+
+        .mini-stat:first-of-type {
+            border-top: 0;
+        }
+
+        .mini-stat strong {
+            color: var(--ink);
+        }
+
+        main {
+            padding: 28px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .topbar h1 {
+            margin: 0;
+            font-size: clamp(1.7rem, 3vw, 2.6rem);
+            letter-spacing: 0;
+            line-height: 1.12;
+        }
+
+        .topbar p {
+            margin: 8px 0 0;
+            color: var(--muted);
+            font-size: 1rem;
+        }
+
+        .home-link {
+            white-space: nowrap;
+            color: var(--blue);
+            text-decoration: none;
+            font-weight: 800;
+            background: white;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 10px 14px;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.85fr);
+            gap: 18px;
+            align-items: start;
+        }
+
+        .section {
+            background: rgba(255,255,255,0.92);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 18px;
+            box-shadow: 0 8px 24px rgba(23, 32, 51, 0.06);
+            margin-bottom: 18px;
+        }
+
+        .section-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+
+        .section h2 {
+            margin: 0;
+            font-size: 1.12rem;
+        }
+
+        .section small {
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .field label {
+            display: block;
+            color: #475467;
+            font-size: 0.78rem;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .field select,
+        .field input {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #fff;
+            color: var(--ink);
+            padding: 10px 11px;
+            outline: none;
+        }
+
+        .field select:focus,
+        .field input:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+        }
+
+        .trait-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .trait {
+            border: 1px solid var(--line);
+            background: #fff;
+            color: #344054;
+            padding: 8px 11px;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            font-weight: 800;
+        }
+
+        .trait.active {
+            border-color: var(--blue);
+            background: #eff6ff;
+            color: var(--blue);
+        }
+
+        .radar-area {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 18px;
+            align-items: center;
+        }
+
+        .radar {
+            width: 250px;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            background: #fff;
+            border: 1px solid var(--line);
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+        }
+
+        .radar svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .signal-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .signal {
+            display: grid;
+            grid-template-columns: 96px 1fr auto;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bar {
+            height: 9px;
+            background: #e9eef6;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .fill {
+            display: block;
+            height: 100%;
+            width: 40%;
+            background: var(--blue);
+            border-radius: 999px;
+            transition: width 0.25s ease;
+        }
+
+        .signal strong {
+            font-size: 0.9rem;
+        }
+
+        .signal span:last-child {
+            color: var(--muted);
+            font-weight: 800;
+            font-size: 0.85rem;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 14px;
+            display: grid;
+            gap: 10px;
+            min-height: 180px;
+        }
+
+        .tag-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .tag {
+            border-radius: 999px;
+            padding: 4px 8px;
+            font-size: 0.72rem;
+            font-weight: 900;
+            background: #eef4ff;
+            color: var(--blue);
+        }
+
+        .tag.green { background: #ecfdf3; color: var(--green); }
+        .tag.rose { background: #fff1f2; color: var(--rose); }
+        .tag.amber { background: #fffbeb; color: var(--amber); }
+        .tag.violet { background: #f5f3ff; color: var(--violet); }
+
+        .card h3 {
+            margin: 0;
+            font-size: 1.02rem;
+        }
+
+        .card p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.88rem;
+            line-height: 1.55;
+        }
+
+        .card button,
+        .primary-btn {
+            border: 0;
+            border-radius: 8px;
+            background: var(--ink);
+            color: white;
+            padding: 9px 10px;
+            font-weight: 900;
+        }
+
+        .card button.saved {
+            background: #e8f7ef;
+            color: var(--green);
+        }
+
+        .timeline {
+            display: grid;
+            gap: 10px;
+        }
+
+        .todo {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid var(--line);
+            background: #fff;
+            border-radius: 8px;
+            padding: 11px;
+        }
+
+        .todo input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--blue);
+        }
+
+        .todo strong {
+            display: block;
+            font-size: 0.92rem;
+        }
+
+        .todo span {
+            color: var(--muted);
+            font-size: 0.8rem;
+        }
+
+        .month {
+            color: var(--blue);
+            font-size: 0.8rem;
+            font-weight: 900;
+        }
+
+        .saved-list {
+            display: grid;
+            gap: 8px;
+        }
+
+        .saved-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: center;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .saved-item strong {
+            display: block;
+            font-size: 0.9rem;
+        }
+
+        .saved-item span {
+            color: var(--muted);
+            font-size: 0.78rem;
+        }
+
+        .saved-item button {
+            border: 0;
+            background: #f2f4f7;
+            border-radius: 8px;
+            padding: 6px 9px;
+            color: #475467;
+            font-weight: 900;
+        }
+
+        .empty {
+            color: var(--muted);
+            background: #fff;
+            border: 1px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 0.9rem;
+        }
+
+        .planner {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .planner input {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 10px 11px;
+            outline: none;
+        }
+
+        .activity-list {
+            display: grid;
+            gap: 8px;
+        }
+
+        .activity {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 10px;
+            color: #344054;
+            font-size: 0.9rem;
+        }
+
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow: hidden;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .compare-table th,
+        .compare-table td {
+            border: 1px solid var(--line);
+            padding: 10px;
+            text-align: left;
+            font-size: 0.88rem;
+        }
+
+        .compare-table th {
+            background: #f1f5f9;
+            color: #344054;
+        }
+
+        @media (max-width: 1120px) {
+            .app {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+                height: auto;
+                border-right: 0;
+                border-bottom: 1px solid var(--line);
+            }
+
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 760px) {
+            main {
+                padding: 16px;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .control-grid,
+            .cards,
+            .radar-area {
+                grid-template-columns: 1fr;
+            }
+
+            .radar {
+                width: min(100%, 300px);
+                margin: 0 auto;
+            }
+
+            .signal {
+                grid-template-columns: 78px 1fr 42px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-mark" aria-hidden="true"></div>
+                <div>
+                    <strong>입시 레이더</strong>
+                    <span>고1·고2 전용 탐색실</span>
+                </div>
+            </div>
+            <nav class="nav">
+                <a href="#profile">나의 방향</a>
+                <a href="#majors">학과 추천</a>
+                <a href="#timeline">학년별 준비</a>
+                <a href="#saved">관심 대학</a>
+            </nav>
+            <div class="profile-panel">
+                <h2>오늘의 탐색 기록</h2>
+                <div class="mini-stat"><span>선택 학년</span><strong id="statGrade">고1</strong></div>
+                <div class="mini-stat"><span>관심 계열</span><strong id="statTrack">AI·공학</strong></div>
+                <div class="mini-stat"><span>관심 대학</span><strong id="statSaved">0곳</strong></div>
+                <div class="mini-stat"><span>완료 체크</span><strong id="statDone">0개</strong></div>
+            </div>
+        </aside>
+
+        <main>
+            <header class="topbar">
+                <div>
+                    <h1>지금의 관심사를 대학 입시 언어로 바꿔보기</h1>
+                    <p>성적표보다 먼저 필요한 건 방향입니다. 좋아하는 과목, 활동 성향, 관심 계열로 나만의 입시 지도를 만들어보세요.</p>
+                </div>
+                <a class="home-link" href="../index.html">HOME</a>
+            </header>
+
+            <div class="workspace">
+                <div>
+                    <section class="section" id="profile">
+                        <div class="section-head">
+                            <h2>나의 방향 설정</h2>
+                            <small id="profileSummary">AI·공학 중심</small>
+                        </div>
+                        <div class="control-grid">
+                            <div class="field">
+                                <label for="grade">학년</label>
+                                <select id="grade">
+                                    <option value="고1">고1</option>
+                                    <option value="고2">고2</option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label for="track">관심 계열</label>
+                                <select id="track">
+                                    <option value="AI·공학">AI·공학</option>
+                                    <option value="의생명·보건">의생명·보건</option>
+                                    <option value="경영·사회">경영·사회</option>
+                                    <option value="교육·인문">교육·인문</option>
+                                    <option value="디자인·콘텐츠">디자인·콘텐츠</option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label for="region">희망 지역</label>
+                                <select id="region">
+                                    <option value="전체">전체</option>
+                                    <option value="수도권">수도권</option>
+                                    <option value="호남권">호남권</option>
+                                    <option value="영남권">영남권</option>
+                                    <option value="충청권">충청권</option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label for="keyword">검색어</label>
+                                <input id="keyword" type="search" placeholder="학과, 대학, 키워드">
+                            </div>
+                        </div>
+                        <div class="trait-row" id="traits">
+                            <button class="trait active" data-trait="탐구형">탐구형</button>
+                            <button class="trait" data-trait="실험형">실험형</button>
+                            <button class="trait" data-trait="발표형">발표형</button>
+                            <button class="trait" data-trait="기획형">기획형</button>
+                            <button class="trait" data-trait="창작형">창작형</button>
+                            <button class="trait" data-trait="봉사형">봉사형</button>
+                        </div>
+                    </section>
+
+                    <section class="section">
+                        <div class="section-head">
+                            <h2>성향 레이더</h2>
+                            <small>선택값에 따라 자동 갱신</small>
+                        </div>
+                        <div class="radar-area">
+                            <div class="radar">
+                                <svg viewBox="0 0 220 220" role="img" aria-label="입시 성향 레이더 차트">
+                                    <polygon points="110,18 198,78 164,184 56,184 22,78" fill="#f1f5f9" stroke="#d9e2ef"/>
+                                    <polygon points="110,48 170,90 148,160 72,160 50,90" fill="none" stroke="#d9e2ef"/>
+                                    <line x1="110" y1="110" x2="110" y2="18" stroke="#d9e2ef"/>
+                                    <line x1="110" y1="110" x2="198" y2="78" stroke="#d9e2ef"/>
+                                    <line x1="110" y1="110" x2="164" y2="184" stroke="#d9e2ef"/>
+                                    <line x1="110" y1="110" x2="56" y2="184" stroke="#d9e2ef"/>
+                                    <line x1="110" y1="110" x2="22" y2="78" stroke="#d9e2ef"/>
+                                    <polygon id="radarShape" points="110,38 166,90 150,158 74,158 44,86" fill="rgba(37,99,235,0.28)" stroke="#2563eb" stroke-width="3"/>
+                                    <text x="110" y="14" text-anchor="middle" font-size="11" fill="#475467">학업</text>
+                                    <text x="206" y="78" font-size="11" fill="#475467">탐구</text>
+                                    <text x="168" y="204" font-size="11" fill="#475467">활동</text>
+                                    <text x="28" y="204" font-size="11" fill="#475467">표현</text>
+                                    <text x="2" y="78" font-size="11" fill="#475467">진로</text>
+                                </svg>
+                            </div>
+                            <div class="signal-list" id="signals"></div>
+                        </div>
+                    </section>
+
+                    <section class="section" id="majors">
+                        <div class="section-head">
+                            <h2>학과 추천</h2>
+                            <small id="resultCount">0개</small>
+                        </div>
+                        <div class="cards" id="majorCards"></div>
+                    </section>
+
+                    <section class="section">
+                        <div class="section-head">
+                            <h2>간단 비교표</h2>
+                            <small>샘플 데이터</small>
+                        </div>
+                        <table class="compare-table">
+                            <thead>
+                                <tr>
+                                    <th>전형</th>
+                                    <th>고1·고2 포인트</th>
+                                    <th>지금 할 일</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>학생부교과</td>
+                                    <td>과목별 내신 흐름</td>
+                                    <td>주요 과목 학습 루틴 만들기</td>
+                                </tr>
+                                <tr>
+                                    <td>학생부종합</td>
+                                    <td>과목 선택, 탐구, 활동의 연결</td>
+                                    <td>관심 주제를 세특과 활동으로 확장</td>
+                                </tr>
+                                <tr>
+                                    <td>논술·실기</td>
+                                    <td>계열별 표현력과 기초 역량</td>
+                                    <td>기출 유형을 가볍게 훑어보기</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+                </div>
+
+                <aside>
+                    <section class="section" id="timeline">
+                        <div class="section-head">
+                            <h2>학년별 준비</h2>
+                            <small id="todoRatio">0/0</small>
+                        </div>
+                        <div class="timeline" id="todoList"></div>
+                    </section>
+
+                    <section class="section" id="saved">
+                        <div class="section-head">
+                            <h2>관심 대학</h2>
+                            <small>브라우저 저장</small>
+                        </div>
+                        <div class="saved-list" id="savedList"></div>
+                    </section>
+
+                    <section class="section">
+                        <div class="section-head">
+                            <h2>활동 아이디어</h2>
+                            <small>나만의 목록</small>
+                        </div>
+                        <div class="planner">
+                            <input id="activityInput" type="text" placeholder="예: AI 윤리 탐구 보고서">
+                            <button class="primary-btn" id="addActivity">추가</button>
+                        </div>
+                        <div class="activity-list" id="activityList"></div>
+                    </section>
+                </aside>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const majors = [
+            { track: "AI·공학", region: "수도권", school: "서울과학기술대", major: "인공지능응용학과", tags: ["AI", "수학", "프로젝트"], text: "수학과 프로그래밍을 연결해 문제 해결을 좋아하는 학생에게 잘 맞습니다." },
+            { track: "AI·공학", region: "호남권", school: "전남대", major: "소프트웨어공학과", tags: ["코딩", "팀프로젝트", "탐구"], text: "앱, 데이터, 웹 서비스 제작 경험을 학생부 활동으로 확장하기 좋습니다." },
+            { track: "AI·공학", region: "충청권", school: "충남대", major: "컴퓨터융합학부", tags: ["알고리즘", "데이터", "공학"], text: "문제 풀이와 실생활 데이터 분석을 같이 해보고 싶은 학생에게 어울립니다." },
+            { track: "의생명·보건", region: "수도권", school: "가천대", major: "바이오나노학과", tags: ["생명", "화학", "실험"], text: "생명과학 실험, 의약품, 진단 기술에 관심 있는 학생에게 좋습니다." },
+            { track: "의생명·보건", region: "호남권", school: "조선대", major: "간호학과", tags: ["보건", "봉사", "면접"], text: "돌봄, 생명 윤리, 지역 의료 주제로 활동을 쌓기 좋습니다." },
+            { track: "의생명·보건", region: "영남권", school: "부경대", major: "식품공학전공", tags: ["생명", "화학", "연구"], text: "먹거리, 건강, 미생물 같은 일상 주제를 과학 탐구로 연결할 수 있습니다." },
+            { track: "경영·사회", region: "수도권", school: "숭실대", major: "경영학부", tags: ["경제", "데이터", "발표"], text: "마케팅, 창업, 데이터 분석을 묶어 활동 설계하기 좋습니다." },
+            { track: "경영·사회", region: "호남권", school: "전북대", major: "행정학과", tags: ["사회", "정책", "토론"], text: "지역 문제, 공공 정책, 사회 이슈 탐구에 관심 있는 학생에게 맞습니다." },
+            { track: "교육·인문", region: "수도권", school: "한국외대", major: "언어인지과학과", tags: ["언어", "심리", "탐구"], text: "언어, AI 번역, 인간 사고를 함께 탐구해볼 수 있습니다." },
+            { track: "교육·인문", region: "충청권", school: "공주대", major: "교육학과", tags: ["교육", "봉사", "기획"], text: "수업 설계, 학습 멘토링, 청소년 문제에 관심 있는 학생에게 좋습니다." },
+            { track: "디자인·콘텐츠", region: "수도권", school: "홍익대", major: "디자인컨버전스학부", tags: ["디자인", "포트폴리오", "창작"], text: "시각 표현과 기술, 사용자 경험을 함께 다루고 싶은 학생에게 어울립니다." },
+            { track: "디자인·콘텐츠", region: "영남권", school: "동서대", major: "영상애니메이션학과", tags: ["영상", "스토리", "제작"], text: "콘텐츠 제작, 스토리보드, 미디어 분석을 활동으로 연결하기 좋습니다." }
+        ];
+
+        const signalBase = {
+            "AI·공학": [86, 92, 74, 68, 80],
+            "의생명·보건": [88, 84, 82, 62, 76],
+            "경영·사회": [78, 72, 86, 88, 82],
+            "교육·인문": [80, 70, 84, 92, 78],
+            "디자인·콘텐츠": [70, 78, 90, 88, 76]
+        };
+
+        const traitBoost = {
+            "탐구형": [8, 12, 0, 0, 6],
+            "실험형": [6, 10, 8, 0, 4],
+            "발표형": [0, 2, 8, 14, 4],
+            "기획형": [2, 4, 12, 8, 8],
+            "창작형": [0, 8, 14, 10, 6],
+            "봉사형": [4, 2, 12, 8, 10]
+        };
+
+        const todos = {
+            "고1": [
+                ["3월", "관심 과목 찾기", "좋아하는 단원과 어려운 단원을 따로 기록"],
+                ["5월", "첫 탐구 주제 정하기", "과목 내용에서 질문 3개 만들기"],
+                ["7월", "활동 연결하기", "동아리, 독서, 발표를 하나의 주제로 묶기"],
+                ["10월", "과목 선택 점검", "희망 계열과 선택 과목이 맞는지 확인"]
+            ],
+            "고2": [
+                ["3월", "희망 계열 좁히기", "관심 학과 5개와 이유 정리"],
+                ["6월", "학생부 흐름 만들기", "세특, 독서, 활동 키워드 통일"],
+                ["8월", "대학별 전형 비교", "교과, 종합, 수능 최저 조건 확인"],
+                ["11월", "겨울방학 계획", "부족 과목과 탐구 보고서 주제 확정"]
+            ]
+        };
+
+        const labels = ["학업", "탐구", "활동", "표현", "진로"];
+        const colors = ["#2563eb", "#0891b2", "#16a34a", "#d97706", "#e11d48"];
+        const state = {
+            grade: "고1",
+            track: "AI·공학",
+            region: "전체",
+            keyword: "",
+            trait: "탐구형",
+            saved: JSON.parse(localStorage.getItem("univSaved") || "[]"),
+            done: JSON.parse(localStorage.getItem("univDone") || "{}"),
+            activities: JSON.parse(localStorage.getItem("univActivities") || "[]")
+        };
+
+        const gradeEl = document.getElementById("grade");
+        const trackEl = document.getElementById("track");
+        const regionEl = document.getElementById("region");
+        const keywordEl = document.getElementById("keyword");
+        const cardsEl = document.getElementById("majorCards");
+        const savedEl = document.getElementById("savedList");
+        const todoEl = document.getElementById("todoList");
+        const signalsEl = document.getElementById("signals");
+        const radarShape = document.getElementById("radarShape");
+        const activityEl = document.getElementById("activityList");
+
+        function clamp(value) {
+            return Math.max(35, Math.min(100, value));
+        }
+
+        function getScores() {
+            const base = signalBase[state.track];
+            const boost = traitBoost[state.trait];
+            return base.map((value, index) => clamp(value + boost[index]));
+        }
+
+        function radarPoints(scores) {
+            const center = { x: 110, y: 110 };
+            const max = 92;
+            const angles = [-90, -18, 54, 126, 198];
+            return scores.map((score, index) => {
+                const radius = max * (score / 100);
+                const rad = angles[index] * Math.PI / 180;
+                return `${center.x + Math.cos(rad) * radius},${center.y + Math.sin(rad) * radius}`;
+            }).join(" ");
+        }
+
+        function renderSignals() {
+            const scores = getScores();
+            radarShape.setAttribute("points", radarPoints(scores));
+            signalsEl.innerHTML = scores.map((score, index) => `
+                <div class="signal">
+                    <strong>${labels[index]}</strong>
+                    <div class="bar"><span class="fill" style="width:${score}%; background:${colors[index]}"></span></div>
+                    <span>${score}</span>
+                </div>
+            `).join("");
+        }
+
+        function renderCards() {
+            const keyword = state.keyword.trim().toLowerCase();
+            const filtered = majors.filter(item => {
+                const regionOk = state.region === "전체" || item.region === state.region;
+                const trackOk = item.track === state.track;
+                const text = `${item.school} ${item.major} ${item.tags.join(" ")} ${item.text}`.toLowerCase();
+                const keywordOk = !keyword || text.includes(keyword);
+                return regionOk && trackOk && keywordOk;
+            });
+
+            document.getElementById("resultCount").textContent = `${filtered.length}개`;
+            cardsEl.innerHTML = filtered.map(item => {
+                const id = `${item.school}-${item.major}`;
+                const saved = state.saved.some(savedItem => savedItem.id === id);
+                return `
+                    <article class="card">
+                        <div class="tag-row">
+                            <span class="tag">${item.region}</span>
+                            <span class="tag green">${item.track}</span>
+                            ${item.tags.slice(0, 2).map(tag => `<span class="tag violet">${tag}</span>`).join("")}
+                        </div>
+                        <h3>${item.school}<br>${item.major}</h3>
+                        <p>${item.text}</p>
+                        <button class="${saved ? "saved" : ""}" data-save="${id}">${saved ? "저장됨" : "관심 대학 저장"}</button>
+                    </article>
+                `;
+            }).join("") || `<div class="empty">조건에 맞는 샘플이 없습니다. 지역을 전체로 바꾸거나 검색어를 줄여보세요.</div>`;
+
+            cardsEl.querySelectorAll("[data-save]").forEach(button => {
+                button.addEventListener("click", () => {
+                    const item = majors.find(major => `${major.school}-${major.major}` === button.dataset.save);
+                    toggleSaved(item);
+                });
+            });
+        }
+
+        function toggleSaved(item) {
+            const id = `${item.school}-${item.major}`;
+            const exists = state.saved.some(savedItem => savedItem.id === id);
+            state.saved = exists
+                ? state.saved.filter(savedItem => savedItem.id !== id)
+                : [...state.saved, { id, school: item.school, major: item.major, track: item.track }];
+            localStorage.setItem("univSaved", JSON.stringify(state.saved));
+            renderSaved();
+            renderCards();
+            renderStats();
+        }
+
+        function renderSaved() {
+            savedEl.innerHTML = state.saved.length
+                ? state.saved.map(item => `
+                    <div class="saved-item">
+                        <div>
+                            <strong>${item.school}</strong>
+                            <span>${item.major}</span>
+                        </div>
+                        <button data-remove="${item.id}">삭제</button>
+                    </div>
+                `).join("")
+                : `<div class="empty">아직 저장한 대학이 없습니다.</div>`;
+
+            savedEl.querySelectorAll("[data-remove]").forEach(button => {
+                button.addEventListener("click", () => {
+                    state.saved = state.saved.filter(item => item.id !== button.dataset.remove);
+                    localStorage.setItem("univSaved", JSON.stringify(state.saved));
+                    renderSaved();
+                    renderCards();
+                    renderStats();
+                });
+            });
+        }
+
+        function renderTodos() {
+            const list = todos[state.grade];
+            todoEl.innerHTML = list.map((item, index) => {
+                const key = `${state.grade}-${index}`;
+                return `
+                    <label class="todo">
+                        <input type="checkbox" data-todo="${key}" ${state.done[key] ? "checked" : ""}>
+                        <span>
+                            <strong>${item[1]}</strong>
+                            <span>${item[2]}</span>
+                        </span>
+                        <span class="month">${item[0]}</span>
+                    </label>
+                `;
+            }).join("");
+
+            todoEl.querySelectorAll("[data-todo]").forEach(input => {
+                input.addEventListener("change", () => {
+                    state.done[input.dataset.todo] = input.checked;
+                    localStorage.setItem("univDone", JSON.stringify(state.done));
+                    renderStats();
+                    renderTodoRatio();
+                });
+            });
+
+            renderTodoRatio();
+        }
+
+        function renderTodoRatio() {
+            const keys = todos[state.grade].map((_, index) => `${state.grade}-${index}`);
+            const done = keys.filter(key => state.done[key]).length;
+            document.getElementById("todoRatio").textContent = `${done}/${keys.length}`;
+        }
+
+        function renderActivities() {
+            activityEl.innerHTML = state.activities.length
+                ? state.activities.map(text => `<div class="activity">${text}</div>`).join("")
+                : `<div class="empty">관심 주제나 활동 아이디어를 추가해보세요.</div>`;
+        }
+
+        function renderStats() {
+            document.getElementById("statGrade").textContent = state.grade;
+            document.getElementById("statTrack").textContent = state.track;
+            document.getElementById("statSaved").textContent = `${state.saved.length}곳`;
+            document.getElementById("profileSummary").textContent = `${state.track} · ${state.trait}`;
+
+            const gradeKeys = todos[state.grade].map((_, index) => `${state.grade}-${index}`);
+            const done = gradeKeys.filter(key => state.done[key]).length;
+            document.getElementById("statDone").textContent = `${done}개`;
+        }
+
+        function renderAll() {
+            renderSignals();
+            renderCards();
+            renderSaved();
+            renderTodos();
+            renderActivities();
+            renderStats();
+        }
+
+        gradeEl.addEventListener("change", () => {
+            state.grade = gradeEl.value;
+            renderTodos();
+            renderStats();
+        });
+
+        trackEl.addEventListener("change", () => {
+            state.track = trackEl.value;
+            renderSignals();
+            renderCards();
+            renderStats();
+        });
+
+        regionEl.addEventListener("change", () => {
+            state.region = regionEl.value;
+            renderCards();
+        });
+
+        keywordEl.addEventListener("input", () => {
+            state.keyword = keywordEl.value;
+            renderCards();
+        });
+
+        document.querySelectorAll(".trait").forEach(button => {
+            button.addEventListener("click", () => {
+                document.querySelectorAll(".trait").forEach(item => item.classList.remove("active"));
+                button.classList.add("active");
+                state.trait = button.dataset.trait;
+                renderSignals();
+                renderStats();
+            });
+        });
+
+        document.getElementById("addActivity").addEventListener("click", () => {
+            const input = document.getElementById("activityInput");
+            const text = input.value.trim();
+            if (!text) return;
+            state.activities = [text, ...state.activities].slice(0, 6);
+            localStorage.setItem("univActivities", JSON.stringify(state.activities));
+            input.value = "";
+            renderActivities();
+        });
+
+        document.getElementById("activityInput").addEventListener("keydown", event => {
+            if (event.key === "Enter") {
+                document.getElementById("addActivity").click();
+            }
+        });
+
+        renderAll();
+    </script>
+</body>
+</html>
