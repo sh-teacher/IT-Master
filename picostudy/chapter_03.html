@@ -34,23 +34,6 @@
                 <h1>Chapter 3. 기초 코딩: 단계별로 내장 LED 제어하기</h1>
                 <p>하드웨어 개발의 "Hello World"는 LED를 깜빡이는 것입니다. RP2350 기반의 Pico 2 보드를 제어하는 기초 문법을 3가지 단계로 차근차근 알아봅시다.</p>
 
-                <div style="text-align: center; margin: 30px 0;">
-                    <svg viewBox="0 0 800 250" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 12px; background: #ffffff; border: 1px solid #e2e8f0;">
-                        <!-- Pico 2 Board Outline -->
-                        <rect x="300" y="20" width="200" height="210" rx="10" fill="#059669" opacity="0.2"/>
-                        <rect x="340" y="40" width="120" height="100" rx="5" fill="#059669"/>
-                        <text x="400" y="90" text-anchor="middle" fill="white" font-size="14" font-weight="bold">RP2350</text>
-                        
-                        <!-- LED Drawing -->
-                        <circle cx="400" cy="180" r="25" fill="#fbbf24" opacity="0.3">
-                            <animate attributeName="opacity" values="0.3;1;0.3" dur="1s" repeatCount="indefinite" />
-                        </circle>
-                        <circle cx="400" cy="180" r="10" fill="#f59e0b"/>
-                        <text x="400" y="220" text-anchor="middle" fill="#475569" font-size="12" font-weight="bold">내장 LED ("LED")</text>
-                        <path d="M400 140 V170" stroke="#f59e0b" stroke-width="3" stroke-dasharray="5"/>
-                    </svg>
-                </div>
-
                 <h2>3.1 "LED" 핀의 비밀</h2>
                 <p>구형 Pico는 내장 LED를 제어할 때 25번 핀을 지정해야 했지만, 새롭게 업그레이드된 <strong>Pico 2(RP2350)</strong>는 펌웨어에서 예약한 <code>"LED"</code>라는 문자열 키워드를 사용하여 직관적으로 제어합니다.</p>
 
