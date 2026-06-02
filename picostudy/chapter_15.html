@@ -40,28 +40,48 @@
                 <p>지금까지 배운 모든 기술을 하나로 합칩니다. <strong>PIR 센서</strong>로 침입을 감지하고, <strong>초음파 센서</strong>로 거리를 측정하며, <strong>LCD</strong>에 상태를 표시하고, <strong>웹 서버</strong>를 통해 원격으로 경보를 해제하는 통합 시스템입니다.</p>
 
                 <div style="text-align: center; margin: 30px 0;">
-                    <svg viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 16px; background: #fff1f2; border: 2px solid #fda4af;">
-                        <!-- Central Pico 2 -->
-                        <rect x="340" y="100" width="120" height="100" rx="10" fill="#059669"/>
-                        <text x="400" y="155" text-anchor="middle" fill="white" font-weight="bold">Pico 2 Server</text>
+                    <svg viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 16px; background: #fffcfc; border: 2px solid #fda4af;">
+                        <!-- 연결선 (Wires) -->
+                        <g stroke="#94a3b8" stroke-width="2.5" fill="none">
+                            <!-- PIR to Pico (GP18) -->
+                            <path d="M185 80 H340" />
+                            <!-- Sonic to Pico (GP16/17) -->
+                            <path d="M185 200 H340" />
+                            <!-- Pico to LCD (GP8/9) -->
+                            <path d="M460 125 H580" />
+                            <!-- Pico to Buzzer (GP14) -->
+                            <path d="M460 175 H610" />
+                        </g>
 
-                        <!-- Inputs -->
+                        <!-- 중앙 Pico 2 본체 -->
+                        <rect x="340" y="100" width="120" height="120" rx="10" fill="#059669"/>
+                        <text x="400" y="165" text-anchor="middle" fill="white" font-size="14" font-weight="bold">Pico 2 Server</text>
+                        <text x="345" y="120" text-anchor="start" fill="#bef264" font-size="10">GP18</text>
+                        <text x="345" y="200" text-anchor="start" fill="#bef264" font-size="10">GP16/17</text>
+                        <text x="455" y="125" text-anchor="end" fill="#bef264" font-size="10">GP8/9</text>
+                        <text x="455" y="180" text-anchor="end" fill="#bef264" font-size="10">GP14</text>
+
+                        <!-- 입력 센서 (Left) -->
                         <circle cx="150" cy="80" r="35" fill="#3b82f6" opacity="0.8"/>
-                        <text x="150" y="130" text-anchor="middle" fill="#1e40af" font-size="12" font-weight="bold">PIR 감지</text>
+                        <text x="150" y="85" text-anchor="middle" fill="white" font-size="12" font-weight="bold">PIR</text>
+                        <text x="150" y="130" text-anchor="middle" fill="#1e40af" font-size="12" font-weight="bold">움직임 감지</text>
                         
                         <rect x="115" y="180" width="70" height="40" rx="5" fill="#0ea5e9"/>
-                        <text x="150" y="240" text-anchor="middle" fill="#0369a1" font-size="12" font-weight="bold">초음파 거리</text>
+                        <text x="150" y="205" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Sonic</text>
+                        <text x="150" y="240" text-anchor="middle" fill="#0369a1" font-size="12" font-weight="bold">거리 측정</text>
 
-                        <!-- Outputs -->
-                        <rect x="580" y="70" width="100" height="50" rx="4" fill="#1e293b"/>
-                        <text x="630" y="140" text-anchor="middle" fill="#334155" font-size="12" font-weight="bold">LCD 모니터</text>
+                        <!-- 출력 장치 (Right) -->
+                        <rect x="580" y="70" width="100" height="60" rx="4" fill="#1e293b"/>
+                        <text x="630" y="105" text-anchor="middle" fill="#0ea5e9" font-size="12" font-weight="bold">LCD</text>
+                        <text x="630" y="150" text-anchor="middle" fill="#334155" font-size="12" font-weight="bold">상태 표시</text>
                         
-                        <path d="M630 180 L660 230 L600 230 Z" fill="#ef4444"/>
-                        <text x="630" y="255" text-anchor="middle" fill="#991b1b" font-size="12" font-weight="bold">Buzzer 사이렌</text>
+                        <path d="M610 210 L640 180 L670 210 Z" fill="#ef4444"/>
+                        <rect x="630" y="210" width="20" height="10" fill="#ef4444"/>
+                        <text x="640" y="255" text-anchor="middle" fill="#991b1b" font-size="12" font-weight="bold">Buzzer 사이렌</text>
 
-                        <!-- Web Connection -->
-                        <path d="M400 50 Q 400 10 450 10" fill="none" stroke="#f43f5e" stroke-width="2" stroke-dasharray="5,5"/>
-                        <text x="500" y="20" fill="#f43f5e" font-size="14" font-weight="bold">Wi-Fi Dashboard</text>
+                        <!-- 무선 통신 (Top) -->
+                        <path d="M400 100 Q 400 40 450 40" fill="none" stroke="#f43f5e" stroke-width="2" stroke-dasharray="5,5"/>
+                        <text x="520" y="45" fill="#f43f5e" font-size="14" font-weight="bold">Wi-Fi Dashboard</text>
                     </svg>
                 </div>
 
