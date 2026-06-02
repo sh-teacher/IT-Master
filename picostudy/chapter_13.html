@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Ch 13. Neopixel 제어 - Pico 2 가이드</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="layout">
+        <nav class="sidebar">
+            <h2>PICO 2 IoT GUIDE</h2>
+            <ul>
+                <li><a href="index.html">HOME - 시작하기</a></li>
+                <li><a href="chapter_01.html">CHAPTER 1 - 하드웨어 이해</a></li>
+                <li><a href="chapter_02.html">CHAPTER 2 - 펌웨어 세팅</a></li>
+                <li><a href="chapter_03.html">CHAPTER 3 - 기초 코딩(Blink)</a></li>
+                <li><a href="chapter_04.html">CHAPTER 4 - Wi-Fi 연결</a></li>
+                <li><a href="chapter_05.html">CHAPTER 5 - IoT 웹 서버</a></li>
+                <li class="menu-divider">심화 응용 프로젝트</li>
+                <li><a href="chapter_06.html">CHAPTER 6 - 기본 입출력(스위치/부저)</a></li>
+                <li><a href="chapter_07.html">CHAPTER 7 - 센서 제어(초음파/PIR)</a></li>
+                <li><a href="chapter_08.html">CHAPTER 8 - 아날로그 & 모터</a></li>
+                <li><a href="chapter_09.html">CHAPTER 9 - LCD 디스플레이</a></li>
+                <li><a href="chapter_10.html">CHAPTER 10 - 무선 통신 & 입력</a></li>
+                <li class="menu-divider">심화 응용 프로젝트</li>
+                <li><a href="chapter_11.html">CHAPTER 11 - 온습도 & 데이터</a></li>
+                <li><a href="chapter_12.html">CHAPTER 12 - MQTT 클라우드</a></li>
+                <li><a href="chapter_13.html" class="active">CHAPTER 13 - Neopixel 제어</a></li>
+                <li><a href="chapter_14.html">CHAPTER 14 - OLED & RTC</a></li>
+                <li><a href="chapter_15.html">CHAPTER 15 - 종합 프로젝트</a></li>
+            </ul>
+        </nav>
+        <main class="content">
+            <div class="container">
+                <h1>Chapter 13. Neopixel(WS2812B) 화려한 조명 제어</h1>
+                <p>단 한 가닥의 데이터 선으로 수많은 RGB LED를 개별 제어하는 기술을 배웁니다. Pico 2의 고속 PIO 기능을 활용해 부드러운 무지개 효과를 구현합니다.</p>
+
+                <div style="text-align: center; margin: 30px 0;">
+                    <svg viewBox="0 0 600 150" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 12px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.06);">
+                        <!-- Pico 2 -->
+                        <rect x="40" y="20" width="100" height="110" rx="8" fill="#059669"/>
+                        <text x="143" y="79" text-anchor="end" fill="white" font-size="10">GP22</text>
+                        
+                        <!-- LED Strip -->
+                        <rect x="300" y="55" width="250" height="40" rx="4" fill="#334155"/>
+                        <rect x="315" y="65" width="20" height="20" fill="#ff0000"/>
+                        <rect x="355" y="65" width="20" height="20" fill="#00ff00"/>
+                        <rect x="395" y="65" width="20" height="20" fill="#0000ff"/>
+                        <rect x="435" y="65" width="20" height="20" fill="#ffff00"/>
+                        <rect x="475" y="65" width="20" height="20" fill="#ff00ff"/>
+                        
+                        <!-- Wires -->
+                        <line x1="150" y1="75" x2="300" y2="75" stroke="#a855f7" stroke-width="3"/>
+                        <text x="225" y="65" text-anchor="middle" fill="#a855f7" font-size="10" font-weight="bold">DIN (Data)</text>
+                    </svg>
+                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">Neopixel: VCC→5V(VSYS), DIN→GP22, GND→GND. (LED 개수가 많으면 별도 전원이 필요합니다)</p>
+                </div>
+
+                <h2>13.1 무지개 회전 효과 코드</h2>
+                <pre><code>import machine, neopixel
+import time
+
+# 1. 설정: GP22번에 8개의 LED가 연결된 스트립
+NUM_LEDS = 8
+np = neopixel.NeoPixel(machine.Pin(22), NUM_LEDS)
+
+def wheel(pos):
+    # 0~255 값을 받아 RGB 색상으로 변환하는 함수
+    if pos < 85:
+        return (pos * 3, 255 - pos * 3, 0)
+    elif pos < 170:
+        pos -= 85
+        return (255 - pos * 3, 0, pos * 3)
+    else:
+        pos -= 170
+        return (0, pos * 3, 255 - pos * 3)
+
+print("Neopixel 효과 시작...")
+
+while True:
+    for j in range(256):
+        for i in range(NUM_LEDS):
+            # 각 LED마다 미세하게 다른 색상을 부여
+            pixel_index = (i * 256 // NUM_LEDS) + j
+            np[i] = wheel(pixel_index & 255)
+        
+        np.write() # 설정한 색상을 실제 LED로 전송
+        time.sleep(0.01)
+</code></pre>
+
+                <div class="callout warn">
+                    <h4>⚠️ 전원 주의사항</h4>
+                    <p>Neopixel은 밝기가 밝을수록 많은 전류를 소비합니다. Pico의 <code>3V3</code> 핀 대신 <code>VSYS</code>(5V) 핀을 사용하세요. LED가 30개 이상이라면 5V 외부 전원 어댑터를 사용해야 보드가 손상되지 않습니다.</p>
+                </div>
+
+                <div class="nav-btns">
+                    <a href="chapter_12.html" class="btn btn-prev">◀ CHAPTER 12</a>
+                    <a href="chapter_14.html" class="btn btn-next">CHAPTER 14로 이동 ▶</a>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+    window.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('pre').forEach((preBlock) => {
+            const codeBlock = preBlock.querySelector('code');
+            if (!codeBlock) return;
+            const wrapper = document.createElement('div');
+            wrapper.className = 'code-wrapper';
+            preBlock.parentNode.insertBefore(wrapper, preBlock);
+            wrapper.appendChild(preBlock);
+            const topBtn = document.createElement('button');
+            topBtn.className = 'copy-btn btn-top';
+            topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
+            wrapper.appendChild(topBtn);
+            topBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(codeBlock.innerText).then(() => {
+                    topBtn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> 완료';
+                    setTimeout(() => { topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사'; }, 2000);
+                });
+            });
+        });
+    });
+    </script>
+</body>
+</html>

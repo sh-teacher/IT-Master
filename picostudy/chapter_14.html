@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Ch 14. OLED & RTC - Pico 2 가이드</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="layout">
+        <nav class="sidebar">
+            <h2>PICO 2 IoT GUIDE</h2>
+            <ul>
+                <li><a href="index.html">HOME - 시작하기</a></li>
+                <li><a href="chapter_01.html">CHAPTER 1 - 하드웨어 이해</a></li>
+                <li><a href="chapter_02.html">CHAPTER 2 - 펌웨어 세팅</a></li>
+                <li><a href="chapter_03.html">CHAPTER 3 - 기초 코딩(Blink)</a></li>
+                <li><a href="chapter_04.html">CHAPTER 4 - Wi-Fi 연결</a></li>
+                <li><a href="chapter_05.html">CHAPTER 5 - IoT 웹 서버</a></li>
+                <li class="menu-divider">심화 응용 프로젝트</li>
+                <li><a href="chapter_06.html">CHAPTER 6 - 기본 입출력(스위치/부저)</a></li>
+                <li><a href="chapter_07.html">CHAPTER 7 - 센서 제어(초음파/PIR)</a></li>
+                <li><a href="chapter_08.html">CHAPTER 8 - 아날로그 & 모터</a></li>
+                <li><a href="chapter_09.html">CHAPTER 9 - LCD 디스플레이</a></li>
+                <li><a href="chapter_13.html">CHAPTER 13 - Neopixel 제어</a></li>
+                <li><a href="chapter_14.html" class="active">CHAPTER 14 - OLED & RTC</a></li>
+                <li><a href="chapter_15.html">CHAPTER 15 - 종합 프로젝트</a></li>
+            </ul>
+        </nav>
+        <main class="content">
+            <div class="container">
+                <h1>Chapter 14. OLED와 RTC를 이용한 스마트 시계</h1>
+                <p>고해상도 0.96인치 OLED와 정밀 시간 모듈(RTC)을 이용해 나만의 탁상시계를 만듭니다. I2C 버스 하나에 두 개의 장치를 연결하는 방법(Daisy Chain)을 학습합니다.</p>
+
+                <div style="text-align: center; margin: 30px 0;">
+                    <svg viewBox="0 0 640 215" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 12px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.06);">
+                        <!-- Pico 2 -->
+                        <rect x="40" y="20" width="110" height="175" rx="8" fill="#059669"/>
+                        <text x="143" y="114" text-anchor="end" fill="white" font-size="10">GP8(SDA)</text>
+                        <text x="143" y="149" text-anchor="end" fill="white" font-size="10">GP9(SCL)</text>
+                        
+                        <!-- OLED -->
+                        <rect x="350" y="40" width="100" height="70" rx="4" fill="#1e293b"/>
+                        <text x="400" y="80" text-anchor="middle" fill="#0ea5e9" font-size="12" font-weight="bold">12:30:45</text>
+                        
+                        <!-- RTC Module -->
+                        <rect x="350" y="130" width="100" height="50" rx="4" fill="#1d4ed8"/>
+                        <text x="400" y="160" text-anchor="middle" fill="white" font-size="10">DS3231 RTC</text>
+                        
+                        <!-- Bus Wires -->
+                        <line x1="150" y1="110" x2="350" y2="110" stroke="#2563eb" stroke-width="2"/>
+                        <line x1="150" y1="145" x2="350" y2="145" stroke="#7c3aed" stroke-width="2"/>
+                    </svg>
+                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">I2C 병렬 연결: OLED와 RTC의 SDA/SCL을 Pico의 GP8/GP9에 공통으로 연결합니다.</p>
+                </div>
+
+                <h2>14.1 스마트 시계 소스 코드</h2>
+                <p>사전 준비: Thonny 패키지 관리자에서 <strong><code>ssd1306</code></strong> 라이브러리를 설치해야 합니다.</p>
+
+                <pre><code>import machine
+import ssd1306
+import time
+
+# 1. I2C 설정 (SDA=GP8, SCL=GP9)
+i2c = machine.I2C(0, sda=machine.Pin(8), scl=machine.Pin(9))
+
+# 2. OLED 설정 (128x64 해상도)
+oled = ssd1306.SSD1306_I2C(128, 64, i2c)
+
+# 3. Pico 내장 RTC (또는 외부 RTC 모듈) 시간 설정
+# (연, 월, 일, 요일, 시, 분, 초, 마이크로초)
+rtc = machine.RTC()
+rtc.datetime((2024, 1, 1, 0, 12, 0, 0, 0)) # 초기 시간 세팅
+
+print("Smart Clock 가동...")
+
+while True:
+    # 현재 시간 가져오기
+    t = rtc.datetime()
+    
+    oled.fill(0) # 화면 지우기
+    
+    # 날짜 출력
+    oled.text(f"{t[0]}-{t[1]:02d}-{t[2]:02d}", 20, 10)
+    
+    # 시간 출력 (크게 표현하기 위해 텍스트 위치 조정)
+    time_str = f"{t[4]:02d}:{t[5]:02d}:{t[6]:02d}"
+    oled.text("TIME:", 45, 30)
+    oled.text(time_str, 35, 45)
+    
+    oled.show()
+    time.sleep(1)
+</code></pre>
+
+                <div class="callout info">
+                    <h4>💡 I2C 주소 확인</h4>
+                    <p>OLED는 보통 <code>0x3C</code>, RTC는 <code>0x68</code> 주소를 가집니다. Chapter 9의 스캔 코드를 활용해 두 장치가 모두 인식되는지 먼저 확인하세요.</p>
+                </div>
+
+                <div class="nav-btns">
+                    <a href="chapter_13.html" class="btn btn-prev">◀ CHAPTER 13</a>
+                    <a href="chapter_15.html" class="btn btn-next">CHAPTER 15로 이동 ▶</a>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+    window.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('pre').forEach((preBlock) => {
+            const codeBlock = preBlock.querySelector('code');
+            if (!codeBlock) return;
+            const wrapper = document.createElement('div');
+            wrapper.className = 'code-wrapper';
+            preBlock.parentNode.insertBefore(wrapper, preBlock);
+            wrapper.appendChild(preBlock);
+            const topBtn = document.createElement('button');
+            topBtn.className = 'copy-btn btn-top';
+            topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
+            wrapper.appendChild(topBtn);
+            topBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(codeBlock.innerText).then(() => {
+                    topBtn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> 완료';
+                    setTimeout(() => { topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사'; }, 2000);
+                });
+            });
+        });
+    });
+    </script>
+</body>
+</html>

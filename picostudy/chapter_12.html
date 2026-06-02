@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Ch 12. MQTT 클라우드 - Pico 2 가이드</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="layout">
+        <nav class="sidebar">
+            <h2>PICO 2 IoT GUIDE</h2>
+            <ul>
+                <li><a href="index.html">HOME - 시작하기</a></li>
+                <li><a href="chapter_01.html">CHAPTER 1 - 하드웨어 이해</a></li>
+                <li><a href="chapter_02.html">CHAPTER 2 - 펌웨어 세팅</a></li>
+                <li><a href="chapter_03.html">CHAPTER 3 - 기초 코딩(Blink)</a></li>
+                <li><a href="chapter_04.html">CHAPTER 4 - Wi-Fi 연결</a></li>
+                <li><a href="chapter_05.html">CHAPTER 5 - IoT 웹 서버</a></li>
+                <li class="menu-divider">실전 부품 프로젝트</li>
+                <li><a href="chapter_06.html">CHAPTER 6 - 기본 입출력(스위치/부저)</a></li>
+                <li><a href="chapter_07.html">CHAPTER 7 - 센서 제어(초음파/PIR)</a></li>
+                <li><a href="chapter_08.html">CHAPTER 8 - 아날로그 & 모터</a></li>
+                <li><a href="chapter_09.html">CHAPTER 9 - LCD 디스플레이</a></li>
+                <li><a href="chapter_10.html">CHAPTER 10 - 무선 통신 & 입력</a></li>
+                <li class="menu-divider">심화 응용 프로젝트</li>
+                <li><a href="chapter_11.html">CHAPTER 11 - 온습도 & 데이터</a></li>
+                <li><a href="chapter_12.html" class="active">CHAPTER 12 - MQTT 클라우드</a></li>
+                <li><a href="chapter_13.html">CHAPTER 13 - Neopixel 제어</a></li>
+                <li><a href="chapter_14.html">CHAPTER 14 - OLED & RTC</a></li>
+                <li><a href="chapter_15.html">CHAPTER 15 - 종합 프로젝트</a></li>
+            </ul>
+        </nav>
+        <main class="content">
+            <div class="container">
+                <h1>Chapter 12. MQTT와 Adafruit IO 클라우드 연동</h1>
+                <p>IoT의 핵심 프로토콜인 <strong>MQTT</strong>를 학습합니다. 내 방의 센서 데이터를 전 세계 어디서든 스마트폰 대시보드로 모니터링할 수 있는 시스템을 구축합니다.</p>
+
+                <div style="text-align: center; margin: 30px 0;">
+                    <svg viewBox="0 0 800 250" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 16px; background: #f0f9ff;">
+                        <!-- Pico 2 -->
+                        <rect x="50" y="80" width="120" height="90" rx="10" fill="#059669"/>
+                        <text x="110" y="130" text-anchor="middle" fill="white" font-weight="bold">Pico 2</text>
+                        <text x="110" y="150" text-anchor="middle" fill="white" font-size="10">Publisher</text>
+
+                        <!-- MQTT Broker -->
+                        <rect x="340" y="60" width="140" height="130" rx="70" fill="#3b82f6"/>
+                        <text x="410" y="125" text-anchor="middle" fill="white" font-weight="bold">MQTT Broker</text>
+                        <text x="410" y="145" text-anchor="middle" fill="white" font-size="10">(Adafruit IO)</text>
+
+                        <!-- Dashboard -->
+                        <rect x="630" y="50" width="100" height="150" rx="15" fill="#1e293b"/>
+                        <rect x="640" y="70" width="80" height="100" fill="#334155"/>
+                        <circle cx="680" cy="185" r="5" fill="#475569"/>
+                        <text x="680" y="130" text-anchor="middle" fill="#10b981" font-size="12" font-weight="bold">24.5°C</text>
+                        <text x="680" y="225" text-anchor="middle" fill="#1e293b" font-size="12" font-weight="bold">스마트폰 앱</text>
+
+                        <!-- Arrows -->
+                        <path d="M180 125 H330" stroke="#3b82f6" stroke-width="3" marker-end="url(#arr_mqtt)"/>
+                        <path d="M490 125 H620" stroke="#3b82f6" stroke-width="3" marker-end="url(#arr_mqtt)"/>
+                        <defs><marker id="arr_mqtt" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6"/></marker></defs>
+                    </svg>
+                </div>
+
+                <h2>12.1 Adafruit IO 설정 및 라이브러리</h2>
+                <p>1. <a href="https://io.adafruit.com" target="_blank">Adafruit IO</a>에 가입하여 <code>AIO Key</code>를 복사해 두세요.<br>
+                2. Thonny의 [Tools] -> [Manage Packages]에서 <strong><code>umqtt.simple</code></strong>을 검색해 설치해야 합니다.</p>
+
+                <pre><code>import time
+import machine
+import network
+from umqtt.simple import MQTTClient
+
+# 1. WiFi & Adafruit 설정
+WIFI_SSID = "your_wifi_name"
+WIFI_PASS = "your_wifi_password"
+AIO_USER = "your_username"
+AIO_KEY = "your_aio_key"
+AIO_FEED = AIO_USER + "/feeds/temperature"
+
+# 2. WiFi 접속 함수 (Ch 4 참고)
+wlan = network.WLAN(network.STA_IF)
+wlan.active(True)
+wlan.connect(WIFI_SSID, WIFI_PASS)
+while not wlan.isconnected(): time.sleep(1)
+print("WiFi Connected!")
+
+# 3. MQTT 연결 및 전송
+client = MQTTClient("Pico2_Client", "io.adafruit.com", user=AIO_USER, password=AIO_KEY)
+
+try:
+    client.connect()
+    print("Connected to Adafruit IO!")
+    
+    while True:
+        # 가상의 센서 데이터 (나중에 DHT11과 결합 가능)
+        temp_data = 25.5 
+        
+        print(f"Publishing: {temp_data}")
+        client.publish(AIO_FEED, str(temp_data))
+        
+        time.sleep(10) # Adafruit 무료 티어는 요청 간격을 두는 것이 좋습니다.
+        
+except Exception as e:
+    print("Error:", e)
+finally:
+    client.disconnect()
+</code></pre>
+
+                <div class="nav-btns">
+                    <a href="chapter_11.html" class="btn btn-prev">◀ CHAPTER 11</a>
+                    <a href="chapter_13.html" class="btn btn-next">CHAPTER 13으로 이동 ▶</a>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+    window.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('pre').forEach((preBlock) => {
+            const codeBlock = preBlock.querySelector('code');
+            if (!codeBlock) return;
+            const wrapper = document.createElement('div');
+            wrapper.className = 'code-wrapper';
+            preBlock.parentNode.insertBefore(wrapper, preBlock);
+            wrapper.appendChild(preBlock);
+            const topBtn = document.createElement('button');
+            topBtn.className = 'copy-btn btn-top';
+            topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
+            wrapper.appendChild(topBtn);
+            topBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(codeBlock.innerText).then(() => {
+                    topBtn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> 완료';
+                    setTimeout(() => { topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사'; }, 2000);
+                });
+            });
+        });
+    });
+    </script>
+</body>
+</html>
