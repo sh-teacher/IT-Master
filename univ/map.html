@@ -271,17 +271,14 @@ h1 { font-family: "Fraunces", serif; font-weight: 600; font-size: clamp(2rem, 4v
         checkZoomLevel();
       }
 
-      // 🌟 2. 지도를 이동시키고 정보 패널을 띄우는 통합 함수
+      /// 🌟 이 부분을 찾아 아래 코드로 덮어써 주세요!
       window.selectUniv = function(lat, lng, name) {
-          // 지도 이동
           kakaoMap.setCenter(new kakao.maps.LatLng(lat, lng));
           kakaoMap.setLevel(4); 
           checkZoomLevel();
           
-          // 선택된 대학 정보 찾기
           const univ = univData.find(u => u.name === name);
           
-          // 정보 패널 UI 업데이트
           const panel = document.getElementById('infoPanel');
           document.getElementById('infoName').textContent = univ.name;
           document.getElementById('infoTags').innerHTML = `
@@ -289,24 +286,20 @@ h1 { font-family: "Fraunces", serif; font-weight: 600; font-size: clamp(2rem, 4v
               <span class="badge reg">${univ.region}</span>
           `;
           
-          // 💡 추후 univData.js에 실제 데이터가 추가되면 연동되도록 짜여 있습니다.
-          // 데이터가 없으면 그럴듯한 무작위/기본 데이터(예시)를 띄웁니다.
+          // 👉 [수정됨] 무작위 랜덤 숫자 코드 삭제! 실제 데이터가 없으면 '-' 로 표시
           const isNational = univ.name.includes("국립") || univ.name.includes("과학기술원") || univ.name.includes("서울대") || univ.name.includes("부산대");
-          const mockStudents = Math.floor(Math.random() * 15000) + 3000;
-          const mockEmp = (Math.random() * 20 + 60).toFixed(1);
           
           document.getElementById('infoType').textContent = univ.estType || (isNational ? "국공립" : "사립");
-          document.getElementById('infoStudents').textContent = univ.students ? `${univ.students.toLocaleString()}명` : `약 ${mockStudents.toLocaleString()}명 (예시)`;
-          document.getElementById('infoEmp').textContent = univ.empRate ? `${univ.empRate}%` : `${mockEmp}% (예시)`;
           
-          // 공식 홈페이지 주소 자동완성 (단순 네이버 검색 링크로 fallback)
+          // univData.js에 정보가 있으면 출력, 없으면 '정보 없음' 처리
+          document.getElementById('infoStudents').textContent = univ.students ? `${univ.students.toLocaleString()}명` : `- 명 (정보 없음)`;
+          document.getElementById('infoEmp').textContent = univ.empRate ? `${univ.empRate}%` : `- % (정보 없음)`;
+          
           const searchUrl = `https://search.naver.com/search.naver?query=${encodeURIComponent(univ.name)}`;
           document.getElementById('infoUrl').href = univ.url || searchUrl;
           
-          // 패널 띄우기
           panel.style.display = 'block';
 
-          // 모바일 화면일 경우 정보 패널로 스크롤 내려주기
           if(window.innerWidth <= 900) {
               panel.scrollIntoView({behavior: 'smooth', block: 'center'});
           }
