@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ch 11. 온습도 & 데이터 - Pico 2 가이드</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -40,26 +41,83 @@
                 <p>주변의 온도와 습도를 정밀하게 측정하는 DHT11 센서를 다뤄보고, 수집된 데이터를 LCD 화면에 깔끔하게 출력하는 웨더 스테이션의 기초를 다집니다.</p>
 
                 <div style="text-align: center; margin: 20px 0;">
-                    <svg viewBox="0 0 640 215" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 12px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.06);">
-                        <!-- Pico 2 board -->
-                        <rect x="40" y="20" width="110" height="175" rx="8" fill="#059669"/>
-                        <text x="95" y="47" text-anchor="middle" fill="white" font-size="13" font-weight="bold">Pico 2</text>
-                        <text x="143" y="114" text-anchor="end" fill="white" font-size="11">GP15</text>
-                        <circle cx="150" cy="110" r="6" fill="#10b981"/>
-                        
-                        <!-- DHT11 Sensor -->
-                        <rect x="400" y="52" width="100" height="120" rx="4" fill="#3b82f6"/>
-                        <rect x="415" y="65" width="70" height="60" fill="#1d4ed8" opacity="0.3"/>
-                        <text x="450" y="160" text-anchor="middle" fill="white" font-size="12" font-weight="bold">DHT11</text>
-                        
-                        <!-- Wires -->
-                        <line x1="156" y1="110" x2="400" y2="110" stroke="#10b981" stroke-width="2.5"/>
-                        <text x="275" y="100" text-anchor="middle" fill="#10b981" font-size="10">Data 신호</text>
+                    <svg viewBox="0 0 820 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="dhtDiagramTitle dhtDiagramDesc" style="max-width: 100%; height: auto; border-radius: 16px; background: #f8fafc; border: 1px solid #e2e8f0; box-shadow: 0 8px 24px rgba(15,23,42,0.08);">
+                        <title id="dhtDiagramTitle">DHT11과 I2C LCD 연결도</title>
+                        <desc id="dhtDiagramDesc">DHT11 데이터 핀은 GP15에, I2C LCD의 SDA와 SCL은 GP8과 GP9에 연결합니다.</desc>
+                        <defs>
+                            <marker id="arrow11Blue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#2563eb"/></marker>
+                            <marker id="arrow11Green" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#16a34a"/></marker>
+                            <filter id="shadow11" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.14"/></filter>
+                        </defs>
+
+                        <text x="120" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">온습도 입력</text>
+                        <text x="410" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">Pico 2 W</text>
+                        <text x="692" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">LCD 출력</text>
+
+                        <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M216 130 H328" stroke="#2563eb" stroke-width="4" marker-end="url(#arrow11Blue)"/>
+                            <path d="M492 120 H610" stroke="#16a34a" stroke-width="4" marker-end="url(#arrow11Green)"/>
+                            <path d="M492 168 C545 168 557 202 610 202" stroke="#7c3aed" stroke-width="4" marker-end="url(#arrow11Green)"/>
+                        </g>
+
+                        <g filter="url(#shadow11)">
+                            <rect x="72" y="82" width="144" height="138" rx="10" fill="#ffffff" stroke="#bfdbfe"/>
+                            <rect x="108" y="104" width="72" height="90" rx="6" fill="#3b82f6"/>
+                            <rect x="123" y="118" width="42" height="44" fill="#1d4ed8" opacity="0.35"/>
+                            <text x="144" y="205" text-anchor="middle" fill="#1e3a8a" font-size="13" font-weight="800">DHT11</text>
+                            <text x="144" y="235" text-anchor="middle" fill="#475569" font-size="12">온도 / 습도 측정</text>
+                        </g>
+                        <circle cx="216" cy="130" r="6" fill="#2563eb"/>
+                        <text x="226" y="124" fill="#2563eb" font-size="11" font-weight="700">DATA</text>
+
+                        <g filter="url(#shadow11)">
+                            <rect x="330" y="76" width="160" height="180" rx="14" fill="#059669"/>
+                            <text x="410" y="135" text-anchor="middle" fill="white" font-size="20" font-weight="800">Pico 2 W</text>
+                            <text x="410" y="158" text-anchor="middle" fill="#dcfce7" font-size="12">DHT + I2C LCD</text>
+                            <text x="410" y="216" text-anchor="middle" fill="#bbf7d0" font-size="12">2초마다 측정 후 표시</text>
+                        </g>
+                        <circle cx="330" cy="130" r="6" fill="#dbeafe"/>
+                        <text x="344" y="134" fill="#ecfeff" font-size="11" font-weight="800">GP15</text>
+                        <circle cx="490" cy="120" r="6" fill="#dcfce7"/>
+                        <text x="442" y="110" fill="#ecfeff" font-size="11" font-weight="800">GP8 SDA</text>
+                        <circle cx="490" cy="168" r="6" fill="#ede9fe"/>
+                        <text x="442" y="188" fill="#ecfeff" font-size="11" font-weight="800">GP9 SCL</text>
+
+                        <g filter="url(#shadow11)">
+                            <rect x="612" y="86" width="156" height="146" rx="10" fill="#ffffff" stroke="#bbf7d0"/>
+                            <rect x="640" y="116" width="100" height="62" rx="5" fill="#0f172a"/>
+                            <text x="690" y="140" text-anchor="middle" fill="#38bdf8" font-size="11" font-weight="800">Temp: 24.0 C</text>
+                            <text x="690" y="158" text-anchor="middle" fill="#38bdf8" font-size="11" font-weight="800">Hum : 58 %</text>
+                            <text x="690" y="210" text-anchor="middle" fill="#166534" font-size="12" font-weight="700">I2C LCD 16x2</text>
+                        </g>
+                        <circle cx="612" cy="120" r="6" fill="#16a34a"/>
+                        <circle cx="612" cy="202" r="6" fill="#7c3aed"/>
+
+                        <rect x="80" y="276" width="660" height="30" rx="8" fill="#ffffff" stroke="#e2e8f0"/>
+                        <text x="410" y="296" text-anchor="middle" fill="#475569" font-size="12">전원은 DHT11 VCC->3V3, LCD VCC->5V 또는 3V3(모듈 사양 확인), 모든 GND는 공통 연결</text>
                     </svg>
-                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">DHT11: VCC→3V3, Data→GP15, GND→GND. (S라고 적힌 핀이 Data 핀입니다)</p>
+                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">DHT11: VCC→3V3, Data→GP15, GND→GND. LCD는 SDA→GP8, SCL→GP9에 연결합니다.</p>
                 </div>
 
-                <h2>11.1 실시간 환경 모니터링 소스 코드</h2>
+                <h2>11.1 준비물과 연결 핀</h2>
+                <p>센서와 LCD를 함께 쓰는 장이므로 데이터 선과 I2C 선을 구분해서 연결합니다. LCD 주소가 다르면 Chapter 9의 I2C 스캔 코드로 주소를 먼저 확인하세요.</p>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 20px 0 30px; font-size: 0.98rem;">
+                    <thead>
+                        <tr style="background: #f1f5f9; color: #0f172a;">
+                            <th style="border: 1px solid #e2e8f0; padding: 10px;">부품</th>
+                            <th style="border: 1px solid #e2e8f0; padding: 10px;">Pico 2 W 핀</th>
+                            <th style="border: 1px solid #e2e8f0; padding: 10px;">역할</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">DHT11 Data</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>GP15</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">온습도 데이터 입력</td></tr>
+                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">LCD SDA / SCL</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>GP8</code> / <code>GP9</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">I2C 화면 출력</td></tr>
+                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">전원 / GND</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>3V3</code>, <code>GND</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">공통 전원 기준</td></tr>
+                    </tbody>
+                </table>
+
+                <h2>11.2 실시간 환경 모니터링 소스 코드</h2>
                 <p>MicroPython의 내장 <code>dht</code> 라이브러리를 사용합니다. Chapter 9에서 사용한 LCD 라이브러리가 Pico에 이미 저장되어 있어야 합니다.</p>
 
                 <pre><code>import machine
@@ -67,41 +125,47 @@ import dht
 import time
 from pico_i2c_lcd import I2cLcd
 
-# I2C LCD 설정 (Ch 9 참고)
+# I2C LCD 설정
 i2c = machine.I2C(0, sda=machine.Pin(8), scl=machine.Pin(9), freq=400000)
 lcd = I2cLcd(i2c, 0x27, 2, 16)
 
-# DHT11 센서 설정 (GP15)
 sensor = dht.DHT11(machine.Pin(15))
 
+def lcd_line(row, text):
+    lcd.move_to(0, row)
+    lcd.putstr(text[:16].ljust(16))
+
+def show_status(temp=None, hum=None, error=None):
+    if error:
+        lcd_line(0, "DHT11 Error")
+        lcd_line(1, "Check wiring")
+        print("센서 읽기 실패:", error)
+        return
+
+    lcd_line(0, f"Temp: {temp:>2} C")
+    lcd_line(1, f"Hum : {hum:>2} %")
+    print(f"온도: {temp}C, 습도: {hum}%")
+
 print("온습도 모니터링 시스템 시작...")
-lcd.putstr("Initializing...")
+lcd_line(0, "DHT11 + LCD")
+lcd_line(1, "Initializing...")
 time.sleep(1)
-lcd.clear()
 
 while True:
     try:
-        # 센서 데이터 읽기
         sensor.measure()
         temp = sensor.temperature()
         hum = sensor.humidity()
-        
-        # 콘솔 출력
-        print(f"온도: {temp}C, 습도: {hum}%")
-        
-        # LCD 출력
-        lcd.move_to(0, 0)
-        lcd.putstr(f"Temp: {temp} C")
-        lcd.move_to(0, 1)
-        lcd.putstr(f"Humidity: {hum} %")
-        
+        show_status(temp, hum)
     except OSError as e:
-        print("센서 읽기 실패")
-        lcd.clear()
-        lcd.putstr("Sensor Error")
+        show_status(error=e)
     
-    time.sleep(2) # DHT11은 최소 1~2초 간격으로 읽는 것을 권장합니다.
+    # DHT11은 너무 자주 읽으면 실패하므로 2초 이상 간격을 둡니다.
+    time.sleep(2)
 </code></pre>
+
+                <h2>11.3 동작 흐름</h2>
+                <p>Pico는 2초마다 DHT11에 측정을 요청하고 온도와 습도 값을 읽습니다. 정상 값은 LCD 두 줄에 고정 폭으로 표시하고, 읽기 실패가 발생하면 배선 확인 메시지를 띄워 수업 중 디버깅이 쉽도록 했습니다.</p>
 
                 <div class="callout info">
                     <h4>💡 DHT11 사용 팁</h4>

@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ch 12. MQTT 클라우드 - Pico 2 가이드</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -40,75 +41,171 @@
                 <p>IoT의 핵심 프로토콜인 <strong>MQTT</strong>를 학습합니다. 내 방의 센서 데이터를 전 세계 어디서든 스마트폰 대시보드로 모니터링할 수 있는 시스템을 구축합니다.</p>
 
                 <div style="text-align: center; margin: 30px 0;">
-                    <svg viewBox="0 0 800 250" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 16px; background: #f0f9ff;">
-                        <!-- Pico 2 -->
-                        <rect x="50" y="80" width="120" height="90" rx="10" fill="#059669"/>
-                        <text x="110" y="130" text-anchor="middle" fill="white" font-weight="bold">Pico 2</text>
-                        <text x="110" y="150" text-anchor="middle" fill="white" font-size="10">Publisher</text>
+                    <svg viewBox="0 0 900 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="mqttDiagramTitle mqttDiagramDesc" style="max-width: 100%; height: auto; border-radius: 16px; background: #f8fafc; border: 1px solid #e2e8f0; box-shadow: 0 8px 24px rgba(15,23,42,0.08);">
+                        <title id="mqttDiagramTitle">Pico 2 W MQTT 클라우드 흐름도</title>
+                        <desc id="mqttDiagramDesc">Pico가 센서 데이터를 Adafruit IO MQTT 브로커로 발행하고, 대시보드의 LED 명령을 구독해 제어합니다.</desc>
+                        <defs>
+                            <marker id="arr12Pub" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#2563eb"/></marker>
+                            <marker id="arr12Sub" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#e11d48"/></marker>
+                            <filter id="shadow12" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.14"/></filter>
+                        </defs>
 
-                        <!-- MQTT Broker -->
-                        <rect x="340" y="60" width="140" height="130" rx="70" fill="#3b82f6"/>
-                        <text x="410" y="125" text-anchor="middle" fill="white" font-weight="bold">MQTT Broker</text>
-                        <text x="410" y="145" text-anchor="middle" fill="white" font-size="10">(Adafruit IO)</text>
+                        <text x="134" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">센서 노드</text>
+                        <text x="450" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">MQTT Broker</text>
+                        <text x="742" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">클라우드 대시보드</text>
 
-                        <!-- Dashboard -->
-                        <rect x="630" y="50" width="100" height="150" rx="15" fill="#1e293b"/>
-                        <rect x="640" y="70" width="80" height="100" fill="#334155"/>
-                        <circle cx="680" cy="185" r="5" fill="#475569"/>
-                        <text x="680" y="130" text-anchor="middle" fill="#10b981" font-size="12" font-weight="bold">24.5°C</text>
-                        <text x="680" y="225" text-anchor="middle" fill="#1e293b" font-size="12" font-weight="bold">스마트폰 앱</text>
+                        <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M220 125 H350" stroke="#2563eb" stroke-width="4" marker-end="url(#arr12Pub)"/>
+                            <path d="M220 175 H350" stroke="#2563eb" stroke-width="4" marker-end="url(#arr12Pub)"/>
+                            <path d="M530 125 H646" stroke="#2563eb" stroke-width="4" marker-end="url(#arr12Pub)"/>
+                            <path d="M646 205 H530" stroke="#e11d48" stroke-width="4" marker-end="url(#arr12Sub)"/>
+                            <path d="M350 205 H220" stroke="#e11d48" stroke-width="4" marker-end="url(#arr12Sub)"/>
+                        </g>
 
-                        <!-- Arrows -->
-                        <path d="M180 125 H330" stroke="#3b82f6" stroke-width="3" marker-end="url(#arr_mqtt)"/>
-                        <path d="M490 125 H620" stroke="#3b82f6" stroke-width="3" marker-end="url(#arr_mqtt)"/>
-                        <defs><marker id="arr_mqtt" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6"/></marker></defs>
+                        <g filter="url(#shadow12)">
+                            <rect x="70" y="78" width="150" height="150" rx="12" fill="#ffffff" stroke="#bbf7d0"/>
+                            <rect x="100" y="108" width="90" height="76" rx="10" fill="#059669"/>
+                            <text x="145" y="140" text-anchor="middle" fill="white" font-size="17" font-weight="800">Pico 2 W</text>
+                            <text x="145" y="160" text-anchor="middle" fill="#dcfce7" font-size="11">DHT11 + LED</text>
+                            <text x="145" y="214" text-anchor="middle" fill="#166534" font-size="12" font-weight="700">Publish / Subscribe</text>
+                        </g>
+                        <text x="286" y="116" text-anchor="middle" fill="#2563eb" font-size="11" font-weight="800">temperature</text>
+                        <text x="286" y="166" text-anchor="middle" fill="#2563eb" font-size="11" font-weight="800">humidity</text>
+                        <text x="286" y="196" text-anchor="middle" fill="#e11d48" font-size="11" font-weight="800">led/cmd</text>
+
+                        <g filter="url(#shadow12)">
+                            <rect x="350" y="78" width="180" height="150" rx="18" fill="#3b82f6"/>
+                            <circle cx="450" cy="125" r="44" fill="#60a5fa" opacity="0.65"/>
+                            <text x="450" y="132" text-anchor="middle" fill="white" font-size="16" font-weight="800">Adafruit IO</text>
+                            <text x="450" y="156" text-anchor="middle" fill="#dbeafe" font-size="12">MQTT Broker</text>
+                            <text x="450" y="208" text-anchor="middle" fill="#eff6ff" font-size="11">feeds로 데이터 중계</text>
+                        </g>
+
+                        <g filter="url(#shadow12)">
+                            <rect x="646" y="60" width="190" height="230" rx="16" fill="#ffffff" stroke="#bae6fd"/>
+                            <rect x="692" y="84" width="96" height="160" rx="14" fill="#1e293b"/>
+                            <rect x="704" y="104" width="72" height="110" rx="4" fill="#334155"/>
+                            <text x="740" y="132" text-anchor="middle" fill="#38bdf8" font-size="12" font-weight="800">24.5 C</text>
+                            <text x="740" y="154" text-anchor="middle" fill="#38bdf8" font-size="12" font-weight="800">58 %</text>
+                            <rect x="716" y="176" width="48" height="20" rx="10" fill="#22c55e"/>
+                            <text x="740" y="190" text-anchor="middle" fill="white" font-size="10" font-weight="800">LED ON</text>
+                            <circle cx="740" cy="228" r="5" fill="#475569"/>
+                            <text x="740" y="274" text-anchor="middle" fill="#0f172a" font-size="12" font-weight="800">스마트폰 / 웹 대시보드</text>
+                        </g>
+
+                        <rect x="88" y="306" width="724" height="30" rx="8" fill="#ffffff" stroke="#e2e8f0"/>
+                        <text x="450" y="326" text-anchor="middle" fill="#475569" font-size="12">Publish는 센서 데이터 전송, Subscribe는 클라우드 명령 수신입니다. 두 방향을 구분하면 IoT 구조가 훨씬 선명해집니다.</text>
                     </svg>
                 </div>
 
-                <h2>12.1 Adafruit IO 설정 및 라이브러리</h2>
+                <h2>12.1 Adafruit IO 설정 및 연결 구성</h2>
                 <p>1. <a href="https://io.adafruit.com" target="_blank">Adafruit IO</a>에 가입하여 <code>AIO Key</code>를 복사해 두세요.<br>
                 2. Thonny의 [Tools] -> [Manage Packages]에서 <strong><code>umqtt.simple</code></strong>을 검색해 설치해야 합니다.</p>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 20px 0 30px; font-size: 0.98rem;">
+                    <thead>
+                        <tr style="background: #f1f5f9; color: #0f172a;">
+                            <th style="border: 1px solid #e2e8f0; padding: 10px;">항목</th>
+                            <th style="border: 1px solid #e2e8f0; padding: 10px;">설정값</th>
+                            <th style="border: 1px solid #e2e8f0; padding: 10px;">역할</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">DHT11 Data</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>GP15</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">온습도 측정</td></tr>
+                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">상태 LED</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>LED</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">클라우드 명령 확인</td></tr>
+                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">MQTT Feed</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>temperature</code>, <code>humidity</code>, <code>led-cmd</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">데이터 전송과 원격 제어</td></tr>
+                    </tbody>
+                </table>
+
+                <h2>12.2 MQTT 발행과 구독 소스 코드</h2>
 
                 <pre><code>import time
 import machine
 import network
+import dht
 from umqtt.simple import MQTTClient
 
-# 1. WiFi & Adafruit 설정
+# Wi-Fi & Adafruit IO 설정
 WIFI_SSID = "your_wifi_name"
 WIFI_PASS = "your_wifi_password"
 AIO_USER = "your_username"
 AIO_KEY = "your_aio_key"
-AIO_FEED = AIO_USER + "/feeds/temperature"
 
-# 2. WiFi 접속 함수 (Ch 4 참고)
-wlan = network.WLAN(network.STA_IF)
-wlan.active(True)
-wlan.connect(WIFI_SSID, WIFI_PASS)
-while not wlan.isconnected(): time.sleep(1)
-print("WiFi Connected!")
+BROKER = "io.adafruit.com"
+CLIENT_ID = "pico2-weather-node"
+TEMP_FEED = AIO_USER + "/feeds/temperature"
+HUM_FEED = AIO_USER + "/feeds/humidity"
+LED_CMD_FEED = AIO_USER + "/feeds/led-cmd"
 
-# 3. MQTT 연결 및 전송
-client = MQTTClient("Pico2_Client", "io.adafruit.com", user=AIO_USER, password=AIO_KEY)
+sensor = dht.DHT11(machine.Pin(15))
+led = machine.Pin("LED", machine.Pin.OUT)
 
-try:
+def connect_wifi():
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    wlan.connect(WIFI_SSID, WIFI_PASS)
+    print("Wi-Fi 연결 중...")
+
+    for _ in range(20):
+        if wlan.isconnected():
+            print("Wi-Fi Connected:", wlan.ifconfig()[0])
+            return
+        time.sleep(0.5)
+
+    raise RuntimeError("Wi-Fi connection failed")
+
+def on_message(topic, msg):
+    command = msg.decode().strip().lower()
+    print("수신:", topic.decode(), command)
+
+    if command in ("on", "1", "true"):
+        led.on()
+    elif command in ("off", "0", "false"):
+        led.off()
+
+def connect_mqtt():
+    client = MQTTClient(CLIENT_ID, BROKER, user=AIO_USER, password=AIO_KEY)
+    client.set_callback(on_message)
     client.connect()
-    print("Connected to Adafruit IO!")
-    
-    while True:
-        # 가상의 센서 데이터 (나중에 DHT11과 결합 가능)
-        temp_data = 25.5 
-        
-        print(f"Publishing: {temp_data}")
-        client.publish(AIO_FEED, str(temp_data))
-        
-        time.sleep(10) # Adafruit 무료 티어는 요청 간격을 두는 것이 좋습니다.
-        
-except Exception as e:
-    print("Error:", e)
-finally:
-    client.disconnect()
+    client.subscribe(LED_CMD_FEED)
+    print("MQTT Connected and subscribed:", LED_CMD_FEED)
+    return client
+
+connect_wifi()
+client = connect_mqtt()
+last_publish = time.ticks_ms()
+
+while True:
+    try:
+        # 구독한 led-cmd feed에 새 명령이 있는지 확인합니다.
+        client.check_msg()
+
+        if time.ticks_diff(time.ticks_ms(), last_publish) >= 10000:
+            sensor.measure()
+            temp = sensor.temperature()
+            hum = sensor.humidity()
+
+            client.publish(TEMP_FEED, str(temp))
+            client.publish(HUM_FEED, str(hum))
+            print(f"Published: {temp}C, {hum}%")
+            last_publish = time.ticks_ms()
+
+        time.sleep(0.1)
+
+    except OSError as e:
+        print("MQTT 오류, 재연결 시도:", e)
+        time.sleep(3)
+        connect_wifi()
+        client = connect_mqtt()
 </code></pre>
+
+                <div class="callout info">
+                    <h4>💡 Feed 이름 확인</h4>
+                    <p>Adafruit IO에서 <code>temperature</code>, <code>humidity</code>, <code>led-cmd</code> feed를 먼저 만들어 두세요. 대시보드 버튼에서 <code>led-cmd</code>에 <code>on</code> 또는 <code>off</code>를 보내면 Pico의 내장 LED가 반응합니다.</p>
+                </div>
+
+                <h2>12.3 동작 흐름</h2>
+                <p>Pico는 10초마다 DHT11 값을 읽어 온도와 습도 feed로 발행합니다. 동시에 <code>led-cmd</code> feed를 구독하고 있다가 클라우드 대시보드에서 명령이 들어오면 내장 LED를 켜거나 끕니다. 이 구조가 IoT에서 가장 기본적인 양방향 통신 패턴입니다.</p>
 
                 <div class="nav-btns">
                     <a href="chapter_11.html" class="btn btn-prev">◀ CHAPTER 11</a>
