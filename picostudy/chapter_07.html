@@ -60,6 +60,58 @@
 
                 <h2>7.1 HC-SR04 초음파 센서 거리 측정</h2>
                 <p>Trig 핀으로 초음파를 쏘고 Echo 핀으로 되돌아오는 시간을 마이크로초(us) 단위로 정밀 측정하여 물체와의 거리를 cm 단위로 계산해 냅니다.</p>
+
+                <div style="text-align: center; margin: 20px 0;">
+                    <svg viewBox="0 0 640 215" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 12px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.06);">
+                        <!-- Pico 2 board -->
+                        <rect x="40" y="20" width="110" height="175" rx="8" fill="#059669"/>
+                        <text x="95" y="47" text-anchor="middle" fill="white" font-size="13" font-weight="bold" font-family="Arial,sans-serif">Pico 2</text>
+                        <text x="143" y="79" text-anchor="end" fill="white" font-size="11" font-family="Arial,sans-serif">3V3</text>
+                        <text x="143" y="114" text-anchor="end" fill="white" font-size="11" font-family="Arial,sans-serif">GP17</text>
+                        <text x="143" y="149" text-anchor="end" fill="white" font-size="11" font-family="Arial,sans-serif">GP16</text>
+                        <text x="143" y="184" text-anchor="end" fill="white" font-size="11" font-family="Arial,sans-serif">GND</text>
+                        <circle cx="150" cy="75" r="6" fill="#ef4444"/>
+                        <circle cx="150" cy="110" r="6" fill="#f59e0b"/>
+                        <circle cx="150" cy="145" r="6" fill="#06b6d4"/>
+                        <circle cx="150" cy="180" r="6" fill="#374151"/>
+
+                        <!-- Wires -->
+                        <line x1="156" y1="75" x2="400" y2="75" stroke="#ef4444" stroke-width="2.5"/>
+                        <line x1="156" y1="110" x2="400" y2="110" stroke="#f59e0b" stroke-width="2.5"/>
+                        <line x1="156" y1="145" x2="400" y2="145" stroke="#06b6d4" stroke-width="2.5"/>
+                        <line x1="156" y1="180" x2="400" y2="180" stroke="#374151" stroke-width="2.5"/>
+
+                        <!-- HC-SR04 sensor body -->
+                        <rect x="400" y="52" width="175" height="148" rx="8" fill="#f0f9ff" stroke="#0284c7" stroke-width="1.5"/>
+                        <rect x="400" y="52" width="175" height="30" rx="8" fill="#0284c7"/>
+                        <text x="487" y="72" text-anchor="middle" fill="white" font-size="12" font-weight="bold" font-family="Arial,sans-serif">HC-SR04</text>
+                        <!-- Two ultrasonic transducer circles -->
+                        <circle cx="445" cy="128" r="24" fill="#bae6fd" stroke="#0284c7" stroke-width="1.5"/>
+                        <circle cx="445" cy="128" r="13" fill="#7dd3fc" stroke="#0369a1" stroke-width="1"/>
+                        <circle cx="532" cy="128" r="24" fill="#bae6fd" stroke="#0284c7" stroke-width="1.5"/>
+                        <circle cx="532" cy="128" r="13" fill="#7dd3fc" stroke="#0369a1" stroke-width="1"/>
+                        <text x="445" y="132" text-anchor="middle" fill="#0c4a6e" font-size="10" font-weight="bold" font-family="Arial,sans-serif">T</text>
+                        <text x="532" y="132" text-anchor="middle" fill="#0c4a6e" font-size="10" font-weight="bold" font-family="Arial,sans-serif">R</text>
+                        <text x="445" y="168" text-anchor="middle" fill="#0369a1" font-size="9" font-family="Arial,sans-serif">Trig</text>
+                        <text x="532" y="168" text-anchor="middle" fill="#0369a1" font-size="9" font-family="Arial,sans-serif">Echo</text>
+
+                        <!-- Component pin dots and labels -->
+                        <circle cx="400" cy="75" r="4" fill="#ef4444"/>
+                        <circle cx="400" cy="110" r="4" fill="#f59e0b"/>
+                        <circle cx="400" cy="145" r="4" fill="#06b6d4"/>
+                        <circle cx="400" cy="180" r="4" fill="#374151"/>
+                        <text x="395" y="72" text-anchor="end" fill="#ef4444" font-size="10" font-weight="bold" font-family="Arial,sans-serif">VCC</text>
+                        <text x="395" y="107" text-anchor="end" fill="#f59e0b" font-size="10" font-weight="bold" font-family="Arial,sans-serif">Trig</text>
+                        <text x="395" y="142" text-anchor="end" fill="#06b6d4" font-size="10" font-weight="bold" font-family="Arial,sans-serif">Echo</text>
+                        <text x="395" y="177" text-anchor="end" fill="#374151" font-size="10" font-weight="bold" font-family="Arial,sans-serif">GND</text>
+
+                        <!-- Signal direction labels -->
+                        <text x="275" y="105" text-anchor="middle" fill="#f59e0b" font-size="10" font-family="Arial,sans-serif">→ 발사 트리거(OUT)</text>
+                        <text x="275" y="140" text-anchor="middle" fill="#06b6d4" font-size="10" font-family="Arial,sans-serif">← 반사음 수신(IN)</text>
+                    </svg>
+                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">HC-SR04: VCC→3V3, Trig→GP17(출력), Echo→GP16(입력), GND→GND. 안정적인 측정을 위해 VCC를 VSYS(5V) 핀에 연결하는 것을 권장합니다.</p>
+                </div>
+
                 <pre><code>from machine import Pin
 import time
 
@@ -96,6 +148,48 @@ while True:
 
                 <h2>7.2 PIR 적외선 인체 감지 센서</h2>
                 <p>사람이나 동물의 움직임으로 발생하는 적외선의 변화량을 측정하여 움직임 유무를 디지털 값(0 또는 1)으로 반환합니다.</p>
+
+                <div style="text-align: center; margin: 20px 0;">
+                    <svg viewBox="0 0 600 185" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 12px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.06);">
+                        <!-- Pico 2 board -->
+                        <rect x="40" y="20" width="110" height="145" rx="8" fill="#059669"/>
+                        <text x="95" y="47" text-anchor="middle" fill="white" font-size="13" font-weight="bold" font-family="Arial,sans-serif">Pico 2</text>
+                        <text x="143" y="76" text-anchor="end" fill="white" font-size="11" font-family="Arial,sans-serif">3V3</text>
+                        <text x="143" y="111" text-anchor="end" fill="white" font-size="11" font-family="Arial,sans-serif">GP18</text>
+                        <text x="143" y="146" text-anchor="end" fill="white" font-size="11" font-family="Arial,sans-serif">GND</text>
+                        <circle cx="150" cy="72" r="6" fill="#ef4444"/>
+                        <circle cx="150" cy="107" r="6" fill="#06b6d4"/>
+                        <circle cx="150" cy="142" r="6" fill="#374151"/>
+
+                        <!-- Wires -->
+                        <line x1="156" y1="72" x2="390" y2="72" stroke="#ef4444" stroke-width="2.5"/>
+                        <line x1="156" y1="107" x2="390" y2="107" stroke="#06b6d4" stroke-width="2.5"/>
+                        <line x1="156" y1="142" x2="390" y2="142" stroke="#374151" stroke-width="2.5"/>
+
+                        <!-- PIR sensor body -->
+                        <rect x="390" y="48" width="150" height="120" rx="8" fill="#fdf4ff" stroke="#9333ea" stroke-width="1.5"/>
+                        <rect x="390" y="48" width="150" height="28" rx="8" fill="#9333ea"/>
+                        <text x="465" y="67" text-anchor="middle" fill="white" font-size="12" font-weight="bold" font-family="Arial,sans-serif">PIR 센서</text>
+                        <!-- Fresnel dome -->
+                        <ellipse cx="465" cy="118" rx="36" ry="20" fill="#e9d5ff" stroke="#9333ea" stroke-width="1.5"/>
+                        <ellipse cx="465" cy="118" rx="20" ry="11" fill="#c4b5fd" stroke="#7c3aed" stroke-width="1"/>
+                        <!-- IR detection waves -->
+                        <path d="M508 104 Q522 104 522 118 Q522 132 508 132" fill="none" stroke="#9333ea" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.65"/>
+                        <path d="M512 97 Q532 97 532 118 Q532 139 512 139" fill="none" stroke="#9333ea" stroke-width="1" stroke-dasharray="3,2" opacity="0.35"/>
+
+                        <!-- Component pin dots and labels -->
+                        <circle cx="390" cy="72" r="4" fill="#ef4444"/>
+                        <circle cx="390" cy="107" r="4" fill="#06b6d4"/>
+                        <circle cx="390" cy="142" r="4" fill="#374151"/>
+                        <text x="385" y="69" text-anchor="end" fill="#ef4444" font-size="10" font-weight="bold" font-family="Arial,sans-serif">VCC</text>
+                        <text x="385" y="104" text-anchor="end" fill="#06b6d4" font-size="10" font-weight="bold" font-family="Arial,sans-serif">OUT</text>
+                        <text x="385" y="139" text-anchor="end" fill="#374151" font-size="10" font-weight="bold" font-family="Arial,sans-serif">GND</text>
+
+                        <!-- Signal direction label -->
+                        <text x="272" y="101" text-anchor="middle" fill="#06b6d4" font-size="10" font-family="Arial,sans-serif">← 감지 신호(IN)</text>
+                    </svg>
+                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">PIR 센서: VCC→3V3, OUT→GP18(입력), GND→GND. 전원 인가 후 약 2초 안정화 시간이 필요하며, 3핀 모듈의 경우 왼쪽부터 VCC·GND·OUT 순서가 일반적입니다 (구매 제품의 핀 배열 확인 필수).</p>
+                </div>
                 <pre><code>from machine import Pin
 import time
 
