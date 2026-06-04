@@ -4746,7 +4746,7 @@ const univData = [
     { name: "전북대학교", lat: 35.846875, lng: 127.129486, type: "4", region: "전라" },
     { name: "광주과학기술원(GIST)", lat: 35.226938, lng: 126.841571, type: "4", region: "전라" },
     { name: "조선대학교", lat: 35.142835, lng: 126.934812, type: "4", region: "전라" },
-    { name: "호남대학교", lat: 35.147247, lng: 126.601722, type: "4", region: "전라" },
+    { name: "호남대학교", lat: 35.147247, lng: 126.801722, type: "4", region: "전라" },
     { name: "원광대학교", lat: 35.969622, lng: 126.957599, type: "4", region: "전라" },
     { name: "전주대학교", lat: 35.815340, lng: 127.089069, type: "4", region: "전라" },
     { name: "군산대학교", lat: 35.944208, lng: 126.682662, type: "4", region: "전라" },
