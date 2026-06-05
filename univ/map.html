@@ -54,8 +54,8 @@ h1 { font-family: "Fraunces", serif; font-weight: 600; font-size: clamp(2rem, 4v
 .search-wrap select:focus, .search-wrap input:focus { border-color: var(--now); background: #fff; }
 
 /* 🌟 레이아웃 구조 */
-.map-layout { display: flex; gap: 20px; height: 70vh; min-height: 650px; }
-.list-panel { width: 320px; background: #fff; border: 1px solid var(--line); border-radius: 24px; overflow-y: auto; box-shadow: var(--shadow); padding: 14px; display: flex; flex-direction: column; gap: 6px; }
+.map-layout { display: flex; gap: 20px; height: 78vh; min-height: 680px; }
+.list-panel { width: 300px; background: #fff; border: 1px solid var(--line); border-radius: 24px; overflow-y: auto; box-shadow: var(--shadow); padding: 14px; display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
 .list-panel::-webkit-scrollbar { width: 6px; }
 .list-panel::-webkit-scrollbar-thumb { background: #DED3C0; border-radius: 4px; }
 
@@ -68,23 +68,44 @@ h1 { font-family: "Fraunces", serif; font-weight: 600; font-size: clamp(2rem, 4v
 .badge.b2 { background: var(--new-soft); color: var(--new); }
 .badge.reg { background: var(--paper); border: 1px solid var(--line); color: var(--ink-soft); }
 
-/* 오른쪽 영역 (지도 + 정보 패널) */
-.right-col { flex: 1; display: flex; flex-direction: column; gap: 16px; overflow: hidden; }
-.map-frame { flex: 1; border-radius: 24px; border: 1px solid var(--line); overflow: hidden; position: relative; box-shadow: var(--shadow); }
+/* 오른쪽 영역 — 상대 배치 기준점 */
+.right-col { flex: 1; position: relative; min-height: 0; }
+.map-frame { position: absolute; inset: 0; border-radius: 24px; border: 1px solid var(--line); overflow: hidden; box-shadow: var(--shadow); }
 
-/* 🌟 대학 정보 공시 패널 (처음엔 숨김) */
-.info-panel { background: #fff; border: 1px solid var(--line); border-radius: 24px; padding: 24px; box-shadow: var(--shadow); display: none; animation: slideUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
-@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-.info-panel .header-row { display: flex; justify-content: space-between; align-items: flex-start; }
-.info-panel h3 { margin: 0 0 10px 0; font-size: 1.4rem; color: var(--ink); letter-spacing: -0.02em; }
-.info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 16px; margin-top: 18px; border-top: 1px dashed var(--line-soft); padding-top: 18px; }
-.info-item { display: flex; flex-direction: column; gap: 4px; }
-.info-item span { font-size: 0.75rem; color: var(--ink-soft); font-family: "IBM Plex Mono", monospace; letter-spacing: -0.02em; }
-.info-item b { font-size: 0.95rem; color: var(--ink); font-weight: 800; }
-.info-item a { font-size: 0.85rem; color: #fff; background: var(--ink); padding: 5px 10px; border-radius: 8px; text-align: center; font-weight: 700; transition: .2s; }
+/* 🌟 대학 정보 패널 — 지도 위 플로팅 오버레이 */
+.info-panel {
+    position: absolute;
+    bottom: 16px; left: 16px; right: 16px;
+    z-index: 20;
+    background: rgba(255,255,255,0.97);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 18px 22px;
+    box-shadow: 0 8px 40px -8px rgba(22,24,31,.35);
+    display: none;
+    animation: slideUp 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes slideUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+.info-panel .header-row { display: flex; justify-content: space-between; align-items: center; }
+.info-panel h3 { margin: 0; font-size: 1.25rem; color: var(--ink); letter-spacing: -0.02em; }
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 2fr 1fr;
+    gap: 10px 24px;
+    margin-top: 14px;
+    border-top: 1px dashed var(--line-soft);
+    padding-top: 14px;
+    align-items: start;
+}
+.info-item { display: flex; flex-direction: column; gap: 3px; }
+.info-item span { font-size: 0.7rem; color: var(--ink-soft); font-family: "IBM Plex Mono", monospace; letter-spacing: -0.01em; text-transform: uppercase; }
+.info-item b { font-size: 0.88rem; color: var(--ink); font-weight: 800; line-height: 1.4; }
+.info-item a { display: inline-block; font-size: 0.82rem; color: #fff; background: var(--ink); padding: 7px 14px; border-radius: 10px; text-align: center; font-weight: 700; transition: .2s; white-space: nowrap; }
 .info-item a:hover { background: var(--now); }
-.close-btn { background: none; border: none; font-size: 1.5rem; color: var(--ink-soft); cursor: pointer; line-height: 1; padding: 0; }
-.close-btn:hover { color: var(--ink); }
+.close-btn { background: none; border: none; font-size: 1.4rem; color: var(--ink-soft); cursor: pointer; line-height: 1; padding: 2px 4px; border-radius: 6px; flex-shrink: 0; }
+.close-btn:hover { color: var(--ink); background: var(--paper-2); }
 
 /* 커스텀 마커 */
 .map-pin { display: flex; flex-direction: column; align-items: center; cursor: pointer; position: relative; }
@@ -105,8 +126,10 @@ h1 { font-family: "Fraunces", serif; font-weight: 600; font-size: clamp(2rem, 4v
 /* 모바일 반응형 */
 @media(max-width: 900px) {
     .map-layout { flex-direction: column; height: auto; }
-    .list-panel { width: 100%; height: 300px; }
-    .map-frame { height: 45vh; }
+    .list-panel { width: 100%; height: 260px; }
+    .right-col { height: 55vh; min-height: 400px; }
+    .info-panel { bottom: 10px; left: 10px; right: 10px; border-radius: 16px; padding: 14px 16px; }
+    .info-grid { grid-template-columns: 1fr 1fr; }
 }
 </style>
 </head>
@@ -161,7 +184,7 @@ h1 { font-family: "Fraunces", serif; font-weight: 600; font-size: clamp(2rem, 4v
       
       <div class="info-panel" id="infoPanel">
         <div class="header-row">
-            <div>
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                 <h3 id="infoName">대학명</h3>
                 <div class="tags" id="infoTags"></div>
             </div>
@@ -170,7 +193,7 @@ h1 { font-family: "Fraunces", serif; font-weight: 600; font-size: clamp(2rem, 4v
         <div class="info-grid">
             <div class="info-item"><span>설립 유형</span><b id="infoType">국공립/사립</b></div>
             <div class="info-item"><span>전화번호</span><b id="infoTel">-</b></div>
-            <div class="info-item" style="grid-column: 1 / -1;"><span>주소</span><b id="infoAddress">-</b></div>
+            <div class="info-item"><span>주소</span><b id="infoAddress">-</b></div>
             <div class="info-item"><span>공식 홈페이지</span><a href="#" id="infoUrl" target="_blank">바로가기 ↗</a></div>
         </div>
       </div>
@@ -294,10 +317,6 @@ h1 { font-family: "Fraunces", serif; font-weight: 600; font-size: clamp(2rem, 4v
           document.getElementById('infoUrl').href = univ.url || searchUrl;
           
           panel.style.display = 'block';
-
-          if(window.innerWidth <= 900) {
-              panel.scrollIntoView({behavior: 'smooth', block: 'center'});
-          }
       };
 
       updateMapAndList();
