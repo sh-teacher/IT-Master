@@ -169,8 +169,8 @@ h1 { font-family: "Fraunces", serif; font-weight: 600; font-size: clamp(2rem, 4v
         </div>
         <div class="info-grid">
             <div class="info-item"><span>설립 유형</span><b id="infoType">국공립/사립</b></div>
-            <div class="info-item"><span>재적 학생수</span><b id="infoStudents">0명</b></div>
-            <div class="info-item"><span>평균 취업률</span><b id="infoEmp">0%</b></div>
+            <div class="info-item"><span>전화번호</span><b id="infoTel">-</b></div>
+            <div class="info-item" style="grid-column: 1 / -1;"><span>주소</span><b id="infoAddress">-</b></div>
             <div class="info-item"><span>공식 홈페이지</span><a href="#" id="infoUrl" target="_blank">바로가기 ↗</a></div>
         </div>
       </div>
@@ -286,15 +286,10 @@ h1 { font-family: "Fraunces", serif; font-weight: 600; font-size: clamp(2rem, 4v
               <span class="badge reg">${univ.region}</span>
           `;
           
-          // 👉 [수정됨] 무작위 랜덤 숫자 코드 삭제! 실제 데이터가 없으면 '-' 로 표시
-          const isNational = univ.name.includes("국립") || univ.name.includes("과학기술원") || univ.name.includes("서울대") || univ.name.includes("부산대");
-          
-          document.getElementById('infoType').textContent = univ.estType || (isNational ? "국공립" : "사립");
-          
-          // univData.js에 정보가 있으면 출력, 없으면 '정보 없음' 처리
-          document.getElementById('infoStudents').textContent = univ.students ? `${univ.students.toLocaleString()}명` : `- 명 (정보 없음)`;
-          document.getElementById('infoEmp').textContent = univ.empRate ? `${univ.empRate}%` : `- % (정보 없음)`;
-          
+          document.getElementById('infoType').textContent = univ.estType || '-';
+          document.getElementById('infoTel').textContent = univ.tel || '-';
+          document.getElementById('infoAddress').textContent = univ.address || '-';
+
           const searchUrl = `https://search.naver.com/search.naver?query=${encodeURIComponent(univ.name)}`;
           document.getElementById('infoUrl').href = univ.url || searchUrl;
           
