@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>투자 철학 도감 — 무엇을 살 것인가</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EAECE6;
+    --card:#FBFBF8;
+    --ink:#1B1E1B;
+    --ink-soft:#54584F;
+    --ink-faint:#8C9086;
+    --line:#DBDDD4;
+    --line-soft:#E7E8E1;
+
+    --value:#2E5A6E;     /* 가치투자 */
+    --growth:#C07A2E;    /* 성장주 */
+    --dividend:#4A7A52;  /* 배당주 */
+    --momentum:#BB452E;  /* 모멘텀 */
+    --quant:#4B4E7D;     /* 퀀트 */
+    --core:#2F7F7B;      /* 코어-새틀라이트 */
+
+    --display:'Gowun Batang', serif;
+    --body:'IBM Plex Sans KR', sans-serif;
+    --mono:'IBM Plex Mono', monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--body);
+    font-weight:400;
+    line-height:1.6;
+    letter-spacing:-0.01em;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{
+    max-width:1040px;
+    margin:0 auto;
+    padding:clamp(28px,5vw,72px) clamp(20px,5vw,56px) 80px;
+  }
+
+  /* ---------- masthead ---------- */
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    margin:0 0 18px;
+  }
+  h1{
+    font-family:var(--display);
+    font-weight:700;
+    font-size:clamp(34px,6.2vw,60px);
+    line-height:1.08;
+    letter-spacing:-0.02em;
+    margin:0 0 20px;
+  }
+  h1 .sub{
+    display:block;
+    font-weight:400;
+    font-size:clamp(17px,2.6vw,24px);
+    color:var(--ink-soft);
+    margin-top:10px;
+    line-height:1.4;
+  }
+  .lede{
+    max-width:62ch;
+    font-size:clamp(15px,1.7vw,17px);
+    color:var(--ink-soft);
+    margin:0;
+  }
+  .rule{
+    height:1px;background:var(--ink);opacity:0.85;
+    margin:38px 0 0;
+  }
+
+  /* ---------- map ---------- */
+  .map-block{margin:54px 0 8px;}
+  .section-tag{
+    font-family:var(--mono);
+    font-size:12px;letter-spacing:0.2em;text-transform:uppercase;
+    color:var(--ink-faint);
+    display:flex;align-items:center;gap:14px;
+    margin-bottom:18px;
+  }
+  .section-tag::after{content:"";flex:1;height:1px;background:var(--line);}
+  .map-frame{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:clamp(14px,2.4vw,26px);
+  }
+  .map-frame svg{display:block;width:100%;height:auto;}
+  .map-note{
+    font-size:13.5px;color:var(--ink-soft);
+    margin:14px 2px 0;
+  }
+  .legend{
+    display:flex;gap:22px;flex-wrap:wrap;
+    font-family:var(--mono);font-size:11.5px;letter-spacing:0.04em;
+    color:var(--ink-soft);margin-top:6px;
+  }
+  .legend span{display:inline-flex;align-items:center;gap:7px;}
+  .dot{width:11px;height:11px;border-radius:50%;background:var(--ink);}
+  .ring{width:11px;height:11px;border-radius:50%;background:var(--card);border:2.5px solid var(--ink);}
+
+  /* ---------- family heading ---------- */
+  .family{margin-top:60px;}
+  .family-head{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:6px;}
+  .family-num{
+    font-family:var(--mono);font-size:13px;color:var(--ink-faint);
+    letter-spacing:0.1em;
+  }
+  .family-head h2{
+    font-family:var(--display);font-weight:700;
+    font-size:clamp(24px,3.6vw,34px);
+    margin:0;letter-spacing:-0.02em;
+  }
+  .family-sub{color:var(--ink-soft);font-size:15px;margin:2px 0 26px;max-width:60ch;}
+
+  /* ---------- cards ---------- */
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  @media(max-width:720px){.cards{grid-template-columns:1fr;}}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-left:4px solid var(--accent,var(--ink));
+    border-radius:4px;
+    padding:24px 24px 22px;
+    display:flex;flex-direction:column;
+  }
+  .card-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:4px;}
+  .card h3{
+    font-family:var(--display);font-weight:700;
+    font-size:22px;margin:0;letter-spacing:-0.01em;
+  }
+  .card .en{
+    font-family:var(--mono);font-size:11px;letter-spacing:0.08em;
+    color:var(--accent,var(--ink-faint));text-transform:uppercase;
+    white-space:nowrap;
+  }
+  .motto{
+    font-family:var(--display);
+    font-size:16px;line-height:1.45;
+    color:var(--ink);
+    border-left:2px solid var(--accent);
+    padding-left:13px;
+    margin:14px 0 18px;
+  }
+  .field{margin-bottom:13px;}
+  .field:last-of-type{margin-bottom:0;}
+  .flabel{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:0.14em;
+    text-transform:uppercase;color:var(--ink-faint);
+    display:block;margin-bottom:3px;
+  }
+  .ftext{font-size:14.5px;color:var(--ink-soft);line-height:1.55;}
+  .ftext strong{color:var(--ink);font-weight:600;}
+  .pros-cons{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0 13px;}
+  @media(max-width:430px){.pros-cons{grid-template-columns:1fr;}}
+  .pc h4{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:0.12em;
+    text-transform:uppercase;margin:0 0 5px;
+  }
+  .pc.plus h4{color:var(--dividend);}
+  .pc.minus h4{color:var(--momentum);}
+  .pc p{margin:0;font-size:13.5px;color:var(--ink-soft);line-height:1.5;}
+  .fit{
+    margin-top:auto;
+    border-top:1px solid var(--line-soft);
+    padding-top:13px;font-size:13.5px;color:var(--ink-soft);
+  }
+  .fit b{color:var(--ink);font-weight:600;}
+
+  /* ---------- footer ---------- */
+  footer{
+    margin-top:58px;padding-top:22px;border-top:1px solid var(--line);
+    font-size:13px;color:var(--ink-faint);line-height:1.6;
+  }
+  footer b{color:var(--ink-soft);font-weight:600;}
+
+  /* entrance */
+  @media (prefers-reduced-motion:no-preference){
+    .reveal{opacity:0;transform:translateY(14px);animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards;}
+    .map-block{animation-delay:.05s;}
+    .family:nth-of-type(3){animation-delay:.1s;}
+    @keyframes rise{to{opacity:1;transform:none;}}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="reveal">
+    <p class="eyebrow">투자 철학 도감 · No.04 / 05</p>
+    <h1>무엇을 살 것인가
+      <span class="sub">종목을 고르는 철학과 규칙으로 굴리는 시스템</span>
+    </h1>
+    <p class="lede">사고파는 '방법'이 같아도 무엇을, 어떤 믿음으로 고르느냐에 따라 결과는 완전히 달라집니다. 여기 여섯 가지 대표적인 접근을 한자리에 모았어요. 정답은 없고, 각자의 기질과 시간에 맞는 길이 있을 뿐입니다.</p>
+    <div class="rule"></div>
+  </header>
+
+  <!-- ================= MAP ================= -->
+  <section class="map-block reveal">
+    <p class="section-tag">전략 지형도</p>
+    <div class="map-frame">
+      <svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="여섯 가지 투자 전략을 수동-능동, 안정-고수익 두 축에 배치한 지도">
+        <!-- grid -->
+        <g stroke="#E7E8E1" stroke-width="1">
+          <line x1="90" y1="60" x2="90" y2="440"/>
+          <line x1="760" y1="60" x2="760" y2="440"/>
+          <line x1="90" y1="60" x2="760" y2="60"/>
+          <line x1="90" y1="440" x2="760" y2="440"/>
+          <line x1="425" y1="60" x2="425" y2="440" stroke-dasharray="3 6"/>
+          <line x1="90" y1="250" x2="760" y2="250" stroke-dasharray="3 6"/>
+        </g>
+        <!-- axis labels -->
+        <g font-family="'IBM Plex Mono', monospace" font-size="12.5" fill="#8C9086" letter-spacing="0.08em">
+          <text x="92" y="466">← 손이 덜 가는 · 수동적</text>
+          <text x="758" y="466" text-anchor="end">손이 많이 가는 · 능동적 →</text>
+          <text x="74" y="66" text-anchor="end" transform="rotate(-90 74 66)" style="text-anchor:start">고수익 지향 ↑</text>
+          <text x="74" y="440" text-anchor="end" transform="rotate(-90 74 440)" style="text-anchor:end">↓ 안정 지향</text>
+        </g>
+
+        <!-- points: filled = 철학 계열, ring = 시스템 계열 -->
+        <!-- 배당주 324,320 -->
+        <g>
+          <circle cx="324" cy="320" r="9" fill="#4A7A52"/>
+          <text x="324" y="346" text-anchor="middle" font-family="'Gowun Batang',serif" font-weight="700" font-size="16" fill="#1B1E1B">배당주</text>
+        </g>
+        <!-- 코어-새틀라이트 358,260 (ring) -->
+        <g>
+          <circle cx="358" cy="260" r="9" fill="#FBFBF8" stroke="#2F7F7B" stroke-width="3.5"/>
+          <text x="350" y="240" text-anchor="middle" font-family="'Gowun Batang',serif" font-weight="700" font-size="16" fill="#1B1E1B">코어-새틀라이트</text>
+        </g>
+        <!-- 가치투자 559,240 -->
+        <g>
+          <circle cx="559" cy="240" r="9" fill="#2E5A6E"/>
+          <text x="559" y="222" text-anchor="middle" font-family="'Gowun Batang',serif" font-weight="700" font-size="16" fill="#1B1E1B">가치투자</text>
+        </g>
+        <!-- 퀀트 458,200 (ring) -->
+        <g>
+          <circle cx="458" cy="200" r="9" fill="#FBFBF8" stroke="#4B4E7D" stroke-width="3.5"/>
+          <text x="458" y="182" text-anchor="middle" font-family="'Gowun Batang',serif" font-weight="700" font-size="16" fill="#1B1E1B">퀀트</text>
+        </g>
+        <!-- 성장주 612,112 -->
+        <g>
+          <circle cx="612" cy="112" r="9" fill="#C07A2E"/>
+          <text x="600" y="94" text-anchor="middle" font-family="'Gowun Batang',serif" font-weight="700" font-size="16" fill="#1B1E1B">성장주</text>
+        </g>
+        <!-- 모멘텀 690,140 -->
+        <g>
+          <circle cx="690" cy="140" r="9" fill="#BB452E"/>
+          <text x="700" y="122" text-anchor="middle" font-family="'Gowun Batang',serif" font-weight="700" font-size="16" fill="#1B1E1B">모멘텀</text>
+        </g>
+      </svg>
+    </div>
+    <p class="map-note">위로 갈수록 변동성과 기대수익이 크고, 오른쪽으로 갈수록 직접 손이 많이 갑니다. 위치는 일반적 성향을 나타낸 것으로 운용 방식에 따라 달라질 수 있어요.</p>
+    <div class="legend">
+      <span><span class="dot"></span> 종목 선택 철학 (4)</span>
+      <span><span class="ring"></span> 규칙·시스템 기반 (5)</span>
+    </div>
+  </section>
+
+  <!-- ================= FAMILY 4 ================= -->
+  <section class="family">
+    <div class="family-head">
+      <span class="family-num">04</span>
+      <h2>무엇을 살지 고르는 계열</h2>
+    </div>
+    <p class="family-sub">종목을 보는 '눈'이 다른 네 가지 철학. 같은 시장을 보면서도 서로 정반대의 결정을 내립니다.</p>
+
+    <div class="cards">
+
+      <!-- 가치투자 -->
+      <article class="card" style="--accent:var(--value)">
+        <div class="card-top"><h3>가치투자</h3><span class="en">Value</span></div>
+        <p class="motto">"가격은 변덕스럽지만, 가치는 결국 제값을 찾는다."</p>
+        <div class="field"><span class="flabel">핵심 아이디어</span><span class="ftext">내재가치보다 <strong>싸게 거래되는 우량 기업</strong>을 사서, 시장이 제값을 알아줄 때까지 기다립니다. 손실을 막아줄 '안전마진'을 늘 확보해 둡니다.</span></div>
+        <div class="field"><span class="flabel">대표 인물 · 지표</span><span class="ftext">벤저민 그레이엄, 워런 버핏 · PER·PBR·ROE, 잉여현금흐름</span></div>
+        <div class="pros-cons">
+          <div class="pc plus"><h4>강점</h4><p>하방이 단단하고, 장기 성과가 검증돼 있음</p></div>
+          <div class="pc minus"><h4>약점</h4><p>저평가 해소까지 오래 걸리고, '가치 함정'에 빠질 위험</p></div>
+        </div>
+        <p class="fit"><b>어울리는 사람</b> — 기업 분석이 즐겁고, 몇 년을 기다릴 수 있는 인내심을 가진 사람</p>
+      </article>
+
+      <!-- 성장주 -->
+      <article class="card" style="--accent:var(--growth)">
+        <div class="card-top"><h3>성장주 투자</h3><span class="en">Growth</span></div>
+        <p class="motto">"지금 비싼 게 아니라, 미래가 싼 것이다."</p>
+        <div class="field"><span class="flabel">핵심 아이디어</span><span class="ftext">당장 비싸 보여도 <strong>매출·이익이 빠르게 커지는 기업</strong>에 베팅합니다. 큰 시장과 미래 잠재력을 보고 높은 밸류에이션을 감내합니다.</span></div>
+        <div class="field"><span class="flabel">대표 인물 · 지표</span><span class="ftext">필립 피셔 · 매출성장률, 시장 규모(TAM), PEG</span></div>
+        <div class="pros-cons">
+          <div class="pc plus"><h4>강점</h4><p>제대로 맞히면 폭발적인 상승 가능</p></div>
+          <div class="pc minus"><h4>약점</h4><p>고평가 리스크 — 금리·실적 둔화에 급락하기 쉬움</p></div>
+        </div>
+        <p class="fit"><b>어울리는 사람</b> — 변동성을 견딜 수 있고, 미래 산업을 읽는 안목이 있는 사람</p>
+      </article>
+
+      <!-- 배당주 -->
+      <article class="card" style="--accent:var(--dividend)">
+        <div class="card-top"><h3>배당주 투자</h3><span class="en">Dividend</span></div>
+        <p class="motto">"주가가 아니라, 꾸준한 현금흐름을 산다."</p>
+        <div class="field"><span class="flabel">핵심 아이디어</span><span class="ftext">오랜 기간 <strong>배당을 꾸준히 늘려온 우량 기업</strong>을 모아 정기적인 현금흐름을 만듭니다. 배당을 재투자해 복리 효과를 노립니다.</span></div>
+        <div class="field"><span class="flabel">대표 유형 · 지표</span><span class="ftext">배당귀족주(25년+ 증액), 배당킹 · 배당수익률·배당성장률·배당성향</span></div>
+        <div class="pros-cons">
+          <div class="pc plus"><h4>강점</h4><p>현금흐름이 나오고, 하락장에 상대적으로 견고</p></div>
+          <div class="pc minus"><h4>약점</h4><p>성장성이 낮을 수 있고, 배당 삭감 위험·제한적 시세차익</p></div>
+        </div>
+        <p class="fit"><b>어울리는 사람</b> — 안정적 현금흐름이 필요하거나 은퇴를 준비하는 사람</p>
+      </article>
+
+      <!-- 모멘텀 -->
+      <article class="card" style="--accent:var(--momentum)">
+        <div class="card-top"><h3>모멘텀 · 추세추종</h3><span class="en">Momentum</span></div>
+        <p class="motto">"달리는 말에 올라타고, 멈추면 내린다."</p>
+        <div class="field"><span class="flabel">핵심 아이디어</span><span class="ftext"><strong>강하게 오르는 종목을 따라 사고</strong>, 추세가 꺾이면 미련 없이 손절합니다. 가치 판단을 하지 않고 가격의 흐름 자체에 베팅합니다.</span></div>
+        <div class="field"><span class="flabel">대표 유형 · 지표</span><span class="ftext">추세추종 트레이더, 터틀 트레이딩 · 이동평균선, 상대강도(RS), 신고가</span></div>
+        <div class="pros-cons">
+          <div class="pc plus"><h4>강점</h4><p>큰 추세에선 큰 수익, 규칙이 명확함</p></div>
+          <div class="pc minus"><h4>약점</h4><p>횡보장에서 잦은 손실(휩쏘), 매매·수수료·세금 부담</p></div>
+        </div>
+        <p class="fit"><b>어울리는 사람</b> — 규칙을 지키는 절제력이 있고, 손절을 실행할 수 있는 사람</p>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ================= FAMILY 5 ================= -->
+  <section class="family">
+    <div class="family-head">
+      <span class="family-num">05</span>
+      <h2>규칙·시스템으로 굴리는 계열</h2>
+    </div>
+    <p class="family-sub">종목 하나하나의 감(感)보다, 미리 정한 규칙과 비중으로 전체를 운용합니다.</p>
+
+    <div class="cards">
+
+      <!-- 퀀트 -->
+      <article class="card" style="--accent:var(--quant)">
+        <div class="card-top"><h3>퀀트 투자</h3><span class="en">Quant</span></div>
+        <p class="motto">"직감 대신, 데이터가 종목을 고른다."</p>
+        <div class="field"><span class="flabel">핵심 아이디어</span><span class="ftext">감정을 빼고 <strong>'팩터'로 종목을 계량 선별</strong>합니다. 백테스트로 검증한 규칙을 기계적으로 실행하는 게 핵심이에요.</span></div>
+        <div class="field"><span class="flabel">대표 팩터</span><span class="ftext">밸류(저평가)·퀄리티(우량성)·모멘텀·저변동성</span></div>
+        <div class="pros-cons">
+          <div class="pc plus"><h4>강점</h4><p>감정 배제·분산·사후 검증이 가능</p></div>
+          <div class="pc minus"><h4>약점</h4><p>과최적화(오버피팅) 위험, 팩터가 안 통하는 구간 존재</p></div>
+        </div>
+        <p class="fit"><b>어울리는 사람</b> — 데이터·통계에 익숙하고, 시스템을 믿고 따를 수 있는 사람</p>
+      </article>
+
+      <!-- 코어-새틀라이트 -->
+      <article class="card" style="--accent:var(--core)">
+        <div class="card-top"><h3>코어-새틀라이트</h3><span class="en">Core-Satellite</span></div>
+        <p class="motto">"튼튼한 본진 위에, 작은 전진기지를 둔다."</p>
+        <div class="field"><span class="flabel">핵심 아이디어</span><span class="ftext">자산의 <strong>70~80%는 인덱스(코어)</strong>로 시장 수익을 안정적으로 확보하고, 나머지 20~30%(새틀라이트)로 공격적인 베팅을 시도하는 절충안입니다.</span></div>
+        <div class="field"><span class="flabel">구성 예시</span><span class="ftext">코어: S&amp;P500·전세계 지수 ETF · 새틀라이트: 개별주·테마·고변동 ETF</span></div>
+        <div class="pros-cons">
+          <div class="pc plus"><h4>강점</h4><p>안정성과 초과수익 기회를 동시에, 리스크 통제 쉬움</p></div>
+          <div class="pc minus"><h4>약점</h4><p>새틀라이트가 부진하면 차라리 인덱스만 한 결과만도 못할 수 있음</p></div>
+        </div>
+        <p class="fit"><b>어울리는 사람</b> — 패시브를 기반으로 하되, 약간의 능동성을 더하고 싶은 사람</p>
+      </article>
+
+    </div>
+  </section>
+
+  <footer>
+    <p><b>한 줄 정리</b> — '최고의 전략'은 없습니다. 투자 기간, 위험을 견디는 그릇, 들일 수 있는 시간에 따라 어울리는 길이 달라질 뿐이에요. 여러 철학을 섞어 자기만의 조합을 만드는 것도 흔한 방법입니다.</p>
+    <p style="margin-top:12px;">본 문서는 투자 기법을 이해하기 위한 <b>교육용 정리 자료</b>이며, 특정 종목이나 전략을 권유하는 투자 자문이 아닙니다. 모든 투자 결정과 책임은 투자자 본인에게 있습니다.</p>
+  </footer>
+
+</div>
+</body>
+</html>
