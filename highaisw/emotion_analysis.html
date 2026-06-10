@@ -273,14 +273,15 @@
 
     // --- Display Results ---
     function displayResults(probs) {
-      const bestIndex = probs.indexOf(Math.max(...probs));
+      const probsArray = Array.from(probs); // Float32Array → 일반 배열로 변환 (map이 NaN 반환하는 버그 방지)
+      const bestIndex = probsArray.indexOf(Math.max(...probsArray));
       const bestEmotion = EMOTIONS[bestIndex];
-      const confidence = probs[bestIndex] * 100;
+      const confidence = probsArray[bestIndex] * 100;
 
       resultEmotionEl.textContent = bestEmotion;
       resultConfEl.textContent = `신뢰도: ${confidence.toFixed(1)}%`;
 
-      barWrapEl.innerHTML = probs.map((p, i) => `
+      barWrapEl.innerHTML = probsArray.map((p, i) => `
         <div class="bar-row">
           <span class="bar-label">${EMOTIONS[i]}</span>
           <div class="bar-bg"><div class="bar-fill" style="width:${(p * 100).toFixed(1)}%"></div></div>
