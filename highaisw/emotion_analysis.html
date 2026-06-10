@@ -135,6 +135,8 @@
     let videoStream = null;
     let animationFrameId = null;
     let isAnalyzing = false;
+    let lastAnalysisTime = 0;
+    const ANALYSIS_INTERVAL = 800; // ms between analyses
 
     // --- Utility Functions ---
     function setStatus(msg, color = '#667eea') {
@@ -234,10 +236,14 @@
 
     // --- Emotion Analysis Loop ---
     function analyzeEmotion() {
-      if (!isAnalyzing || !model || webcamVideo.readyState !== webcamVideo.HAVE_ENOUGH_DATA) {
+      if (!isAnalyzing) return;
+
+      const now = Date.now();
+      if (!model || webcamVideo.readyState !== webcamVideo.HAVE_ENOUGH_DATA || now - lastAnalysisTime < ANALYSIS_INTERVAL) {
         animationFrameId = requestAnimationFrame(analyzeEmotion);
         return;
       }
+      lastAnalysisTime = now;
 
       tf.tidy(() => {
         // Draw the current video frame to the hidden canvas
