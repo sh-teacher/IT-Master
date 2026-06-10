@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 감정 분석</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0f0f1a;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      gap: 20px;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 2rem;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 2px;
+    }
+    .subtitle { color: #888; font-size: 0.9rem; }
+    #status { font-size: 0.85rem; color: #667eea; text-align: center; max-width: 320px; min-height: 1.2em; }
+    .progress-wrap {
+      width: 280px; background: #2a2a3e; border-radius: 8px;
+      height: 8px; overflow: hidden;
+      display: none; /* Hide progress bar for continuous analysis */
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      border-radius: 8px;
+      width: 0%;
+      transition: width 0.3s;
+    }
+    .video-wrap {
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 0 40px rgba(102,126,234,0.4);
+      position: relative;
+    }
+    video {
+      display: block;
+      background: #1a1a2e;
+      transform: scaleX(-1); /* Mirror the video for a selfie-like view */
+    }
+    canvas {
+      display: none; /* Hidden canvas for processing */
+    }
+    .controls { display: flex; gap: 12px; }
+    button {
+      padding: 10px 28px; border: none; border-radius: 8px;
+      font-size: 1rem; font-weight: 600; cursor: pointer;
+      transition: transform 0.1s;
+    }
+    button:active { transform: scale(0.97); }
+    button:disabled { opacity: 0.35; cursor: not-allowed; }
+    #startBtn { background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff; }
+    #stopBtn { background: #e74c3c; color: #fff; }
+
+    .result-box {
+      background: #1a1a2e; border: 1px solid #333;
+      border-radius: 16px; padding: 20px 40px;
+      text-align: center; min-width: 260px;
+    }
+    .result-label { font-size: 0.75rem; color: #888; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+    .result-emotion {
+      font-size: 3rem; font-weight: 900; line-height: 1;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      min-height: 1em; /* To prevent layout shift */
+    }
+    .result-conf { font-size: 0.85rem; color: #aaa; margin-top: 8px; min-height: 1.2em; }
+    .bar-wrap { margin-top: 16px; }
+    .bar-row { display: flex; align-items: center; gap: 8px; margin: 4px 0; font-size: 0.75rem; }
+    .bar-label { width: 60px; text-align: right; color: #aaa; } /* Wider label for emotion names */
+    .bar-bg { flex: 1; height: 8px; background: #2a2a3e; border-radius: 4px; overflow: hidden; }
+    .bar-fill { height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); border-radius: 4px; transition: width 0.4s ease; }
+  </style>
+</head>
+<body>
+  <h1>😊 AI 감정 분석</h1>
+  <p class="subtitle">카메라로 얼굴을 촬영하여 감정을 분석합니다</p>
+  <p id="status">카메라 준비 중...</p>
+  <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+
+  <div class="video-wrap">
+    <video id="webcamVideo" width="320" height="240" autoplay playsinline></video>
+    <canvas id="processingCanvas" width="48" height="48"></canvas> <!-- Smaller canvas for model input -->
+  </div>
+
+  <div class="controls">
+    <button id="startBtn">카메라 시작</button>
+    <button id="stopBtn" disabled>카메라 중지</button>
+  </div>
+
+  <div class="result-box">
+    <div class="result-label">현재 감정</div>
+    <div class="result-emotion" id="resultEmotion">?</div>
+    <div class="result-conf" id="resultConf">카메라를 시작해주세요</div>
+    <div class="bar-wrap" id="barWrap"></div>
+  </div>
+
+  <script>
+    // --- Configuration ---
+    const EMOTIONS = ['화남', '혐오', '두려움', '행복', '슬픔', '놀람', '중립'];
+    const MODEL_INPUT_SIZE = 48; // Common input size for emotion models (e.g., FER2013 dataset)
+    const VIDEO_WIDTH = 320;
+    const VIDEO_HEIGHT = 240;
+
+    // --- DOM Elements ---
+    const statusEl = document.getElementById('status');
+    const progressBarEl = document.getElementById('progressBar');
+    const webcamVideo = document.getElementById('webcamVideo');
+    const processingCanvas = document.getElementById('processingCanvas');
+    const processingCtx = processingCanvas.getContext('2d');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const resultEmotionEl = document.getElementById('resultEmotion');
+    const resultConfEl = document.getElementById('resultConf');
+    const barWrapEl = document.getElementById('barWrap');
+
+    // --- Global Variables ---
+    let model = null;
+    let videoStream = null;
+    let animationFrameId = null;
+    let isAnalyzing = false;
+
+    // --- Utility Functions ---
+    function setStatus(msg, color = '#667eea') {
+      statusEl.textContent = msg;
+      statusEl.style.color = color;
+    }
+
+    function setProgress(pct) {
+      progressBarEl.style.width = pct + '%';
+      if (pct > 0 && pct < 100) {
+        document.querySelector('.progress-wrap').style.display = 'block';
+      } else {
+        document.querySelector('.progress-wrap').style.display = 'none';
+      }
+    }
+
+    // --- Model Loading (Placeholder/Simulation) ---
+    async function loadEmotionModel() {
+      setStatus('감정 분석 모델 로드 중...');
+      setProgress(10);
+
+      // --- IMPORTANT ---
+      // In a real application, you would load a pre-trained TensorFlow.js model here.
+      // This typically involves:
+      // 1. Training an emotion classification model (e.g., on FER2013 dataset) using Python/Keras.
+      // 2. Converting the Keras model to TensorFlow.js format.
+      // 3. Hosting the model files (model.json and weight files) on a web server.
+      // 4. Loading it using: model = await tf.loadLayersModel('path/to/your/model.json');
+      //
+      // For this example, we'll simulate a model loading delay and then use a placeholder
+      // that generates random probabilities to demonstrate the UI and analysis flow.
+      //
+      // Additionally, a real-world application would likely need a face detection model
+      // (e.g., from Face-API.js or a separate TF.js model) to crop faces from the video
+      // stream before feeding them to the emotion model. This example simplifies by
+      // feeding the entire (resized) video frame, which is unlikely to work well
+      // with models trained on cropped faces.
+      // ---
+
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate network delay
+      
+      // Placeholder model: returns random probabilities for demonstration
+      model = {
+        predict: (inputTensor) => {
+          // Simulate a prediction output for 7 emotions
+          const randomProbs = Array(EMOTIONS.length).fill(0).map(() => Math.random());
+          const sum = randomProbs.reduce((a, b) => a + b, 0);
+          const normalizedProbs = randomProbs.map(p => p / sum);
+          return tf.tensor2d([normalizedProbs]);
+        },
+        dispose: () => console.log('Simulated model disposed.') // Placeholder dispose
+      };
+
+      setProgress(100);
+      setStatus('✅ 모델 로드 완료!', '#2ecc71');
+      startBtn.disabled = false;
+    }
+
+    // --- Webcam Control ---
+    async function startWebcam() {
+      setStatus('카메라 접근 요청 중...');
+      try {
+        videoStream = await navigator.mediaDevices.getUserMedia({ video: { width: VIDEO_WIDTH, height: VIDEO_HEIGHT }, audio: false });
+        webcamVideo.srcObject = videoStream;
+        await webcamVideo.play();
+        setStatus('카메라 시작됨. 감정 분석 준비 중...', '#2ecc71');
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+        isAnalyzing = true;
+        analyzeEmotion(); // Start continuous analysis
+      } catch (err) {
+        setStatus('❌ 카메라 접근 실패: ' + err.message, '#e74c3c');
+        console.error('Error accessing webcam:', err);
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+      }
+    }
+
+    function stopWebcam() {
+      if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+        webcamVideo.srcObject = null;
+        videoStream = null;
+      }
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      }
+      isAnalyzing = false;
+      setStatus('카메라 중지됨.', '#e74c3c');
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+      resultEmotionEl.textContent = '?';
+      resultConfEl.textContent = '카메라를 시작해주세요';
+      barWrapEl.innerHTML = '';
+    }
+
+    // --- Emotion Analysis Loop ---
+    function analyzeEmotion() {
+      if (!isAnalyzing || !model || webcamVideo.readyState !== webcamVideo.HAVE_ENOUGH_DATA) {
+        animationFrameId = requestAnimationFrame(analyzeEmotion);
+        return;
+      }
+
+      tf.tidy(() => {
+        // Draw the current video frame to the hidden canvas
+        // This resizes the video frame to MODEL_INPUT_SIZE x MODEL_INPUT_SIZE
+        processingCtx.drawImage(webcamVideo, 0, 0, MODEL_INPUT_SIZE, MODEL_INPUT_SIZE);
+
+        // Get image data from the canvas
+        const imageData = processingCtx.getImageData(0, 0, MODEL_INPUT_SIZE, MODEL_INPUT_SIZE);
+        
+        // Convert to grayscale and normalize (assuming a grayscale model input)
+        // For a real model, this pre-processing (e.g., RGB vs. Grayscale, normalization range)
+        // would be specific to the model's training data and architecture.
+        const inputTensor = tf.browser.fromPixels(imageData, 1) // 1 for grayscale, 3 for RGB
+                                .toFloat()
+                                .div(255.0) // Normalize pixel values to [0, 1]
+                                .expandDims(0); // Add batch dimension (e.g., [1, 48, 48, 1])
+
+        // Perform prediction
+        const predictions = model.predict(inputTensor);
+        const probs = predictions.dataSync(); // Get probabilities as a plain array
+
+        displayResults(probs);
+      });
+
+      animationFrameId = requestAnimationFrame(analyzeEmotion);
+    }
+
+    // --- Display Results ---
+    function displayResults(probs) {
+      const bestIndex = probs.indexOf(Math.max(...probs));
+      const bestEmotion = EMOTIONS[bestIndex];
+      const confidence = probs[bestIndex] * 100;
+
+      resultEmotionEl.textContent = bestEmotion;
+      resultConfEl.textContent = `신뢰도: ${confidence.toFixed(1)}%`;
+
+      barWrapEl.innerHTML = probs.map((p, i) => `
+        <div class="bar-row">
+          <span class="bar-label">${EMOTIONS[i]}</span>
+          <div class="bar-bg"><div class="bar-fill" style="width:${(p * 100).toFixed(1)}%"></div></div>
+          <span style="font-size:0.7rem;color:#aaa;width:38px">${(p * 100).toFixed(1)}%</span>
+        </div>`).join('');
+    }
+
+    // --- Event Listeners ---
+    startBtn.addEventListener('click', startWebcam);
+    stopBtn.addEventListener('click', stopWebcam);
+
+    // --- Initialization ---
+    (async () => {
+      await loadEmotionModel();
+      setStatus('카메라 시작 버튼을 눌러주세요.', '#667eea');
+      resultConfEl.textContent = '카메라를 시작해주세요';
+    })();
+  </script>
+</body>
+</html>
