@@ -16,7 +16,8 @@
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      gap: 24px;
+      gap: 20px;
+      padding: 20px;
     }
     h1 {
       font-size: 2rem;
@@ -27,8 +28,19 @@
       letter-spacing: 2px;
     }
     .subtitle { color: #888; font-size: 0.9rem; }
+    #status { font-size: 0.85rem; color: #667eea; text-align: center; max-width: 320px; min-height: 1.2em; }
+    .progress-wrap {
+      width: 280px; background: #2a2a3e; border-radius: 8px;
+      height: 8px; overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      border-radius: 8px;
+      width: 0%;
+      transition: width 0.3s;
+    }
     .canvas-wrap {
-      position: relative;
       border-radius: 16px;
       overflow: hidden;
       box-shadow: 0 0 40px rgba(102,126,234,0.4);
@@ -38,45 +50,28 @@
       cursor: crosshair;
       background: #1a1a2e;
     }
-    .controls {
-      display: flex;
-      gap: 12px;
-    }
+    .controls { display: flex; gap: 12px; }
     button {
-      padding: 10px 28px;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.1s, opacity 0.2s;
+      padding: 10px 28px; border: none; border-radius: 8px;
+      font-size: 1rem; font-weight: 600; cursor: pointer;
+      transition: transform 0.1s;
     }
     button:active { transform: scale(0.97); }
-    #clearBtn {
-      background: #e74c3c;
-      color: #fff;
-    }
-    #recognizeBtn {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: #fff;
-    }
+    button:disabled { opacity: 0.35; cursor: not-allowed; }
+    #clearBtn { background: #e74c3c; color: #fff; }
+    #recognizeBtn { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; }
     .result-box {
-      background: #1a1a2e;
-      border: 1px solid #333;
-      border-radius: 16px;
-      padding: 20px 40px;
-      text-align: center;
-      min-width: 260px;
+      background: #1a1a2e; border: 1px solid #333;
+      border-radius: 16px; padding: 20px 40px;
+      text-align: center; min-width: 260px;
     }
-    .result-label { font-size: 0.8rem; color: #888; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+    .result-label { font-size: 0.75rem; color: #888; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
     .result-number {
-      font-size: 5rem;
-      font-weight: 900;
+      font-size: 5rem; font-weight: 900; line-height: 1;
       background: linear-gradient(135deg, #667eea, #764ba2);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
-      line-height: 1;
     }
     .result-conf { font-size: 0.85rem; color: #aaa; margin-top: 8px; }
     .bar-wrap { margin-top: 16px; }
@@ -84,65 +79,76 @@
     .bar-label { width: 14px; text-align: right; color: #aaa; }
     .bar-bg { flex: 1; height: 8px; background: #2a2a3e; border-radius: 4px; overflow: hidden; }
     .bar-fill { height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); border-radius: 4px; transition: width 0.4s ease; }
-    #status { font-size: 0.8rem; color: #667eea; }
   </style>
 </head>
 <body>
   <h1>✏️ AI 숫자 인식</h1>
   <p class="subtitle">캔버스에 숫자(0~9)를 그리면 AI가 인식합니다</p>
-  <p id="status">모델 로딩 중...</p>
+  <p id="status">초기화 중...</p>
+  <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
 
   <div class="canvas-wrap">
     <canvas id="drawCanvas" width="280" height="280"></canvas>
   </div>
 
   <div class="controls">
-    <button id="clearBtn">지우기</button>
-    <button id="recognizeBtn">인식하기</button>
+    <button id="clearBtn" disabled>지우기</button>
+    <button id="recognizeBtn" disabled>인식하기</button>
   </div>
 
   <div class="result-box">
     <div class="result-label">인식 결과</div>
     <div class="result-number" id="resultNum">?</div>
-    <div class="result-conf" id="resultConf">숫자를 그린 후 인식하기를 눌러주세요</div>
+    <div class="result-conf" id="resultConf">모델 준비 중...</div>
     <div class="bar-wrap" id="barWrap"></div>
   </div>
 
   <script>
+    const IMAGES_URL = 'https://storage.googleapis.com/learnjs-data/model-builder/mnist_images.png';
+    const LABELS_URL = 'https://storage.googleapis.com/learnjs-data/model-builder/mnist_labels_uint8';
+    const TRAIN_N = 8000, TEST_N = 1000, TOTAL_N = 9000;
+
+    let model = null;
     const canvas = document.getElementById('drawCanvas');
     const ctx = canvas.getContext('2d');
-    const statusEl = document.getElementById('status');
-    let drawing = false;
-    let model = null;
-    let hasDrawing = false;
+    let drawing = false, hasDrawing = false;
 
     ctx.lineWidth = 22;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.strokeStyle = '#fff';
 
+    function setStatus(msg, color = '#667eea') {
+      document.getElementById('status').textContent = msg;
+      document.getElementById('status').style.color = color;
+    }
+    function setProgress(pct) {
+      document.getElementById('progressBar').style.width = pct + '%';
+    }
+
     function getPos(e) {
       const r = canvas.getBoundingClientRect();
-      if (e.touches) {
-        return { x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top };
-      }
+      if (e.touches) return { x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top };
       return { x: e.clientX - r.left, y: e.clientY - r.top };
     }
 
-    canvas.addEventListener('mousedown', e => { drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); });
+    canvas.addEventListener('mousedown', e => {
+      drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y);
+    });
     canvas.addEventListener('mousemove', e => {
       if (!drawing) return;
-      const p = getPos(e);
-      ctx.lineTo(p.x, p.y);
-      ctx.stroke();
-      hasDrawing = true;
+      const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); hasDrawing = true;
     });
-    canvas.addEventListener('mouseup', () => { drawing = false; if (hasDrawing) autoRecognize(); });
+    canvas.addEventListener('mouseup', () => { drawing = false; if (hasDrawing && model) scheduleRecognize(); });
     canvas.addEventListener('mouseleave', () => { drawing = false; });
-
-    canvas.addEventListener('touchstart', e => { e.preventDefault(); drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); }, { passive: false });
-    canvas.addEventListener('touchmove', e => { e.preventDefault(); if (!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); hasDrawing = true; }, { passive: false });
-    canvas.addEventListener('touchend', () => { drawing = false; if (hasDrawing) autoRecognize(); });
+    canvas.addEventListener('touchstart', e => {
+      e.preventDefault(); drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y);
+    }, { passive: false });
+    canvas.addEventListener('touchmove', e => {
+      e.preventDefault(); if (!drawing) return;
+      const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); hasDrawing = true;
+    }, { passive: false });
+    canvas.addEventListener('touchend', () => { drawing = false; if (hasDrawing && model) scheduleRecognize(); });
 
     document.getElementById('clearBtn').addEventListener('click', () => {
       ctx.clearRect(0, 0, 280, 280);
@@ -151,58 +157,104 @@
       document.getElementById('resultConf').textContent = '숫자를 그린 후 인식하기를 눌러주세요';
       document.getElementById('barWrap').innerHTML = '';
     });
-
     document.getElementById('recognizeBtn').addEventListener('click', recognize);
 
     let autoTimer = null;
-    function autoRecognize() {
-      clearTimeout(autoTimer);
-      autoTimer = setTimeout(recognize, 800);
-    }
+    function scheduleRecognize() { clearTimeout(autoTimer); autoTimer = setTimeout(recognize, 700); }
 
-    async function recognize() {
+    function recognize() {
       if (!model || !hasDrawing) return;
-      const tensor = tf.tidy(() => {
+      const probs = tf.tidy(() => {
         const img = tf.browser.fromPixels(canvas, 1);
         const resized = tf.image.resizeBilinear(img, [28, 28]);
-        const norm = resized.toFloat().div(255.0);
-        return norm.reshape([1, 28, 28, 1]);
+        const input = resized.toFloat().div(255).reshape([1, 28, 28, 1]);
+        return Array.from(model.predict(input).dataSync());
       });
-      const pred = await model.predict(tensor).data();
-      tensor.dispose();
-
-      const probs = Array.from(pred);
       const best = probs.indexOf(Math.max(...probs));
-      const conf = (probs[best] * 100).toFixed(1);
-
       document.getElementById('resultNum').textContent = best;
-      document.getElementById('resultConf').textContent = `신뢰도: ${conf}%`;
-
-      const barWrap = document.getElementById('barWrap');
-      barWrap.innerHTML = '';
-      probs.forEach((p, i) => {
-        const pct = (p * 100).toFixed(1);
-        barWrap.innerHTML += `
-          <div class="bar-row">
-            <span class="bar-label">${i}</span>
-            <div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div>
-            <span style="font-size:0.7rem;color:#aaa;width:38px">${pct}%</span>
-          </div>`;
-      });
+      document.getElementById('resultConf').textContent = `신뢰도: ${(probs[best] * 100).toFixed(1)}%`;
+      document.getElementById('barWrap').innerHTML = probs.map((p, i) => `
+        <div class="bar-row">
+          <span class="bar-label">${i}</span>
+          <div class="bar-bg"><div class="bar-fill" style="width:${(p * 100).toFixed(1)}%"></div></div>
+          <span style="font-size:0.7rem;color:#aaa;width:38px">${(p * 100).toFixed(1)}%</span>
+        </div>`).join('');
     }
 
-    async function loadModel() {
+    async function loadData() {
+      setStatus('MNIST 데이터 다운로드 중...'); setProgress(5);
+      const img = new Image();
+      img.crossOrigin = '';
+      await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = IMAGES_URL; });
+      setProgress(30);
+
+      const oc = document.createElement('canvas');
+      oc.width = 784; oc.height = TOTAL_N;
+      const ox = oc.getContext('2d');
+      ox.drawImage(img, 0, 0, 784, TOTAL_N, 0, 0, 784, TOTAL_N);
+      const imageData = ox.getImageData(0, 0, 784, TOTAL_N);
+      const images = new Float32Array(TOTAL_N * 784);
+      for (let i = 0; i < TOTAL_N * 784; i++) images[i] = imageData.data[i * 4] / 255;
+      setProgress(45);
+
+      const resp = await fetch(LABELS_URL);
+      const allLabels = new Uint8Array(await resp.arrayBuffer());
+      const labels = new Float32Array(TOTAL_N * 10);
+      for (let i = 0; i < TOTAL_N * 10; i++) labels[i] = allLabels[i];
+      setProgress(55);
+
+      return {
+        trainX: tf.tensor4d(images.slice(0, TRAIN_N * 784), [TRAIN_N, 28, 28, 1]),
+        trainY: tf.tensor2d(labels.slice(0, TRAIN_N * 10), [TRAIN_N, 10]),
+        testX: tf.tensor4d(images.slice(TRAIN_N * 784), [TEST_N, 28, 28, 1]),
+        testY: tf.tensor2d(labels.slice(TRAIN_N * 10), [TEST_N, 10]),
+      };
+    }
+
+    function buildModel() {
+      const m = tf.sequential();
+      m.add(tf.layers.conv2d({ inputShape: [28, 28, 1], kernelSize: 3, filters: 16, activation: 'relu' }));
+      m.add(tf.layers.maxPooling2d({ poolSize: 2 }));
+      m.add(tf.layers.conv2d({ kernelSize: 3, filters: 32, activation: 'relu' }));
+      m.add(tf.layers.maxPooling2d({ poolSize: 2 }));
+      m.add(tf.layers.flatten());
+      m.add(tf.layers.dense({ units: 64, activation: 'relu' }));
+      m.add(tf.layers.dense({ units: 10, activation: 'softmax' }));
+      m.compile({ optimizer: 'adam', loss: 'categoricalCrossentropy', metrics: ['accuracy'] });
+      return m;
+    }
+
+    (async () => {
       try {
-        model = await tf.loadLayersModel('https://storage.googleapis.com/tfjs-models/tfjs/mnist_transfer_cnn_v1/model.json');
-        statusEl.textContent = '✅ 모델 준비 완료! 숫자를 그려보세요';
-        statusEl.style.color = '#2ecc71';
+        const data = await loadData();
+        setStatus('모델 학습 중... (약 30초 소요)'); setProgress(55);
+        model = buildModel();
+        const EPOCHS = 6;
+        await model.fit(data.trainX, data.trainY, {
+          epochs: EPOCHS,
+          batchSize: 256,
+          validationData: [data.testX, data.testY],
+          callbacks: {
+            onEpochEnd: (epoch, logs) => {
+              const pct = 55 + ((epoch + 1) / EPOCHS) * 45;
+              setProgress(pct);
+              setStatus(`학습 중 ${epoch + 1}/${EPOCHS} 에포크 — 정확도 ${(logs.val_acc * 100).toFixed(1)}%`);
+            }
+          }
+        });
+        data.trainX.dispose(); data.trainY.dispose();
+        data.testX.dispose(); data.testY.dispose();
+        setProgress(100);
+        setStatus('✅ 준비 완료! 숫자를 그려보세요', '#2ecc71');
+        document.getElementById('resultConf').textContent = '숫자를 그린 후 인식하기를 눌러주세요';
+        document.getElementById('clearBtn').disabled = false;
+        document.getElementById('recognizeBtn').disabled = false;
       } catch (e) {
-        statusEl.textContent = '❌ 모델 로드 실패. 인터넷 연결을 확인하세요.';
-        statusEl.style.color = '#e74c3c';
+        setProgress(0);
+        setStatus('❌ 오류: ' + e.message, '#e74c3c');
+        console.error(e);
       }
-    }
-
-    loadModel();
+    })();
   </script>
 </body>
 </html>
