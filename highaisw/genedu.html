@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>광주광역시교육청 업무포털</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Malgun Gothic', '맑은 고딕', -apple-system, sans-serif; font-size: 14px; color: #333; background: #f5f5f5; }
+    a { text-decoration: none; color: inherit; cursor: pointer; }
+
+    /* 전체 래퍼 */
+    .wrapper {
+      max-width: 820px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 4px;
+      box-shadow: 0 0 12px rgba(0,0,0,.06);
+      padding: 30px 40px 40px;
+    }
+
+    /* 헤더 로고 */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .logo-icon {
+      width: 44px; height: 44px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-icon svg { width: 40px; height: 40px; }
+    .header-text {
+      font-size: 22px;
+      color: #333;
+      font-weight: 400;
+      letter-spacing: -0.5px;
+    }
+    .header-text strong {
+      font-weight: 700;
+    }
+    .header-divider {
+      width: 1px; height: 24px; background: #ccc; margin: 0 6px;
+    }
+    .header-sub {
+      font-size: 22px;
+      color: #555;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+
+    /* 배너 슬라이더 */
+    .banner-area {
+      position: relative;
+      width: 100%;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 28px;
+    }
+    .banner {
+      width: 100%;
+      aspect-ratio: 16 / 8;
+      background: linear-gradient(135deg, #f8d0d8 0%, #fce4ec 30%, #fce4ec 50%, #f8bbd0 100%);
+      position: relative;
+      display: flex;
+      padding: 0;
+    }
+    .banner-left {
+      flex: 1;
+      padding: 28px 30px;
+      position: relative;
+      z-index: 2;
+    }
+    .banner-sponsors {
+      font-size: 10px;
+      color: #777;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .banner-sponsors .label {
+      color: #c62828;
+      font-weight: 700;
+      font-size: 11px;
+    }
+    .banner-period-label {
+      font-size: 13px;
+      color: #1565c0;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .banner-period {
+      font-size: 26px;
+      font-weight: 900;
+      color: #1a237e;
+      margin-bottom: 14px;
+      letter-spacing: -1px;
+      line-height: 1.2;
+    }
+    .banner-period .small { font-size: 16px; font-weight: 600; }
+    .banner-info-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      color: #333;
+    }
+    .banner-info-label {
+      display: inline-block;
+      background: #1565c0;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 12px;
+      border-radius: 14px;
+      flex-shrink: 0;
+    }
+    .banner-info-label.red {
+      background: #c62828;
+    }
+    .banner-sub-info {
+      font-size: 11px;
+      color: #555;
+      margin-top: 4px;
+      padding-left: 4px;
+      line-height: 1.7;
+    }
+
+    .banner-right {
+      width: 340px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .festival-text {
+      position: absolute;
+      right: -10px;
+      top: 50%;
+      transform: translateY(-50%);
+      text-align: right;
+    }
+    .festival-year {
+      font-size: 48px;
+      font-weight: 900;
+      color: #c62828;
+      line-height: 1;
+    }
+    .festival-title {
+      font-size: 60px;
+      font-weight: 900;
+      line-height: 0.95;
+      letter-spacing: -3px;
+    }
+    .festival-title .line1 { color: #e53935; }
+    .festival-title .line2 { color: #f06292; }
+    .festival-title .line3 { color: #42a5f5; display: block; }
+    .festival-title .line4 { color: #f48fb1; display: block; }
+
+    /* 3D 블록 텍스트 효과 */
+    .block-letters {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 4px;
+      transform: perspective(400px) rotateY(-8deg) rotateX(5deg);
+    }
+    .block-letter {
+      font-size: 42px;
+      font-weight: 900;
+      padding: 2px 4px;
+      line-height: 1;
+      text-shadow: 2px 2px 0 rgba(0,0,0,.1);
+    }
+
+    .banner-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 30px; height: 50px;
+      background: rgba(0,0,0,.15);
+      border: none;
+      color: #fff;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 5;
+      border-radius: 3px;
+      transition: background .2s;
+    }
+    .banner-arrow:hover { background: rgba(0,0,0,.3); }
+    .banner-arrow.left { left: 4px; }
+    .banner-arrow.right { right: 4px; }
+
+    /* 로그인 버튼 영역 */
+    .login-section {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .login-btn {
+      display: block;
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto 12px;
+      padding: 16px 20px;
+      background: #1565c0;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background .2s;
+      letter-spacing: -0.5px;
+    }
+    .login-btn:hover { background: #0d47a1; }
+    .login-btn .arrow { margin-right: 8px; font-size: 16px; }
+
+    .sub-buttons {
+      display: flex;
+      gap: 8px;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    .sub-btn {
+      flex: 1;
+      padding: 12px 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: #f9f9f9;
+      font-size: 13px;
+      font-weight: 600;
+      color: #444;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background .2s, border-color .2s;
+    }
+    .sub-btn:hover { background: #eee; border-color: #aaa; }
+    .sub-btn .icon { font-size: 16px; }
+
+    /* 안내 문구 */
+    .notice-text {
+      text-align: center;
+      font-size: 12px;
+      color: #888;
+      margin: 20px 0 16px;
+      padding-top: 16px;
+      border-top: 1px solid #eee;
+    }
+    .notice-text .mark { color: #c62828; }
+
+    /* 하단 링크 */
+    .footer-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      font-size: 12px;
+      color: #999;
+    }
+    .footer-links a {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: #888;
+    }
+    .footer-links a:hover { color: #555; }
+    .footer-links .dot {
+      width: 16px; height: 16px;
+      background: #bbb;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      color: #fff;
+    }
+
+    /* 광주교육청 로고 - SVG 대체 */
+    .gj-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+    .gj-logo .circle {
+      width: 40px; height: 40px;
+      border: 3px solid #1565c0;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .gj-logo .circle::before {
+      content: '';
+      width: 16px; height: 16px;
+      background: #e53935;
+      border-radius: 50%;
+      position: absolute;
+      top: 3px; left: 3px;
+    }
+    .gj-logo .circle::after {
+      content: '';
+      width: 10px; height: 10px;
+      background: #1565c0;
+      border-radius: 50%;
+      position: absolute;
+      bottom: 5px; right: 5px;
+    }
+
+    /* 배너 오른쪽 장식 */
+    .deco-blocks {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0;
+    }
+    .deco-row {
+      display: flex;
+      gap: 0;
+    }
+    .deco-block {
+      font-size: 52px;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -5px;
+    }
+    .deco-block.red { color: #e53935; }
+    .deco-block.pink { color: #f48fb1; }
+    .deco-block.blue { color: #42a5f5; }
+    .deco-block.yellow { color: #fdd835; }
+    .deco-block.light-pink { color: #f8bbd0; }
+
+    /* 오른쪽 상단 작은 로고 */
+    .banner-top-right {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      font-size: 11px;
+      color: #666;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      z-index: 3;
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <!-- 헤더 -->
+  <div class="header">
+    <div class="logo-icon">
+      <svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="22" cy="22" r="18" fill="none" stroke="#1565c0" stroke-width="2.5"/>
+        <circle cx="15" cy="16" r="7" fill="#e53935" opacity=".85"/>
+        <circle cx="28" cy="16" r="5" fill="#1565c0" opacity=".7"/>
+        <path d="M12 30 Q22 20 32 30" stroke="#1565c0" stroke-width="2" fill="none"/>
+        <circle cx="26" cy="28" r="4" fill="#42a5f5" opacity=".5"/>
+      </svg>
+    </div>
+    <span class="header-text"><strong>광주광역시교육청</strong></span>
+    <div class="header-divider"></div>
+    <span class="header-sub">업무포털</span>
+  </div>
+
+  <!-- 배너 -->
+  <div class="banner-area">
+    <div class="banner">
+      <div class="banner-left">
+        <div class="banner-sponsors">
+          <span class="label">주최 |</span> 광주광역시교육청
+          &nbsp;&nbsp;<span class="label">공동주관 |</span> 광주광역시교육청
+          &nbsp; 광주고등학생회 &nbsp; 광주교육대학교
+        </div>
+
+        <div class="banner-period-label">신청기간</div>
+        <div class="banner-period">
+          2026. 6. 15.<span class="small">월</span> ~ 6. 22.<span class="small">월</span> 18:00<span class="small">까지</span>
+        </div>
+
+        <div class="banner-info-row">
+          <span class="banner-info-label">신청대상</span>
+          광주광역시 초·중·고등학생 및 학교밖청소년
+        </div>
+        <div class="banner-info-row">
+          <span class="banner-info-label">신청/알림</span>
+          www.광달패.kr
+        </div>
+
+        <div class="banner-sub-info">
+          예선: 2026. 7. 24.(금) ~ 25.(토) &nbsp; 🏛 광주광역시교육청학생교육문화회관<br>
+          본선: 2026. 9. 5.(토) &nbsp; 🏛 광주교육대학교 풍향문화관
+        </div>
+
+        <div class="banner-info-row" style="margin-top: 10px;">
+          <span class="banner-info-label red">문 의</span>
+          062) 380-4373
+        </div>
+        <div class="banner-sub-info" style="margin-top: 2px;">
+          광주광역시교육청 체육건강예술교육과 문화예술교육팀
+        </div>
+      </div>
+
+      <div class="banner-right">
+        <div class="deco-blocks">
+          <div style="font-size:36px;font-weight:900;color:#c62828;letter-spacing:-1px;margin-bottom:-4px;">2026</div>
+          <div class="deco-row">
+            <span class="deco-block red">창</span>
+            <span class="deco-block pink">작</span>
+          </div>
+          <div class="deco-row">
+            <span class="deco-block blue" style="font-size:58px;">페</span>
+            <span class="deco-block light-pink">스</span>
+          </div>
+          <div class="deco-row">
+            <span class="deco-block pink">티</span>
+            <span class="deco-block yellow" style="font-size:46px;">벌</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="banner-top-right">
+        <svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="#1565c0" stroke-width="1.5"/><circle cx="6" cy="6" r="2.5" fill="#e53935" opacity=".7"/></svg>
+        광주광역시교육청
+      </div>
+    </div>
+
+    <button class="banner-arrow left">‹</button>
+    <button class="banner-arrow right">›</button>
+  </div>
+
+  <!-- 로그인 버튼 -->
+  <div class="login-section">
+    <button class="login-btn">
+      <span class="arrow">»</span> 교육행정 전자서명 인증서 로그인
+    </button>
+
+    <div class="sub-buttons">
+      <button class="sub-btn">
+        <span class="icon">👤</span> 사용자 등록
+      </button>
+      <button class="sub-btn">
+        <span class="icon">📝</span> 전자서명인증센터
+      </button>
+      <button class="sub-btn">
+        <span class="icon">🔄</span> 인증서 변경
+      </button>
+    </div>
+  </div>
+
+  <!-- 안내 문구 -->
+  <div class="notice-text">
+    <span class="mark">※</span> 처음 오신 분들은 원활한 서비스를 위해 사용자 등록 및 인증서 등록을 해주시기 바랍니다.
+  </div>
+
+  <!-- 하단 링크 -->
+  <div class="footer-links">
+    <a href="#">
+      <span class="dot">🖥</span> 원격지원
+    </a>
+    <a href="#">
+      <span class="dot">?</span> 이용안내
+    </a>
+    <a href="#">
+      <span class="dot">?</span> 인증서프로그램다운로드
+    </a>
+  </div>
+
+</div>
+
+</body>
+</html>
