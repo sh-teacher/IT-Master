@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>조선대학교 e-class system</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Malgun Gothic', '맑은 고딕', -apple-system, sans-serif; font-size: 13px; color: #333; background: #f0f0f0; }
+    a { text-decoration: none; color: inherit; cursor: pointer; }
+    ul { list-style: none; }
+
+    /* ── 최상단 바 ── */
+    .top-bar {
+      background: #2b2b2b;
+      display: flex; align-items: center; justify-content: flex-end;
+      padding: 4px 20px; font-size: 11px; color: #ccc; gap: 12px;
+    }
+    .top-bar a { color: #ccc; }
+    .top-bar a:hover { color: #fff; }
+    .top-bar .lang { display: flex; gap: 6px; }
+    .top-bar .lang a.active { color: #fff; font-weight: 700; }
+    .top-bar .divider { color: #555; }
+
+    /* ── 헤더 ── */
+    .header {
+      background: #fff;
+      border-bottom: 3px solid #1a3a6e;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .logo-area {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 0;
+    }
+    .logo-mark {
+      width: 44px; height: 44px;
+      background: #1a3a6e;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 900; font-size: 18px;
+    }
+    .logo-text {
+      font-size: 24px; font-weight: 800; color: #1a3a6e;
+      letter-spacing: -1px;
+    }
+    .logo-text .accent { color: #e53935; }
+    .logo-sub {
+      font-size: 11px; color: #888; letter-spacing: 1px; margin-top: -2px;
+    }
+    .header-right {
+      display: flex; align-items: center; gap: 16px; font-size: 12px;
+    }
+    .header-right a {
+      color: #555; padding: 6px 12px; border: 1px solid #ddd; border-radius: 3px;
+    }
+    .header-right a:hover { background: #f5f5f5; }
+    .header-right a.login-btn {
+      background: #1a3a6e; color: #fff; border-color: #1a3a6e;
+    }
+    .header-right a.login-btn:hover { background: #152e58; }
+
+    /* ── 메인 네비게이션 ── */
+    .main-nav-wrap {
+      background: #1a3a6e;
+    }
+    .main-nav {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; justify-content: flex-start; gap: 0;
+    }
+    .main-nav > li {
+      position: relative;
+    }
+    .main-nav > li > a {
+      display: block; padding: 12px 24px;
+      color: #fff; font-size: 14px; font-weight: 600;
+      transition: background .15s;
+    }
+    .main-nav > li > a:hover,
+    .main-nav > li:hover > a {
+      background: #2a5298;
+    }
+    .main-nav .sub-menu {
+      display: none;
+      position: absolute; top: 100%; left: 0;
+      background: #fff; border: 1px solid #ddd;
+      min-width: 180px; z-index: 100;
+      box-shadow: 0 4px 12px rgba(0,0,0,.1);
+    }
+    .main-nav > li:hover .sub-menu { display: block; }
+    .sub-menu li a {
+      display: block; padding: 9px 16px; font-size: 12px; color: #444;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .sub-menu li a:hover { background: #f5f8ff; color: #1a3a6e; }
+    .sub-menu li:last-child a { border-bottom: none; }
+
+    /* ── 비주얼 배너 ── */
+    .visual-banner {
+      max-width: 1100px; margin: 0 auto;
+      background: linear-gradient(135deg, #1a3a6e 0%, #2a5298 40%, #3a7bd5 100%);
+      height: 200px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .visual-banner::before {
+      content: '';
+      position: absolute; top: -40px; right: -40px;
+      width: 200px; height: 200px;
+      background: rgba(255,255,255,.05);
+      border-radius: 50%;
+    }
+    .visual-banner::after {
+      content: '';
+      position: absolute; bottom: -60px; left: -30px;
+      width: 250px; height: 250px;
+      background: rgba(255,255,255,.04);
+      border-radius: 50%;
+    }
+    .visual-banner h2 {
+      font-size: 28px; font-weight: 300; letter-spacing: 2px; z-index: 1;
+    }
+    .visual-banner h2 strong { font-weight: 800; }
+    .visual-banner p {
+      font-size: 13px; opacity: .7; margin-top: 8px; z-index: 1;
+    }
+    .visual-inner { z-index: 1; }
+
+    /* ── 컨테이너 ── */
+    .container {
+      max-width: 1100px; margin: 16px auto; display: flex; gap: 16px;
+    }
+
+    /* ── 메인 콘텐츠 ── */
+    .content-area { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+
+    /* 일정 + 공지사항 */
+    .dual-section { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .section-box {
+      background: #fff; border-radius: 4px; overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    .section-title-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px;
+      background: #fafafa; border-bottom: 2px solid #1a3a6e;
+    }
+    .section-title-bar h3 {
+      font-size: 15px; font-weight: 700; color: #1a3a6e;
+    }
+    .section-title-bar .more {
+      font-size: 11px; color: #888;
+    }
+    .section-title-bar .more:hover { color: #1a3a6e; }
+
+    /* 일정 */
+    .calendar-widget { padding: 16px; }
+    .calendar-mini { width: 100%; }
+    .cal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .cal-header .month { font-size: 15px; font-weight: 700; color: #333; }
+    .cal-header .nav-btn {
+      background: none; border: 1px solid #ddd; padding: 2px 8px;
+      cursor: pointer; border-radius: 3px; font-size: 12px; color: #666;
+    }
+    .cal-header .nav-btn:hover { background: #f0f0f0; }
+    .cal-grid {
+      display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 11px;
+    }
+    .cal-grid .day-header { font-weight: 700; color: #888; padding: 6px 0; border-bottom: 1px solid #eee; }
+    .cal-grid .day-header.sun { color: #e53935; }
+    .cal-grid .day-header.sat { color: #1565c0; }
+    .cal-grid .day-cell { padding: 6px 0; color: #555; cursor: pointer; border-radius: 3px; }
+    .cal-grid .day-cell:hover { background: #f0f4ff; }
+    .cal-grid .day-cell.today { background: #1a3a6e; color: #fff; border-radius: 50%; font-weight: 700; }
+    .cal-grid .day-cell.sun { color: #e53935; }
+    .cal-grid .day-cell.sat { color: #1565c0; }
+    .cal-grid .day-cell.other { color: #ccc; }
+    .cal-grid .day-cell.event { position: relative; }
+    .cal-grid .day-cell.event::after {
+      content: ''; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%);
+      width: 4px; height: 4px; background: #e53935; border-radius: 50%;
+    }
+
+    /* 공지사항 */
+    .notice-list { padding: 0; }
+    .notice-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px; border-bottom: 1px solid #f5f5f5;
+      font-size: 13px;
+    }
+    .notice-item:last-child { border-bottom: none; }
+    .notice-item:hover { background: #fafbff; }
+    .notice-item .title { color: #333; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .notice-item .date { color: #aaa; font-size: 11px; flex-shrink: 0; margin-left: 12px; }
+    .notice-item .badge {
+      display: inline-block; background: #e53935; color: #fff; font-size: 9px;
+      padding: 1px 5px; border-radius: 2px; margin-right: 6px; flex-shrink: 0;
+    }
+
+    /* OCW 영역 */
+    .ocw-section { background: #fff; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+    .ocw-tabs {
+      display: flex; gap: 0; padding: 0 16px; border-bottom: 1px solid #eee;
+    }
+    .ocw-tabs span {
+      padding: 10px 14px; font-size: 12px; color: #888; cursor: pointer;
+      border-bottom: 2px solid transparent;
+    }
+    .ocw-tabs span.active { color: #1a3a6e; border-bottom-color: #1a3a6e; font-weight: 700; }
+    .ocw-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; padding: 16px; }
+    .ocw-card {}
+    .ocw-thumb {
+      width: 100%; aspect-ratio: 16/10; border-radius: 4px; margin-bottom: 8px; overflow: hidden;
+    }
+    .ocw-card h4 { font-size: 12px; font-weight: 600; color: #333; line-height: 1.4; margin-bottom: 3px; }
+    .ocw-card p { font-size: 11px; color: #999; }
+
+    /* ── 사이드바 ── */
+    .sidebar { width: 260px; flex-shrink: 0; display: flex; flex-direction: column; gap: 14px; }
+
+    /* 로그인 박스 */
+    .login-box {
+      background: #fff; border-radius: 4px; overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    .login-box-header {
+      background: #1a3a6e; color: #fff; padding: 12px 16px;
+      font-size: 14px; font-weight: 700;
+    }
+    .login-form { padding: 16px; }
+    .login-form .input-group { margin-bottom: 8px; }
+    .login-form input[type="text"],
+    .login-form input[type="password"] {
+      width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 3px;
+      font-size: 12px; outline: none;
+    }
+    .login-form input:focus { border-color: #1a3a6e; }
+    .login-form .login-submit {
+      width: 100%; padding: 10px; background: #1a3a6e; color: #fff;
+      border: none; border-radius: 3px; font-size: 13px; font-weight: 700;
+      cursor: pointer; margin-top: 4px;
+    }
+    .login-form .login-submit:hover { background: #152e58; }
+    .login-form .login-links {
+      display: flex; justify-content: center; gap: 10px; margin-top: 10px;
+      font-size: 11px; color: #888;
+    }
+    .login-form .login-links a:hover { color: #1a3a6e; }
+
+    /* 퀵메뉴 */
+    .quick-menu {
+      background: #fff; border-radius: 4px; overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    .quick-menu-header {
+      background: #2a5298; color: #fff; padding: 10px 16px;
+      font-size: 13px; font-weight: 700;
+    }
+    .quick-menu-list {}
+    .quick-menu-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 16px; border-bottom: 1px solid #f0f0f0;
+      font-size: 12px; color: #444;
+    }
+    .quick-menu-item:last-child { border-bottom: none; }
+    .quick-menu-item:hover { background: #f5f8ff; color: #1a3a6e; }
+    .quick-menu-icon {
+      width: 28px; height: 28px; border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+    .quick-menu-icon.c1 { background: #e3f2fd; color: #1565c0; }
+    .quick-menu-icon.c2 { background: #fce4ec; color: #c62828; }
+    .quick-menu-icon.c3 { background: #e8f5e9; color: #2e7d32; }
+    .quick-menu-icon.c4 { background: #fff3e0; color: #e65100; }
+    .quick-menu-icon.c5 { background: #f3e5f5; color: #7b1fa2; }
+    .quick-menu-icon.c6 { background: #e0f7fa; color: #00838f; }
+
+    /* Q&A / 자료실 */
+    .side-section {
+      background: #fff; border-radius: 4px; overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    .side-section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px; border-bottom: 1px solid #eee;
+    }
+    .side-section-header h4 { font-size: 13px; font-weight: 700; color: #1a3a6e; }
+    .side-section-header .more { font-size: 11px; color: #aaa; }
+    .side-list-item {
+      padding: 8px 16px; font-size: 11px; color: #555;
+      border-bottom: 1px solid #f8f8f8;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .side-list-item:hover { background: #fafbff; }
+    .side-list-item:last-child { border-bottom: none; }
+
+    /* ── 푸터 ── */
+    footer {
+      background: #2b2b2b; color: #999; text-align: center;
+      padding: 20px; margin-top: 20px; font-size: 11px; line-height: 1.8;
+    }
+    .footer-inner { max-width: 1100px; margin: 0 auto; }
+    .footer-links { margin-bottom: 8px; }
+    .footer-links a { color: #bbb; margin: 0 8px; font-size: 12px; }
+    .footer-links a:hover { color: #fff; }
+    .footer-links a.privacy { color: #e53935; font-weight: 700; }
+    .footer-logo {
+      font-size: 16px; font-weight: 800; color: #666; margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- 최상단 바 -->
+<div class="top-bar">
+  <div class="lang">
+    <a href="#" class="active">한국어</a>
+    <span class="divider">|</span>
+    <a href="#">English</a>
+  </div>
+  <span class="divider">|</span>
+  <a href="#">로그인</a>
+</div>
+
+<!-- 헤더 -->
+<div style="max-width:1100px;margin:0 auto;background:#fff;">
+  <div class="header">
+    <div class="logo-area">
+      <div class="logo-mark">C</div>
+      <div>
+        <div class="logo-text"><span class="accent">e</span>-class system</div>
+        <div class="logo-sub">CHOSUN UNIVERSITY</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <a href="#">회원가입</a>
+      <a href="#" class="login-btn">로그인</a>
+    </div>
+  </div>
+</div>
+
+<!-- 메인 네비게이션 -->
+<div class="main-nav-wrap">
+  <ul class="main-nav">
+    <li>
+      <a href="#">교육현황</a>
+      <ul class="sub-menu">
+        <li><a href="#">개설과목검색</a></li>
+        <li><a href="#">OCW</a></li>
+        <li><a href="#">학사일정</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#">커뮤니티</a>
+      <ul class="sub-menu">
+        <li><a href="#">공지사항</a></li>
+        <li><a href="#">질의응답</a></li>
+        <li><a href="#">자료실</a></li>
+        <li><a href="#">소모임</a></li>
+        <li><a href="#">설문</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#">소개</a>
+      <ul class="sub-menu">
+        <li><a href="#">소개</a></li>
+        <li><a href="#">FAQ</a></li>
+      </ul>
+    </li>
+  </ul>
+</div>
+
+<!-- 비주얼 배너 -->
+<div class="visual-banner">
+  <div class="visual-inner">
+    <h2>Welcome to <strong>e-class system</strong></h2>
+    <p>조선대학교 스마트 러닝 플랫폼에 오신 것을 환영합니다</p>
+  </div>
+</div>
+
+<!-- 메인 컨테이너 -->
+<div class="container">
+
+  <!-- 메인 콘텐츠 -->
+  <div class="content-area">
+
+    <!-- 일정 + 공지사항 -->
+    <div class="dual-section">
+
+      <!-- 일정 -->
+      <div class="section-box">
+        <div class="section-title-bar">
+          <h3>📅 일정</h3>
+          <a class="more" href="#">더보기 ›</a>
+        </div>
+        <div class="calendar-widget">
+          <div class="cal-header">
+            <button class="nav-btn">‹</button>
+            <span class="month">2026년 6월</span>
+            <button class="nav-btn">›</button>
+          </div>
+          <div class="cal-grid">
+            <div class="day-header sun">일</div>
+            <div class="day-header">월</div>
+            <div class="day-header">화</div>
+            <div class="day-header">수</div>
+            <div class="day-header">목</div>
+            <div class="day-header">금</div>
+            <div class="day-header sat">토</div>
+
+            <div class="day-cell other">31</div>
+            <div class="day-cell">1</div>
+            <div class="day-cell">2</div>
+            <div class="day-cell">3</div>
+            <div class="day-cell">4</div>
+            <div class="day-cell">5</div>
+            <div class="day-cell sat">6</div>
+
+            <div class="day-cell sun">7</div>
+            <div class="day-cell event">8</div>
+            <div class="day-cell">9</div>
+            <div class="day-cell today">10</div>
+            <div class="day-cell">11</div>
+            <div class="day-cell">12</div>
+            <div class="day-cell sat">13</div>
+
+            <div class="day-cell sun">14</div>
+            <div class="day-cell event">15</div>
+            <div class="day-cell">16</div>
+            <div class="day-cell">17</div>
+            <div class="day-cell">18</div>
+            <div class="day-cell event">19</div>
+            <div class="day-cell sat">20</div>
+
+            <div class="day-cell sun">21</div>
+            <div class="day-cell">22</div>
+            <div class="day-cell">23</div>
+            <div class="day-cell">24</div>
+            <div class="day-cell">25</div>
+            <div class="day-cell">26</div>
+            <div class="day-cell sat">27</div>
+
+            <div class="day-cell sun">28</div>
+            <div class="day-cell">29</div>
+            <div class="day-cell">30</div>
+            <div class="day-cell other">1</div>
+            <div class="day-cell other">2</div>
+            <div class="day-cell other">3</div>
+            <div class="day-cell other sat">4</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 공지사항 -->
+      <div class="section-box">
+        <div class="section-title-bar">
+          <h3>📢 공지사항</h3>
+          <a class="more" href="#">더보기 ›</a>
+        </div>
+        <div class="notice-list">
+          <div class="notice-item">
+            <span class="badge">NEW</span>
+            <span class="title">2026학년도 1학기 기말고사 시험 일정 안내</span>
+            <span class="date">06.10</span>
+          </div>
+          <div class="notice-item">
+            <span class="badge">NEW</span>
+            <span class="title">e-class 시스템 인증방법 변경 안내</span>
+            <span class="date">06.09</span>
+          </div>
+          <div class="notice-item">
+            <span class="title">2026학년도 하계 계절학기 수강신청 안내</span>
+            <span class="date">06.05</span>
+          </div>
+          <div class="notice-item">
+            <span class="title">온라인 강의 출석 인정 기준 변경 안내</span>
+            <span class="date">06.03</span>
+          </div>
+          <div class="notice-item">
+            <span class="title">2026학년도 1학기 강의평가 실시 안내</span>
+            <span class="date">05.30</span>
+          </div>
+          <div class="notice-item">
+            <span class="title">e-class 모바일 앱 업데이트 안내</span>
+            <span class="date">05.28</span>
+          </div>
+          <div class="notice-item">
+            <span class="title">비밀번호 변경 주기 안내 (90일)</span>
+            <span class="date">05.25</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OCW -->
+    <div class="ocw-section">
+      <div class="section-title-bar">
+        <h3>🎓 OCW (Open Courseware)</h3>
+        <a class="more" href="#">더보기 ›</a>
+      </div>
+      <div class="ocw-tabs">
+        <span class="active">신규</span>
+        <span>인기</span>
+        <span>관심</span>
+      </div>
+      <div class="ocw-grid">
+        <div class="ocw-card">
+          <div class="ocw-thumb" style="background:linear-gradient(135deg,#667eea,#764ba2);border-radius:4px;"></div>
+          <h4>인공지능 기초</h4>
+          <p>컴퓨터공학과 · 김교수</p>
+        </div>
+        <div class="ocw-card">
+          <div class="ocw-thumb" style="background:linear-gradient(135deg,#f093fb,#f5576c);border-radius:4px;"></div>
+          <h4>데이터사이언스 입문</h4>
+          <p>정보통계학과 · 이교수</p>
+        </div>
+        <div class="ocw-card">
+          <div class="ocw-thumb" style="background:linear-gradient(135deg,#4facfe,#00f2fe);border-radius:4px;"></div>
+          <h4>경영학원론</h4>
+          <p>경영학과 · 박교수</p>
+        </div>
+        <div class="ocw-card">
+          <div class="ocw-thumb" style="background:linear-gradient(135deg,#43e97b,#38f9d7);border-radius:4px;"></div>
+          <h4>한국사의 이해</h4>
+          <p>사학과 · 최교수</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 사이드바 -->
+  <div class="sidebar">
+
+    <!-- 로그인 -->
+    <div class="login-box">
+      <div class="login-box-header">로그인</div>
+      <div class="login-form">
+        <div class="input-group">
+          <input type="text" placeholder="아이디">
+        </div>
+        <div class="input-group">
+          <input type="password" placeholder="비밀번호">
+        </div>
+        <button class="login-submit">로그인</button>
+        <div class="login-links">
+          <a href="#">아이디 찾기</a>
+          <span style="color:#ddd;">|</span>
+          <a href="#">비밀번호 찾기</a>
+          <span style="color:#ddd;">|</span>
+          <a href="#">회원가입</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 퀵메뉴 -->
+    <div class="quick-menu">
+      <div class="quick-menu-header">Quick Menu</div>
+      <div class="quick-menu-list">
+        <a class="quick-menu-item" href="#">
+          <div class="quick-menu-icon c1">📚</div> 개설과목검색
+        </a>
+        <a class="quick-menu-item" href="#">
+          <div class="quick-menu-icon c2">🎥</div> OCW
+        </a>
+        <a class="quick-menu-item" href="#">
+          <div class="quick-menu-icon c3">📅</div> 학사일정
+        </a>
+        <a class="quick-menu-item" href="#">
+          <div class="quick-menu-icon c4">📢</div> 공지사항
+        </a>
+        <a class="quick-menu-item" href="#">
+          <div class="quick-menu-icon c5">❓</div> 질의응답
+        </a>
+        <a class="quick-menu-item" href="#">
+          <div class="quick-menu-icon c6">📁</div> 자료실
+        </a>
+      </div>
+    </div>
+
+    <!-- Q&A -->
+    <div class="side-section">
+      <div class="side-section-header">
+        <h4>질의응답</h4>
+        <a class="more" href="#">더보기 ›</a>
+      </div>
+      <div class="side-list-item">출석 인정 관련 문의드립니다</div>
+      <div class="side-list-item">과제 제출 기한 연장 요청</div>
+      <div class="side-list-item">동영상 재생 오류 문의</div>
+    </div>
+
+    <!-- 자료실 -->
+    <div class="side-section">
+      <div class="side-section-header">
+        <h4>자료실</h4>
+        <a class="more" href="#">더보기 ›</a>
+      </div>
+      <div class="side-list-item">e-class 이용 매뉴얼 (학생용)</div>
+      <div class="side-list-item">e-class 이용 매뉴얼 (교수용)</div>
+      <div class="side-list-item">모바일 앱 설치 가이드</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 푸터 -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-links">
+      <a class="privacy" href="#">개인정보처리방침</a>
+      <a href="#">이용약관</a>
+      <a href="#">이메일무단수집거부</a>
+    </div>
+    <div class="footer-logo">CHOSUN UNIVERSITY</div>
+    <div>
+      (61452) 광주광역시 동구 필문대로 309 조선대학교<br>
+      TEL: 062-230-7114 &nbsp;|&nbsp; FAX: 062-230-7030
+    </div>
+    <div style="margin-top:6px;">
+      Copyright © Chosun University. All rights reserved.
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
