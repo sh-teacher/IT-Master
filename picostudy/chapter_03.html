@@ -51,7 +51,6 @@
 
                 <div style="text-align: center; margin: 30px 0;">
                     <svg viewBox="0 0 800 220" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 12px; background: #f8fafc; border: 1px solid #e2e8f0;">
-                        <!-- 루프 개념도 -->
                         <rect x="50" y="60" width="160" height="100" rx="15" fill="#0ea5e9"/>
                         <text x="130" y="115" text-anchor="middle" fill="white" font-weight="bold" font-size="16">LED 켜기 (ON)</text>
                         
@@ -110,12 +109,10 @@ led = Pin("LED", Pin.OUT)
 
 print("2단계: 토글 기능 테스트를 시작합니다.")
 
-# 처음에 꺼져 있었다면 -> 토글되어 켜짐
 led.toggle() 
 print("LED 상태 반전 (켜짐)")
 time.sleep(1.0)
 
-# 현재 켜져 있으므로 -> 토글되어 꺼짐
 led.toggle() 
 print("LED 상태 반전 (꺼짐)")</code></pre>
 
@@ -164,45 +161,31 @@ while True:
                     <p>Pico 보드에 전원(USB 또는 배터리)이 연결되자마자 컴퓨터 도움 없이 자동으로 실행되는 파일명이 바로 <code>main.py</code>입니다. 나중에 작품을 독립적으로 구동시키기 위한 필수 단계입니다.</p>
                 </div>
 
-                <!-- ============================================ -->
-                <!-- 3.4 외부 LED 제어하기 (GPIO 10번 핀)       -->
-                <!-- ============================================ -->
                 <hr style="border: none; border-top: 2px solid #e2e8f0; margin: 50px 0;">
 
                 <h2>3.4 외부 LED 제어하기 (GPIO 10번 핀)</h2>
                 <p>내장 LED에 이어, 이번에는 브레드보드에 LED를 직접 꽂고 GPIO 핀으로 제어해 봅시다. 외부 전자부품을 다루는 첫 번째 실습입니다.</p>
 
-                <!-- ① LED란 -->
                 <h3>① LED란 무엇일까?</h3>
                 <p><strong>LED(Light Emitting Diode)</strong>는 발광 다이오드라고도 하며, 전류를 흘려주면 빛을 내는 작은 전자 부품입니다. 에너지 효율이 좋고 빛의 색상·밝기 제어가 용이해 조명·신호등·디스플레이 등 일상생활 곳곳에서 사용됩니다.</p>
 
                 <div style="text-align:center; margin: 35px 0; background:#f8fafc; padding: 25px; border-radius: 16px; border: 1px solid #e2e8f0;">
                     <svg viewBox="0 0 260 170" xmlns="http://www.w3.org/2000/svg" style="max-width:220px; height:auto;">
-                        <!-- 빛 방사선 -->
                         <line x1="90" y1="32" x2="74" y2="8"  stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
                         <line x1="110" y1="24" x2="110" y2="0" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
                         <line x1="130" y1="32" x2="146" y2="8" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
-                        <!-- LED 돔 (반원) -->
                         <path d="M 70 90 A 40 40 0 0 1 150 90 Z" fill="#fef08a" stroke="#eab308" stroke-width="2"/>
-                        <!-- LED 몸체 -->
                         <rect x="70" y="90" width="80" height="28" fill="#fef08a" stroke="#eab308" stroke-width="2"/>
-                        <!-- 캐소드측 평평한 절단면 표시 -->
                         <line x1="140" y1="90" x2="150" y2="90" stroke="#ca8a04" stroke-width="4"/>
-                        <!-- 긴 다리 (Anode, +) -->
                         <line x1="92"  y1="118" x2="92"  y2="165" stroke="#ef4444" stroke-width="3.5" stroke-linecap="round"/>
-                        <!-- 짧은 다리 (Cathode, -) -->
                         <line x1="128" y1="118" x2="128" y2="152" stroke="#3b82f6" stroke-width="3.5" stroke-linecap="round"/>
-                        <!-- 라벨: 긴 다리 -->
                         <text x="92" y="168" text-anchor="middle" fill="#ef4444" font-size="12" font-weight="bold">+ (긴 다리)</text>
-                        <!-- 라벨: 짧은 다리 -->
                         <text x="128" y="155" text-anchor="middle" fill="#3b82f6" font-size="12" font-weight="bold">- (짧은 다리)</text>
-                        <!-- 가운데 글자 -->
                         <text x="110" y="108" text-anchor="middle" fill="#92400e" font-size="11" font-weight="bold">LED</text>
                     </svg>
                     <p style="color:#64748b; font-size:0.9rem; margin-top:12px; font-weight:500;">LED 외형 — 반구형 몸체와 길이가 다른 2개의 다리</p>
                 </div>
 
-                <!-- ② 극성 -->
                 <h3>② LED의 극성</h3>
                 <p>LED는 2개의 핀(다리)을 가지며, 핀마다 <strong>+ / - 극성</strong>이 있기 때문에 반드시 방향을 구분하여 회로에 연결해야 합니다.</p>
 
@@ -229,7 +212,6 @@ while True:
                     <p style="margin-bottom:0; line-height:1.7;">핀 방향을 고려하지 않고 잘못 연결하면, 코드가 올바르게 작성되어도 전류가 흐르지 못해 LED가 켜지지 않습니다. 항상 <strong>긴 다리(+) → GPIO, 짧은 다리(-) → GND</strong> 방향을 확인하세요!</p>
                 </div>
 
-                <!-- ③ 회로도 -->
                 <h3>③ LED 회로도 구성</h3>
                 <p>GPIO 10번 핀과 GND 핀 사이에 <strong>330Ω 저항</strong>과 LED를 직렬로 연결합니다. 저항은 과전류로부터 LED를 보호하기 위해 반드시 필요합니다.</p>
 
@@ -240,54 +222,42 @@ while True:
                                 <polygon points="0 0, 8 3.5, 0 7" fill="#fbbf24"/>
                             </marker>
                         </defs>
-                        <!-- Pico 보드 -->
                         <rect x="10" y="40" width="100" height="120" rx="8" fill="#16a34a" stroke="#15803d" stroke-width="2.5"/>
                         <text x="60" y="90"  text-anchor="middle" fill="white" font-size="13" font-weight="bold">PICO</text>
                         <text x="60" y="107" text-anchor="middle" fill="white" font-size="10">2 WH</text>
-                        <!-- GPIO 10 핀 -->
                         <rect x="108" y="70" width="12" height="12" rx="2" fill="#94a3b8" stroke="#64748b"/>
                         <text x="60" y="68" text-anchor="middle" fill="#d1fae5" font-size="9">GPIO 10</text>
-                        <!-- GND 핀 -->
                         <rect x="108" y="128" width="12" height="12" rx="2" fill="#1e293b" stroke="#374151"/>
                         <text x="60" y="126" text-anchor="middle" fill="#d1fae5" font-size="9">GND</text>
 
-                        <!-- 빨간 전선: GPIO10 → 저항 -->
                         <line x1="120" y1="76" x2="190" y2="76" stroke="#ef4444" stroke-width="2.5"/>
-                        <!-- 저항 -->
                         <rect x="190" y="66" width="70" height="20" rx="4" fill="white" stroke="#374151" stroke-width="2"/>
                         <text x="225" y="80" text-anchor="middle" fill="#374151" font-size="11" font-weight="bold">330Ω</text>
                         <text x="225" y="105" text-anchor="middle" fill="#64748b" font-size="10">저항 (Resistor)</text>
-                        <!-- 빨간 전선: 저항 → LED 애노드 -->
                         <line x1="260" y1="76" x2="340" y2="76" stroke="#ef4444" stroke-width="2.5"/>
-                        <!-- + 라벨 -->
                         <text x="335" y="63" fill="#ef4444" font-size="13" font-weight="bold">+</text>
-                        <!-- LED 심볼 (삼각형 + 수직선) -->
                         <polygon points="340,58 340,94 378,76" fill="#fef9c3" stroke="#ca8a04" stroke-width="2"/>
                         <line x1="378" y1="58" x2="378" y2="94" stroke="#374151" stroke-width="3"/>
-                        <!-- - 라벨 -->
                         <text x="382" y="63" fill="#3b82f6" font-size="13" font-weight="bold">-</text>
-                        <!-- 빛 화살표 -->
                         <line x1="386" y1="62" x2="406" y2="44" stroke="#fbbf24" stroke-width="2" marker-end="url(#arr)"/>
                         <line x1="386" y1="72" x2="408" y2="56" stroke="#fbbf24" stroke-width="2" marker-end="url(#arr)"/>
                         <text x="390" y="105" text-anchor="middle" fill="#64748b" font-size="10">LED</text>
-                        <!-- 검은 전선: LED 캐소드 → GND 복귀 -->
                         <line x1="379" y1="76" x2="480" y2="76"  stroke="#374151" stroke-width="2.5"/>
                         <line x1="480" y1="76" x2="480" y2="134" stroke="#374151" stroke-width="2.5"/>
                         <line x1="120" y1="134" x2="480" y2="134" stroke="#374151" stroke-width="2.5"/>
-                        <!-- 전류 방향 라벨 -->
                         <text x="290" y="58" text-anchor="middle" fill="#ef4444" font-size="10">전류 흐름 →</text>
                         <text x="300" y="155" text-anchor="middle" fill="#374151" font-size="10">← GND 복귀</text>
                     </svg>
                     <p style="color:#64748b; font-size:0.9rem; margin-top:12px; font-weight:500;">GPIO 10 → 330Ω 저항 → LED (+) → LED (-) → GND 회로도</p>
                 </div>
 
-                <!-- ④ 코드 1 -->
                 <h3>④ 코드 작성하기 ①</h3>
                 <p>아래 코드를 실행하면 GPIO 10번에 연결된 LED가 켜집니다.</p>
 
-                <pre><code>from kmpico import LED
+                <pre><code>from machine import Pin
 
-led10 = LED(10)   # GPIO 10번 핀에 연결된 LED 설정
+# GPIO 10번 핀을 출력(OUT) 모드로 설정하여 LED 객체 생성
+led10 = Pin(10, Pin.OUT)   
 led10.on()        # LED 켜기</code></pre>
 
                 <details style="margin: 20px 0; border-radius: 8px; border: 1px solid #fca5a5; overflow:hidden;">
@@ -317,18 +287,17 @@ led10.on()        # LED 켜기</code></pre>
                     </details>
                 </div>
 
-                <!-- ⑤ 코드 2 -->
                 <h3>⑤ 코드 작성하기 ②</h3>
-                <p>이번에는 <code>sleep()</code>을 활용하여 LED를 3초 켰다가 끄는 코드를 작성해 봅시다.</p>
+                <p>이번에는 <code>time.sleep()</code>을 활용하여 LED를 3초 켰다가 끄는 코드를 작성해 봅시다.</p>
 
-                <pre><code>from kmpico import LED
-from time import sleep
+                <pre><code>from machine import Pin
+import time
 
-led10 = LED(10)
+led10 = Pin(10, Pin.OUT)
 led10.on()    # LED 켜기
-sleep(3)      # 3초 대기
+time.sleep(3)      # 3초 대기
 led10.off()   # LED 끄기
-sleep(3)      # 3초 대기</code></pre>
+time.sleep(3)      # 3초 대기</code></pre>
 
                 <details style="margin: 20px 0; border-radius: 8px; border: 1px solid #fca5a5; overflow:hidden;">
                     <summary style="background:#fef2f2; padding:12px 16px; cursor:pointer; font-weight:600; color:#991b1b; list-style:none; display:flex; align-items:center; gap:8px;">
@@ -343,7 +312,6 @@ sleep(3)      # 3초 대기</code></pre>
                     </ul>
                 </details>
 
-                <!-- 과제 -->
                 <h3>🏆 과제 해결해보기!</h3>
 
                 <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin-bottom: 24px;">
@@ -361,22 +329,18 @@ sleep(3)      # 3초 대기</code></pre>
                                         <polygon points="0 0, 7 3, 0 6" fill="#fbbf24"/>
                                     </marker>
                                 </defs>
-                                <!-- Pico 보드 -->
                                 <rect x="10" y="30" width="100" height="230" rx="8" fill="#16a34a" stroke="#15803d" stroke-width="2.5"/>
                                 <text x="60" y="138" text-anchor="middle" fill="white" font-size="13" font-weight="bold">PICO</text>
                                 <text x="60" y="153" text-anchor="middle" fill="white" font-size="10">2 WH</text>
-                                <!-- GPIO 핀들 -->
                                 <rect x="108" y="55"  width="12" height="12" rx="2" fill="#94a3b8"/>
                                 <rect x="108" y="120" width="12" height="12" rx="2" fill="#94a3b8"/>
                                 <rect x="108" y="185" width="12" height="12" rx="2" fill="#94a3b8"/>
-                                <!-- GND 핀 -->
                                 <rect x="108" y="225" width="12" height="12" rx="2" fill="#1e293b"/>
                                 <text x="60" y="53"  text-anchor="middle" fill="#d1fae5" font-size="9">GPIO 10</text>
                                 <text x="60" y="118" text-anchor="middle" fill="#d1fae5" font-size="9">GPIO 11</text>
                                 <text x="60" y="183" text-anchor="middle" fill="#d1fae5" font-size="9">GPIO 12</text>
                                 <text x="60" y="223" text-anchor="middle" fill="#d1fae5" font-size="9">GND</text>
 
-                                <!-- LED 1 (GPIO10) -->
                                 <line x1="120" y1="61"  x2="190" y2="61"  stroke="#ef4444" stroke-width="2"/>
                                 <rect x="190" y="52" width="55" height="18" rx="3" fill="white" stroke="#374151" stroke-width="1.5"/>
                                 <text x="217" y="64" text-anchor="middle" fill="#374151" font-size="9" font-weight="bold">330Ω</text>
@@ -385,7 +349,6 @@ sleep(3)      # 3초 대기</code></pre>
                                 <line x1="328" y1="50" x2="328" y2="72" stroke="#374151" stroke-width="2"/>
                                 <line x1="329" y1="61" x2="380" y2="61" stroke="#374151" stroke-width="2"/>
 
-                                <!-- LED 2 (GPIO11) -->
                                 <line x1="120" y1="126" x2="190" y2="126" stroke="#ef4444" stroke-width="2"/>
                                 <rect x="190" y="117" width="55" height="18" rx="3" fill="white" stroke="#374151" stroke-width="1.5"/>
                                 <text x="217" y="129" text-anchor="middle" fill="#374151" font-size="9" font-weight="bold">330Ω</text>
@@ -394,7 +357,6 @@ sleep(3)      # 3초 대기</code></pre>
                                 <line x1="328" y1="115" x2="328" y2="137" stroke="#374151" stroke-width="2"/>
                                 <line x1="329" y1="126" x2="380" y2="126" stroke="#374151" stroke-width="2"/>
 
-                                <!-- LED 3 (GPIO12) -->
                                 <line x1="120" y1="191" x2="190" y2="191" stroke="#ef4444" stroke-width="2"/>
                                 <rect x="190" y="182" width="55" height="18" rx="3" fill="white" stroke="#374151" stroke-width="1.5"/>
                                 <text x="217" y="194" text-anchor="middle" fill="#374151" font-size="9" font-weight="bold">330Ω</text>
@@ -403,14 +365,12 @@ sleep(3)      # 3초 대기</code></pre>
                                 <line x1="328" y1="180" x2="328" y2="202" stroke="#374151" stroke-width="2"/>
                                 <line x1="329" y1="191" x2="380" y2="191" stroke="#374151" stroke-width="2"/>
 
-                                <!-- 공통 GND 모음 -->
                                 <line x1="380" y1="61"  x2="420" y2="61"  stroke="#374151" stroke-width="2"/>
                                 <line x1="380" y1="126" x2="420" y2="126" stroke="#374151" stroke-width="2"/>
                                 <line x1="380" y1="191" x2="420" y2="191" stroke="#374151" stroke-width="2"/>
                                 <line x1="420" y1="61" x2="420" y2="231"  stroke="#374151" stroke-width="2"/>
                                 <line x1="120" y1="231" x2="420" y2="231" stroke="#374151" stroke-width="2"/>
 
-                                <!-- 라벨 -->
                                 <text x="315" y="47"  text-anchor="middle" fill="#92400e" font-size="9">LED1</text>
                                 <text x="315" y="112" text-anchor="middle" fill="#92400e" font-size="9">LED2</text>
                                 <text x="315" y="177" text-anchor="middle" fill="#92400e" font-size="9">LED3</text>
@@ -425,11 +385,11 @@ sleep(3)      # 3초 대기</code></pre>
                             💻 정답 코드 보기
                         </summary>
                         <div style="padding:15px;">
-<pre style="margin:0;"><code>from kmpico import LED
+<pre style="margin:0;"><code>from machine import Pin
 
-led10 = LED(10)
-led11 = LED(11)
-led12 = LED(12)
+led10 = Pin(10, Pin.OUT)
+led11 = Pin(11, Pin.OUT)
+led12 = Pin(12, Pin.OUT)
 
 led10.on()
 led11.on()
@@ -452,24 +412,24 @@ led12.on()</code></pre>
                             💻 정답 코드 보기
                         </summary>
                         <div style="padding:15px;">
-<pre style="margin:0;"><code>from kmpico import LED
-from time import sleep
+<pre style="margin:0;"><code>from machine import Pin
+import time
 
-red    = LED(10)   # 빨간 LED (GPIO 10)
-yellow = LED(11)   # 노란 LED (GPIO 11)
-green  = LED(12)   # 초록 LED (GPIO 12)
+red    = Pin(10, Pin.OUT)   # 빨간 LED (GPIO 10)
+yellow = Pin(11, Pin.OUT)   # 노란 LED (GPIO 11)
+green  = Pin(12, Pin.OUT)   # 초록 LED (GPIO 12)
 
 while True:
     red.on()
-    sleep(3)       # 빨간 3초
+    time.sleep(3)       # 빨간 3초
     red.off()
 
     yellow.on()
-    sleep(1)       # 노란 1초
+    time.sleep(1)       # 노란 1초
     yellow.off()
 
     green.on()
-    sleep(3)       # 초록 3초
+    time.sleep(3)       # 초록 3초
     green.off()</code></pre>
                         </div>
                     </details>
