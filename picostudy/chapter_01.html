@@ -35,14 +35,34 @@
         <main class="content">
             <div class="container">
                 <h1>Chapter 1. 하드웨어 및 환경 구축</h1>
-                
-                <h2>1.1 차세대 마이크로컨트롤러 RP2350 칩셋 스펙</h2>
+
+                <!-- ============================== -->
+                <!-- 1.1 Pico 생김새                -->
+                <!-- ============================== -->
+                <h2>1.1 라즈베리파이 Pico 생김새</h2>
+                <p>라즈베리파이 Pico는 영국의 라즈베리파이 재단에서 만든 소형 마이크로컨트롤러 보드입니다. 손바닥보다 작은 크기이지만, 각종 센서·LED·모터 등 전자부품을 직접 연결하여 제어할 수 있는 강력한 성능을 갖추고 있습니다.</p>
+
                 <div style="text-align: center; margin: 40px 0; background-color: #f8fafc; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0;">
-                    <img src="chapter0101.png" alt="Pico WH 설명" style="max-width: 100%; height: auto; border-radius: 8px;">
-                    <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">Pico 보드 설명 (Raspberry Pi 공식 제공)</p>
+                    <img src="chapter0101.png" alt="Pico 2 WH 보드 전체 설명" style="max-width: 100%; height: auto; border-radius: 8px;">
+                    <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">Pico 2 WH 보드 구성 (Raspberry Pi 공식 제공)</p>
                 </div>
-                <p>Pico 2 WH의 심장은 라즈베리 파이 재단이 직접 설계한 차세대 고성능 마이크로컨트롤러 <strong>RP2350</strong> 칩셋입니다. 이전 세대인 RP2040에 비해 프로세서 아키텍처가 대폭 업그레이드되었으며, 연산 속도와 메모리 효율, 그리고 IoT 보안 기술인 Arm TrustZone-M이 탑재되어 더욱 강력하고 안전한 프로젝트 환경을 제공합니다.</p>
-                
+
+                <div class="callout info">
+                    <h4>💡 라즈베리파이 Pico 구성</h4>
+                    <ul style="margin-top: 8px; line-height: 1.9;">
+                        <li>라즈베리파이 Pico는 <strong>초록색 보드</strong>와 보드와 PC를 연결하기 위한 <strong>마이크로 5핀 케이블</strong>로 구성되어 있습니다.</li>
+                        <li>보드 양쪽에는 <strong>40개의 핀(다리)</strong>이 있어 센서·LED 등 다양한 전자부품을 연결할 수 있습니다.</li>
+                        <li>보드 위의 작은 흰색 버튼은 <strong>BOOTSEL(부트셀) 버튼</strong>으로, 최초 펌웨어 설치 시 사용합니다.</li>
+                        <li>보드 뒤에 붙은 <strong>'H'</strong>는 Header(헤더 핀)의 약자로, 공장에서 미리 핀이 납땜된 제품입니다. 별도 납땜 없이 바로 사용 가능합니다.</li>
+                    </ul>
+                </div>
+
+                <!-- ============================== -->
+                <!-- 1.2 RP2350 칩셋 스펙           -->
+                <!-- ============================== -->
+                <h2>1.2 차세대 마이크로컨트롤러 RP2350 칩셋 스펙</h2>
+                <p>Pico 2 WH의 심장은 라즈베리파이 재단이 직접 설계한 차세대 고성능 마이크로컨트롤러 <strong>RP2350</strong> 칩셋입니다. 이전 세대인 RP2040에 비해 프로세서 아키텍처가 대폭 업그레이드되었으며, 연산 속도와 메모리 효율, 그리고 IoT 보안 기술인 Arm TrustZone-M이 탑재되어 더욱 강력하고 안전한 프로젝트 환경을 제공합니다.</p>
+
                 <table style="width:100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 40px; font-size: 0.95rem;">
                     <tr style="background-color: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
                         <th style="padding: 12px 15px; text-align: left; width: 25%;">항목 (Specification)</th>
@@ -86,23 +106,20 @@
                     </tr>
                 </table>
 
-                <h2>1.2 하드웨어 제어의 핵심: 핀 배열(Pinout)</h2>
+                <!-- ============================== -->
+                <!-- 1.3 핀 배열(Pinout)            -->
+                <!-- ============================== -->
+                <h2>1.3 하드웨어 제어의 핵심: 핀 배열(Pinout)</h2>
                 <p>센서와 모터 등 외부 부품을 연결하려면 보드 양쪽에 일렬로 늘어선 40개의 금속 핀(다리)들의 역할을 정확히 알아야 합니다. 아래의 핀맵(Pinout) 다이어그램은 앞으로 하드웨어 조립 시 가장 많이 참고하게 될 핵심 지도입니다.</p>
-                
-                
+
                 <div style="text-align: center; margin: 40px 0; background-color: #f8fafc; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0;">
                     <img src="https://www.raspberrypi.com/documentation/microcontrollers/images/pico2w-pinout.svg" alt="Pico W 공식 핀맵 다이어그램" style="max-width: 100%; height: auto; border-radius: 8px;">
                     <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">Pico 시리즈 공식 핀 배열도 (Raspberry Pi 공식 제공)</p>
                 </div>
 
-                <div class="callout info">
-                    <h4>💡 내가 가진 보드가 Pico 2 WH 라면?</h4>
-                    <p>보드 이름 뒤에 붙은 <strong>'H'</strong>는 <strong>Header(헤더 핀)</strong>의 약자입니다. 공장에서부터 금속 다리(핀)가 완벽하게 납땜되어 출고된 제품이므로, 별도의 인두기 납땜 작업 없이 곧바로 브레드보드(빵판)에 꽂아서 다양한 센서 실습을 시작할 수 있습니다.</p>
-                </div>
-
                 <h3>📌 초보자가 반드시 알아야 할 4가지 핵심 핀</h3>
                 <p>40개의 핀을 당장 모두 외울 필요는 없습니다. 색상별로 구분된 아래의 4가지 역할만 이해하면 대부분의 부품을 연결할 수 있습니다.</p>
-                
+
                 <table style="width:100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 40px; font-size: 0.95rem;">
                     <tr style="background-color: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
                         <th style="padding: 15px; text-align: left; width: 25%;">핀 이름 (색상)</th>
@@ -126,22 +143,194 @@
                     </tr>
                 </table>
 
-                <h2>1.3 개발 환경 Thonny IDE 설치 (권장)</h2>
-                <p>하드웨어 다리들의 이름을 알았다면, 이제 보드에 명령(코드)을 써서 전달해 줄 번역기 프로그램이 필요합니다. 처음 입문할 때는 초보자 친화적인 <strong>Thonny(토니)</strong> 에디터 사용을 적극 권장합니다.</p>
-                
+                <!-- ============================== -->
+                <!-- 1.4 PC 연결                    -->
+                <!-- ============================== -->
+                <h2>1.4 라즈베리파이 Pico와 PC 연결하기</h2>
+                <p>하드웨어를 파악했다면, 이제 Pico 보드를 PC에 연결해야 합니다. 단순히 USB 케이블만 꽂는 것이 아니라, <strong>BOOTSEL 버튼을 활용한 최초 1회 펌웨어 설치</strong>가 필요합니다. 아래 순서를 차근차근 따라하세요.</p>
+
                 <div class="callout info">
-                    <h4>💻 Thonny 다운로드 및 설치 방법</h4>
-                    <ol style="margin-top: 10px; margin-left: 15px;">
-                        <li>공식 웹사이트인 <a href="https://thonny.org" target="_blank" style="color: #0ea5e9; font-weight: 600;">thonny.org</a>에 접속합니다.</li>
-                        <li>화면 우측 상단의 <strong>Windows</strong> 글자를 클릭하여 설치 파일(exe)을 다운로드합니다.</li>
-                        <li>다운로드된 파일을 실행하고, 특별한 설정 변경 없이 [Next]를 눌러 설치를 완료합니다.</li>
+                    <h4>💡 1단계: BOOTSEL 버튼으로 PC에 연결하기</h4>
+                    <ol style="margin-top: 8px; line-height: 2;">
+                        <li>마이크로 5핀 케이블을 라즈베리파이 Pico 보드에 먼저 연결합니다.</li>
+                        <li>보드 위의 <strong>흰색 BOOTSEL 버튼을 꾹 누른 채로</strong> USB 반대쪽을 PC에 연결합니다.</li>
+                        <li>PC에 연결이 감지되면 손을 뗍니다.</li>
                     </ol>
                 </div>
-                <div style="text-align: center; margin: 40px 0;">
-                    <img src="chapter0102.png" alt="Thonny연결" style="max-width: 100%; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
-                    <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">Thonny IDE에서 pico 연결</p>
+
+                <div style="text-align: center; margin: 40px 0; background-color: #f8fafc; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0;">
+                    <img src="https://www.raspberrypi.com/documentation/microcontrollers/images/MicroPython-640x360-v2.gif" alt="BOOTSEL 버튼을 누른 채 PC에 연결하는 방법" style="max-width: 100%; height: auto; border-radius: 8px;">
+                    <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">BOOTSEL 버튼을 누른 채 연결하는 방법 (Raspberry Pi 공식 제공)</p>
                 </div>
-                <h2>1.4 고급 개발 환경: VS Code 구축 (선택 사항)</h2>
+
+                <div class="callout info">
+                    <h4>💡 2단계: MicroPython 펌웨어 설치하기</h4>
+                    <ol style="margin-top: 8px; line-height: 2;">
+                        <li>BOOTSEL 버튼을 누른 채 연결하면 탐색기에서 <strong>USB 드라이브(RPI-RP2)</strong>가 새로 나타납니다.</li>
+                        <li>라즈베리파이 공식 사이트에서 <strong>MicroPython 펌웨어 파일(.uf2)</strong>을 다운로드합니다.</li>
+                        <li>다운로드한 <code>.uf2</code> 파일을 탐색기에서 <strong>RPI-RP2 드라이브 안으로 드래그 앤 드롭</strong>합니다.</li>
+                        <li>파일 복사가 끝나면 드라이브가 자동으로 사라지고 Pico가 재시작됩니다. 연결 완료!</li>
+                    </ol>
+                </div>
+
+                <div style="background-color: #fef2f2; padding: 20px; border-radius: 8px; border-left: 4px solid #ef4444; margin-bottom: 30px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+                    <h4 style="margin-top:0; margin-bottom:12px; color: #991b1b;"><i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> BOOTSEL 버튼 주의사항</h4>
+                    <p style="margin-bottom: 0; line-height: 1.7;">BOOTSEL 버튼을 누르지 않고 연결하면 <strong>RPI-RP2 드라이브가 나타나지 않습니다.</strong> 반드시 버튼을 누른 상태에서 케이블을 PC에 꽂으세요. 펌웨어를 한 번 설치하고 나면, 이후부터는 버튼 없이 일반 USB처럼 꽂기만 해도 됩니다.</p>
+                </div>
+
+                <!-- ============================== -->
+                <!-- 1.5 Thonny 설치               -->
+                <!-- ============================== -->
+                <h2>1.5 개발 환경 Thonny IDE 설치</h2>
+                <p>하드웨어 준비가 완료되었다면, 이제 Pico에 명령(코드)을 전달할 번역기 프로그램이 필요합니다. 처음 입문할 때는 초보자 친화적인 <strong>Thonny(토니)</strong> 에디터 사용을 적극 권장합니다.</p>
+
+                <div class="callout info">
+                    <h4>💻 Thonny 다운로드 및 설치 방법</h4>
+                    <ol style="margin-top: 10px; margin-left: 15px; line-height: 2.2;">
+                        <li>공식 웹사이트 <a href="https://thonny.org" target="_blank" style="color: #0ea5e9; font-weight: 600;">thonny.org</a>에 접속합니다.</li>
+                        <li>화면 우측 상단의 <strong>Windows</strong> 글자를 클릭하여 설치 파일(.exe)을 다운로드합니다.</li>
+                        <li>다운로드된 파일을 실행하고, 특별한 설정 변경 없이 <strong>[Next]</strong>를 눌러 설치를 완료합니다.</li>
+                        <li>설치 완료 후 바탕화면에 <strong>Thonny 아이콘</strong>이 생성됩니다.</li>
+                    </ol>
+                </div>
+
+                <div style="text-align: center; margin: 40px 0;">
+                    <img src="chapter0102.png" alt="Thonny IDE에서 Pico 연결" style="max-width: 100%; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+                    <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">Thonny IDE에서 Pico 연결 화면</p>
+                </div>
+
+                <!-- ============================== -->
+                <!-- 1.6 Thonny 시작하기            -->
+                <!-- ============================== -->
+                <h2>1.6 Thonny 시작 및 Pico 연결하기</h2>
+                <p>Thonny 설치가 끝났다면, Pico 보드와 연결하는 과정이 필요합니다. 아래 순서대로 따라하면 코드 작성을 바로 시작할 수 있습니다.</p>
+
+                <div class="callout info">
+                    <h4>💡 Thonny와 Pico 연결 순서</h4>
+                    <ol style="margin-top: 8px; line-height: 2.2;">
+                        <li>바탕화면의 <strong>Thonny 아이콘</strong>을 더블클릭하여 프로그램을 실행합니다.</li>
+                        <li>처음 실행 시 언어 선택 화면이 나타나면 <strong>한국어</strong>로 설정한 후 [Let's go!]를 클릭합니다.</li>
+                        <li>Thonny 화면 <strong>우측 하단의 인터프리터 버튼</strong>(예: "Local Python 3")을 클릭합니다.</li>
+                        <li>목록에서 <strong>MicroPython (Raspberry Pi Pico)</strong>를 선택합니다.</li>
+                        <li>하단 <strong>[쉘(Shell)]</strong> 창에 <code>>>></code> 프롬프트가 표시되면 연결 완료 — 코드 작성 준비 끝!</li>
+                    </ol>
+                </div>
+
+                <div style="background-color: #f0fdf4; padding: 20px; border-radius: 8px; border-left: 4px solid #22c55e; margin-bottom: 30px;">
+                    <h4 style="margin-top:0; margin-bottom:10px; color: #15803d;"><i class="fa-solid fa-circle-check" style="color:#22c55e;"></i> 연결 확인 방법</h4>
+                    <p style="margin-bottom: 0; line-height: 1.7;">Thonny 하단 [쉘] 창에 <code>MicroPython vX.X.X; Raspberry Pi Pico</code> 문구가 표시되면 Pico와 정상적으로 연결된 것입니다. 만약 연결이 되지 않는다면 Pico를 다시 꽂은 후 인터프리터를 재선택해 보세요.</p>
+                </div>
+
+                <!-- ============================== -->
+                <!-- 1.7 첫 번째 코드 - LED         -->
+                <!-- ============================== -->
+                <h2>1.7 첫 번째 코드 실행 — LED 점멸(Blink)</h2>
+                <p>환경 설정이 모두 완료되었습니다! 이제 직접 코드를 작성하고 실행해 봅시다. 아래는 Pico에 내장된 LED를 켰다 끄는 가장 기본적인 예제입니다.</p>
+
+                <pre><code>from machine import Pin
+import time
+
+# 내장 LED를 출력(OUT) 모드로 설정
+led = Pin("LED", Pin.OUT)
+
+print("1단계: LED 제어 테스트를 시작합니다.")
+
+# 1. LED 켜기
+led.on()
+print("LED 켜짐")
+time.sleep(1.5)  # 1.5초 동안 유지
+
+# 2. LED 끄기
+led.off()
+print("LED 꺼짐")</code></pre>
+
+                <div class="callout info">
+                    <h4>▶️ 코드 실행 및 결과 확인 방법</h4>
+                    <ol style="margin-top: 8px; line-height: 2.2;">
+                        <li>위 코드를 Thonny 코드 입력 창에 작성(또는 붙여넣기)합니다.</li>
+                        <li>좌측 상단의 <strong>▶️ (실행) 버튼</strong>을 클릭하면 코드가 실행됩니다.</li>
+                        <li>하단 <strong>[쉘] 창</strong>에서 <code>LED 켜짐</code>, <code>LED 꺼짐</code> 메시지를 확인합니다.</li>
+                        <li>Pico 보드 위의 내장 LED가 1.5초 동안 켜졌다가 꺼지면 성공!</li>
+                    </ol>
+                    <p style="margin-top: 12px;"><strong>💡 Tip:</strong> [보기] 탭 → [쉘]을 클릭하면 실행 결과 창을, [보기] 탭 → [파일]을 클릭하면 Pico에 저장된 파일 목록을 확인할 수 있습니다.</p>
+                </div>
+
+                <div class="callout info">
+                    <h4>💾 Pico 내부에 파일 저장하기</h4>
+                    <ol style="margin-top: 8px; line-height: 2.2;">
+                        <li>코드 작성 후 좌측 상단의 <strong>💾 (저장) 버튼</strong>을 클릭합니다.</li>
+                        <li>저장 위치 선택 창이 나타나면 <strong>[Raspberry Pi Pico]</strong>를 선택합니다.</li>
+                        <li>파일명을 입력합니다. 반드시 확장자를 <strong><code>.py</code></strong>로 지정해야 합니다.<br>예) <code>test.py</code>, <code>blink.py</code></li>
+                    </ol>
+                    <p style="margin-top: 12px;"><strong>💡 핵심 Tip:</strong> 파일명을 <code>main.py</code>로 저장하면, Pico에 외부 전원(배터리 등)이 공급되는 순간 해당 코드가 <strong>자동으로 실행</strong>됩니다! 독립형 IoT 기기를 만들 때 필수 개념입니다.</p>
+                </div>
+
+                <!-- ============================== -->
+                <!-- 1.8 브레드보드 및 점퍼선       -->
+                <!-- ============================== -->
+                <h2>1.8 브레드보드 및 점퍼선 이해하기</h2>
+                <p>센서나 LED 등 전자부품을 Pico와 연결할 때는 <strong>브레드보드(빵판)</strong>와 <strong>점퍼선</strong>을 활용합니다. 납땜 없이 부품을 끼웠다 뺄 수 있어 초보자도 쉽게 회로를 구성하고 수정할 수 있습니다.</p>
+
+                <h3>🔌 브레드보드(빵판) 구조와 원리</h3>
+                <p>브레드보드는 내부에 금속 클립이 가로 방향으로 연결되어 있어, <strong>같은 행(가로줄)에 꽂힌 핀들이 서로 전기적으로 연결</strong>됩니다.</p>
+
+                <table style="width:100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 40px; font-size: 0.95rem;">
+                    <tr style="background-color: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
+                        <th style="padding: 15px; text-align: left; width: 25%;">구성 영역</th>
+                        <th style="padding: 15px; text-align: left; width: 20%;">위치</th>
+                        <th style="padding: 15px; text-align: left;">역할 및 설명</th>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                        <td style="padding: 15px; font-weight: 600;">전원 레일<br><span style="font-size:0.85rem; color:#64748b;">(Power Rail)</span></td>
+                        <td style="padding: 15px; color: #64748b;">양쪽 끝 세로 줄</td>
+                        <td style="padding: 15px;"><strong>(+) 빨간 줄, (-) 파란 줄</strong>로 표시됩니다. 보드 전체에 전원(3.3V/5V)과 GND를 공급하는 통로입니다. 같은 줄은 세로 방향으로 모두 연결되어 있습니다.</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                        <td style="padding: 15px; font-weight: 600;">부품 영역<br><span style="font-size:0.85rem; color:#64748b;">(Component Area)</span></td>
+                        <td style="padding: 15px; color: #64748b;">가운데 구멍들</td>
+                        <td style="padding: 15px;">센서·LED·저항 등 부품을 꽂는 공간입니다. <strong>같은 행(가로줄, a~e / f~j)의 구멍끼리 내부에서 연결</strong>되어 있습니다. 가운데 홈을 기준으로 위아래 구역은 분리됩니다.</td>
+                    </tr>
+                </table>
+
+                <h3>🔗 점퍼선 종류와 용도</h3>
+                <p>점퍼선은 전류가 지나갈 수 있도록 전자부품들을 이어주는 연결선입니다. 연결하려는 부품의 단자 형태에 따라 알맞은 종류를 선택해야 합니다.</p>
+
+                <table style="width:100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 40px; font-size: 0.95rem;">
+                    <tr style="background-color: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
+                        <th style="padding: 15px; text-align: left; width: 20%;">종류</th>
+                        <th style="padding: 15px; text-align: left; width: 20%;">양쪽 단자</th>
+                        <th style="padding: 15px; text-align: left;">주요 사용처</th>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                        <td style="padding: 15px; font-weight: 600;">수수(Male-Male)</td>
+                        <td style="padding: 15px; color: #64748b;">핀 ↔ 핀</td>
+                        <td style="padding: 15px;">브레드보드와 브레드보드, 또는 브레드보드와 Pico 핀 헤더 사이를 연결할 때 가장 많이 사용합니다.</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                        <td style="padding: 15px; font-weight: 600;">암수(Female-Male)</td>
+                        <td style="padding: 15px; color: #64748b;">소켓 ↔ 핀</td>
+                        <td style="padding: 15px;">한쪽이 소켓, 반대쪽이 핀입니다. 초음파 센서·DHT22 등 핀이 튀어나온 센서 모듈을 브레드보드와 연결할 때 주로 사용합니다.</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                        <td style="padding: 15px; font-weight: 600;">암암(Female-Female)</td>
+                        <td style="padding: 15px; color: #64748b;">소켓 ↔ 소켓</td>
+                        <td style="padding: 15px;">양쪽 모두 소켓입니다. 핀 헤더가 있는 두 모듈 사이를 직접 연결하거나 GPIO 확장 모듈 연결 시 사용합니다.</td>
+                    </tr>
+                </table>
+
+                <div class="callout info">
+                    <h4>💡 브레드보드 + 점퍼선 사용 팁</h4>
+                    <ul style="margin-top: 8px; line-height: 1.9;">
+                        <li>Pico의 <strong>3V3(OUT) 핀 → 브레드보드 (+) 레일</strong>, <strong>GND 핀 → 브레드보드 (-) 레일</strong>에 연결하면 모든 부품에 전원을 쉽게 분배할 수 있습니다.</li>
+                        <li>점퍼선 색상은 관례적으로 <strong>빨간색 = 전원(+)</strong>, <strong>검은색 = GND(-)</strong>를 사용하면 회로를 한눈에 파악하기 쉽습니다.</li>
+                        <li>브레드보드에 부품을 꽂을 때 <strong>가운데 홈(골짜기)을 기준</strong>으로 위아래 구역은 분리되어 있음을 항상 기억하세요.</li>
+                    </ul>
+                </div>
+
+                <!-- ============================== -->
+                <!-- 1.9 VS Code (선택 사항)        -->
+                <!-- ============================== -->
+                <h2>1.9 고급 개발 환경: VS Code 구축 (선택 사항)</h2>
                 <p>Thonny에 익숙해졌거나 더 강력한 코드 자동 완성 및 프로젝트 관리가 필요하다면, 실무 IoT 개발자들이 주로 사용하는 <strong>Visual Studio Code (VS Code)</strong>로 환경을 구성할 수 있습니다.</p>
 
                 <h3>[1단계] 필수 소프트웨어 설치</h3>
@@ -185,36 +374,28 @@
     </div>
     <script>
 document.querySelectorAll('pre').forEach((preBlock) => {
-    // 1. 코드를 감싸는 부모 박스(Wrapper) 동적 생성
     const wrapper = document.createElement('div');
     wrapper.className = 'code-wrapper';
     preBlock.parentNode.insertBefore(wrapper, preBlock);
     wrapper.appendChild(preBlock);
 
-    // 2. 우측 상단 복사 버튼 생성
     const topBtn = document.createElement('button');
     topBtn.className = 'copy-btn btn-top';
     topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
-    
-    // 3. 우측 하단 복사 버튼 생성
+
     const bottomBtn = document.createElement('button');
     bottomBtn.className = 'copy-btn btn-bottom';
     bottomBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
 
-    // 부모 박스에 버튼들 추가
     wrapper.appendChild(topBtn);
     wrapper.appendChild(bottomBtn);
 
-    // 4. 복사 기능 구현 (버튼 클릭 시 동작)
     const codeText = preBlock.querySelector('code').innerText;
-    
+
     const copyToClipboard = (btn) => {
         navigator.clipboard.writeText(codeText).then(() => {
-            // 복사 성공 시 아이콘과 텍스트 변경
             btn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> 완료';
             btn.classList.add('copied');
-            
-            // 2초 후에 다시 원래대로 복구
             setTimeout(() => {
                 btn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
                 btn.classList.remove('copied');
