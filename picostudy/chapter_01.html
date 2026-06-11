@@ -144,44 +144,9 @@
                 </table>
 
                 <!-- ============================== -->
-                <!-- 1.4 PC 연결                    -->
+                <!-- 1.4 Thonny 설치               -->
                 <!-- ============================== -->
-                <h2>1.4 라즈베리파이 Pico와 PC 연결하기</h2>
-                <p>하드웨어를 파악했다면, 이제 Pico 보드를 PC에 연결해야 합니다. 단순히 USB 케이블만 꽂는 것이 아니라, <strong>BOOTSEL 버튼을 활용한 최초 1회 펌웨어 설치</strong>가 필요합니다. 아래 순서를 차근차근 따라하세요.</p>
-
-                <div class="callout info">
-                    <h4>💡 1단계: BOOTSEL 버튼으로 PC에 연결하기</h4>
-                    <ol style="margin-top: 8px; line-height: 2;">
-                        <li>마이크로 5핀 케이블을 라즈베리파이 Pico 보드에 먼저 연결합니다.</li>
-                        <li>보드 위의 <strong>흰색 BOOTSEL 버튼을 꾹 누른 채로</strong> USB 반대쪽을 PC에 연결합니다.</li>
-                        <li>PC에 연결이 감지되면 손을 뗍니다.</li>
-                    </ol>
-                </div>
-
-                <div style="text-align: center; margin: 40px 0; background-color: #f8fafc; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0;">
-                    <img src="https://electrocredible.com/wp-content/uploads/2024/02/press-the-BOOTSEL-button-while-connecting-Raspberry-Pi-Pico-to-USB-cable-1024x582.webp" alt="BOOTSEL 버튼을 누른 채 PC에 연결하는 방법" style="max-width: 100%; height: auto; border-radius: 8px;">
-                    <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">BOOTSEL 버튼을 누른 채 연결하는 방법 (Raspberry Pi 공식 제공)</p>
-                </div>
-
-                <div class="callout info">
-                    <h4>💡 2단계: MicroPython 펌웨어 설치하기</h4>
-                    <ol style="margin-top: 8px; line-height: 2;">
-                        <li>BOOTSEL 버튼을 누른 채 연결하면 탐색기에서 <strong>USB 드라이브(RPI-RP2)</strong>가 새로 나타납니다.</li>
-                        <li>라즈베리파이 공식 사이트에서 <strong>MicroPython 펌웨어 파일(.uf2)</strong>을 다운로드합니다.</li>
-                        <li>다운로드한 <code>.uf2</code> 파일을 탐색기에서 <strong>RPI-RP2 드라이브 안으로 드래그 앤 드롭</strong>합니다.</li>
-                        <li>파일 복사가 끝나면 드라이브가 자동으로 사라지고 Pico가 재시작됩니다. 연결 완료!</li>
-                    </ol>
-                </div>
-
-                <div style="background-color: #fef2f2; padding: 20px; border-radius: 8px; border-left: 4px solid #ef4444; margin-bottom: 30px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
-                    <h4 style="margin-top:0; margin-bottom:12px; color: #991b1b;"><i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> BOOTSEL 버튼 주의사항</h4>
-                    <p style="margin-bottom: 0; line-height: 1.7;">BOOTSEL 버튼을 누르지 않고 연결하면 <strong>RPI-RP2 드라이브가 나타나지 않습니다.</strong> 반드시 버튼을 누른 상태에서 케이블을 PC에 꽂으세요. 펌웨어를 한 번 설치하고 나면, 이후부터는 버튼 없이 일반 USB처럼 꽂기만 해도 됩니다.</p>
-                </div>
-
-                <!-- ============================== -->
-                <!-- 1.5 Thonny 설치               -->
-                <!-- ============================== -->
-                <h2>1.5 개발 환경 Thonny IDE 설치</h2>
+                <h2>1.4 개발 환경 Thonny IDE 설치</h2>
                 <p>하드웨어 준비가 완료되었다면, 이제 Pico에 명령(코드)을 전달할 번역기 프로그램이 필요합니다. 처음 입문할 때는 초보자 친화적인 <strong>Thonny(토니)</strong> 에디터 사용을 적극 권장합니다.</p>
 
                 <div class="callout info">
@@ -200,9 +165,9 @@
                 </div>
 
                 <!-- ============================== -->
-                <!-- 1.6 Thonny 시작하기            -->
+                <!-- 1.5 Thonny 시작하기            -->
                 <!-- ============================== -->
-                <h2>1.6 Thonny 시작 및 Pico 연결하기</h2>
+                <h2>1.5 Thonny 시작 및 Pico 연결하기</h2>
                 <p>Thonny 설치가 끝났다면, Pico 보드와 연결하는 과정이 필요합니다. 아래 순서대로 따라하면 코드 작성을 바로 시작할 수 있습니다.</p>
 
                 <div class="callout info">
@@ -222,9 +187,9 @@
                 </div>
 
                 <!-- ============================== -->
-                <!-- 1.7 브레드보드 및 점퍼선       -->
+                <!-- 1.6 브레드보드 및 점퍼선       -->
                 <!-- ============================== -->
-                <h2>1.7 브레드보드 및 점퍼선 이해하기</h2>
+                <h2>1.6 브레드보드 및 점퍼선 이해하기</h2>
                 <p>센서나 LED 등 전자부품을 Pico와 연결할 때는 <strong>브레드보드(빵판)</strong>와 <strong>점퍼선</strong>을 활용합니다. 납땜 없이 부품을 끼웠다 뺄 수 있어 초보자도 쉽게 회로를 구성하고 수정할 수 있습니다.</p>
 
                 <h3>🔌 브레드보드(빵판) 구조와 원리</h3>
@@ -284,9 +249,9 @@
                 </div>
 
                 <!-- ============================== -->
-                <!-- 1.8 VS Code (선택 사항)        -->
+                <!-- 1.7 VS Code (선택 사항)        -->
                 <!-- ============================== -->
-                <h2>1.8 고급 개발 환경: VS Code 구축 (선택 사항)</h2>
+                <h2>1.7 고급 개발 환경: VS Code 구축 (선택 사항)</h2>
                 <p>Thonny에 익숙해졌거나 더 강력한 코드 자동 완성 및 프로젝트 관리가 필요하다면, 실무 IoT 개발자들이 주로 사용하는 <strong>Visual Studio Code (VS Code)</strong>로 환경을 구성할 수 있습니다.</p>
 
                 <h3>[1단계] 필수 소프트웨어 설치</h3>
