@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ch 13. Neopixel 제어 - Pico 2 가이드</title>
+    <title>Ch 13. 종합 프로젝트 - Pico 2 가이드</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -13,23 +13,22 @@
             <h2>PICO 2 IoT GUIDE</h2>
             <ul>
                 <li><a href="index.html">HOME - 시작하기</a></li>
+                <li class="menu-divider">기초 & 통신 파트</li>
                 <li><a href="chapter_01.html">CHAPTER 1 - 하드웨어 이해</a></li>
                 <li><a href="chapter_02.html">CHAPTER 2 - 펌웨어 세팅</a></li>
                 <li><a href="chapter_03.html">CHAPTER 3 - 기초 코딩(Blink)</a></li>
-                <li><a href="chapter_04.html">CHAPTER 4 - Wi-Fi 연결</a></li>
-                <li><a href="chapter_05.html">CHAPTER 5 - IoT 웹 서버</a></li>
-                <li class="menu-divider">실전 부품 프로젝트</li>
-                <li><a href="chapter_06.html">CHAPTER 6 - 기본 입출력(스위치/부저)</a></li>
-                <li><a href="chapter_07.html">CHAPTER 7 - 센서 제어(초음파/PIR)</a></li>
-                <li><a href="chapter_08.html">CHAPTER 8 - 아날로그 & 모터</a></li>
-                <li><a href="chapter_09.html">CHAPTER 9 - LCD 디스플레이</a></li>
+                <li><a href="chapter_04.html">CHAPTER 4 - 기본 입출력(스위치/부저)</a></li>
+                <li><a href="chapter_05.html">CHAPTER 5 - 센서 제어(초음파/PIR)</a></li>
+                <li class="menu-divider">실전 하드웨어</li>
+                <li><a href="chapter_06.html">CHAPTER 6 - 아날로그 & 모터</a></li>
+                <li><a href="chapter_07.html">CHAPTER 7 - 온습도 & 데이터</a></li>
+                <li><a href="chapter_08.html">CHAPTER 8 - Neopixel 제어</a></li>
+                <li><a href="chapter_09.html">CHAPTER 9 - I2C LCD 디스플레이</a></li>
                 <li><a href="chapter_10.html">CHAPTER 10 - 무선 통신 & 입력</a></li>
                 <li class="menu-divider">심화 응용 프로젝트</li>
-                <li><a href="chapter_11.html">CHAPTER 11 - 온습도 & 데이터</a></li>
-                <li><a href="chapter_12.html">CHAPTER 12 - MQTT 클라우드</a></li>
-                <li><a href="chapter_13.html" class="active">CHAPTER 13 - Neopixel 제어</a></li>
-                <li><a href="chapter_14.html">CHAPTER 14 - OLED & RTC</a></li>
-                <li><a href="chapter_15.html">CHAPTER 15 - 종합 프로젝트</a></li>
+                <li><a href="chapter_11.html">CHAPTER 11 - MQTT 클라우드</a></li>
+                <li><a href="chapter_12.html">CHAPTER 12 - OLED & RTC</a></li>
+                <li><a href="chapter_13.html" class="active">CHAPTER 13 - 종합 프로젝트</a></li>
             </ul>
             <div class="sidebar-footer">
                 <button class="pinout-btn" id="openPinout"><i class="fa-solid fa-diagram-project"></i> GPIO 핀아웃 맵 보기</button>
@@ -37,142 +36,354 @@
         </nav>
         <main class="content">
             <div class="container">
-                <h1>Chapter 13. Neopixel(WS2812B) 화려한 조명 제어</h1>
-                <p>단 한 가닥의 데이터 선으로 수많은 RGB LED를 개별 제어하는 기술을 배웁니다. Pico 2의 고속 PIO 기능을 활용해 부드러운 무지개 효과를 구현합니다.</p>
+                <h1>Chapter 13. [종합] IoT 스마트 보안 시스템</h1>
+                <p>지금까지 배운 모든 기술을 하나로 합칩니다. <strong>PIR 센서</strong>로 침입을 감지하고, <strong>초음파 센서</strong>로 거리를 측정하며, <strong>LCD</strong>에 상태를 표시하고, <strong>웹 서버</strong>를 통해 원격으로 경보를 해제하는 통합 시스템입니다.</p>
 
                 <div style="text-align: center; margin: 30px 0;">
-                    <svg viewBox="0 0 860 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="neoDiagramTitle neoDiagramDesc" style="max-width: 100%; height: auto; border-radius: 16px; background: #f8fafc; border: 1px solid #e2e8f0; box-shadow: 0 8px 24px rgba(15,23,42,0.08);">
-                        <title id="neoDiagramTitle">Pico 2 W와 Neopixel LED 스트립 연결도</title>
-                        <desc id="neoDiagramDesc">Pico의 GP22 데이터 핀을 Neopixel DIN에 연결하고, VSYS와 GND로 전원을 공급합니다.</desc>
+                    <svg viewBox="0 0 900 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="securityDiagramTitle securityDiagramDesc" style="max-width: 100%; height: auto; border-radius: 16px; background: #f8fafc; border: 1px solid #e2e8f0; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);">
+                        <title id="securityDiagramTitle">Pico 2 W 스마트 보안 시스템 연결도</title>
+                        <desc id="securityDiagramDesc">PIR 센서, 초음파 센서, I2C LCD, 부저, Wi-Fi 대시보드를 Pico 2 W에 연결한 구성도입니다.</desc>
+
                         <defs>
-                            <marker id="arr13Data" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#7c3aed"/></marker>
-                            <marker id="arr13Power" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#ef4444"/></marker>
-                            <marker id="arr13Gnd" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#475569"/></marker>
-                            <filter id="shadow13" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.14"/></filter>
+                            <marker id="arrowBlue13" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+                                <path d="M0,0 L10,5 L0,10 Z" fill="#2563eb"/>
+                            </marker>
+                            <marker id="arrowGreen13" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+                                <path d="M0,0 L10,5 L0,10 Z" fill="#16a34a"/>
+                            </marker>
+                            <marker id="arrowRose13" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+                                <path d="M0,0 L10,5 L0,10 Z" fill="#e11d48"/>
+                            </marker>
+                            <filter id="softShadow13" x="-20%" y="-20%" width="140%" height="140%">
+                                <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.15"/>
+                            </filter>
                         </defs>
 
-                        <text x="170" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">제어 보드</text>
-                        <text x="610" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">주소 지정 RGB LED</text>
+                        <!-- Section labels -->
+                        <text x="126" y="38" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">입력 센서</text>
+                        <text x="450" y="38" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">제어 보드</text>
+                        <text x="742" y="38" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">출력 / 원격 제어</text>
 
                         <g fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M278 122 H414" stroke="#7c3aed" stroke-width="4" marker-end="url(#arr13Data)"/>
-                            <path d="M278 172 C340 172 354 92 414 92" stroke="#ef4444" stroke-width="4" marker-end="url(#arr13Power)"/>
-                            <path d="M278 218 C340 218 356 254 414 254" stroke="#475569" stroke-width="4" marker-end="url(#arr13Gnd)"/>
+                            <path d="M220 110 H358" stroke="#2563eb" stroke-width="4" marker-end="url(#arrowBlue13)"/>
+                            <path d="M220 245 H358" stroke="#2563eb" stroke-width="4" marker-end="url(#arrowBlue13)"/>
+                            <path d="M542 150 H658" stroke="#16a34a" stroke-width="4" marker-end="url(#arrowGreen13)"/>
+                            <path d="M542 188 C590 188 600 280 658 280" stroke="#e11d48" stroke-width="4" marker-end="url(#arrowRose13)"/>
+                            <path d="M450 86 C450 62 542 58 614 78" stroke="#0ea5e9" stroke-width="3" stroke-dasharray="8 7"/>
                         </g>
 
-                        <g filter="url(#shadow13)">
-                            <rect x="94" y="76" width="184" height="190" rx="14" fill="#059669"/>
-                            <text x="186" y="138" text-anchor="middle" fill="white" font-size="20" font-weight="800">Pico 2 W</text>
-                            <text x="186" y="162" text-anchor="middle" fill="#dcfce7" font-size="12">Neopixel Controller</text>
-                            <text x="186" y="230" text-anchor="middle" fill="#bbf7d0" font-size="12">색상 데이터 1선 제어</text>
+                        <!-- Sensor cards -->
+                        <g filter="url(#softShadow13)">
+                            <rect x="70" y="76" width="150" height="86" rx="8" fill="#ffffff" stroke="#bfdbfe"/>
+                            <circle cx="116" cy="119" r="28" fill="#3b82f6"/>
+                            <circle cx="116" cy="119" r="13" fill="#dbeafe"/>
+                            <text x="166" y="108" text-anchor="middle" fill="#1e3a8a" font-size="16" font-weight="800">PIR</text>
+                            <text x="166" y="130" text-anchor="middle" fill="#475569" font-size="12">움직임 감지</text>
                         </g>
-                        <circle cx="278" cy="122" r="6" fill="#ede9fe"/>
-                        <text x="220" y="112" fill="#ecfeff" font-size="11" font-weight="800">GP22 DATA</text>
-                        <circle cx="278" cy="172" r="6" fill="#fee2e2"/>
-                        <text x="232" y="188" fill="#ecfeff" font-size="11" font-weight="800">VSYS 5V</text>
-                        <circle cx="278" cy="218" r="6" fill="#e2e8f0"/>
-                        <text x="236" y="238" fill="#ecfeff" font-size="11" font-weight="800">GND</text>
+                        <circle cx="220" cy="110" r="6" fill="#2563eb"/>
+                        <text x="231" y="104" fill="#2563eb" font-size="11" font-weight="700">OUT</text>
 
-                        <g filter="url(#shadow13)">
-                            <rect x="416" y="74" width="370" height="190" rx="14" fill="#ffffff" stroke="#ddd6fe"/>
-                            <rect x="446" y="112" width="300" height="88" rx="8" fill="#1e293b"/>
-                            <g>
-                                <rect x="466" y="132" width="34" height="34" rx="5" fill="#ef4444"/>
-                                <rect x="514" y="132" width="34" height="34" rx="5" fill="#22c55e"/>
-                                <rect x="562" y="132" width="34" height="34" rx="5" fill="#3b82f6"/>
-                                <rect x="610" y="132" width="34" height="34" rx="5" fill="#facc15"/>
-                                <rect x="658" y="132" width="34" height="34" rx="5" fill="#ec4899"/>
-                                <rect x="706" y="132" width="34" height="34" rx="5" fill="#06b6d4"/>
-                            </g>
-                            <text x="596" y="226" text-anchor="middle" fill="#4c1d95" font-size="13" font-weight="800">WS2812B / Neopixel Strip</text>
+                        <g filter="url(#softShadow13)">
+                            <rect x="70" y="210" width="150" height="96" rx="8" fill="#ffffff" stroke="#bae6fd"/>
+                            <rect x="94" y="236" width="82" height="32" rx="5" fill="#0ea5e9"/>
+                            <circle cx="114" cy="252" r="9" fill="#e0f2fe"/>
+                            <circle cx="156" cy="252" r="9" fill="#e0f2fe"/>
+                            <text x="175" y="228" text-anchor="middle" fill="#0369a1" font-size="15" font-weight="800">HC-SR04</text>
+                            <text x="145" y="291" text-anchor="middle" fill="#475569" font-size="12">Trig / Echo 거리 측정</text>
                         </g>
-                        <circle cx="416" cy="122" r="6" fill="#7c3aed"/>
-                        <text x="426" y="116" fill="#7c3aed" font-size="11" font-weight="800">DIN</text>
-                        <circle cx="416" cy="92" r="6" fill="#ef4444"/>
-                        <text x="426" y="86" fill="#ef4444" font-size="11" font-weight="800">5V</text>
-                        <circle cx="416" cy="254" r="6" fill="#475569"/>
-                        <text x="426" y="258" fill="#475569" font-size="11" font-weight="800">GND</text>
+                        <circle cx="220" cy="245" r="6" fill="#2563eb"/>
+                        <text x="231" y="239" fill="#2563eb" font-size="11" font-weight="700">TRIG/ECHO</text>
 
-                        <rect x="90" y="286" width="696" height="30" rx="8" fill="#ffffff" stroke="#e2e8f0"/>
-                        <text x="438" y="306" text-anchor="middle" fill="#475569" font-size="12">데이터 방향은 Pico GP22 -> LED DIN입니다. LED가 많아질수록 외부 5V 전원과 공통 GND가 중요합니다.</text>
+                        <!-- Pico board -->
+                        <g filter="url(#softShadow13)">
+                            <rect x="360" y="74" width="180" height="246" rx="16" fill="#059669"/>
+                            <rect x="385" y="102" width="130" height="188" rx="8" fill="#10b981" opacity="0.45"/>
+                            <text x="450" y="155" text-anchor="middle" fill="white" font-size="20" font-weight="800">Pico 2 W</text>
+                            <text x="450" y="178" text-anchor="middle" fill="#dcfce7" font-size="12">MicroPython Web Server</text>
+                            <text x="450" y="252" text-anchor="middle" fill="#bbf7d0" font-size="12">센서 감지 + LCD 표시 + 경보 제어</text>
+                        </g>
+
+                        <g font-size="11" font-weight="800">
+                            <circle cx="360" cy="110" r="6" fill="#dbeafe"/>
+                            <text x="374" y="114" fill="#ecfeff">GP18 PIR</text>
+                            <circle cx="360" cy="245" r="6" fill="#dbeafe"/>
+                            <text x="374" y="249" fill="#ecfeff">GP17/16 초음파</text>
+                            <circle cx="540" cy="150" r="6" fill="#dcfce7"/>
+                            <text x="486" y="136" fill="#ecfeff">GP8/9 I2C</text>
+                            <circle cx="540" cy="188" r="6" fill="#ffe4e6"/>
+                            <text x="493" y="207" fill="#ecfeff">GP14 부저</text>
+                        </g>
+
+                        <!-- Output cards -->
+                        <g filter="url(#softShadow13)">
+                            <rect x="660" y="106" width="160" height="94" rx="8" fill="#ffffff" stroke="#bbf7d0"/>
+                            <rect x="688" y="128" width="104" height="46" rx="4" fill="#0f172a"/>
+                            <text x="740" y="149" text-anchor="middle" fill="#38bdf8" font-size="12" font-weight="800">SECURE</text>
+                            <text x="740" y="165" text-anchor="middle" fill="#38bdf8" font-size="10">Dist: 35.2cm</text>
+                            <text x="740" y="190" text-anchor="middle" fill="#166534" font-size="12" font-weight="700">LCD 상태 표시</text>
+                        </g>
+                        <circle cx="660" cy="150" r="6" fill="#16a34a"/>
+
+                        <g filter="url(#softShadow13)">
+                            <rect x="660" y="238" width="160" height="96" rx="8" fill="#ffffff" stroke="#fecdd3"/>
+                            <path d="M706 290 L734 260 L762 290 Z" fill="#ef4444"/>
+                            <rect x="727" y="290" width="15" height="11" fill="#ef4444"/>
+                            <path d="M775 268 Q794 284 775 301" fill="none" stroke="#fb7185" stroke-width="3"/>
+                            <text x="740" y="322" text-anchor="middle" fill="#991b1b" font-size="12" font-weight="700">Buzzer 사이렌</text>
+                        </g>
+                        <circle cx="660" cy="280" r="6" fill="#e11d48"/>
+
+                        <g filter="url(#softShadow13)">
+                            <rect x="614" y="48" width="206" height="54" rx="8" fill="#ffffff" stroke="#bae6fd"/>
+                            <circle cx="638" cy="75" r="9" fill="#0ea5e9"/>
+                            <path d="M634 75 Q638 69 642 75 Q638 81 634 75" fill="#ffffff"/>
+                            <text x="726" y="71" text-anchor="middle" fill="#0f172a" font-size="13" font-weight="800">Wi-Fi Dashboard</text>
+                            <text x="726" y="88" text-anchor="middle" fill="#64748b" font-size="11">ARM / DISARM / RESET</text>
+                        </g>
+                        <text x="532" y="64" fill="#0284c7" font-size="11" font-weight="700">무선 제어</text>
+
+                        <g font-size="11" fill="#475569">
+                            <rect x="76" y="350" width="744" height="36" rx="8" fill="#ffffff" stroke="#e2e8f0"/>
+                            <circle cx="106" cy="368" r="5" fill="#2563eb"/><text x="118" y="372">센서 입력</text>
+                            <circle cx="210" cy="368" r="5" fill="#16a34a"/><text x="222" y="372">I2C 표시</text>
+                            <circle cx="318" cy="368" r="5" fill="#e11d48"/><text x="330" y="372">경보 출력</text>
+                            <path d="M430 368 H470" stroke="#0ea5e9" stroke-width="3" stroke-dasharray="7 6"/><text x="482" y="372">Wi-Fi 원격 제어</text>
+                        </g>
                     </svg>
-                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">Neopixel: VCC→5V(VSYS), DIN→GP22, GND→GND. LED 개수가 많으면 별도 5V 전원을 사용하고 GND는 Pico와 공통으로 묶습니다.</p>
+                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">초음파 센서는 GP17(Trig)과 GP16(Echo), LCD는 GP8/GP9 I2C, 부저는 GP14, PIR은 GP18을 사용합니다.</p>
                 </div>
 
                 <h2>13.1 준비물과 연결 핀</h2>
-                <p>Neopixel은 데이터 선 하나로 여러 LED를 순서대로 제어합니다. 첫 번째 LED의 <code>DIN</code> 방향을 꼭 확인하고, 전류가 커지는 프로젝트에서는 밝기를 제한해서 시작하세요.</p>
+                <p>아래 핀맵대로 연결하면 지금까지 배운 센서 입력, 출력 장치, 웹 제어가 한 프로젝트 안에서 함께 동작합니다.</p>
 
                 <table style="width: 100%; border-collapse: collapse; margin: 20px 0 30px; font-size: 0.98rem;">
                     <thead>
                         <tr style="background: #f1f5f9; color: #0f172a;">
-                            <th style="border: 1px solid #e2e8f0; padding: 10px;">Neopixel 핀</th>
+                            <th style="border: 1px solid #e2e8f0; padding: 10px;">부품</th>
                             <th style="border: 1px solid #e2e8f0; padding: 10px;">Pico 2 W 핀</th>
-                            <th style="border: 1px solid #e2e8f0; padding: 10px;">설명</th>
+                            <th style="border: 1px solid #e2e8f0; padding: 10px;">역할</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">DIN</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>GP22</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">색상 데이터 입력</td></tr>
-                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">5V / VCC</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>VSYS</code> 또는 외부 5V</td><td style="border: 1px solid #e2e8f0; padding: 10px;">LED 전원</td></tr>
-                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">GND</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>GND</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">공통 기준 전압</td></tr>
+                        <tr>
+                            <td style="border: 1px solid #e2e8f0; padding: 10px;">PIR 센서 OUT</td>
+                            <td style="border: 1px solid #e2e8f0; padding: 10px;"><code>GP18</code></td>
+                            <td style="border: 1px solid #e2e8f0; padding: 10px;">사람 움직임 감지</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #e2e8f0; padding: 10px;">초음파 Trig / Echo</td>
+                            <td style="border: 1px solid #e2e8f0; padding: 10px;"><code>GP17</code> / <code>GP16</code></td>
+                            <td style="border: 1px solid #e2e8f0; padding: 10px;">거리 측정</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #e2e8f0; padding: 10px;">I2C LCD SDA / SCL</td>
+                            <td style="border: 1px solid #e2e8f0; padding: 10px;"><code>GP8</code> / <code>GP9</code></td>
+                            <td style="border: 1px solid #e2e8f0; padding: 10px;">상태 메시지 표시</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #e2e8f0; padding: 10px;">부저 +</td>
+                            <td style="border: 1px solid #e2e8f0; padding: 10px;"><code>GP14</code></td>
+                            <td style="border: 1px solid #e2e8f0; padding: 10px;">침입 감지 시 경보음</td>
+                        </tr>
                     </tbody>
                 </table>
 
-                <h2>13.2 밝기 제한 무지개 효과 코드</h2>
+                <h2>13.2 통합 시스템 메인 소스 코드</h2>
+                <p>이 코드는 Ch 10(Web), Ch 5(Sensors), Ch 9(LCD)의 내용을 실제로 합친 예시입니다. 브라우저에서 Pico의 IP 주소로 접속하면 보안 모드 켜기/끄기, 경보 초기화, 현재 거리와 움직임 상태를 확인할 수 있습니다.</p>
+
                 <pre><code>import machine
-import neopixel
+import network
+import socket
 import time
+from pico_i2c_lcd import I2cLcd
 
-NUM_LEDS = 8
-DATA_PIN = 22
-BRIGHTNESS = 0.25
+# Wi-Fi 설정
+SSID = "YOUR_WIFI_NAME"
+PASSWORD = "YOUR_WIFI_PASSWORD"
 
-np = neopixel.NeoPixel(machine.Pin(DATA_PIN), NUM_LEDS)
+# 보안 기준값
+DIST_LIMIT_CM = 20
+BUZZER_TIME = 0.25
 
-def wheel(pos):
-    if pos < 85:
-        return (pos * 3, 255 - pos * 3, 0)
-    elif pos < 170:
-        pos -= 85
-        return (255 - pos * 3, 0, pos * 3)
-    else:
-        pos -= 170
-        return (0, pos * 3, 255 - pos * 3)
+# 핀 설정
+pir = machine.Pin(18, machine.Pin.IN)
+trig = machine.Pin(17, machine.Pin.OUT)
+echo = machine.Pin(16, machine.Pin.IN)
+buzzer = machine.Pin(14, machine.Pin.OUT)
 
-def dim(color, brightness=BRIGHTNESS):
-    r, g, b = color
-    return (int(r * brightness), int(g * brightness), int(b * brightness))
+# LCD 설정
+i2c = machine.I2C(0, sda=machine.Pin(8), scl=machine.Pin(9))
+lcd = I2cLcd(i2c, 0x27, 2, 16)
 
-def clear():
-    for i in range(NUM_LEDS):
-        np[i] = (0, 0, 0)
-    np.write()
+is_armed = True
+alarm_on = False
+last_distance = 0
+last_motion = 0
 
-def rainbow_cycle(delay=0.02):
-    for offset in range(256):
-        for i in range(NUM_LEDS):
-            color_index = (i * 256 // NUM_LEDS + offset) & 255
-            np[i] = dim(wheel(color_index))
-        np.write()
-        time.sleep(delay)
+def lcd_message(line1, line2=""):
+    lcd.clear()
+    lcd.move_to(0, 0)
+    lcd.putstr(line1[:16])
+    lcd.move_to(0, 1)
+    lcd.putstr(line2[:16])
 
-print("Neopixel 효과 시작...")
-clear()
+def connect_wifi():
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    wlan.connect(SSID, PASSWORD)
+    lcd_message("Wi-Fi Connect", "Please wait...")
+
+    for _ in range(20):
+        if wlan.isconnected():
+            ip = wlan.ifconfig()[0]
+            lcd_message("Web Server IP", ip)
+            print("Connected:", ip)
+            return ip
+        time.sleep(0.5)
+
+    lcd_message("Wi-Fi Failed", "Check SSID/PW")
+    raise RuntimeError("Wi-Fi connection failed")
+
+def wait_pin_value(pin, target, timeout_us=30000):
+    start = time.ticks_us()
+    while pin.value() != target:
+        if time.ticks_diff(time.ticks_us(), start) > timeout_us:
+            return None
+    return time.ticks_us()
+
+def get_distance():
+    trig.low()
+    time.sleep_us(2)
+    trig.high()
+    time.sleep_us(10)
+    trig.low()
+
+    start = wait_pin_value(echo, 1)
+    if start is None:
+        return 999
+
+    end = wait_pin_value(echo, 0)
+    if end is None:
+        return 999
+
+    return (time.ticks_diff(end, start) * 0.0343) / 2
+
+def beep(count=1):
+    for _ in range(count):
+        buzzer.high()
+        time.sleep(BUZZER_TIME)
+        buzzer.low()
+        time.sleep(0.08)
+
+def render_page():
+    armed_text = "ON" if is_armed else "OFF"
+    alarm_text = "DETECTED" if alarm_on else "CLEAR"
+    motion_text = "YES" if last_motion else "NO"
+
+    return f"""&lt;!DOCTYPE html&gt;
+&lt;html lang="ko"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;Pico Security&lt;/title&gt;
+    &lt;style&gt;
+        body {{ font-family: Arial, sans-serif; max-width: 560px; margin: 40px auto; color: #0f172a; }}
+        .box {{ border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; }}
+        .danger {{ color: #dc2626; font-weight: bold; }}
+        .ok {{ color: #16a34a; font-weight: bold; }}
+        a {{ display: inline-block; margin: 6px; padding: 10px 14px; border-radius: 8px; background: #0ea5e9; color: white; text-decoration: none; }}
+        a.warn {{ background: #f97316; }}
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Pico 2 W Security&lt;/h1&gt;
+    &lt;div class="box"&gt;
+        &lt;p&gt;보안 모드: &lt;strong&gt;{armed_text}&lt;/strong&gt;&lt;/p&gt;
+        &lt;p&gt;경보 상태: &lt;span class="{'danger' if alarm_on else 'ok'}"&gt;{alarm_text}&lt;/span&gt;&lt;/p&gt;
+        &lt;p&gt;움직임 감지: {motion_text}&lt;/p&gt;
+        &lt;p&gt;거리: {last_distance:.1f} cm&lt;/p&gt;
+        &lt;a href="/arm"&gt;ARM&lt;/a&gt;
+        &lt;a href="/disarm" class="warn"&gt;DISARM&lt;/a&gt;
+        &lt;a href="/reset"&gt;RESET&lt;/a&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;"""
+
+def handle_request(request):
+    global is_armed, alarm_on
+
+    if "GET /arm" in request:
+        is_armed = True
+        lcd_message("Security Mode", "ARMED")
+    elif "GET /disarm" in request:
+        is_armed = False
+        alarm_on = False
+        buzzer.low()
+        lcd_message("Security Mode", "DISARMED")
+    elif "GET /reset" in request:
+        alarm_on = False
+        buzzer.low()
+        lcd_message("Alarm Reset", "Monitoring...")
+
+def start_server(ip):
+    addr = socket.getaddrinfo("0.0.0.0", 80)[0][-1]
+    server = socket.socket()
+    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    server.bind(addr)
+    server.listen(1)
+    server.settimeout(0.05)
+    print("Open browser: http://" + ip)
+    return server
+
+ip = connect_wifi()
+server = start_server(ip)
+lcd_message("System Ready", ip)
 
 while True:
-    rainbow_cycle()
+    last_motion = pir.value()
+    last_distance = get_distance()
+
+    if is_armed:
+        if last_motion == 1 or last_distance &lt; DIST_LIMIT_CM:
+            alarm_on = True
+            lcd_message("!! WARNING !!", "INTRUDER")
+            beep(2)
+        else:
+            lcd.move_to(0, 0)
+            lcd.putstr("Status: Secure  ")
+            lcd.move_to(0, 1)
+            lcd.putstr(f"Dist:{last_distance:5.1f}cm ")
+
+    try:
+        client, addr = server.accept()
+        request = client.recv(1024).decode()
+        handle_request(request)
+        response = render_page()
+        client.send("HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n")
+        client.send(response)
+        client.close()
+    except OSError:
+        pass
+
+    time.sleep(0.1)
 </code></pre>
 
+                <div class="callout info">
+                    <h4>💡 테스트 순서</h4>
+                    <p>먼저 <code>SSID</code>와 <code>PASSWORD</code>를 수정한 뒤 실행하세요. LCD에 표시된 IP 주소를 같은 Wi-Fi에 연결된 컴퓨터나 스마트폰 브라우저에 입력하면 제어 화면이 열립니다.</p>
+                </div>
+
                 <h2>13.3 동작 흐름</h2>
-                <p><code>wheel()</code> 함수는 0~255 값을 빨강, 초록, 파랑이 이어지는 색상으로 바꿉니다. 각 LED에 서로 다른 색상 인덱스를 주고, 반복할 때마다 인덱스를 조금씩 밀어주면 무지개가 흐르는 것처럼 보입니다. <code>BRIGHTNESS</code> 값은 전류를 줄이기 위한 안전 장치입니다.</p>
+                <p>시스템은 0.1초 간격으로 PIR과 초음파 센서를 읽습니다. 보안 모드가 켜져 있고 움직임이 감지되거나 거리가 <code>20cm</code>보다 가까워지면 LCD에 경고를 띄우고 부저를 울립니다. 웹 대시보드에서 <strong>DISARM</strong>을 누르면 감지를 잠시 끄고, <strong>ARM</strong>을 누르면 다시 감시를 시작합니다.</p>
 
                 <div class="callout warn">
-                    <h4>⚠️ 전원 주의사항</h4>
-                    <p>Neopixel은 밝기가 밝을수록 많은 전류를 소비합니다. Pico의 <code>3V3</code> 핀 대신 <code>VSYS</code>(5V) 핀을 사용하세요. LED가 30개 이상이라면 5V 외부 전원 어댑터를 사용해야 보드가 손상되지 않습니다.</p>
+                    <h4>🏁 완강을 축하드립니다!</h4>
+                    <p>이제 여러분은 하드웨어 제어, 통신, 클라우드 연동까지 가능한 <strong>Pico 2 마스터</strong>가 되었습니다. 이 가이드북의 기초를 바탕으로 여러분만의 더 멋진 발명품을 만들어보세요!</p>
                 </div>
 
                 <div class="nav-btns">
                     <a href="chapter_12.html" class="btn btn-prev">◀ CHAPTER 12</a>
-                    <a href="chapter_14.html" class="btn btn-next">CHAPTER 14로 이동 ▶</a>
+                    <a href="index.html" class="btn btn-next">홈으로 돌아가기</a>
                 </div>
             </div>
         </main>
@@ -222,7 +433,6 @@ while True:
             openBtn.addEventListener('click', () => modal.classList.add('active'));
             closeBtn.addEventListener('click', () => modal.classList.remove('active'));
             backdrop.addEventListener('click', () => modal.classList.remove('active'));
-            
             window.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && modal.classList.contains('active')) {
                     modal.classList.remove('active');

@@ -13,23 +13,22 @@
             <h2>PICO 2 IoT GUIDE</h2>
             <ul>
                 <li><a href="index.html">HOME - 시작하기</a></li>
+                <li class="menu-divider">기초 & 통신 파트</li>
                 <li><a href="chapter_01.html">CHAPTER 1 - 하드웨어 이해</a></li>
                 <li><a href="chapter_02.html">CHAPTER 2 - 펌웨어 세팅</a></li>
                 <li><a href="chapter_03.html">CHAPTER 3 - 기초 코딩(Blink)</a></li>
-                <li><a href="chapter_04.html">CHAPTER 4 - Wi-Fi 연결</a></li>
-                <li><a href="chapter_05.html">CHAPTER 5 - IoT 웹 서버</a></li>
-                <li class="menu-divider">실전 부품 프로젝트</li>
-                <li><a href="chapter_06.html">CHAPTER 6 - 기본 입출력(스위치/부저)</a></li>
-                <li><a href="chapter_07.html">CHAPTER 7 - 센서 제어(초음파/PIR)</a></li>
-                <li><a href="chapter_08.html">CHAPTER 8 - 아날로그 & 모터</a></li>
-                <li><a href="chapter_09.html">CHAPTER 9 - LCD 디스플레이</a></li>
+                <li><a href="chapter_04.html">CHAPTER 4 - 기본 입출력(스위치/부저)</a></li>
+                <li><a href="chapter_05.html">CHAPTER 5 - 센서 제어(초음파/PIR)</a></li>
+                <li class="menu-divider">실전 하드웨어</li>
+                <li><a href="chapter_06.html">CHAPTER 6 - 아날로그 & 모터</a></li>
+                <li><a href="chapter_07.html">CHAPTER 7 - 온습도 & 데이터</a></li>
+                <li><a href="chapter_08.html">CHAPTER 8 - Neopixel 제어</a></li>
+                <li><a href="chapter_09.html">CHAPTER 9 - I2C LCD 디스플레이</a></li>
                 <li><a href="chapter_10.html" class="active">CHAPTER 10 - 무선 통신 & 입력</a></li>
                 <li class="menu-divider">심화 응용 프로젝트</li>
-                <li><a href="chapter_11.html">CHAPTER 11 - 온습도 & 데이터</a></li>
-                <li><a href="chapter_12.html">CHAPTER 12 - MQTT 클라우드</a></li>
-                <li><a href="chapter_13.html">CHAPTER 13 - Neopixel 제어</a></li>
-                <li><a href="chapter_14.html">CHAPTER 14 - OLED & RTC</a></li>
-                <li><a href="chapter_15.html">CHAPTER 15 - 종합 프로젝트</a></li>
+                <li><a href="chapter_11.html">CHAPTER 11 - MQTT 클라우드</a></li>
+                <li><a href="chapter_12.html">CHAPTER 12 - OLED & RTC</a></li>
+                <li><a href="chapter_13.html">CHAPTER 13 - 종합 프로젝트</a></li>
             </ul>
             <div class="sidebar-footer">
                 <button class="pinout-btn" id="openPinout"><i class="fa-solid fa-diagram-project"></i> GPIO 핀아웃 맵 보기</button>
@@ -37,47 +36,153 @@
         </nav>
         <main class="content">
             <div class="container">
-                <h1>Chapter 10. 외부 입력 통신 (내장 블루투스, IR 리모컨)</h1>
-                <p>본 가이드북의 최종장입니다. 복잡한 통신 코드를 별도의 파일로 쪼개어 관리하는 <strong>모듈화 기법</strong>을 통해 내장 블루투스(BLE)를 제어하고, 실시간으로 리모컨 버튼을 데이터베이스(JSON)에 저장하는 <strong>스마트 자동 학습형 가전 제어 기술</strong>을 학습합니다.</p>
+                <h1>Chapter 10. 무선 통신 & 입력 종합 (Wi-Fi, 웹 서버, BLE, IR)</h1>
+                <p>Pico 2 W의 무선 기능 전체를 집중 학습합니다. 2.4GHz Wi-Fi 연결부터 IoT 웹 서버 구축, 내장 블루투스(BLE), 그리고 적외선(IR) 리모컨 자동 학습까지 다룹니다.</p>
 
-                <div style="text-align: center; margin: 40px 0;">
-                    <svg viewBox="0 0 800 250" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 16px; background: #fdf2f2;">
-                        <!-- Remote -->
-                        <rect x="100" y="50" width="80" height="150" rx="10" fill="#1e293b"/>
-                        <circle cx="140" cy="75" r="10" fill="#ef4444"/>
-                        <text x="140" y="225" text-anchor="middle" fill="#1e293b" font-weight="bold">리모컨 (NEC)</text>
-                        
-                        <!-- IR Signal -->
-                        <g transform="translate(220, 110)">
-                            <rect x="0" y="0" width="15" height="40" fill="#ef4444" opacity="0.8"/>
-                            <rect x="25" y="10" width="5" height="30" fill="#ef4444" opacity="0.5"/>
-                            <rect x="40" y="0" width="10" height="40" fill="#ef4444" opacity="0.8"/>
-                            <text x="35" y="-15" text-anchor="middle" fill="#ef4444" font-size="11" font-weight="bold">IR DATA (32bit)</text>
-                        </g>
+                <hr>
 
-                        <!-- Pico & DB -->
-                        <rect x="500" y="70" width="180" height="110" rx="10" fill="#0ea5e9"/>
-                        <text x="590" y="105" text-anchor="middle" fill="white" font-weight="bold">Pico 2 W</text>
-                        <rect x="520" y="120" width="140" height="40" rx="5" fill="white" opacity="0.3"/>
-                        <text x="590" y="145" text-anchor="middle" fill="white" font-size="12">remote_db.json</text>
-                        <text x="590" y="210" text-anchor="middle" fill="#0369a1" font-size="13" font-weight="bold">학습 및 영구 저장</text>
-                    </svg>
+                <h2>10.1 Wi-Fi 네트워크 연결</h2>
+                <p>Pico 2 W는 2.4GHz 802.11n Wi-Fi를 내장합니다. <code>network</code> 모듈을 사용하면 몇 줄의 코드로 무선 공유기에 접속하고 IP 주소를 할당받을 수 있습니다.</p>
+
+                <h3>단계별 와이파이 연결 실습</h3>
+                <pre><code>import network
+import time
+
+SSID = "your_wifi_name"
+PASSWORD = "your_wifi_password"
+
+def connect_wifi():
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+
+    if wlan.isconnected():
+        print("이미 연결됨:", wlan.ifconfig()[0])
+        return wlan
+
+    wlan.connect(SSID, PASSWORD)
+    print("Wi-Fi 연결 시도 중...")
+
+    for _ in range(20):
+        if wlan.isconnected():
+            ip = wlan.ifconfig()[0]
+            print(f"✅ 연결 성공! IP: {ip}")
+            return wlan
+        time.sleep(0.5)
+
+    raise RuntimeError("❌ Wi-Fi 연결 실패. SSID/PW를 확인하세요.")
+
+wlan = connect_wifi()
+print("네트워크 정보:", wlan.ifconfig())
+</code></pre>
+
+                <div class="callout info">
+                    <h4>💡 결과 확인</h4>
+                    <p>Shell 창에 <code>ifconfig()</code>의 출력이 표시됩니다. <code>(IP, 서브넷, 게이트웨이, DNS)</code> 순서로 나타납니다. IP 주소가 <code>0.0.0.0</code>이라면 연결이 아직 안 된 상태입니다.</p>
                 </div>
+
+                <hr>
+
+                <h2>10.2 IoT 웹 서버 구축 (LED 원격 제어)</h2>
+                <p>Pico가 Wi-Fi에 접속한 뒤 소켓 서버를 열면, 같은 네트워크의 스마트폰/PC 브라우저로 접속해 GPIO를 원격 제어할 수 있습니다. POST 방식을 쓰면 브라우저의 새로고침 오작동(재전송) 문제를 방지할 수 있습니다.</p>
+
+                <h3>단계별 웹 서버 빌드업</h3>
+                <pre><code>import network
+import socket
+import time
+from machine import Pin
+
+SSID = "your_wifi_name"
+PASSWORD = "your_wifi_password"
+
+led = Pin("LED", Pin.OUT)
+led_state = False
+
+def connect_wifi():
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    wlan.connect(SSID, PASSWORD)
+    for _ in range(20):
+        if wlan.isconnected():
+            return wlan.ifconfig()[0]
+        time.sleep(0.5)
+    raise RuntimeError("Wi-Fi 연결 실패")
+
+def make_html():
+    state = "ON" if led_state else "OFF"
+    color = "#22c55e" if led_state else "#64748b"
+    return f"""&lt;!DOCTYPE html&gt;
+&lt;html lang="ko"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;Pico LED 제어&lt;/title&gt;
+    &lt;style&gt;
+        body{{font-family:sans-serif;text-align:center;margin-top:60px;}}
+        .status{{font-size:3rem;font-weight:bold;color:{color};}}
+        form button{{font-size:1.4rem;padding:12px 40px;border-radius:10px;
+            border:none;background:#2563eb;color:white;cursor:pointer;margin-top:20px;}}
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Pico 2 W LED 제어&lt;/h1&gt;
+    &lt;p class="status"&gt;LED: {state}&lt;/p&gt;
+    &lt;form method="POST" action="/toggle"&gt;
+        &lt;button type="submit"&gt;LED 켜기/끄기&lt;/button&gt;
+    &lt;/form&gt;
+&lt;/body&gt;
+&lt;/html&gt;"""
+
+def start_server(ip):
+    addr = socket.getaddrinfo("0.0.0.0", 80)[0][-1]
+    s = socket.socket()
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind(addr)
+    s.listen(1)
+    s.settimeout(5)
+    print(f"웹 서버 시작! 브라우저에서 http://{ip} 로 접속하세요.")
+    return s
+
+ip = connect_wifi()
+server = start_server(ip)
+
+while True:
+    try:
+        client, addr = server.accept()
+        request = client.recv(1024).decode()
+
+        global led_state
+        if "POST /toggle" in request:
+            led_state = not led_state
+            led.value(led_state)
+            # POST→Redirect→GET 패턴으로 새로고침 중복 전송 방지
+            client.send("HTTP/1.1 303 See Other\r\nLocation: /\r\n\r\n")
+        else:
+            html = make_html()
+            client.send("HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n")
+            client.send(html)
+
+        client.close()
+
+    except OSError:
+        pass
+</code></pre>
+
+                <hr>
+
+                <h2>10.3 내장 블루투스(BLE) 원리와 라이브러리 세팅</h2>
+                <p>Pico 2 W는 무선 칩셋 안에 <strong>Bluetooth Low Energy (BLE)</strong> 안테나를 기본 내장하고 있습니다. 반드시 <code>Serial Bluetooth Terminal</code> 같은 전문 BLE 통신 앱을 다운받아 사용해야 합니다.</p>
 
                 <div style="text-align: center; margin: 30px 0;">
                     <svg viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 12px; background: #eff6ff;">
-                        <!-- BLE UART 흐름도 -->
                         <g transform="translate(100, 50)">
                             <rect width="120" height="100" rx="10" fill="#1e293b"/>
                             <text x="60" y="130" text-anchor="middle" fill="#1e293b" font-size="12" font-weight="bold">스마트폰 앱</text>
                             <text x="60" y="55" text-anchor="middle" fill="white" font-size="14">"on"</text>
                         </g>
-                        
                         <path d="M230 100 H350" stroke="#3b82f6" stroke-width="2" stroke-dasharray="8,4">
                             <animate attributeName="stroke-dashoffset" from="12" to="0" dur="1s" repeatCount="indefinite" />
                         </path>
                         <text x="290" y="90" text-anchor="middle" fill="#3b82f6" font-size="11">무선 패킷 전송</text>
-
                         <g transform="translate(360, 50)">
                             <rect width="340" height="100" rx="10" fill="white" stroke="#3b82f6" stroke-width="2"/>
                             <text x="170" y="40" text-anchor="middle" fill="#1e293b" font-size="13" font-weight="bold">Pico 2 (on_rx 함수)</text>
@@ -88,23 +193,14 @@
                     </svg>
                 </div>
 
-
-                <hr>
-
-                <h2>10.1 내장 블루투스(BLE) 원리와 라이브러리 세팅</h2>
-                <p>Pico 2 W는 무선 칩셋 안에 <strong>Bluetooth Low Energy (BLE)</strong> 안테나를 기본 내장하고 있습니다. 전력을 극도로 아끼는 최신 BLE 프로토콜은 일반 Classic 블루투스처럼 스마트폰 기본 설정 창에서 잡히지 않습니다. 반드시 <code>Serial Bluetooth Terminal</code> 같은 전문 BLE 통신 앱을 다운받아 사용해야 합니다.</p>
-                
-                <p>통신을 처리하는 핵심 엔진 코드가 매우 길기 때문에, 우리는 이 코드를 메인 코드와 분리하여 독립된 라이브러리 파일로 보드에 먼저 저장해 둘 것입니다.</p>
-
                 <div class="callout warn" style="border-left: 5px solid #ef4444; background-color: #fef2f2;">
                     <h4 style="color: #ef4444;"><i class="fa-solid fa-triangle-exclamation"></i> ⚠️ 블루투스 이름 중복 금지 경고!</h4>
-                    <p>학교 강의실이나 동아리방처럼 여러 사람이 동시에 실습할 때 블루투스 명칭이 같으면 스마트폰 앱에서 누구의 보드인지 전혀 구별할 수 없습니다!</p>
-                    <p>아래 라이브러리 코드의 <strong style="color: #ef4444; font-size: 1.1rem; background: #fee2e2; padding: 2px 6px; border-radius: 4px;">name="Pico2W_BLE"</strong> 파라미터 부분을 반드시 <strong>자신만의 고유한 이름(예: name="Pico2W_Sunghwan")</strong>으로 수정하여 저장해야 오작동을 피할 수 있습니다.</p>
+                    <p>학교 강의실처럼 여러 사람이 동시에 실습할 때 블루투스 명칭이 같으면 스마트폰 앱에서 누구의 보드인지 구별할 수 없습니다! 아래 코드의 <strong style="color: #ef4444;">name="Pico2W_BLE"</strong> 부분을 반드시 자신만의 고유한 이름으로 수정하세요.</p>
                 </div>
 
                 <div class="callout info">
-                    <h4>💾 [파일 1] 라이브러리 파일 저장 규칙</h4>
-                    <p>아래 코드를 Thonny 편집창에 복사한 뒤, [다른 이름으로 저장] -> [Raspberry Pi Pico]를 선택하고 파일 이름을 반드시 <strong><code>ble_uart.py</code></strong>로 저장하세요. (이 코드는 통신 엔진이므로 단독 실행해도 반응이 없는 것이 정상입니다.)</p>
+                    <h4>💾 [파일 1] ble_uart.py 저장 규칙</h4>
+                    <p>아래 코드를 Thonny에서 새 파일로 복사한 뒤, [Raspberry Pi Pico]에 <strong><code>ble_uart.py</code></strong> 이름으로 저장하세요.</p>
                 </div>
 
                 <pre><code>import bluetooth
@@ -160,27 +256,24 @@ class PicoBLEUART:
         print(f"수신 데이터: {msg}")
 </code></pre>
 
-                <h2>10.2 블루투스(BLE) 연동 응용 제어</h2>
-                <p>방금 저장한 블루투스 엔진 파일(<code>ble_uart.py</code>)을 불러와서(Import), 내가 원하는 스마트홈 원격 제어 기능만 덧붙이는 실제 메인 제어 코드입니다. 클래스 상속 기법 덕분에 코드가 믿을 수 없을 정도로 간결해집니다.</p>
+                <h2>10.4 블루투스(BLE) 연동 응용 제어</h2>
+                <p>방금 저장한 <code>ble_uart.py</code>를 불러와 내가 원하는 스마트홈 원격 제어 기능을 덧붙이는 메인 제어 코드입니다.</p>
 
                 <div class="callout info">
-                    <h4>🚀 [파일 2] 메인 구동 파일 저장 규칙</h4>
-                    <p>아래 코드를 Thonny의 완전히 새로운 창에 복사한 뒤, 보드 내부에 반드시 <strong><code>main.py</code></strong>라는 이름으로 저장하세요. 저장 후 실행 버튼을 누르면 스마트폰 앱에서 보드가 검색됩니다.</p>
+                    <h4>🚀 [파일 2] main.py 저장 규칙</h4>
+                    <p>아래 코드를 새 창에 복사한 뒤, 보드 내부에 <strong><code>main.py</code></strong>로 저장하세요.</p>
                 </div>
 
-                <pre><code># 앞서 내부에 저장한 ble_uart 파일로부터 통신 엔진 클래스를 불러옵니다.
-from ble_uart import PicoBLEUART  
+                <pre><code>from ble_uart import PicoBLEUART
 from machine import Pin
 import time
 
-# 제어 대상인 내장 LED 설정
 led = Pin("LED", Pin.OUT)
 
-# 부모인 PicoBLEUART의 강력한 무선 통신 기능을 그대로 물려받습니다(상속).
 class CustomIoTController(PicoBLEUART):
-    def on_rx(self, msg):  # 스마트폰으로부터 글자가 도착했을 때 실행할 행동만 정의!
+    def on_rx(self, msg):
         print(f"📱 블루투스 명령 접수: {msg}")
-        
+
         if msg == "on":
             led.value(1)
             self.send("Pico2W > LED가 켜졌습니다!")
@@ -192,18 +285,17 @@ class CustomIoTController(PicoBLEUART):
         else:
             self.send(f"알 수 없는 명령어: {msg}")
 
-# 실전 스마트홈 서버 구동 (10.1에서 커스텀한 이름 클래스 생성이 연동됩니다)
 iot_server = CustomIoTController()
 
 while True:
-    time.sleep(1) # 무선 이벤트 수신을 위해 루프를 유지합니다.
+    time.sleep(1)
 </code></pre>
 
                 <hr>
 
-                <h2>10.3 IR 적외선 수신기 기본 세팅 방법과 원리</h2>
-                <p>적외선(IR) 수신 모듈(VS1838B 기준)은 눈에 보이지 않는 940nm 파장의 적외선 빛 신호를 감지하여 전기 신호로 바꾸어 줍니다. 핀 배선 시 플러스(VCC)와 마이너스(GND)가 반대로 교차하면 센서 내부 소자가 손상되므로 아래의 지도를 엄격하게 지켜 연결해야 합니다.</p>
-                
+                <h2>10.5 IR 적외선 수신기 기본 세팅 방법과 원리</h2>
+                <p>적외선(IR) 수신 모듈(VS1838B 기준)은 눈에 보이지 않는 940nm 파장의 적외선 빛 신호를 감지하여 전기 신호로 바꾸어 줍니다.</p>
+
                 <div class="callout warn">
                     <h4>📍 하드웨어 배선 가이드 (둥근 감지 렌즈가 내 얼굴을 바라보는 기준)</h4>
                     <p>
@@ -215,7 +307,6 @@ while True:
 
                 <div style="text-align: center; margin: 20px 0;">
                     <svg viewBox="0 0 600 185" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 12px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.06);">
-                        <!-- Pico 2 board -->
                         <rect x="40" y="20" width="110" height="145" rx="8" fill="#059669"/>
                         <text x="95" y="47" text-anchor="middle" fill="white" font-size="13" font-weight="bold" font-family="Arial,sans-serif">Pico 2</text>
                         <text x="143" y="76" text-anchor="end" fill="white" font-size="11" font-family="Arial,sans-serif">GP2</text>
@@ -224,56 +315,37 @@ while True:
                         <circle cx="150" cy="72" r="6" fill="#06b6d4"/>
                         <circle cx="150" cy="107" r="6" fill="#374151"/>
                         <circle cx="150" cy="142" r="6" fill="#ef4444"/>
-
-                        <!-- Wires (match IR receiver pin order: OUT, GND, VCC) -->
                         <line x1="156" y1="72" x2="390" y2="72" stroke="#06b6d4" stroke-width="2.5"/>
                         <line x1="156" y1="107" x2="390" y2="107" stroke="#374151" stroke-width="2.5"/>
                         <line x1="156" y1="142" x2="390" y2="142" stroke="#ef4444" stroke-width="2.5"/>
-
-                        <!-- IR Receiver body (dome/trapezoid shape) -->
                         <rect x="390" y="48" width="155" height="120" rx="8" fill="#faf5ff" stroke="#9333ea" stroke-width="1.5"/>
                         <rect x="390" y="48" width="155" height="28" rx="8" fill="#9333ea"/>
                         <text x="467" y="67" text-anchor="middle" fill="white" font-size="12" font-weight="bold" font-family="Arial,sans-serif">IR 수신기 (VS1838B)</text>
-                        <!-- IR receiver lens dome -->
                         <ellipse cx="467" cy="118" rx="32" ry="28" fill="#ddd6fe" stroke="#9333ea" stroke-width="1.5"/>
                         <ellipse cx="467" cy="118" rx="18" ry="16" fill="#a78bfa" stroke="#7c3aed" stroke-width="1.5"/>
                         <ellipse cx="467" cy="118" rx="8" ry="7" fill="#7c3aed"/>
-                        <!-- IR rays (incoming) -->
                         <line x1="430" y1="85" x2="450" y2="103" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.7"/>
                         <line x1="420" y1="95" x2="442" y2="108" stroke="#ef4444" stroke-width="1" stroke-dasharray="3,2" opacity="0.4"/>
-                        <!-- Pin number labels at bottom of body -->
                         <text x="435" y="160" text-anchor="middle" fill="#6d28d9" font-size="9" font-weight="bold" font-family="Arial,sans-serif">①OUT</text>
                         <text x="467" y="160" text-anchor="middle" fill="#374151" font-size="9" font-weight="bold" font-family="Arial,sans-serif">②GND</text>
                         <text x="500" y="160" text-anchor="middle" fill="#dc2626" font-size="9" font-weight="bold" font-family="Arial,sans-serif">③VCC</text>
-
-                        <!-- Component pin dots and labels -->
                         <circle cx="390" cy="72" r="4" fill="#06b6d4"/>
                         <circle cx="390" cy="107" r="4" fill="#374151"/>
                         <circle cx="390" cy="142" r="4" fill="#ef4444"/>
                         <text x="385" y="69" text-anchor="end" fill="#06b6d4" font-size="10" font-weight="bold" font-family="Arial,sans-serif">① OUT (맨 왼쪽)</text>
                         <text x="385" y="104" text-anchor="end" fill="#374151" font-size="10" font-weight="bold" font-family="Arial,sans-serif">② GND (가운데)</text>
                         <text x="385" y="139" text-anchor="end" fill="#ef4444" font-size="10" font-weight="bold" font-family="Arial,sans-serif">③ VCC (맨 오른쪽)</text>
-
-                        <!-- Signal label -->
                         <text x="272" y="66" text-anchor="middle" fill="#06b6d4" font-size="10" font-family="Arial,sans-serif">← IR 신호 수신(IN)</text>
                     </svg>
                     <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">렌즈가 나를 향하도록 세운 기준: ①OUT→GP2, ②GND→GND, ③VCC→3V3. VCC·GND 역결선 시 센서 소손 위험이 있으니 반드시 핀 방향을 확인하세요.</p>
                 </div>
 
-                <h2>10.4 적외선(IR) 리모컨의 데이터 송신 구조</h2>
-                <p>가장 대중적인 <strong>NEC 프로토콜</strong> 규격의 리모컨은 버튼을 누르면 무조건 맨 앞에 <strong>"나 신호 보낸다!"</strong>라고 노크하는 <code>9000us</code> 크기의 거대한 <strong>리더 펄스(Leader Pulse)</strong>를 예외 없이 쏘아 보냅니다. 진짜 어떤 버튼인지 식별하는 유니크한 데이터는 이 리더 펄스 뒤에 눈 깜짝할 사이에 지나가는 미세한 32비트 데이터 배열 속에 숨어 있습니다.</p>
-
-                <h2>10.5 IR 수신기 미세 오차 및 수치 출렁임의 비밀</h2>
-                <p>테스트 중 동일한 버튼을 눌러도 측정 시간이 <code>8900us</code>, <code>9150us</code> 등으로 조금씩 다르게 측정되는 것은 매우 정상적인 현상입니다. 
-                리모컨을 조준하는 각도, 배터리 잔량, 방 안의 형광등 빛(노이즈), 그리고 보드 내부의 백그라운드 연산 타이밍 때문에 ±100~500us 수준의 하드웨어적 오차가 발생하기 때문입니다. 따라서 하드웨어 코딩 시에는 정확한 정수 매칭 대신 <strong>범위(Range) 조건문</strong>을 활용해야 합니다.</p>
-
                 <h2>10.6 실전 IoT: 기초 리모컨 자동 학습 및 영구 저장</h2>
-                <p>번거롭게 리모컨 코드를 일일이 확인하여 하드코딩할 필요가 없습니다. 새로운 리모컨 버튼을 누르면 보드가 실시간으로 감지하여 Thonny 셸 창을 통해 이름을 물어보고, 이를 마이크로파이썬 내부 공간에 JSON 형태의 데이터베이스 파일(<code>remote_db.json</code>)로 저장하는 스마트 자동 영구 학습 시스템 소스 코드입니다.</p>
+                <p>새로운 리모컨 버튼을 누르면 보드가 실시간으로 감지하여 이름을 물어보고, <code>remote_db.json</code> 파일로 영구 저장하는 스마트 자동 학습 시스템입니다.</p>
 
                 <div class="callout warn" style="border-left: 5px solid #ef4444; background-color: #fef2f2;">
                     <h4 style="color: #ef4444;"><i class="fa-solid fa-keyboard"></i> ⚠️ 터미널 한글 입력 제한 주의사항</h4>
-                    <p>마이크로파이썬 터미널 환경의 한계로 인해, Thonny 입력창에 '한글'을 입력하면 신호가 잘리거나 크래시가 발생할 수 있습니다.</p>
-                    <p>새로운 버튼 이름 등록 질문이 나오면 반드시 <strong style="color: #ef4444;">영문이나 숫자(예: 1, btn_1, power, vol_up)</strong>로 타이핑해 주어야 안전하게 데이터베이스 파일이 빌드됩니다.</p>
+                    <p>마이크로파이썬 터미널 환경의 한계로 인해, Thonny 입력창에 '한글'을 입력하면 신호가 잘리거나 크래시가 발생할 수 있습니다. 버튼 이름은 반드시 <strong style="color: #ef4444;">영문이나 숫자(예: 1, btn_1, power, vol_up)</strong>로 입력하세요.</p>
                 </div>
 
                 <pre><code>import json
@@ -281,11 +353,9 @@ import os
 import time
 from machine import Pin
 
-# IR 수신기 설정
 ir_sensor = Pin(2, Pin.IN)
 DB_FILE = "remote_db.json"
 
-# --- [저장소 관리 함수 (마이크로파이썬 경량 규격)] ---
 def load_remote_db():
     if DB_FILE in os.listdir():
         with open(DB_FILE, "r") as f:
@@ -297,7 +367,6 @@ def save_remote_db(data):
     with open(DB_FILE, "w") as f:
         json.dump(data, f)
 
-# 시스템 구동 시 기존 데이터 자동 로드
 remote_mapping = load_remote_db()
 print(f"💾 기존 학습 데이터베이스 로드 완료: 총 {len(remote_mapping)}개의 코드를 기억하고 있습니다.")
 
@@ -337,8 +406,8 @@ while True:
 </code></pre>
 
                 <h2>10.7 심화 IoT: 중복/변형 코드 대응 스마트 링크 학습 시스템</h2>
-                <p>일부 리모컨은 오작동을 막기 위해 동일한 버튼을 누르더라도 매번 신호를 바꾸는 '토글 비트'를 전송하거나, 누르는 길이에 따라 미세한 '변형 코드'를 추가로 발생시킵니다. 이 경우 하나의 버튼이 여러 개의 고유 코드를 가질 수 있습니다.</p>
-                <p>아래 코드는 동일한 버튼에서 새로운 변형 코드가 포착되었을 때, 기존에 등록된 버튼 목록을 화면에 띄워주고 <strong>리스트 번호 선택만으로 하나의 버튼 이름에 복수의 코드를 중복 링크(다대일 매핑)</strong>해주는 고도화된 펌웨어 학습 시스템입니다.</p>
+                <p>동일한 버튼도 매번 다른 코드를 보내는 리모컨(토글 비트)에 대응하는 고도화된 학습 시스템입니다. 기존 버튼 목록을 보여주고 번호 선택으로 복수 코드를 하나의 이름에 연결합니다.</p>
+
                 <pre><code>import json
 import os
 import time
@@ -389,26 +458,20 @@ while True:
             print(f"▶ [인식 성공] '{remote_mapping[cmd]}' 버튼이 눌렸습니다!")
         else:
             print(f"\n✨ [새로운 변형 코드 포착] 고유 코드: {cmd}")
-            
-            # 현재까지 등록된 유니크한 버튼 이름 목록 추출 후 정렬
-            existing_names = list(set(remote_mapping.values()))
-            existing_names.sort()
-            
+            existing_names = sorted(set(remote_mapping.values()))
+
             if existing_names:
                 print("--- 📋 현재 등록된 버튼 목록 ---")
                 for idx, name in enumerate(existing_names):
                     print(f" [{idx + 1}] {name}")
                 print("--------------------------------")
-                print("👉 위 목록의 '번호'를 입력하면 해당 버튼의 서브 코드로 즉시 추가됩니다!")
 
             user_input = input("버튼 번호(숫자) 선택 또는 새 이름 입력 (취소는 엔터): ").strip()
 
             if user_input:
-                # 사용자가 목록의 번호(숫자)를 선택한 경우 기존 이름 매핑
                 if user_input.isdigit() and 0 &lt; int(user_input) &lt;= len(existing_names):
                     button_name = existing_names[int(user_input) - 1]
                 else:
-                    # 새로운 이름을 직접 타이핑한 경우
                     button_name = user_input
 
                 remote_mapping[cmd] = button_name
@@ -421,16 +484,15 @@ while True:
 </code></pre>
 
                 <h2>10.8 최종 응용: 리모컨 데이터베이스 연동 실전 제어</h2>
-                <p>10.7 과정을 통해 변형 코드들까지 축적된 <code>remote_db.json</code> 지도를 기반으로 동작하는 최종 실전 구동 프로그램입니다. 32비트 디코딩 엔진 루프와 데이터베이스 조회 기능이 실시간으로 맞물려 작동하며, 어떤 변형 코드가 들어오더라도 자석처럼 필터링하여 매핑된 정형화 동작(내장 LED 토글, 서보모터 구동 등)을 안전하게 실행해 냅니다.</p>
+                <p>앞선 과정에서 쌓인 <code>remote_db.json</code>을 기반으로 동작하는 최종 실전 구동 프로그램입니다.</p>
+
                 <pre><code>import json
 import time
 from machine import Pin
 
-# IR 수신기 및 제어할 하드웨어(내장 LED) 설정
 ir_sensor = Pin(2, Pin.IN)
 target_led = Pin("LED", Pin.OUT)
 
-# 1) 앞선 단계에서 영구 저장했던 리모컨 DB 파일(JSON)을 가집니다.
 try:
     with open("remote_db.json", "r") as f:
         remote_db = json.load(f)
@@ -439,7 +501,6 @@ except Exception as e:
     print("❌ 에러: remote_db.json 파일이 없습니다. 앞선 코드로 버튼을 먼저 등록해주세요!")
     remote_db = {}
 
-# 2) 32비트 전체 데이터를 정확히 파싱하는 해독 엔진 함수
 def read_ir_command():
     while ir_sensor.value() == 1: pass
     start = time.ticks_us()
@@ -459,28 +520,23 @@ def read_ir_command():
             data |= (1 &lt;&lt; i)
     return hex(data)
 
-# 3) 실시간 명령 감지 및 하드웨어 매핑 통제 루프
 print("\n📡 [실전 가전 제어 모드 가동] 리모컨 버튼을 눌러보세요...")
 
 while True:
-    cmd = read_ir_command()  # 실시간으로 변수를 정의하여 수신합니다.
+    cmd = read_ir_command()
 
     if cmd:
-        # 내가 누른 코드가 DB(JSON) 안에 등록되어 있는지 확인
         if cmd in remote_db:
             action_name = remote_db[cmd]
             print(f"▶ [명령 판독] '{action_name}' 버튼 입력 감지!")
 
-            # -------------------------------------------------------------
-            # 📌 [실전 응용 인터페이스] 등록한 이름에 맞게 동작을 조각하는 영역
-            # -------------------------------------------------------------
             if action_name == "power" or action_name == "1":
-                target_led.toggle()  # 내장 LED를 제어합니다.
+                target_led.toggle()
                 print("-&gt; 🛠️ [하드웨어 작동] 내장 LED 상태를 반전했습니다.")
             elif action_name == "vol_up" or action_name == "2":
-                print("-&gt; ⚙️ [액추에이터 제어] 서보모터를 +10도 회전합니다. (동작 예시)")
+                print("-&gt; ⚙️ [액추에이터 제어] 서보모터를 +10도 회전합니다.")
             elif action_name == "vol_down" or action_name == "3":
-                print("-&gt; ⚙️ [액추에이터 제어] 서보모터를 -10도 회전합니다. (동작 예시)")
+                print("-&gt; ⚙️ [액추에이터 제어] 서보모터를 -10도 회전합니다.")
         else:
             print(f"❓ 등록되지 않은 버튼입니다. 고유 코드: {cmd}")
 
@@ -509,7 +565,7 @@ while True:
             const topBtn = document.createElement('button');
             topBtn.className = 'copy-btn btn-top';
             topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
-            
+
             const bottomBtn = document.createElement('button');
             bottomBtn.className = 'copy-btn btn-bottom';
             bottomBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
@@ -518,12 +574,12 @@ while True:
             wrapper.appendChild(bottomBtn);
 
             const codeText = codeBlock.innerText;
-            
+
             const copyToClipboard = (btn) => {
                 if (!navigator.clipboard) {
                     const textArea = document.createElement("textarea");
                     textArea.value = codeText;
-                    textArea.style.position = "fixed"; 
+                    textArea.style.position = "fixed";
                     document.body.appendChild(textArea);
                     textArea.select();
                     try {
@@ -535,7 +591,6 @@ while True:
                     document.body.removeChild(textArea);
                     return;
                 }
-
                 navigator.clipboard.writeText(codeText).then(() => {
                     showSuccess(btn);
                 }).catch(err => {
@@ -580,7 +635,6 @@ while True:
             openBtn.addEventListener('click', () => modal.classList.add('active'));
             closeBtn.addEventListener('click', () => modal.classList.remove('active'));
             backdrop.addEventListener('click', () => modal.classList.remove('active'));
-            
             window.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && modal.classList.contains('active')) {
                     modal.classList.remove('active');

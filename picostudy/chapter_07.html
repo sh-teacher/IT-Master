@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ch 7. 센서 제어 - Pico 2 가이드</title>
+    <title>Ch 7. 온습도 & 데이터 - Pico 2 가이드</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -13,23 +13,22 @@
             <h2>PICO 2 IoT GUIDE</h2>
             <ul>
                 <li><a href="index.html">HOME - 시작하기</a></li>
+                <li class="menu-divider">기초 & 통신 파트</li>
                 <li><a href="chapter_01.html">CHAPTER 1 - 하드웨어 이해</a></li>
                 <li><a href="chapter_02.html">CHAPTER 2 - 펌웨어 세팅</a></li>
                 <li><a href="chapter_03.html">CHAPTER 3 - 기초 코딩(Blink)</a></li>
-                <li><a href="chapter_04.html">CHAPTER 4 - Wi-Fi 연결</a></li>
-                <li><a href="chapter_05.html">CHAPTER 5 - IoT 웹 서버</a></li>
-                <li class="menu-divider">실전 부품 프로젝트</li>
-                <li><a href="chapter_06.html">CHAPTER 6 - 기본 입출력(스위치/부저)</a></li>
-                <li><a href="chapter_07.html" class="active">CHAPTER 7 - 센서 제어(초음파/PIR)</a></li>
-                <li><a href="chapter_08.html">CHAPTER 8 - 아날로그 & 모터</a></li>
-                <li><a href="chapter_09.html">CHAPTER 9 - LCD 디스플레이</a></li>
+                <li><a href="chapter_04.html">CHAPTER 4 - 기본 입출력(스위치/부저)</a></li>
+                <li><a href="chapter_05.html">CHAPTER 5 - 센서 제어(초음파/PIR)</a></li>
+                <li class="menu-divider">실전 하드웨어</li>
+                <li><a href="chapter_06.html">CHAPTER 6 - 아날로그 & 모터</a></li>
+                <li><a href="chapter_07.html" class="active">CHAPTER 7 - 온습도 & 데이터</a></li>
+                <li><a href="chapter_08.html">CHAPTER 8 - Neopixel 제어</a></li>
+                <li><a href="chapter_09.html">CHAPTER 9 - I2C LCD 디스플레이</a></li>
                 <li><a href="chapter_10.html">CHAPTER 10 - 무선 통신 & 입력</a></li>
                 <li class="menu-divider">심화 응용 프로젝트</li>
-                <li><a href="chapter_11.html">CHAPTER 11 - 온습도 & 데이터</a></li>
-                <li><a href="chapter_12.html">CHAPTER 12 - MQTT 클라우드</a></li>
-                <li><a href="chapter_13.html">CHAPTER 13 - Neopixel 제어</a></li>
-                <li><a href="chapter_14.html">CHAPTER 14 - OLED & RTC</a></li>
-                <li><a href="chapter_15.html">CHAPTER 15 - 종합 프로젝트</a></li>
+                <li><a href="chapter_11.html">CHAPTER 11 - MQTT 클라우드</a></li>
+                <li><a href="chapter_12.html">CHAPTER 12 - OLED & RTC</a></li>
+                <li><a href="chapter_13.html">CHAPTER 13 - 종합 프로젝트</a></li>
             </ul>
             <div class="sidebar-footer">
                 <button class="pinout-btn" id="openPinout"><i class="fa-solid fa-diagram-project"></i> GPIO 핀아웃 맵 보기</button>
@@ -37,183 +36,140 @@
         </nav>
         <main class="content">
             <div class="container">
-                <h1>Chapter 7. 공간 인지 센서 제어 (초음파 센서, PIR 모션 센서)</h1>
-                <p>주변 환경을 인식하는 두 가지 핵심 센서를 제어합니다. 거리를 재는 초음파 센서와 인간의 움직임을 잡아내는 인체 감지 센서입니다.</p>
+                <h1>Chapter 7. DHT11 온습도 센서와 LCD 시각화</h1>
+                <p>주변의 온도와 습도를 정밀하게 측정하는 DHT11 센서를 다뤄보고, 수집된 데이터를 LCD 화면에 깔끔하게 출력하는 웨더 스테이션의 기초를 다집니다.</p>
 
-                <div style="text-align: center; margin: 40px 0;">
-                    <svg viewBox="0 0 800 250" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 16px; background: #ffffff;">
-                        <!-- Ultrasonic Sensor -->
-                        <rect x="100" y="80" width="120" height="60" rx="5" fill="#1e293b"/>
-                        <circle cx="130" cy="110" r="20" fill="#94a3b8"/>
-                        <circle cx="190" cy="110" r="20" fill="#94a3b8"/>
-                        <text x="160" y="165" text-anchor="middle" fill="#1e293b" font-weight="bold">초음파 (HC-SR04)</text>
-                        
-                        <!-- Waves -->
-                        <path d="M230 90 Q 300 110 230 130" fill="none" stroke="#3b82f6" stroke-width="2">
-                            <animate attributeName="stroke-dashoffset" from="20" to="0" dur="1s" repeatCount="indefinite"/>
-                        </path>
-                        
-                        <!-- Object -->
-                        <rect x="500" y="50" width="20" height="150" fill="#cbd5e1"/>
-                        <text x="510" y="220" text-anchor="middle" fill="#64748b" font-size="12">물체</text>
-                        
-                        <!-- Calculation logic -->
-                        <g transform="translate(250, 180)">
-                            <rect width="220" height="40" rx="20" fill="#eff6ff" stroke="#3b82f6"/>
-                            <text x="110" y="25" text-anchor="middle" fill="#1d4ed8" font-size="12" font-weight="bold">거리 = (시간 × 음속) / 2</text>
+                <div style="text-align: center; margin: 20px 0;">
+                    <svg viewBox="0 0 820 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="dhtDiagramTitle dhtDiagramDesc" style="max-width: 100%; height: auto; border-radius: 16px; background: #f8fafc; border: 1px solid #e2e8f0; box-shadow: 0 8px 24px rgba(15,23,42,0.08);">
+                        <title id="dhtDiagramTitle">DHT11과 I2C LCD 연결도</title>
+                        <desc id="dhtDiagramDesc">DHT11 데이터 핀은 GP15에, I2C LCD의 SDA와 SCL은 GP8과 GP9에 연결합니다.</desc>
+                        <defs>
+                            <marker id="arrow7Blue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#2563eb"/></marker>
+                            <marker id="arrow7Green" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#16a34a"/></marker>
+                            <filter id="shadow7" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.14"/></filter>
+                        </defs>
+
+                        <text x="120" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">온습도 입력</text>
+                        <text x="410" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">Pico 2 W</text>
+                        <text x="692" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">LCD 출력</text>
+
+                        <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M216 130 H328" stroke="#2563eb" stroke-width="4" marker-end="url(#arrow7Blue)"/>
+                            <path d="M492 120 H610" stroke="#16a34a" stroke-width="4" marker-end="url(#arrow7Green)"/>
+                            <path d="M492 168 C545 168 557 202 610 202" stroke="#7c3aed" stroke-width="4" marker-end="url(#arrow7Green)"/>
                         </g>
+
+                        <g filter="url(#shadow7)">
+                            <rect x="72" y="82" width="144" height="138" rx="10" fill="#ffffff" stroke="#bfdbfe"/>
+                            <rect x="108" y="104" width="72" height="90" rx="6" fill="#3b82f6"/>
+                            <rect x="123" y="118" width="42" height="44" fill="#1d4ed8" opacity="0.35"/>
+                            <text x="144" y="205" text-anchor="middle" fill="#1e3a8a" font-size="13" font-weight="800">DHT11</text>
+                            <text x="144" y="235" text-anchor="middle" fill="#475569" font-size="12">온도 / 습도 측정</text>
+                        </g>
+                        <circle cx="216" cy="130" r="6" fill="#2563eb"/>
+                        <text x="226" y="124" fill="#2563eb" font-size="11" font-weight="700">DATA</text>
+
+                        <g filter="url(#shadow7)">
+                            <rect x="330" y="76" width="160" height="180" rx="14" fill="#059669"/>
+                            <text x="410" y="135" text-anchor="middle" fill="white" font-size="20" font-weight="800">Pico 2 W</text>
+                            <text x="410" y="158" text-anchor="middle" fill="#dcfce7" font-size="12">DHT + I2C LCD</text>
+                            <text x="410" y="216" text-anchor="middle" fill="#bbf7d0" font-size="12">2초마다 측정 후 표시</text>
+                        </g>
+                        <circle cx="330" cy="130" r="6" fill="#dbeafe"/>
+                        <text x="344" y="134" fill="#ecfeff" font-size="11" font-weight="800">GP15</text>
+                        <circle cx="490" cy="120" r="6" fill="#dcfce7"/>
+                        <text x="442" y="110" fill="#ecfeff" font-size="11" font-weight="800">GP8 SDA</text>
+                        <circle cx="490" cy="168" r="6" fill="#ede9fe"/>
+                        <text x="442" y="188" fill="#ecfeff" font-size="11" font-weight="800">GP9 SCL</text>
+
+                        <g filter="url(#shadow7)">
+                            <rect x="612" y="86" width="156" height="146" rx="10" fill="#ffffff" stroke="#bbf7d0"/>
+                            <rect x="640" y="116" width="100" height="62" rx="5" fill="#0f172a"/>
+                            <text x="690" y="140" text-anchor="middle" fill="#38bdf8" font-size="11" font-weight="800">Temp: 24.0 C</text>
+                            <text x="690" y="158" text-anchor="middle" fill="#38bdf8" font-size="11" font-weight="800">Hum : 58 %</text>
+                            <text x="690" y="210" text-anchor="middle" fill="#166534" font-size="12" font-weight="700">I2C LCD 16x2</text>
+                        </g>
+                        <circle cx="612" cy="120" r="6" fill="#16a34a"/>
+                        <circle cx="612" cy="202" r="6" fill="#7c3aed"/>
+
+                        <rect x="80" y="276" width="660" height="30" rx="8" fill="#ffffff" stroke="#e2e8f0"/>
+                        <text x="410" y="296" text-anchor="middle" fill="#475569" font-size="12">전원은 DHT11 VCC->3V3, LCD VCC->5V 또는 3V3(모듈 사양 확인), 모든 GND는 공통 연결</text>
                     </svg>
+                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">DHT11: VCC→3V3, Data→GP15, GND→GND. LCD는 SDA→GP8, SCL→GP9에 연결합니다.</p>
                 </div>
 
-                <h2>7.1 HC-SR04 초음파 센서 거리 측정</h2>
-                <p>Trig 핀으로 초음파를 쏘고 Echo 핀으로 되돌아오는 시간을 마이크로초(us) 단위로 정밀 측정하여 물체와의 거리를 cm 단위로 계산해 냅니다.</p>
+                <h2>7.1 준비물과 연결 핀</h2>
+                <p>센서와 LCD를 함께 쓰는 장이므로 데이터 선과 I2C 선을 구분해서 연결합니다. LCD 주소가 다르면 Chapter 9의 I2C 스캔 코드로 주소를 먼저 확인하세요.</p>
 
-                <div style="text-align: center; margin: 20px 0;">
-                    <svg viewBox="0 0 640 215" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 12px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.06);">
-                        <!-- Pico 2 board -->
-                        <rect x="40" y="20" width="110" height="175" rx="8" fill="#059669"/>
-                        <text x="95" y="47" text-anchor="middle" fill="white" font-size="13" font-weight="bold" font-family="Arial,sans-serif">Pico 2</text>
-                        <text x="143" y="79" text-anchor="end" fill="white" font-size="11" font-family="Arial,sans-serif">3V3</text>
-                        <text x="143" y="114" text-anchor="end" fill="white" font-size="11" font-family="Arial,sans-serif">GP17</text>
-                        <text x="143" y="149" text-anchor="end" fill="white" font-size="11" font-family="Arial,sans-serif">GP16</text>
-                        <text x="143" y="184" text-anchor="end" fill="white" font-size="11" font-family="Arial,sans-serif">GND</text>
-                        <circle cx="150" cy="75" r="6" fill="#ef4444"/>
-                        <circle cx="150" cy="110" r="6" fill="#f59e0b"/>
-                        <circle cx="150" cy="145" r="6" fill="#06b6d4"/>
-                        <circle cx="150" cy="180" r="6" fill="#374151"/>
+                <table style="width: 100%; border-collapse: collapse; margin: 20px 0 30px; font-size: 0.98rem;">
+                    <thead>
+                        <tr style="background: #f1f5f9; color: #0f172a;">
+                            <th style="border: 1px solid #e2e8f0; padding: 10px;">부품</th>
+                            <th style="border: 1px solid #e2e8f0; padding: 10px;">Pico 2 W 핀</th>
+                            <th style="border: 1px solid #e2e8f0; padding: 10px;">역할</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">DHT11 Data</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>GP15</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">온습도 데이터 입력</td></tr>
+                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">LCD SDA / SCL</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>GP8</code> / <code>GP9</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">I2C 화면 출력</td></tr>
+                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">전원 / GND</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>3V3</code>, <code>GND</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">공통 전원 기준</td></tr>
+                    </tbody>
+                </table>
 
-                        <!-- Wires -->
-                        <line x1="156" y1="75" x2="400" y2="75" stroke="#ef4444" stroke-width="2.5"/>
-                        <line x1="156" y1="110" x2="400" y2="110" stroke="#f59e0b" stroke-width="2.5"/>
-                        <line x1="156" y1="145" x2="400" y2="145" stroke="#06b6d4" stroke-width="2.5"/>
-                        <line x1="156" y1="180" x2="400" y2="180" stroke="#374151" stroke-width="2.5"/>
+                <h2>7.2 실시간 환경 모니터링 소스 코드</h2>
+                <p>MicroPython의 내장 <code>dht</code> 라이브러리를 사용합니다. Chapter 9에서 사용한 LCD 라이브러리가 Pico에 이미 저장되어 있어야 합니다.</p>
 
-                        <!-- HC-SR04 sensor body -->
-                        <rect x="400" y="52" width="175" height="148" rx="8" fill="#f0f9ff" stroke="#0284c7" stroke-width="1.5"/>
-                        <rect x="400" y="52" width="175" height="30" rx="8" fill="#0284c7"/>
-                        <text x="487" y="72" text-anchor="middle" fill="white" font-size="12" font-weight="bold" font-family="Arial,sans-serif">HC-SR04</text>
-                        <!-- Two ultrasonic transducer circles -->
-                        <circle cx="445" cy="128" r="24" fill="#bae6fd" stroke="#0284c7" stroke-width="1.5"/>
-                        <circle cx="445" cy="128" r="13" fill="#7dd3fc" stroke="#0369a1" stroke-width="1"/>
-                        <circle cx="532" cy="128" r="24" fill="#bae6fd" stroke="#0284c7" stroke-width="1.5"/>
-                        <circle cx="532" cy="128" r="13" fill="#7dd3fc" stroke="#0369a1" stroke-width="1"/>
-                        <text x="445" y="132" text-anchor="middle" fill="#0c4a6e" font-size="10" font-weight="bold" font-family="Arial,sans-serif">T</text>
-                        <text x="532" y="132" text-anchor="middle" fill="#0c4a6e" font-size="10" font-weight="bold" font-family="Arial,sans-serif">R</text>
-                        <text x="445" y="168" text-anchor="middle" fill="#0369a1" font-size="9" font-family="Arial,sans-serif">Trig</text>
-                        <text x="532" y="168" text-anchor="middle" fill="#0369a1" font-size="9" font-family="Arial,sans-serif">Echo</text>
-
-                        <!-- Component pin dots and labels -->
-                        <circle cx="400" cy="75" r="4" fill="#ef4444"/>
-                        <circle cx="400" cy="110" r="4" fill="#f59e0b"/>
-                        <circle cx="400" cy="145" r="4" fill="#06b6d4"/>
-                        <circle cx="400" cy="180" r="4" fill="#374151"/>
-                        <text x="395" y="72" text-anchor="end" fill="#ef4444" font-size="10" font-weight="bold" font-family="Arial,sans-serif">VCC</text>
-                        <text x="395" y="107" text-anchor="end" fill="#f59e0b" font-size="10" font-weight="bold" font-family="Arial,sans-serif">Trig</text>
-                        <text x="395" y="142" text-anchor="end" fill="#06b6d4" font-size="10" font-weight="bold" font-family="Arial,sans-serif">Echo</text>
-                        <text x="395" y="177" text-anchor="end" fill="#374151" font-size="10" font-weight="bold" font-family="Arial,sans-serif">GND</text>
-
-                        <!-- Signal direction labels -->
-                        <text x="275" y="105" text-anchor="middle" fill="#f59e0b" font-size="10" font-family="Arial,sans-serif">→ 발사 트리거(OUT)</text>
-                        <text x="275" y="140" text-anchor="middle" fill="#06b6d4" font-size="10" font-family="Arial,sans-serif">← 반사음 수신(IN)</text>
-                    </svg>
-                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">HC-SR04: VCC→3V3, Trig→GP17(출력), Echo→GP16(입력), GND→GND. 안정적인 측정을 위해 VCC를 VSYS(5V) 핀에 연결하는 것을 권장합니다.</p>
-                </div>
-
-                <pre><code>from machine import Pin
+                <pre><code>import machine
+import dht
 import time
+from pico_i2c_lcd import I2cLcd
 
-# 핀 설정
-trig = Pin(17, Pin.OUT)
-echo = Pin(16, Pin.IN)
+# I2C LCD 설정
+i2c = machine.I2C(0, sda=machine.Pin(8), scl=machine.Pin(9), freq=400000)
+lcd = I2cLcd(i2c, 0x27, 2, 16)
 
-def get_distance():
-    # 1. Trig 핀을 깨끗하게 비운 뒤 10us 동안 초음파 발사 신호를 줍니다.
-    trig.value(0)
-    time.sleep_us(2)
-    trig.value(1)
-    time.sleep_us(10)
-    trig.value(0)
-    
-    # 2. Echo 핀이 High(1)로 올라가는 순간(시작 시간)을 기록합니다.
-    while echo.value() == 0:
-        signaloff = time.ticks_us()
-        
-    # 3. Echo 핀이 다시 Low(0)로 떨어지는 순간(도착 시간)을 기록합니다.
-    while echo.value() == 1:
-        signalon = time.ticks_us()
-        
-    # 4. 시간 차이를 계산하여 거리(cm)로 환산합니다. (음속 340m/s 반영)
-    time_passed = signalon - signaloff
-    distance = (time_passed * 0.0343) / 2
-    return distance
+sensor = dht.DHT11(machine.Pin(15))
+
+def lcd_line(row, text):
+    lcd.move_to(0, row)
+    lcd.putstr(text[:16].ljust(16))
+
+def show_status(temp=None, hum=None, error=None):
+    if error:
+        lcd_line(0, "DHT11 Error")
+        lcd_line(1, "Check wiring")
+        print("센서 읽기 실패:", error)
+        return
+
+    lcd_line(0, f"Temp: {temp:>2} C")
+    lcd_line(1, f"Hum : {hum:>2} %")
+    print(f"온도: {temp}C, 습도: {hum}%")
+
+print("온습도 모니터링 시스템 시작...")
+lcd_line(0, "DHT11 + LCD")
+lcd_line(1, "Initializing...")
+time.sleep(1)
 
 while True:
-    dist = get_distance()
-    print(f"물체와의 거리: {dist:.1f} cm")
-    time.sleep(0.5)
+    try:
+        sensor.measure()
+        temp = sensor.temperature()
+        hum = sensor.humidity()
+        show_status(temp, hum)
+    except OSError as e:
+        show_status(error=e)
+
+    # DHT11은 너무 자주 읽으면 실패하므로 2초 이상 간격을 둡니다.
+    time.sleep(2)
 </code></pre>
 
-                <h2>7.2 PIR 적외선 인체 감지 센서</h2>
-                <p>사람이나 동물의 움직임으로 발생하는 적외선의 변화량을 측정하여 움직임 유무를 디지털 값(0 또는 1)으로 반환합니다.</p>
+                <h2>7.3 동작 흐름</h2>
+                <p>Pico는 2초마다 DHT11에 측정을 요청하고 온도와 습도 값을 읽습니다. 정상 값은 LCD 두 줄에 고정 폭으로 표시하고, 읽기 실패가 발생하면 배선 확인 메시지를 띄워 수업 중 디버깅이 쉽도록 했습니다.</p>
 
-                <div style="text-align: center; margin: 20px 0;">
-                    <svg viewBox="0 0 600 185" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 12px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.06);">
-                        <!-- Pico 2 board -->
-                        <rect x="40" y="20" width="110" height="145" rx="8" fill="#059669"/>
-                        <text x="95" y="47" text-anchor="middle" fill="white" font-size="13" font-weight="bold" font-family="Arial,sans-serif">Pico 2</text>
-                        <text x="143" y="76" text-anchor="end" fill="white" font-size="11" font-family="Arial,sans-serif">3V3</text>
-                        <text x="143" y="111" text-anchor="end" fill="white" font-size="11" font-family="Arial,sans-serif">GP18</text>
-                        <text x="143" y="146" text-anchor="end" fill="white" font-size="11" font-family="Arial,sans-serif">GND</text>
-                        <circle cx="150" cy="72" r="6" fill="#ef4444"/>
-                        <circle cx="150" cy="107" r="6" fill="#06b6d4"/>
-                        <circle cx="150" cy="142" r="6" fill="#374151"/>
-
-                        <!-- Wires -->
-                        <line x1="156" y1="72" x2="390" y2="72" stroke="#ef4444" stroke-width="2.5"/>
-                        <line x1="156" y1="107" x2="390" y2="107" stroke="#06b6d4" stroke-width="2.5"/>
-                        <line x1="156" y1="142" x2="390" y2="142" stroke="#374151" stroke-width="2.5"/>
-
-                        <!-- PIR sensor body -->
-                        <rect x="390" y="48" width="150" height="120" rx="8" fill="#fdf4ff" stroke="#9333ea" stroke-width="1.5"/>
-                        <rect x="390" y="48" width="150" height="28" rx="8" fill="#9333ea"/>
-                        <text x="465" y="67" text-anchor="middle" fill="white" font-size="12" font-weight="bold" font-family="Arial,sans-serif">PIR 센서</text>
-                        <!-- Fresnel dome -->
-                        <ellipse cx="465" cy="118" rx="36" ry="20" fill="#e9d5ff" stroke="#9333ea" stroke-width="1.5"/>
-                        <ellipse cx="465" cy="118" rx="20" ry="11" fill="#c4b5fd" stroke="#7c3aed" stroke-width="1"/>
-                        <!-- IR detection waves -->
-                        <path d="M508 104 Q522 104 522 118 Q522 132 508 132" fill="none" stroke="#9333ea" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.65"/>
-                        <path d="M512 97 Q532 97 532 118 Q532 139 512 139" fill="none" stroke="#9333ea" stroke-width="1" stroke-dasharray="3,2" opacity="0.35"/>
-
-                        <!-- Component pin dots and labels -->
-                        <circle cx="390" cy="72" r="4" fill="#ef4444"/>
-                        <circle cx="390" cy="107" r="4" fill="#06b6d4"/>
-                        <circle cx="390" cy="142" r="4" fill="#374151"/>
-                        <text x="385" y="69" text-anchor="end" fill="#ef4444" font-size="10" font-weight="bold" font-family="Arial,sans-serif">VCC</text>
-                        <text x="385" y="104" text-anchor="end" fill="#06b6d4" font-size="10" font-weight="bold" font-family="Arial,sans-serif">OUT</text>
-                        <text x="385" y="139" text-anchor="end" fill="#374151" font-size="10" font-weight="bold" font-family="Arial,sans-serif">GND</text>
-
-                        <!-- Signal direction label -->
-                        <text x="272" y="101" text-anchor="middle" fill="#06b6d4" font-size="10" font-family="Arial,sans-serif">← 감지 신호(IN)</text>
-                    </svg>
-                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">PIR 센서: VCC→3V3, OUT→GP18(입력), GND→GND. 전원 인가 후 약 2초 안정화 시간이 필요하며, 3핀 모듈의 경우 왼쪽부터 VCC·GND·OUT 순서가 일반적입니다 (구매 제품의 핀 배열 확인 필수).</p>
+                <div class="callout info">
+                    <h4>💡 DHT11 사용 팁</h4>
+                    <p>DHT11은 매우 저렴하고 대중적이지만, 온도는 ±2℃, 습도는 ±5% 정도의 오차가 있을 수 있습니다. 더 정밀한 프로젝트를 원하신다면 <strong>DHT22</strong>나 <strong>BME280</strong> 센서를 고려해 보세요. 코드 구조는 거의 동일합니다.</p>
                 </div>
-                <pre><code>from machine import Pin
-import time
-
-# GPIO 18번에 PIR 센서의 Out 핀 연결
-pir = Pin(18, Pin.IN)
-
-print("침입 감지 시스템 가동중...")
-time.sleep(2) # 센서 안정화를 위한 초기 대기
-
-while True:
-    if pir.value() == 1:
-        print("🚨 경고: 구역 내 움직임이 감지되었습니다!")
-        time.sleep(2) # 중복 경고 방지 대기
-    else:
-        print("안전 - 움직임 없음")
-    time.sleep(0.5)
-</code></pre>
 
                 <div class="nav-btns">
                     <a href="chapter_06.html" class="btn btn-prev">◀ CHAPTER 6</a>
@@ -227,68 +183,24 @@ while True:
         document.querySelectorAll('pre').forEach((preBlock) => {
             const codeBlock = preBlock.querySelector('code');
             if (!codeBlock) return;
-
-            // 1. 코드를 감싸는 부모 박스(Wrapper) 동적 생성
             const wrapper = document.createElement('div');
             wrapper.className = 'code-wrapper';
             preBlock.parentNode.insertBefore(wrapper, preBlock);
             wrapper.appendChild(preBlock);
-
-            // 2. 우측 상단 복사 버튼 생성
             const topBtn = document.createElement('button');
             topBtn.className = 'copy-btn btn-top';
             topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
-            
-            // 3. 우측 하단 복사 버튼 생성
-            const bottomBtn = document.createElement('button');
-            bottomBtn.className = 'copy-btn btn-bottom';
-            bottomBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
-
             wrapper.appendChild(topBtn);
-            wrapper.appendChild(bottomBtn);
-
-            // 4. 복사 기능 정의
-            const codeText = codeBlock.innerText;
-            
-            const copyToClipboard = (btn) => {
-                if (!navigator.clipboard) {
-                    const textArea = document.createElement("textarea");
-                    textArea.value = codeText;
-                    textArea.style.position = "fixed"; 
-                    document.body.appendChild(textArea);
-                    textArea.select();
-                    try {
-                        document.execCommand('copy');
-                        showSuccess(btn);
-                    } catch (err) {
-                        console.error('우회 복사 실패:', err);
-                    }
-                    document.body.removeChild(textArea);
-                    return;
-                }
-
-                navigator.clipboard.writeText(codeText).then(() => {
-                    showSuccess(btn);
-                }).catch(err => {
-                    console.error('표준 복사 실패:', err);
+            topBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(codeBlock.innerText).then(() => {
+                    topBtn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> 완료';
+                    setTimeout(() => { topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사'; }, 2000);
                 });
-            };
-
-            const showSuccess = (btn) => {
-                btn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> 완료';
-                btn.classList.add('copied');
-                
-                setTimeout(() => {
-                    btn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
-                    btn.classList.remove('copied');
-                }, 2000);
-            };
-
-            topBtn.addEventListener('click', () => copyToClipboard(topBtn));
-            bottomBtn.addEventListener('click', () => copyToClipboard(bottomBtn));
+            });
         });
     });
     </script>
+
     <div class="pinout-modal" id="pinoutModal">
         <div class="modal-backdrop"></div>
         <div class="modal-box">
@@ -308,14 +220,9 @@ while True:
         const backdrop = modal.querySelector('.modal-backdrop');
 
         if (openBtn && modal) {
-            // 버튼 누르면 열기
             openBtn.addEventListener('click', () => modal.classList.add('active'));
-            // X 버튼 누르면 닫기
             closeBtn.addEventListener('click', () => modal.classList.remove('active'));
-            // 흐린 배경 누르면 닫기
             backdrop.addEventListener('click', () => modal.classList.remove('active'));
-            
-            // ESC 키 누르면 닫히는 센스있는 단축키 기능 추가
             window.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && modal.classList.contains('active')) {
                     modal.classList.remove('active');
@@ -325,5 +232,5 @@ while True:
     });
     </script>
     <script src="mobile-nav.js"></script>
-    </body>
+</body>
 </html>

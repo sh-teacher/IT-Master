@@ -13,23 +13,22 @@
             <h2>PICO 2 IoT GUIDE</h2>
             <ul>
                 <li><a href="index.html" class="active">HOME - 시작하기</a></li>
+                <li class="menu-divider">기초 & 통신 파트</li>
                 <li><a href="chapter_01.html">CHAPTER 1 - 하드웨어 이해</a></li>
                 <li><a href="chapter_02.html">CHAPTER 2 - 펌웨어 세팅</a></li>
                 <li><a href="chapter_03.html">CHAPTER 3 - 기초 코딩(Blink)</a></li>
-                <li><a href="chapter_04.html">CHAPTER 4 - Wi-Fi 연결</a></li>
-                <li><a href="chapter_05.html">CHAPTER 5 - IoT 웹 서버</a></li>
-                <li class="menu-divider">실전 부품 프로젝트</li>
-                <li><a href="chapter_06.html">CHAPTER 6 - 기본 입출력(스위치/부저)</a></li>
-                <li><a href="chapter_07.html">CHAPTER 7 - 센서 제어(초음파/PIR)</a></li>
-                <li><a href="chapter_08.html">CHAPTER 8 - 아날로그 & 모터</a></li>
-                <li><a href="chapter_09.html">CHAPTER 9 - LCD 디스플레이</a></li>
+                <li><a href="chapter_04.html">CHAPTER 4 - 기본 입출력(스위치/부저)</a></li>
+                <li><a href="chapter_05.html">CHAPTER 5 - 센서 제어(초음파/PIR)</a></li>
+                <li class="menu-divider">실전 하드웨어</li>
+                <li><a href="chapter_06.html">CHAPTER 6 - 아날로그 & 모터</a></li>
+                <li><a href="chapter_07.html">CHAPTER 7 - 온습도 & 데이터</a></li>
+                <li><a href="chapter_08.html">CHAPTER 8 - Neopixel 제어</a></li>
+                <li><a href="chapter_09.html">CHAPTER 9 - I2C LCD 디스플레이</a></li>
                 <li><a href="chapter_10.html">CHAPTER 10 - 무선 통신 & 입력</a></li>
                 <li class="menu-divider">심화 응용 프로젝트</li>
-                <li><a href="chapter_11.html">CHAPTER 11 - 온습도 & 데이터</a></li>
-                <li><a href="chapter_12.html">CHAPTER 12 - MQTT 클라우드</a></li>
-                <li><a href="chapter_13.html">CHAPTER 13 - Neopixel 제어</a></li>
-                <li><a href="chapter_14.html">CHAPTER 14 - OLED & RTC</a></li>
-                <li><a href="chapter_15.html">CHAPTER 15 - 종합 프로젝트</a></li>
+                <li><a href="chapter_11.html">CHAPTER 11 - MQTT 클라우드</a></li>
+                <li><a href="chapter_12.html">CHAPTER 12 - OLED & RTC</a></li>
+                <li><a href="chapter_13.html">CHAPTER 13 - 종합 프로젝트</a></li>
             </ul>
         </nav>
         <main class="content">
@@ -55,63 +54,59 @@
                         <th style="padding: 12px; border: 1px solid #cbd5e1;">주요 학습 내용</th>
                     </tr>
                     <tr>
-                        <td rowspan="4" style="padding: 12px; border: 1px solid #cbd5e1; font-weight: bold; color: #475569; border-bottom: 2px solid #94a3b8;">기초 & 통신</td>
-                        <td style="padding: 12px; border: 1px solid #cbd5e1;">Ch 1 ~ Ch 2</td>
-                        <td style="padding: 12px; border: 1px solid #cbd5e1;">RP2350 핀아웃 이해 및 마이크로파이썬 펌웨어 세팅</td>
+                        <td rowspan="5" style="padding: 12px; border: 1px solid #cbd5e1; font-weight: bold; color: #475569; border-bottom: 2px solid #94a3b8; vertical-align: top;">기초 &amp; 통신 파트</td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;"><a href="chapter_01.html">Ch 1. 하드웨어 이해</a></td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;">RP2350 핀아웃 이해, Pico 2 W 하드웨어 구조 파악</td>
                     </tr>
                     <tr>
-                        <td style="padding: 12px; border: 1px solid #cbd5e1;">Ch 3. 기초 코딩</td>
-                        <td style="padding: 12px; border: 1px solid #cbd5e1;">내장 LED 제어 및 토글, 무한 루프 기본 문법</td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;"><a href="chapter_02.html">Ch 2. 펌웨어 세팅</a></td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;">MicroPython 펌웨어 설치 및 Thonny 개발 환경 세팅</td>
                     </tr>
                     <tr>
-                        <td style="padding: 12px; border: 1px solid #cbd5e1;">Ch 4. Wi-Fi 연결</td>
-                        <td style="padding: 12px; border: 1px solid #cbd5e1;">2.4GHz 무선망 탐색, 강제 재접속 및 IP 주소 할당 원리</td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;"><a href="chapter_03.html">Ch 3. 기초 코딩(Blink)</a></td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;">내장 LED 제어, 토글/무한루프 기초 문법, 3단계 실습</td>
                     </tr>
                     <tr>
-                        <td style="padding: 12px; border: 1px solid #cbd5e1; border-bottom: 2px solid #94a3b8;">Ch 5. IoT 웹 서버</td>
-                        <td style="padding: 12px; border: 1px solid #cbd5e1; border-bottom: 2px solid #94a3b8;">POST 방식을 활용한 브라우저 오작동 없는 원격 LED 제어</td>
-                    </tr>
-                    <tr>
-                        <td rowspan="5" style="padding: 12px; border: 1px solid #cbd5e1; font-weight: bold; color: #2563eb; border-bottom: 2px solid #94a3b8;">실전 하드웨어</td>
-                        <td style="padding: 12px; border: 1px solid #cbd5e1;">Ch 6. 기본 입출력</td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;"><a href="chapter_04.html">Ch 4. 기본 입출력</a></td>
                         <td style="padding: 12px; border: 1px solid #cbd5e1;">외장 LED, 풀다운 스위치 입력 제어, 능동/수동 부저 멜로디</td>
                     </tr>
                     <tr>
-                        <td style="padding: 12px; border: 1px solid #cbd5e1;">Ch 7. 센서 제어</td>
-                        <td style="padding: 12px; border: 1px solid #cbd5e1;">HC-SR04 초음파 거리 측정, PIR 모션 감지 센서 연동</td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1; border-bottom: 2px solid #94a3b8;"><a href="chapter_05.html">Ch 5. 센서 제어</a></td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1; border-bottom: 2px solid #94a3b8;">HC-SR04 초음파 거리 측정, PIR 모션 감지 센서 연동</td>
                     </tr>
                     <tr>
-                        <td style="padding: 12px; border: 1px solid #cbd5e1;">Ch 8. 아날로그&모터</td>
+                        <td rowspan="5" style="padding: 12px; border: 1px solid #cbd5e1; font-weight: bold; color: #2563eb; border-bottom: 2px solid #94a3b8; vertical-align: top;">실전 하드웨어</td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;"><a href="chapter_06.html">Ch 6. 아날로그 &amp; 모터</a></td>
                         <td style="padding: 12px; border: 1px solid #cbd5e1;">가변저항 ADC 값 정밀 매핑, SG90 서보모터 각도 PWM 제어</td>
                     </tr>
                     <tr>
-                        <td style="padding: 12px; border: 1px solid #cbd5e1;">Ch 9. 디스플레이</td>
-                        <td style="padding: 12px; border: 1px solid #cbd5e1;">I2C 통신 기반 LCD1602 문자열 출력 및 실시간 모니터링</td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;"><a href="chapter_07.html">Ch 7. 온습도 &amp; 데이터</a></td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;">DHT11 온습도 센서 + I2C LCD1602 실시간 시각화</td>
                     </tr>
                     <tr>
-                        <td style="padding: 12px; border: 1px solid #cbd5e1; border-bottom: 2px solid #94a3b8;">Ch 10. 무선 통신</td>
-                        <td style="padding: 12px; border: 1px solid #cbd5e1; border-bottom: 2px solid #94a3b8;">UART 블루투스 데이터 송수신, 적외선(IR) 리모컨 디코딩</td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;"><a href="chapter_08.html">Ch 8. Neopixel 제어</a></td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;">WS2812B RGB LED 스트립 rainbow_cycle 조명 연출</td>
                     </tr>
                     <tr>
-                        <td rowspan="5" style="padding: 12px; border: 1px solid #cbd5e1; font-weight: bold; color: #5d00ff;">시스템 통합</td>
-                        <td style="padding: 12px; border: 1px solid #cbd5e1;">Ch 11. 온습도 & 데이터</td>
-                        <td style="padding: 12px; border: 1px solid #cbd5e1;">DHT11 센서 활용 환경 모니터링 및 LCD 실시간 시각화</td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;"><a href="chapter_09.html">Ch 9. I2C LCD 디스플레이</a></td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;">I2C LCD1602 문자열 스크롤 및 실시간 상태 모니터링</td>
                     </tr>
                     <tr>
-                        <td style="padding: 12px; border: 1px solid #cbd5e1;">Ch 12. MQTT 클라우드</td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1; border-bottom: 2px solid #94a3b8;"><a href="chapter_10.html">Ch 10. 무선 통신 &amp; 입력</a></td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1; border-bottom: 2px solid #94a3b8;">Wi-Fi + 웹 서버 + 내장 BLE UART + IR 리모컨 자동 학습</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="3" style="padding: 12px; border: 1px solid #cbd5e1; font-weight: bold; color: #7c3aed; vertical-align: top;">심화 응용 프로젝트</td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;"><a href="chapter_11.html">Ch 11. MQTT 클라우드</a></td>
                         <td style="padding: 12px; border: 1px solid #cbd5e1;">MQTT 프로토콜 이해 및 Adafruit IO 클라우드 대시보드 연동</td>
                     </tr>
                     <tr>
-                        <td style="padding: 12px; border: 1px solid #cbd5e1;">Ch 13. Neopixel 제어</td>
-                        <td style="padding: 12px; border: 1px solid #cbd5e1;">WS2812B RGB LED 스트립 제어 및 화려한 조명 효과 구현</td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;"><a href="chapter_12.html">Ch 12. OLED &amp; RTC</a></td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;">I2C OLED + DS3231 RTC 기반 스마트 시계 제작</td>
                     </tr>
                     <tr>
-                        <td style="padding: 12px; border: 1px solid #cbd5e1;">Ch 14. OLED & RTC</td>
-                        <td style="padding: 12px; border: 1px solid #cbd5e1;">I2C OLED 디스플레이와 RTC 모듈을 이용한 스마트 시계 제작</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 12px; border: 1px solid #cbd5e1;">Ch 15. 종합 프로젝트</td>
-                        <td style="padding: 12px; border: 1px solid #cbd5e1;">[종합] PIR+초음파+Web+LCD를 결합한 스마트 홈 보안 시스템</td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;"><a href="chapter_13.html">Ch 13. 종합 프로젝트</a></td>
+                        <td style="padding: 12px; border: 1px solid #cbd5e1;">[종합] PIR + 초음파 + 웹 서버 + LCD 스마트 보안 시스템</td>
                     </tr>
                 </table>
 

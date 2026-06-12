@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ch 5. IoT 웹 서버 - Pico 2 가이드</title>
+    <title>Ch 5. 센서 제어 - Pico 2 가이드</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -13,23 +13,22 @@
             <h2>PICO 2 IoT GUIDE</h2>
             <ul>
                 <li><a href="index.html">HOME - 시작하기</a></li>
+                <li class="menu-divider">기초 & 통신 파트</li>
                 <li><a href="chapter_01.html">CHAPTER 1 - 하드웨어 이해</a></li>
                 <li><a href="chapter_02.html">CHAPTER 2 - 펌웨어 세팅</a></li>
                 <li><a href="chapter_03.html">CHAPTER 3 - 기초 코딩(Blink)</a></li>
-                <li><a href="chapter_04.html">CHAPTER 4 - Wi-Fi 연결</a></li>
-                <li><a href="chapter_05.html" class="active">CHAPTER 5 - IoT 웹 서버</a></li>
-                <li class="menu-divider">실전 부품 프로젝트</li>
-                <li><a href="chapter_06.html">CHAPTER 6 - 기본 입출력(스위치/부저)</a></li>
-                <li><a href="chapter_07.html">CHAPTER 7 - 센서 제어(초음파/PIR)</a></li>
-                <li><a href="chapter_08.html">CHAPTER 8 - 아날로그 & 모터</a></li>
-                <li><a href="chapter_09.html">CHAPTER 9 - LCD 디스플레이</a></li>
+                <li><a href="chapter_04.html">CHAPTER 4 - 기본 입출력(스위치/부저)</a></li>
+                <li><a href="chapter_05.html" class="active">CHAPTER 5 - 센서 제어(초음파/PIR)</a></li>
+                <li class="menu-divider">실전 하드웨어</li>
+                <li><a href="chapter_06.html">CHAPTER 6 - 아날로그 & 모터</a></li>
+                <li><a href="chapter_07.html">CHAPTER 7 - 온습도 & 데이터</a></li>
+                <li><a href="chapter_08.html">CHAPTER 8 - Neopixel 제어</a></li>
+                <li><a href="chapter_09.html">CHAPTER 9 - I2C LCD 디스플레이</a></li>
                 <li><a href="chapter_10.html">CHAPTER 10 - 무선 통신 & 입력</a></li>
                 <li class="menu-divider">심화 응용 프로젝트</li>
-                <li><a href="chapter_11.html">CHAPTER 11 - 온습도 & 데이터</a></li>
-                <li><a href="chapter_12.html">CHAPTER 12 - MQTT 클라우드</a></li>
-                <li><a href="chapter_13.html">CHAPTER 13 - Neopixel 제어</a></li>
-                <li><a href="chapter_14.html">CHAPTER 14 - OLED & RTC</a></li>
-                <li><a href="chapter_15.html">CHAPTER 15 - 종합 프로젝트</a></li>
+                <li><a href="chapter_11.html">CHAPTER 11 - MQTT 클라우드</a></li>
+                <li><a href="chapter_12.html">CHAPTER 12 - OLED & RTC</a></li>
+                <li><a href="chapter_13.html">CHAPTER 13 - 종합 프로젝트</a></li>
             </ul>
             <div class="sidebar-footer">
                 <button class="pinout-btn" id="openPinout"><i class="fa-solid fa-diagram-project"></i> GPIO 핀아웃 맵 보기</button>
@@ -37,604 +36,199 @@
         </nav>
         <main class="content">
             <div class="container">
-                <h1>Chapter 5. 실전 IoT: 웹 기반 원격 LED 제어</h1>
-                <p>우리가 와이파이를 연결한 진짜 이유입니다. 보드가 직접 웹 서버가 되어, 같은 네트워크 안의 스마트폰이나 PC의 브라우저 명령을 받아 동작하는 사물인터넷(IoT) 시스템의 원리를 단계별로 마스터해 봅니다.</p>
+                <h1>Chapter 5. 공간 인지 센서 제어 (초음파 센서, PIR 모션 센서)</h1>
+                <p>주변 환경을 인식하는 두 가지 핵심 센서를 제어합니다. 거리를 재는 초음파 센서와 인간의 움직임을 잡아내는 인체 감지 센서입니다.</p>
 
                 <div style="text-align: center; margin: 40px 0;">
-                    <svg viewBox="0 0 560 512" xmlns="http://www.w3.org/2000/svg" style="max-width: 480px; height: auto; border-radius: 16px; background: #f8fafc; box-shadow: 0 10px 25px rgba(0,0,0,0.07);">
+                    <svg viewBox="0 0 800 250" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 16px; background: #ffffff;">
+                        <!-- Ultrasonic Sensor -->
+                        <rect x="100" y="80" width="120" height="60" rx="5" fill="#1e293b"/>
+                        <circle cx="130" cy="110" r="20" fill="#94a3b8"/>
+                        <circle cx="190" cy="110" r="20" fill="#94a3b8"/>
+                        <text x="160" y="165" text-anchor="middle" fill="#1e293b" font-weight="bold">초음파 (HC-SR04)</text>
 
-                        <defs>
-                            <filter id="ledGlow" x="-50%" y="-50%" width="200%" height="200%">
-                                <feGaussianBlur stdDeviation="5" result="blur"/>
-                                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                            </filter>
-                        </defs>
+                        <!-- Waves -->
+                        <path d="M230 90 Q 300 110 230 130" fill="none" stroke="#3b82f6" stroke-width="2">
+                            <animate attributeName="stroke-dashoffset" from="20" to="0" dur="1s" repeatCount="indefinite"/>
+                        </path>
 
-                        <!-- ── Layer 1: 웹 브라우저 ── -->
-                        <rect x="60" y="20" width="440" height="80" rx="12" fill="white" stroke="#bfdbfe" stroke-width="1.5"/>
-                        <rect x="60" y="20" width="8" height="80" rx="6" fill="#3b82f6"/>
-                        <!-- 브라우저 아이콘 -->
-                        <rect x="84" y="32" width="48" height="56" rx="8" fill="#3b82f6"/>
-                        <rect x="88" y="37" width="40" height="7" rx="2" fill="white" opacity="0.75"/>
-                        <rect x="88" y="48" width="40" height="32" rx="2" fill="#1d4ed8" opacity="0.5"/>
-                        <rect x="93" y="57" width="30" height="14" rx="3" fill="#60a5fa"/>
-                        <text x="108" y="68" text-anchor="middle" fill="white" font-size="8" font-weight="bold" font-family="Arial,sans-serif">LED ON</text>
-                        <!-- 텍스트 -->
-                        <text x="148" y="51" fill="#1e3a8a" font-size="15" font-weight="bold" font-family="Arial,sans-serif">웹 브라우저</text>
-                        <text x="148" y="72" fill="#94a3b8" font-size="12" font-family="Arial,sans-serif">LED ON 버튼 클릭 이벤트 발생</text>
-                        <!-- 단계 뱃지 -->
-                        <circle cx="466" cy="60" r="16" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5"/>
-                        <text x="466" y="65" text-anchor="middle" fill="#3b82f6" font-size="14" font-weight="bold" font-family="Arial,sans-serif">1</text>
+                        <!-- Object -->
+                        <rect x="500" y="50" width="20" height="150" fill="#cbd5e1"/>
+                        <text x="510" y="220" text-anchor="middle" fill="#64748b" font-size="12">물체</text>
 
-                        <!-- ── 화살표 1 ── -->
-                        <line x1="280" y1="102" x2="280" y2="140" stroke="#cbd5e1" stroke-width="2"/>
-                        <polygon points="274,137 286,137 280,150" fill="#cbd5e1"/>
-                        <rect x="168" y="112" width="224" height="24" rx="12" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1"/>
-                        <text x="280" y="128" text-anchor="middle" fill="#3b82f6" font-size="11" font-weight="bold" font-family="'Courier New',monospace">HTTP POST /led/on</text>
-                        <!-- 이동 패킷 애니메이션 -->
-                        <circle cx="280" cy="104" r="5" fill="#3b82f6">
-                            <animate attributeName="cy" values="104;147" dur="2s" repeatCount="indefinite" begin="0s"/>
-                            <animate attributeName="opacity" values="1;0" dur="2s" repeatCount="indefinite" begin="0s"/>
-                        </circle>
-
-                        <!-- ── Layer 2: Wi-Fi ── -->
-                        <rect x="60" y="152" width="440" height="80" rx="12" fill="white" stroke="#ddd6fe" stroke-width="1.5"/>
-                        <rect x="60" y="152" width="8" height="80" rx="6" fill="#7c3aed"/>
-                        <!-- Wi-Fi 아이콘 -->
-                        <rect x="84" y="164" width="48" height="56" rx="8" fill="#7c3aed"/>
-                        <circle cx="108" cy="213" r="3.5" fill="white"/>
-                        <path d="M99 204 Q108 195 117 204" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"/>
-                        <path d="M93 197 Q108 184 123 197" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.75"/>
-                        <path d="M87 190 Q108 173 129 190" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.45"/>
-                        <!-- 텍스트 -->
-                        <text x="148" y="183" fill="#4c1d95" font-size="15" font-weight="bold" font-family="Arial,sans-serif">Wi-Fi (TCP/IP)</text>
-                        <text x="148" y="204" fill="#94a3b8" font-size="12" font-family="Arial,sans-serif">무선 네트워크로 패킷 전송</text>
-                        <!-- 단계 뱃지 -->
-                        <circle cx="466" cy="192" r="16" fill="#f5f3ff" stroke="#c4b5fd" stroke-width="1.5"/>
-                        <text x="466" y="197" text-anchor="middle" fill="#7c3aed" font-size="14" font-weight="bold" font-family="Arial,sans-serif">2</text>
-
-                        <!-- ── 화살표 2 ── -->
-                        <line x1="280" y1="234" x2="280" y2="270" stroke="#cbd5e1" stroke-width="2"/>
-                        <polygon points="274,267 286,267 280,280" fill="#cbd5e1"/>
-                        <rect x="178" y="244" width="204" height="24" rx="12" fill="#f5f3ff" stroke="#ddd6fe" stroke-width="1"/>
-                        <text x="280" y="260" text-anchor="middle" fill="#7c3aed" font-size="11" font-weight="bold" font-family="Arial,sans-serif">소켓 수신 → 요청 파싱</text>
-                        <circle cx="280" cy="236" r="5" fill="#7c3aed">
-                            <animate attributeName="cy" values="236;277" dur="2s" repeatCount="indefinite" begin="0.7s"/>
-                            <animate attributeName="opacity" values="1;0" dur="2s" repeatCount="indefinite" begin="0.7s"/>
-                        </circle>
-
-                        <!-- ── Layer 3: RP2350 ── -->
-                        <rect x="60" y="282" width="440" height="80" rx="12" fill="white" stroke="#a7f3d0" stroke-width="1.5"/>
-                        <rect x="60" y="282" width="8" height="80" rx="6" fill="#059669"/>
-                        <!-- 칩 아이콘 -->
-                        <rect x="84" y="294" width="48" height="56" rx="4" fill="#059669"/>
-                        <rect x="91" y="301" width="34" height="34" rx="2" fill="#064e3b"/>
-                        <text x="108" y="320" text-anchor="middle" fill="white" font-size="8.5" font-weight="bold" font-family="'Courier New',monospace">RP</text>
-                        <text x="108" y="330" text-anchor="middle" fill="#34d399" font-size="8" font-family="'Courier New',monospace">2350</text>
-                        <!-- 칩 핀 (좌) -->
-                        <line x1="84" y1="307" x2="78" y2="307" stroke="#34d399" stroke-width="2"/>
-                        <line x1="84" y1="315" x2="78" y2="315" stroke="#34d399" stroke-width="2"/>
-                        <line x1="84" y1="323" x2="78" y2="323" stroke="#34d399" stroke-width="2"/>
-                        <line x1="84" y1="331" x2="78" y2="331" stroke="#34d399" stroke-width="2"/>
-                        <!-- 칩 핀 (우) -->
-                        <line x1="132" y1="307" x2="138" y2="307" stroke="#34d399" stroke-width="2"/>
-                        <line x1="132" y1="315" x2="138" y2="315" stroke="#34d399" stroke-width="2"/>
-                        <line x1="132" y1="323" x2="138" y2="323" stroke="#34d399" stroke-width="2"/>
-                        <line x1="132" y1="331" x2="138" y2="331" stroke="#34d399" stroke-width="2"/>
-                        <!-- 텍스트 -->
-                        <text x="148" y="313" fill="#064e3b" font-size="15" font-weight="bold" font-family="Arial,sans-serif">RP2350 · Python 서버</text>
-                        <text x="148" y="334" fill="#94a3b8" font-size="12" font-family="Arial,sans-serif">HTTP 요청 파싱 후 조건 분기</text>
-                        <!-- 단계 뱃지 -->
-                        <circle cx="466" cy="322" r="16" fill="#ecfdf5" stroke="#6ee7b7" stroke-width="1.5"/>
-                        <text x="466" y="327" text-anchor="middle" fill="#059669" font-size="14" font-weight="bold" font-family="Arial,sans-serif">3</text>
-
-                        <!-- ── 화살표 3 ── -->
-                        <line x1="280" y1="364" x2="280" y2="400" stroke="#cbd5e1" stroke-width="2"/>
-                        <polygon points="274,397 286,397 280,410" fill="#cbd5e1"/>
-                        <rect x="172" y="374" width="216" height="24" rx="12" fill="#ecfdf5" stroke="#a7f3d0" stroke-width="1"/>
-                        <text x="280" y="390" text-anchor="middle" fill="#059669" font-size="11" font-weight="bold" font-family="'Courier New',monospace">GPIO.value(1) → 3.3V</text>
-                        <circle cx="280" cy="366" r="5" fill="#059669">
-                            <animate attributeName="cy" values="366;407" dur="2s" repeatCount="indefinite" begin="1.4s"/>
-                            <animate attributeName="opacity" values="1;0" dur="2s" repeatCount="indefinite" begin="1.4s"/>
-                        </circle>
-
-                        <!-- ── Layer 4: LED 출력 ── -->
-                        <rect x="60" y="412" width="440" height="80" rx="12" fill="white" stroke="#fde68a" stroke-width="1.5"/>
-                        <rect x="60" y="412" width="8" height="80" rx="6" fill="#f59e0b"/>
-                        <!-- LED 아이콘 (글로우 효과) -->
-                        <circle cx="108" cy="447" r="26" fill="#fef3c7">
-                            <animate attributeName="r" values="22;30;22" dur="1.5s" repeatCount="indefinite"/>
-                            <animate attributeName="opacity" values="0.4;0.85;0.4" dur="1.5s" repeatCount="indefinite"/>
-                        </circle>
-                        <ellipse cx="108" cy="440" rx="10" ry="13" fill="#f59e0b" filter="url(#ledGlow)">
-                            <animate attributeName="fill" values="#f59e0b;#fde68a;#f59e0b" dur="1.5s" repeatCount="indefinite"/>
-                        </ellipse>
-                        <rect x="104" y="453" width="8" height="5" rx="1" fill="#d97706"/>
-                        <line x1="105" y1="458" x2="103" y2="468" stroke="#94a3b8" stroke-width="2"/>
-                        <line x1="111" y1="458" x2="113" y2="468" stroke="#94a3b8" stroke-width="2"/>
-                        <!-- 텍스트 -->
-                        <text x="148" y="443" fill="#92400e" font-size="15" font-weight="bold" font-family="Arial,sans-serif">GP15 출력 → LED ON</text>
-                        <text x="148" y="464" fill="#94a3b8" font-size="12" font-family="Arial,sans-serif">소프트웨어 명령 → 물리적 전기 신호</text>
-                        <!-- 단계 뱃지 -->
-                        <circle cx="466" cy="452" r="16" fill="#fffbeb" stroke="#fcd34d" stroke-width="1.5"/>
-                        <text x="466" y="457" text-anchor="middle" fill="#f59e0b" font-size="14" font-weight="bold" font-family="Arial,sans-serif">4</text>
-
+                        <!-- Calculation logic -->
+                        <g transform="translate(250, 180)">
+                            <rect width="220" height="40" rx="20" fill="#eff6ff" stroke="#3b82f6"/>
+                            <text x="110" y="25" text-anchor="middle" fill="#1d4ed8" font-size="12" font-weight="bold">거리 = (시간 × 음속) / 2</text>
+                        </g>
                     </svg>
-                    <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">웹 브라우저의 버튼 클릭이 실제 전기 신호로 바뀌는 과정</p>
                 </div>
 
-                <h2>5.1 단계별 웹 서버 빌드업 실습</h2>
-                <p>단번에 복잡한 제어 코드를 작성하면 에러의 원인을 찾기 어렵습니다. 네트워크 소켓(Socket) 통신의 기본부터 발생할 수 있는 여러 버그들을 하나씩 해결해가며 코드를 발전시켜 봅시다.</p>
+                <h2>5.1 HC-SR04 초음파 센서 거리 측정</h2>
+                <p>Trig 핀으로 초음파를 쏘고 Echo 핀으로 되돌아오는 시간을 마이크로초(us) 단위로 정밀 측정하여 물체와의 거리를 cm 단위로 계산해 냅니다.</p>
 
-                <h3>[1단계] 웹 브라우저 접속 감지하기 (포트 충돌 방지)</h3>
-                <p>80번 포트(웹 기본 포트)를 열고 대기하다가 사용자가 접속하면 간단한 영문 인사를 건네는 코드입니다. Thonny에서 '재생' 버튼을 반복해서 누를 때 발생하는 <code>OSError: [Errno 98] EADDRINUSE</code>(포트가 이미 사용 중) 에러를 막기 위해 <code>SO_REUSEADDR</code> 설정이 추가되었습니다.</p>
-                <pre><code>import network
-import socket
+                <div style="text-align: center; margin: 20px 0;">
+                    <svg viewBox="0 0 640 215" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 12px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.06);">
+                        <!-- Pico 2 board -->
+                        <rect x="40" y="20" width="110" height="175" rx="8" fill="#059669"/>
+                        <text x="95" y="47" text-anchor="middle" fill="white" font-size="13" font-weight="bold" font-family="Arial,sans-serif">Pico 2</text>
+                        <text x="143" y="79" text-anchor="end" fill="white" font-size="11" font-family="Arial,sans-serif">3V3</text>
+                        <text x="143" y="114" text-anchor="end" fill="white" font-size="11" font-family="Arial,sans-serif">GP17</text>
+                        <text x="143" y="149" text-anchor="end" fill="white" font-size="11" font-family="Arial,sans-serif">GP16</text>
+                        <text x="143" y="184" text-anchor="end" fill="white" font-size="11" font-family="Arial,sans-serif">GND</text>
+                        <circle cx="150" cy="75" r="6" fill="#ef4444"/>
+                        <circle cx="150" cy="110" r="6" fill="#f59e0b"/>
+                        <circle cx="150" cy="145" r="6" fill="#06b6d4"/>
+                        <circle cx="150" cy="180" r="6" fill="#374151"/>
+
+                        <!-- Wires -->
+                        <line x1="156" y1="75" x2="400" y2="75" stroke="#ef4444" stroke-width="2.5"/>
+                        <line x1="156" y1="110" x2="400" y2="110" stroke="#f59e0b" stroke-width="2.5"/>
+                        <line x1="156" y1="145" x2="400" y2="145" stroke="#06b6d4" stroke-width="2.5"/>
+                        <line x1="156" y1="180" x2="400" y2="180" stroke="#374151" stroke-width="2.5"/>
+
+                        <!-- HC-SR04 sensor body -->
+                        <rect x="400" y="52" width="175" height="148" rx="8" fill="#f0f9ff" stroke="#0284c7" stroke-width="1.5"/>
+                        <rect x="400" y="52" width="175" height="30" rx="8" fill="#0284c7"/>
+                        <text x="487" y="72" text-anchor="middle" fill="white" font-size="12" font-weight="bold" font-family="Arial,sans-serif">HC-SR04</text>
+                        <circle cx="445" cy="128" r="24" fill="#bae6fd" stroke="#0284c7" stroke-width="1.5"/>
+                        <circle cx="445" cy="128" r="13" fill="#7dd3fc" stroke="#0369a1" stroke-width="1"/>
+                        <circle cx="532" cy="128" r="24" fill="#bae6fd" stroke="#0284c7" stroke-width="1.5"/>
+                        <circle cx="532" cy="128" r="13" fill="#7dd3fc" stroke="#0369a1" stroke-width="1"/>
+                        <text x="445" y="132" text-anchor="middle" fill="#0c4a6e" font-size="10" font-weight="bold" font-family="Arial,sans-serif">T</text>
+                        <text x="532" y="132" text-anchor="middle" fill="#0c4a6e" font-size="10" font-weight="bold" font-family="Arial,sans-serif">R</text>
+                        <text x="445" y="168" text-anchor="middle" fill="#0369a1" font-size="9" font-family="Arial,sans-serif">Trig</text>
+                        <text x="532" y="168" text-anchor="middle" fill="#0369a1" font-size="9" font-family="Arial,sans-serif">Echo</text>
+
+                        <circle cx="400" cy="75" r="4" fill="#ef4444"/>
+                        <circle cx="400" cy="110" r="4" fill="#f59e0b"/>
+                        <circle cx="400" cy="145" r="4" fill="#06b6d4"/>
+                        <circle cx="400" cy="180" r="4" fill="#374151"/>
+                        <text x="395" y="72" text-anchor="end" fill="#ef4444" font-size="10" font-weight="bold" font-family="Arial,sans-serif">VCC</text>
+                        <text x="395" y="107" text-anchor="end" fill="#f59e0b" font-size="10" font-weight="bold" font-family="Arial,sans-serif">Trig</text>
+                        <text x="395" y="142" text-anchor="end" fill="#06b6d4" font-size="10" font-weight="bold" font-family="Arial,sans-serif">Echo</text>
+                        <text x="395" y="177" text-anchor="end" fill="#374151" font-size="10" font-weight="bold" font-family="Arial,sans-serif">GND</text>
+
+                        <text x="275" y="105" text-anchor="middle" fill="#f59e0b" font-size="10" font-family="Arial,sans-serif">→ 발사 트리거(OUT)</text>
+                        <text x="275" y="140" text-anchor="middle" fill="#06b6d4" font-size="10" font-family="Arial,sans-serif">← 반사음 수신(IN)</text>
+                    </svg>
+                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">HC-SR04: VCC→3V3, Trig→GP17(출력), Echo→GP16(입력), GND→GND. 안정적인 측정을 위해 VCC를 VSYS(5V) 핀에 연결하는 것을 권장합니다.</p>
+                </div>
+
+                <pre><code>from machine import Pin
 import time
 
-ssid = '본인의_와이파이_이름'
-password = '본인의_비밀번호'
+# 핀 설정
+trig = Pin(17, Pin.OUT)
+echo = Pin(16, Pin.IN)
 
-# Wi-Fi 연결
-wlan = network.WLAN(network.STA_IF)
-wlan.active(True)
-wlan.connect(ssid, password)
-while not wlan.isconnected():
+def get_distance():
+    # 1. Trig 핀을 깨끗하게 비운 뒤 10us 동안 초음파 발사 신호를 줍니다.
+    trig.value(0)
+    time.sleep_us(2)
+    trig.value(1)
+    time.sleep_us(10)
+    trig.value(0)
+
+    # 2. Echo 핀이 High(1)로 올라가는 순간(시작 시간)을 기록합니다.
+    while echo.value() == 0:
+        signaloff = time.ticks_us()
+
+    # 3. Echo 핀이 다시 Low(0)로 떨어지는 순간(도착 시간)을 기록합니다.
+    while echo.value() == 1:
+        signalon = time.ticks_us()
+
+    # 4. 시간 차이를 계산하여 거리(cm)로 환산합니다. (음속 340m/s 반영)
+    time_passed = signalon - signaloff
+    distance = (time_passed * 0.0343) / 2
+    return distance
+
+while True:
+    dist = get_distance()
+    print(f"물체와의 거리: {dist:.1f} cm")
     time.sleep(0.5)
-print('와이파이 연결 성공! IP 주소:', wlan.ifconfig()[0])
-
-# 소켓 설정 및 대기
-addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
-s = socket.socket()
-
-# [중요] 이전 실행에서 닫히지 않은 포트가 남아있을 때 강제로 청소하고 재사용합니다.
-s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-
-s.bind(addr)
-s.listen(1)
-print("1단계 기본 통신 서버 가동...")
-
-while True:
-    cl, client_addr = s.accept()
-    request = cl.recv(1024).decode('utf-8')
-    
-    # 브라우저에 응답 전송 후 소켓 닫기
-    cl.send('HTTP/1.0 200 OK\r\n\r\n')
-    cl.send('Hello! Connection Success from Pico 2.')
-    cl.close()
 </code></pre>
 
-                <h3>[2단계] 한글 글자 깨짐 현상 해결하기</h3>
-                <p>마이크로파이썬 웹 서버에서 한글이 깨지는 이유는 두 가지입니다. 브라우저에게 한글 규격(UTF-8)으로 해석하라는 명시적 HTTP 헤더를 주지 않았거나, 문자열을 바이트 형태로 변환하지 않았기 때문입니다. 이 문제를 완벽하게 보완한 코드입니다.</p>
-                <pre><code>import network
-import socket
+                <h2>5.2 PIR 적외선 인체 감지 센서</h2>
+                <p>사람이나 동물의 움직임으로 발생하는 적외선의 변화량을 측정하여 움직임 유무를 디지털 값(0 또는 1)으로 반환합니다.</p>
+
+                <div style="text-align: center; margin: 20px 0;">
+                    <svg viewBox="0 0 600 185" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 12px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.06);">
+                        <!-- Pico 2 board -->
+                        <rect x="40" y="20" width="110" height="145" rx="8" fill="#059669"/>
+                        <text x="95" y="47" text-anchor="middle" fill="white" font-size="13" font-weight="bold" font-family="Arial,sans-serif">Pico 2</text>
+                        <text x="143" y="76" text-anchor="end" fill="white" font-size="11" font-family="Arial,sans-serif">3V3</text>
+                        <text x="143" y="111" text-anchor="end" fill="white" font-size="11" font-family="Arial,sans-serif">GP18</text>
+                        <text x="143" y="146" text-anchor="end" fill="white" font-size="11" font-family="Arial,sans-serif">GND</text>
+                        <circle cx="150" cy="72" r="6" fill="#ef4444"/>
+                        <circle cx="150" cy="107" r="6" fill="#06b6d4"/>
+                        <circle cx="150" cy="142" r="6" fill="#374151"/>
+
+                        <!-- Wires -->
+                        <line x1="156" y1="72" x2="390" y2="72" stroke="#ef4444" stroke-width="2.5"/>
+                        <line x1="156" y1="107" x2="390" y2="107" stroke="#06b6d4" stroke-width="2.5"/>
+                        <line x1="156" y1="142" x2="390" y2="142" stroke="#374151" stroke-width="2.5"/>
+
+                        <!-- PIR sensor body -->
+                        <rect x="390" y="48" width="150" height="120" rx="8" fill="#fdf4ff" stroke="#9333ea" stroke-width="1.5"/>
+                        <rect x="390" y="48" width="150" height="28" rx="8" fill="#9333ea"/>
+                        <text x="465" y="67" text-anchor="middle" fill="white" font-size="12" font-weight="bold" font-family="Arial,sans-serif">PIR 센서</text>
+                        <ellipse cx="465" cy="118" rx="36" ry="20" fill="#e9d5ff" stroke="#9333ea" stroke-width="1.5"/>
+                        <ellipse cx="465" cy="118" rx="20" ry="11" fill="#c4b5fd" stroke="#7c3aed" stroke-width="1"/>
+                        <path d="M508 104 Q522 104 522 118 Q522 132 508 132" fill="none" stroke="#9333ea" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.65"/>
+                        <path d="M512 97 Q532 97 532 118 Q532 139 512 139" fill="none" stroke="#9333ea" stroke-width="1" stroke-dasharray="3,2" opacity="0.35"/>
+
+                        <circle cx="390" cy="72" r="4" fill="#ef4444"/>
+                        <circle cx="390" cy="107" r="4" fill="#06b6d4"/>
+                        <circle cx="390" cy="142" r="4" fill="#374151"/>
+                        <text x="385" y="69" text-anchor="end" fill="#ef4444" font-size="10" font-weight="bold" font-family="Arial,sans-serif">VCC</text>
+                        <text x="385" y="104" text-anchor="end" fill="#06b6d4" font-size="10" font-weight="bold" font-family="Arial,sans-serif">OUT</text>
+                        <text x="385" y="139" text-anchor="end" fill="#374151" font-size="10" font-weight="bold" font-family="Arial,sans-serif">GND</text>
+
+                        <text x="272" y="101" text-anchor="middle" fill="#06b6d4" font-size="10" font-family="Arial,sans-serif">← 감지 신호(IN)</text>
+                    </svg>
+                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">PIR 센서: VCC→3V3, OUT→GP18(입력), GND→GND. 전원 인가 후 약 2초 안정화 시간이 필요하며, 3핀 모듈의 경우 왼쪽부터 VCC·GND·OUT 순서가 일반적입니다 (구매 제품의 핀 배열 확인 필수).</p>
+                </div>
+                <pre><code>from machine import Pin
 import time
 
-ssid = '본인의_와이파이_이름'
-password = '본인의_비밀번호'
+# GPIO 18번에 PIR 센서의 Out 핀 연결
+pir = Pin(18, Pin.IN)
 
-wlan = network.WLAN(network.STA_IF)
-wlan.active(True)
-wlan.connect(ssid, password)
-while not wlan.isconnected():
+print("침입 감지 시스템 가동중...")
+time.sleep(2) # 센서 안정화를 위한 초기 대기
+
+while True:
+    if pir.value() == 1:
+        print("🚨 경고: 구역 내 움직임이 감지되었습니다!")
+        time.sleep(2) # 중복 경고 방지 대기
+    else:
+        print("안전 - 움직임 없음")
     time.sleep(0.5)
-ip = wlan.ifconfig()[0]
-print(f'2단계 서버 가동! 접속 주소: http://{ip}')
-
-addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
-s = socket.socket()
-s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-s.bind(addr)
-s.listen(1)
-
-def get_html():
-    return """&lt;!DOCTYPE html&gt;
-    &lt;html&gt;
-    &lt;head&gt;&lt;meta charset="UTF-8"&gt;&lt;/head&gt;
-    &lt;body style="text-align:center; font-family:sans-serif; padding-top:50px;"&gt;
-        &lt;h1 style="color:#2563eb;"&gt;Pico 2 무선 웹 서버 웹사이트&lt;/h1&gt;
-        &lt;p style="font-weight:bold; color:#10b981;"&gt;한글 깨짐 현상이 완전히 해결되었습니다!&lt;/p&gt;
-    &lt;/body&gt;
-    &lt;/html&gt;"""
-
-while True:
-    try:
-        cl, addr_info = s.accept()
-        request = cl.recv(1024).decode('utf-8')
-        
-        # [핵심] Content-Type 헤더에 charset=utf-8을 명시하여 브라우저에게 한글임을 알려줍니다.
-        cl.send('HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n'.encode('utf-8'))
-        
-        # [핵심] HTML 문자열 데이터를 .encode('utf-8')을 통해 안전하게 변환하여 송신합니다.
-        cl.send(get_html().encode('utf-8'))
-        cl.close()
-    except Exception as e:
-        cl.close()
 </code></pre>
-
-                <h3>[3단계] 실전 IoT: POST 방식을 통한 정밀 원격 제어 (완성형)</h3>
-                <p>일반적인 <code>&lt;a href="/?led=off"&gt;</code> 링크(GET 방식)를 사용하면, 최신 웹 브라우저들의 <strong>'사전 로딩(Link Prefetching)'</strong> 기능 때문에 사용자가 버튼을 누르지도 않았는데 서버의 주소를 미리 찔러보아 명령이 꼬이는 치명적인 IoT 버그가 발생합니다.</p>
-                <p>이를 해결하기 위해 브라우저가 멋대로 사전 호출을 할 수 없는 <strong><code>POST</code> 방식(Form 태그)</strong>으로 버튼을 감싸고, 브라우저가 자동으로 요청하는 불필요한 신호(Favicon 등)를 완벽히 차단하여 단 1번의 클릭으로 즉각 제어되는 완성형 마스터 코드를 구축합니다.</p>
-                <pre><code>import network
-import socket
-import time
-from machine import Pin
-
-ssid = '본인의_와이파이_이름'
-password = '본인의_비밀번호'
-
-# 내장 LED 제어 핀 생성
-led = Pin("LED", Pin.OUT)
-
-wlan = network.WLAN(network.STA_IF)
-wlan.active(True)
-wlan.connect(ssid, password)
-while not wlan.isconnected():
-    time.sleep(0.5)
-ip = wlan.ifconfig()[0]
-print(f'★실전 IoT 서버 가동! 접속 주소: http://{ip}')
-
-addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
-s = socket.socket()
-s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-s.bind(addr)
-s.listen(1)
-
-# [POST 방식 반영] 사전 로딩 오작동을 막기 위해 form 태그를 활용합니다.
-def get_iot_html(led_status):
-    status_color = "#10b981" if led_status == "켜짐" else "#ef4444"
-    
-    return f"""&lt;!DOCTYPE html&gt;
-    &lt;html&gt;
-    &lt;head&gt;
-        &lt;meta charset="UTF-8"&gt;
-        &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
-        &lt;title&gt;Pico 2 IoT Control&lt;/title&gt;
-    &lt;/head&gt;
-    &lt;body style="text-align:center; font-family:sans-serif; background-color:#f8fafc; padding-top:50px;"&gt;
-        &lt;h1 style="color:#1e293b;"&gt;Pico 2 W 원격 제어 센터&lt;/h1&gt;
-        &lt;div style="margin:20px; font-size:20px;"&gt;현재 LED 상태: &lt;span style="color:{status_color}; font-weight:bold;"&gt;{led_status}&lt;/span&gt;&lt;/div&gt;
-        &lt;div style="margin-top:40px; display: flex; justify-content: center; gap: 20px;"&gt;
-            
-            &lt;form action="/led_on" method="POST"&gt;
-                &lt;button type="submit" style="font-size:24px; padding:15px 35px; background:#10b981; color:white; border:none; border-radius:10px; cursor:pointer; font-weight:bold;"&gt;LED 켜기 (ON)&lt;/button&gt;
-            &lt;/form&gt;
-            
-            &lt;form action="/led_off" method="POST"&gt;
-                &lt;button type="submit" style="font-size:24px; padding:15px 35px; background:#ef4444; color:white; border:none; border-radius:10px; cursor:pointer; font-weight:bold;"&gt;LED 끄기 (OFF)&lt;/button&gt;
-            &lt;/form&gt;
-            
-        &lt;/div&gt;
-    &lt;/body&gt;
-    &lt;/html&gt;"""
-
-current_status = "꺼짐"
-
-while True:
-    try:
-        cl, addr_info = s.accept()
-        request = cl.recv(1024).decode('utf-8')
-        
-        # 안전장치: 빈 요청(허수 신호)은 즉시 무시
-        if not request:
-            cl.close()
-            continue
-            
-        # 안전장치: 브라우저가 자동 요청하는 아이콘(favicon) 신호는 거르고 통과
-        if 'favicon.ico' in request:
-            cl.send('HTTP/1.1 404 Not Found\r\n\r\n'.encode('utf-8'))
-            cl.close()
-            continue
-        
-        # [정밀 판별] 브라우저가 폼 데이터로 전송한 POST 요청 경로에 매칭시킵니다.
-        if 'POST /led_on' in request:
-            led.value(1)
-            current_status = "켜짐"
-            print("웹 명령 접수: LED ON")
-        elif 'POST /led_off' in request:
-            led.value(0)
-            current_status = "꺼짐"
-            print("웹 명령 접수: LED OFF")
-            
-        # 응답 전송 (브라우저가 예전 화면을 기억하지 못하도록 강력한 캐시 금지 헤더 추가)
-        cl.send('HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nConnection: close\r\nCache-Control: no-cache, no-store, must-revalidate\r\n\r\n'.encode('utf-8'))
-        cl.send(get_iot_html(current_status).encode('utf-8'))
-        cl.close()
-    except Exception as e:
-        try: cl.close()
-        except: pass
-</code></pre>
-
-                <h2>5.2 스마트한 코딩 습관: 와이파이 설정 모듈화하기</h2>
-                <p>앞으로 다양한 응용 프로젝트를 만들 텐데, 매번 긴 와이파이 접속 코드를 복사해서 붙여넣는 것은 비효율적입니다. 실무 개발자들처럼 네트워크 설정을 별도의 모듈(파일)로 분리해 두고, 필요할 때 단 한 줄의 코드로 불러와서 사용하는 방법을 적용해 보겠습니다.</p>
-                <div style="background-color: #f0fdf4; padding: 15px; border-radius: 8px; border-left: 4px solid #10b981; margin-bottom: 20px;">
-                    <p style="margin: 0; color: #166534;"><i class="fa-solid fa-file-code"></i> Thonny에서 새 파일을 열고 아래 코드를 작성한 뒤, Pico 보드 내부에 <strong><code>wifi.py</code></strong>라는 이름으로 저장하세요.</p>
-                </div>
-                <pre><code># wifi.py
-import network
-import time
-
-SSID = '본인의_와이파이_이름'
-PASSWORD = '본인의_비밀번호'
-
-def connect():
-    wlan = network.WLAN(network.STA_IF)
-    wlan.active(True)
-    wlan.connect(SSID, PASSWORD)
-    
-    print("와이파이 연결 중...")
-    while not wlan.isconnected():
-        time.sleep(0.5)
-        
-    ip = wlan.ifconfig()[0]
-    print(f'와이파이 연결 성공! IP 주소: {ip}')
-    return ip
-</code></pre>
-
-                <h2>5.3 심화 응용: 웹 서버 200% 활용하기</h2>
-                <p>이제 <code>wifi.py</code> 파일을 활용해 메인 코드를 아주 깔끔하게 유지하면서, 단순한 ON/OFF를 넘어서는 세 가지 실전 응용 기법을 실습해 봅니다.</p>
-
-                <h3>[응용 1] 내장 온도 센서 모니터링하기</h3>
-                <p>웹 서버는 외부의 명령을 받는 것뿐만 아니라, 보드의 상태를 사용자에게 보여주는(모니터링) 것도 가능합니다. 외부 센서 없이도 실습할 수 있도록, 기판 정중앙에 있는 까만 핵심 칩(<strong>RP2350</strong>) 내부에 탑재된 온도 센서의 값을 읽어 웹 페이지에 실시간으로 표시해 봅니다.</p>
-                
-                <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; border-left: 4px solid #3b82f6; margin-bottom: 20px; font-size: 0.95rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
-                    <h4 style="margin-top:0; margin-bottom:12px; color: #1e293b;"><i class="fa-solid fa-microchip" style="color:#3b82f6;"></i> 내 온도 센서의 비밀 위치</h4>
-                    <p style="margin-bottom: 10px; line-height: 1.6;">기판을 이리저리 살펴봐도 온도 센서 부품은 따로 보이지 않을 것입니다. 이 센서는 방 안의 날씨를 재는 용도가 아니라, 스마트폰이나 컴퓨터의 CPU처럼 칩 자신이 일하면서 얼마나 열을 받고 있는지(코어 온도)를 스스로 체크하기 위해 <strong>칩 내부(Silicon Die)에 아예 일체형으로 숨어 있기 때문</strong>입니다.</p>
-                    <p style="margin-bottom: 15px; line-height: 1.6;">따라서 아래 코드에서 사용하는 <code>ADC(4)</code> 채널은 외부 핀이 아닌, 이 칩 내부의 온도 센서와 직통으로 연결된 비밀 통로입니다.</p>
-                    <p style="margin-bottom: 0; color: #475569; font-weight: 500;"><i class="fa-solid fa-lightbulb" style="color:#eab308;"></i> <strong>실전 IoT 팁:</strong> 측정 시 칩 자체의 '체온'이 섞이므로 실제 실내 온도보다 1~2도 높게 측정되는 경향이 있습니다. 정밀한 온도/습도 측정기나 스마트 온실을 만들 때는 향후 챕터에서 배울 <strong>DHT11</strong>이나 <strong>BME280</strong> 같은 전용 외부 온습도 센서를 연결하는 것이 정석입니다!</p>
-                </div>
-
-                <pre><code>import socket
-import wifi      # 우리가 만든 모듈을 불러옵니다
-import time
-from machine import ADC
-
-# 1. 단축된 와이파이 연결 및 IP 획득
-ip = wifi.connect()
-
-# 2. 웹 서버 소켓 설정
-addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
-s = socket.socket()
-s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-s.bind(addr)
-s.listen(1)
-print(f'온도 모니터링 서버 가동! 접속: http://{ip}')
-
-# 3. RP2350 내장 온도 센서 설정 (4번 ADC 채널)
-temp_sensor = ADC(4)
-conversion_factor = 3.3 / 65535
-
-def read_temperature():
-    reading = temp_sensor.read_u16() * conversion_factor
-    temperature = 27 - (reading - 0.706) / 0.001721
-    return round(temperature, 1)
-
-def get_temp_html(temp):
-    return f"""&lt;!DOCTYPE html&gt;
-    &lt;html&gt;
-    &lt;head&gt;&lt;meta charset="UTF-8"&gt;&lt;/head&gt;
-    &lt;body style="text-align:center; font-family:sans-serif; padding-top:50px;"&gt;
-        &lt;h1&gt;Pico 2 시스템 모니터링&lt;/h1&gt;
-        &lt;div style="font-size:30px; margin:30px;"&gt;현재 코어 온도: &lt;strong style="color:#ef4444;"&gt;{temp}°C&lt;/strong&gt;&lt;/div&gt;
-        &lt;button onclick="location.reload()" style="padding:10px 20px; font-size:18px; cursor:pointer;"&gt;온도 새로고침&lt;/button&gt;
-    &lt;/body&gt;
-    &lt;/html&gt;"""
-
-while True:
-    try:
-        cl, addr_info = s.accept()
-        request = cl.recv(1024).decode('utf-8')
-        
-        # 클라이언트 접속 시 온도를 읽고 HTML에 포매팅하여 전송
-        current_temp = read_temperature()
-        
-        cl.send('HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n'.encode('utf-8'))
-        cl.send(get_temp_html(current_temp).encode('utf-8'))
-        cl.close()
-    except Exception:
-        try: cl.close()
-        except: pass
-</code></pre>
-
-                <h3>[응용 2] 폼(Form) 전송 방식으로 슬라이더 밝기 조절 (PWM 제어)</h3>
-                <p>디지털 제어(0과 1)를 넘어, HTML의 <code>&lt;input type="range"&gt;</code> 태그를 이용해 외부 LED의 밝기를 0%에서 100%까지 부드럽게 제어하는 아날로그(PWM) 제어 방식입니다. 수치를 적용한 후에도 슬라이더 위치와 화면의 밝기 값이 그대로 유지되도록 상태 관리를 추가했습니다.</p>
-                
-                <div style="background-color: #fef2f2; padding: 15px; border-radius: 8px; border-left: 4px solid #ef4444; margin-bottom: 20px; font-size: 0.95rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
-                    <p style="margin: 0; line-height: 1.6; color: #991b1b;"><i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i> <strong>Pico 2 W 사용 시 주의사항:</strong> 내장 LED(<code>"LED"</code>)는 메인 칩(RP2350)이 아닌 와이파이 보조 칩에 연결되어 있어, 메인 칩의 고유 기능인 PWM(미세 밝기 조절)을 직접 사용할 수 없습니다(ValueError 발생). 단순 ON/OFF는 가능하지만 아날로그 제어를 위해서는 <strong>반드시 일반 GPIO 15번 핀에 외부 LED와 저항(220Ω)을 연결</strong>한 뒤 실습해야 합니다!</p>
-                </div>
-
-                <pre><code>import socket
-import wifi
-import time
-from machine import Pin, PWM
-
-ip = wifi.connect()
-
-addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
-s = socket.socket()
-s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-s.bind(addr)
-s.listen(1)
-print(f'PWM 폼 제어 서버 가동! 접속: http://{ip}')
-
-# 15번 핀에 연결된 외부 LED를 PWM 모드로 설정 (밝기 조절용)
-led_pwm = PWM(Pin(15))
-led_pwm.freq(1000)
-
-# 현재 밝기를 기억할 변수 설정 (초기값: 32768)
-current_brightness = 32768
-led_pwm.duty_u16(current_brightness)
-
-# 현재 밝기 값을 전달받아 HTML을 동적으로 생성합니다.
-def get_pwm_html(brightness):
-    return f"""&lt;!DOCTYPE html&gt;
-    &lt;html&gt;
-    &lt;head&gt;&lt;meta charset="UTF-8"&gt;&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;&lt;/head&gt;
-    &lt;body style="text-align:center; padding-top:50px; font-family:sans-serif;"&gt;
-        &lt;h1&gt;외부 LED 밝기 미세 조절기&lt;/h1&gt;
-        
-        &lt;div style="font-size:20px; margin:20px;"&gt;현재 적용된 밝기: &lt;strong style="color:#2563eb;"&gt;{brightness}&lt;/strong&gt; / 65535&lt;/div&gt;
-        
-        &lt;form action="/set_light" method="POST"&gt;
-            &lt;!-- value 속성에 현재 밝기를 넣어 슬라이더 위치를 유지하고, oninput으로 실시간 수치를 보여줍니다 --&gt;
-            &lt;input type="range" name="brightness" min="0" max="65535" value="{brightness}" style="width:80%; margin:20px 0;" oninput="document.getElementById('live_val').innerText = this.value"&gt;&lt;br&gt;
-            &lt;div style="margin-bottom: 20px; color:#64748b;"&gt;조절 중인 수치: &lt;span id="live_val"&gt;{brightness}&lt;/span&gt;&lt;/div&gt;
-            
-            &lt;button type="submit" style="padding:15px 30px; font-size:18px; background-color:#10b981; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold;"&gt;밝기 적용하기&lt;/button&gt;
-        &lt;/form&gt;
-    &lt;/body&gt;
-    &lt;/html&gt;"""
-
-while True:
-    try:
-        cl, addr_info = s.accept()
-        request = cl.recv(1024).decode('utf-8')
-        
-        # POST 요청의 데이터 본문(Body)에서 brightness 값 추출
-        if 'POST /set_light' in request:
-            try:
-                body = request.split('\r\n\r\n')[1]
-                brightness_value = int(body.split('=')[1])
-                
-                # 추출한 값을 전역 변수에 저장하고 LED에 적용
-                current_brightness = brightness_value 
-                led_pwm.duty_u16(current_brightness) 
-                print(f"밝기 변경 완료: {current_brightness}")
-            except:
-                pass
-
-        cl.send('HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n'.encode('utf-8'))
-        # 업데이트된 밝기 변수를 함수에 넣어 전송
-        cl.send(get_pwm_html(current_brightness).encode('utf-8'))
-        cl.close()
-    except Exception:
-        try: cl.close()
-        except: pass
-</code></pre>
-
-                <h3>[응용 3] 깜빡임 없는 실시간 무선 디밍 제어 (JavaScript Fetch API)</h3>
-                <p>응용 2의 코드는 <code>&lt;form&gt;</code> 태그를 사용하여 '적용하기' 버튼을 눌러야만 화면이 새로고침되면서 하드웨어에 반영됩니다. 프론트엔드 자바스크립트의 비동기 통신 기술인 <code>fetch()</code>를 슬라이더의 동작(<code>oninput</code>)에 결합하면, 사용자가 <strong>버튼을 누르지 않고 슬라이더를 움직이는 즉시 실시간으로 백그라운드 데이터를 전송하여 부드럽게 조명이 조절되는(Real-time Dimming)</strong> 실제 스마트홈 앱 같은 퀄리티를 낼 수 있습니다.</p>
-                <pre><code>import socket
-import wifi
-import time
-from machine import Pin, PWM
-
-ip = wifi.connect()
-
-addr = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
-s = socket.socket()
-s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-s.bind(addr)
-s.listen(1)
-print(f'실시간 무선 디밍 서버 가동! 접속: http://{ip}')
-
-# 15번 핀에 연결된 외부 LED를 PWM 모드로 설정
-led_pwm = PWM(Pin(15))
-led_pwm.freq(1000)
-led_pwm.duty_u16(32768)
-
-def get_realtime_html():
-    return """&lt;!DOCTYPE html&gt;
-    &lt;html&gt;
-    &lt;head&gt;
-        &lt;meta charset="UTF-8"&gt;
-        &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
-        &lt;script&gt;
-            // 슬라이더가 움직일 때마다 즉시 실행되는 함수
-            function updateBrightness(val) {
-                // 1. 화면의 텍스트를 즉시 변경
-                document.getElementById('live_val').innerText = val;
-                
-                // 2. 화면 새로고침 없이 백그라운드에서 GET 방식으로 Pico에 수치 전송
-                fetch('/set_light?value=' + val)
-                .catch(err =&gt; console.log("네트워크 지연 발생"));
-            }
-        &lt;/script&gt;
-    &lt;/head&gt;
-    &lt;body style="text-align:center; padding-top:50px; font-family:sans-serif;"&gt;
-        &lt;h1&gt;실시간 무선 디밍(Dimming) 제어&lt;/h1&gt;
-        
-        &lt;div style="font-size:24px; margin:30px;"&gt;실시간 밝기: &lt;span id="live_val" style="color:#2563eb; font-weight:bold;"&gt;32768&lt;/span&gt; / 65535&lt;/div&gt;
-        
-        &lt;!-- oninput 속성을 사용해 마우스를 드래그하는 모든 순간 함수를 호출합니다 --&gt;
-        &lt;input type="range" min="0" max="65535" value="32768" style="width:80%; margin:20px 0;" oninput="updateBrightness(this.value)"&gt;
-        
-        &lt;p style="color:#64748b; margin-top:30px;"&gt;적용 버튼을 누를 필요 없이 슬라이더를 움직여 보세요!&lt;/p&gt;
-    &lt;/body&gt;
-    &lt;/html&gt;"""
-
-while True:
-    try:
-        cl, addr_info = s.accept()
-        request = cl.recv(1024).decode('utf-8')
-        
-        if not request or 'favicon.ico' in request:
-            cl.close()
-            continue
-            
-        # 1. 자바스크립트 Fetch가 보낸 실시간 수치 조절 요청 처리
-        # 예시: GET /set_light?value=45000 HTTP/1.1
-        if 'GET /set_light?value=' in request:
-            try:
-                # URL에서 숫자 부분만 쪼개서 추출
-                val_str = request.split('value=')[1].split(' ')[0]
-                brightness = int(val_str)
-                led_pwm.duty_u16(brightness)
-            except:
-                pass
-                
-            # 브라우저에게 수신 완료되었다는 최소한의 신호만 보냅니다 (전체 HTML 재전송 X)
-            cl.send('HTTP/1.1 200 OK\r\n\r\nOK'.encode('utf-8'))
-            cl.close()
-            continue
-
-        # 2. 최초로 주소창에 접속했을 때만 전체 HTML 페이지를 전송
-        cl.send('HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n'.encode('utf-8'))
-        cl.send(get_realtime_html().encode('utf-8'))
-        cl.close()
-    except Exception:
-        try: cl.close()
-        except: pass
-</code></pre>
-
-                <h2>5.4 웹 제어 작동 확인</h2>
-                <ol>
-                    <li>최종 코드를 실행하고 하단 콘솔 셸 창에 찍히는 <code>http://192.168.x.x</code> 형태의 주소를 확인합니다.</li>
-                    <li>보드와 <strong>반드시 같은 와이파이(공유기)에 물려 있는</strong> 스마트폰이나 노트북의 인터넷 주소창에 해당 주소를 입력하고 접속합니다.</li>
-                    <li>한글 깨짐과 한 박자 늦게 꺼지던 꼬임 현상이 완벽히 해결된 대시보드가 열립니다. 버튼이나 슬라이더를 조작하면 단 1번 만에 외부 LED 및 센서가 완벽하게 연동하여 반응합니다.</li>
-                </ol>
-
-                <div class="callout info">
-                    <h4>🚀 다음 단계로 나아갈 준비</h4>
-                    <p>우리는 이제 웹 프로토콜을 이용해 물리적인 전력을 완벽하게 통제하는 귀중한 지식을 얻었습니다. 지금은 비록 보드 내부에 붙은 작은 LED 하나만을 제어하고 있지만, 이 제어 핀에 외부 부품들을 연결하면 실제 가정용 전등, 스마트 가전, 전동 블라인드 등을 움직이는 무궁무진한 홈 사물인터넷(IoT) 시스템으로 확장해 나갈 수 있습니다. 다음 파트에서는 다양한 센서들을 브레드보드에 배치하고 제어하는 실습을 이어서 진행해 보겠습니다.</p>
-                </div>
 
                 <div class="nav-btns">
                     <a href="chapter_04.html" class="btn btn-prev">◀ CHAPTER 4</a>
-                    <a href="chapter_06.html" class="btn btn-next">CHAPTER 6로 이동 ▶</a>
+                    <a href="chapter_06.html" class="btn btn-next">CHAPTER 6으로 이동 ▶</a>
                 </div>
             </div>
         </main>
     </div>
-
     <script>
     window.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('pre').forEach((preBlock) => {
             const codeBlock = preBlock.querySelector('code');
             if (!codeBlock) return;
 
-            // 1. 코드를 감싸는 부모 박스(Wrapper) 동적 생성
             const wrapper = document.createElement('div');
             wrapper.className = 'code-wrapper';
             preBlock.parentNode.insertBefore(wrapper, preBlock);
             wrapper.appendChild(preBlock);
 
-            // 2. 우측 상단 복사 버튼 생성
             const topBtn = document.createElement('button');
             topBtn.className = 'copy-btn btn-top';
             topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
-            
-            // 3. 우측 하단 복사 버튼 생성
+
             const bottomBtn = document.createElement('button');
             bottomBtn.className = 'copy-btn btn-bottom';
             bottomBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
@@ -642,14 +236,13 @@ while True:
             wrapper.appendChild(topBtn);
             wrapper.appendChild(bottomBtn);
 
-            // 4. 복사 기능 정의
             const codeText = codeBlock.innerText;
-            
+
             const copyToClipboard = (btn) => {
                 if (!navigator.clipboard) {
                     const textArea = document.createElement("textarea");
                     textArea.value = codeText;
-                    textArea.style.position = "fixed"; 
+                    textArea.style.position = "fixed";
                     document.body.appendChild(textArea);
                     textArea.select();
                     try {
@@ -661,7 +254,6 @@ while True:
                     document.body.removeChild(textArea);
                     return;
                 }
-
                 navigator.clipboard.writeText(codeText).then(() => {
                     showSuccess(btn);
                 }).catch(err => {
@@ -672,7 +264,6 @@ while True:
             const showSuccess = (btn) => {
                 btn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> 완료';
                 btn.classList.add('copied');
-                
                 setTimeout(() => {
                     btn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
                     btn.classList.remove('copied');
@@ -703,14 +294,9 @@ while True:
         const backdrop = modal.querySelector('.modal-backdrop');
 
         if (openBtn && modal) {
-            // 버튼 누르면 열기
             openBtn.addEventListener('click', () => modal.classList.add('active'));
-            // X 버튼 누르면 닫기
             closeBtn.addEventListener('click', () => modal.classList.remove('active'));
-            // 흐린 배경 누르면 닫기
             backdrop.addEventListener('click', () => modal.classList.remove('active'));
-            
-            // ESC 키 누르면 닫히는 센스있는 단축키 기능 추가
             window.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && modal.classList.contains('active')) {
                     modal.classList.remove('active');
@@ -720,5 +306,5 @@ while True:
     });
     </script>
     <script src="mobile-nav.js"></script>
-</body>
+    </body>
 </html>

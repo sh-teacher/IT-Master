@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ch 11. 온습도 & 데이터 - Pico 2 가이드</title>
+    <title>Ch 11. MQTT 클라우드 - Pico 2 가이드</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -13,23 +13,22 @@
             <h2>PICO 2 IoT GUIDE</h2>
             <ul>
                 <li><a href="index.html">HOME - 시작하기</a></li>
+                <li class="menu-divider">기초 & 통신 파트</li>
                 <li><a href="chapter_01.html">CHAPTER 1 - 하드웨어 이해</a></li>
                 <li><a href="chapter_02.html">CHAPTER 2 - 펌웨어 세팅</a></li>
                 <li><a href="chapter_03.html">CHAPTER 3 - 기초 코딩(Blink)</a></li>
-                <li><a href="chapter_04.html">CHAPTER 4 - Wi-Fi 연결</a></li>
-                <li><a href="chapter_05.html">CHAPTER 5 - IoT 웹 서버</a></li>
-                <li class="menu-divider">실전 부품 프로젝트</li>
-                <li><a href="chapter_06.html">CHAPTER 6 - 기본 입출력(스위치/부저)</a></li>
-                <li><a href="chapter_07.html">CHAPTER 7 - 센서 제어(초음파/PIR)</a></li>
-                <li><a href="chapter_08.html">CHAPTER 8 - 아날로그 & 모터</a></li>
-                <li><a href="chapter_09.html">CHAPTER 9 - LCD 디스플레이</a></li>
+                <li><a href="chapter_04.html">CHAPTER 4 - 기본 입출력(스위치/부저)</a></li>
+                <li><a href="chapter_05.html">CHAPTER 5 - 센서 제어(초음파/PIR)</a></li>
+                <li class="menu-divider">실전 하드웨어</li>
+                <li><a href="chapter_06.html">CHAPTER 6 - 아날로그 & 모터</a></li>
+                <li><a href="chapter_07.html">CHAPTER 7 - 온습도 & 데이터</a></li>
+                <li><a href="chapter_08.html">CHAPTER 8 - Neopixel 제어</a></li>
+                <li><a href="chapter_09.html">CHAPTER 9 - I2C LCD 디스플레이</a></li>
                 <li><a href="chapter_10.html">CHAPTER 10 - 무선 통신 & 입력</a></li>
                 <li class="menu-divider">심화 응용 프로젝트</li>
-                <li><a href="chapter_11.html" class="active">CHAPTER 11 - 온습도 & 데이터</a></li>
-                <li><a href="chapter_12.html">CHAPTER 12 - MQTT 클라우드</a></li>
-                <li><a href="chapter_13.html">CHAPTER 13 - Neopixel 제어</a></li>
-                <li><a href="chapter_14.html">CHAPTER 14 - OLED & RTC</a></li>
-                <li><a href="chapter_15.html">CHAPTER 15 - 종합 프로젝트</a></li>
+                <li><a href="chapter_11.html" class="active">CHAPTER 11 - MQTT 클라우드</a></li>
+                <li><a href="chapter_12.html">CHAPTER 12 - OLED & RTC</a></li>
+                <li><a href="chapter_13.html">CHAPTER 13 - 종합 프로젝트</a></li>
             </ul>
             <div class="sidebar-footer">
                 <button class="pinout-btn" id="openPinout"><i class="fa-solid fa-diagram-project"></i> GPIO 핀아웃 맵 보기</button>
@@ -37,140 +36,175 @@
         </nav>
         <main class="content">
             <div class="container">
-                <h1>Chapter 11. DHT11 온습도 센서와 LCD 시각화</h1>
-                <p>주변의 온도와 습도를 정밀하게 측정하는 DHT11 센서를 다뤄보고, 수집된 데이터를 LCD 화면에 깔끔하게 출력하는 웨더 스테이션의 기초를 다집니다.</p>
+                <h1>Chapter 11. MQTT와 Adafruit IO 클라우드 연동</h1>
+                <p>IoT의 핵심 프로토콜인 <strong>MQTT</strong>를 학습합니다. 내 방의 센서 데이터를 전 세계 어디서든 스마트폰 대시보드로 모니터링할 수 있는 시스템을 구축합니다.</p>
 
-                <div style="text-align: center; margin: 20px 0;">
-                    <svg viewBox="0 0 820 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="dhtDiagramTitle dhtDiagramDesc" style="max-width: 100%; height: auto; border-radius: 16px; background: #f8fafc; border: 1px solid #e2e8f0; box-shadow: 0 8px 24px rgba(15,23,42,0.08);">
-                        <title id="dhtDiagramTitle">DHT11과 I2C LCD 연결도</title>
-                        <desc id="dhtDiagramDesc">DHT11 데이터 핀은 GP15에, I2C LCD의 SDA와 SCL은 GP8과 GP9에 연결합니다.</desc>
+                <div style="text-align: center; margin: 30px 0;">
+                    <svg viewBox="0 0 900 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="mqttDiagramTitle mqttDiagramDesc" style="max-width: 100%; height: auto; border-radius: 16px; background: #f8fafc; border: 1px solid #e2e8f0; box-shadow: 0 8px 24px rgba(15,23,42,0.08);">
+                        <title id="mqttDiagramTitle">Pico 2 W MQTT 클라우드 흐름도</title>
+                        <desc id="mqttDiagramDesc">Pico가 센서 데이터를 Adafruit IO MQTT 브로커로 발행하고, 대시보드의 LED 명령을 구독해 제어합니다.</desc>
                         <defs>
-                            <marker id="arrow11Blue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#2563eb"/></marker>
-                            <marker id="arrow11Green" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#16a34a"/></marker>
+                            <marker id="arr11Pub" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#2563eb"/></marker>
+                            <marker id="arr11Sub" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#e11d48"/></marker>
                             <filter id="shadow11" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.14"/></filter>
                         </defs>
 
-                        <text x="120" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">온습도 입력</text>
-                        <text x="410" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">Pico 2 W</text>
-                        <text x="692" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">LCD 출력</text>
+                        <text x="134" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">센서 노드</text>
+                        <text x="450" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">MQTT Broker</text>
+                        <text x="742" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">클라우드 대시보드</text>
 
                         <g fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M216 130 H328" stroke="#2563eb" stroke-width="4" marker-end="url(#arrow11Blue)"/>
-                            <path d="M492 120 H610" stroke="#16a34a" stroke-width="4" marker-end="url(#arrow11Green)"/>
-                            <path d="M492 168 C545 168 557 202 610 202" stroke="#7c3aed" stroke-width="4" marker-end="url(#arrow11Green)"/>
+                            <path d="M220 125 H350" stroke="#2563eb" stroke-width="4" marker-end="url(#arr11Pub)"/>
+                            <path d="M220 175 H350" stroke="#2563eb" stroke-width="4" marker-end="url(#arr11Pub)"/>
+                            <path d="M530 125 H646" stroke="#2563eb" stroke-width="4" marker-end="url(#arr11Pub)"/>
+                            <path d="M646 205 H530" stroke="#e11d48" stroke-width="4" marker-end="url(#arr11Sub)"/>
+                            <path d="M350 205 H220" stroke="#e11d48" stroke-width="4" marker-end="url(#arr11Sub)"/>
                         </g>
 
                         <g filter="url(#shadow11)">
-                            <rect x="72" y="82" width="144" height="138" rx="10" fill="#ffffff" stroke="#bfdbfe"/>
-                            <rect x="108" y="104" width="72" height="90" rx="6" fill="#3b82f6"/>
-                            <rect x="123" y="118" width="42" height="44" fill="#1d4ed8" opacity="0.35"/>
-                            <text x="144" y="205" text-anchor="middle" fill="#1e3a8a" font-size="13" font-weight="800">DHT11</text>
-                            <text x="144" y="235" text-anchor="middle" fill="#475569" font-size="12">온도 / 습도 측정</text>
+                            <rect x="70" y="78" width="150" height="150" rx="12" fill="#ffffff" stroke="#bbf7d0"/>
+                            <rect x="100" y="108" width="90" height="76" rx="10" fill="#059669"/>
+                            <text x="145" y="140" text-anchor="middle" fill="white" font-size="17" font-weight="800">Pico 2 W</text>
+                            <text x="145" y="160" text-anchor="middle" fill="#dcfce7" font-size="11">DHT11 + LED</text>
+                            <text x="145" y="214" text-anchor="middle" fill="#166534" font-size="12" font-weight="700">Publish / Subscribe</text>
                         </g>
-                        <circle cx="216" cy="130" r="6" fill="#2563eb"/>
-                        <text x="226" y="124" fill="#2563eb" font-size="11" font-weight="700">DATA</text>
+                        <text x="286" y="116" text-anchor="middle" fill="#2563eb" font-size="11" font-weight="800">temperature</text>
+                        <text x="286" y="166" text-anchor="middle" fill="#2563eb" font-size="11" font-weight="800">humidity</text>
+                        <text x="286" y="196" text-anchor="middle" fill="#e11d48" font-size="11" font-weight="800">led/cmd</text>
 
                         <g filter="url(#shadow11)">
-                            <rect x="330" y="76" width="160" height="180" rx="14" fill="#059669"/>
-                            <text x="410" y="135" text-anchor="middle" fill="white" font-size="20" font-weight="800">Pico 2 W</text>
-                            <text x="410" y="158" text-anchor="middle" fill="#dcfce7" font-size="12">DHT + I2C LCD</text>
-                            <text x="410" y="216" text-anchor="middle" fill="#bbf7d0" font-size="12">2초마다 측정 후 표시</text>
+                            <rect x="350" y="78" width="180" height="150" rx="18" fill="#3b82f6"/>
+                            <circle cx="450" cy="125" r="44" fill="#60a5fa" opacity="0.65"/>
+                            <text x="450" y="132" text-anchor="middle" fill="white" font-size="16" font-weight="800">Adafruit IO</text>
+                            <text x="450" y="156" text-anchor="middle" fill="#dbeafe" font-size="12">MQTT Broker</text>
+                            <text x="450" y="208" text-anchor="middle" fill="#eff6ff" font-size="11">feeds로 데이터 중계</text>
                         </g>
-                        <circle cx="330" cy="130" r="6" fill="#dbeafe"/>
-                        <text x="344" y="134" fill="#ecfeff" font-size="11" font-weight="800">GP15</text>
-                        <circle cx="490" cy="120" r="6" fill="#dcfce7"/>
-                        <text x="442" y="110" fill="#ecfeff" font-size="11" font-weight="800">GP8 SDA</text>
-                        <circle cx="490" cy="168" r="6" fill="#ede9fe"/>
-                        <text x="442" y="188" fill="#ecfeff" font-size="11" font-weight="800">GP9 SCL</text>
 
                         <g filter="url(#shadow11)">
-                            <rect x="612" y="86" width="156" height="146" rx="10" fill="#ffffff" stroke="#bbf7d0"/>
-                            <rect x="640" y="116" width="100" height="62" rx="5" fill="#0f172a"/>
-                            <text x="690" y="140" text-anchor="middle" fill="#38bdf8" font-size="11" font-weight="800">Temp: 24.0 C</text>
-                            <text x="690" y="158" text-anchor="middle" fill="#38bdf8" font-size="11" font-weight="800">Hum : 58 %</text>
-                            <text x="690" y="210" text-anchor="middle" fill="#166534" font-size="12" font-weight="700">I2C LCD 16x2</text>
+                            <rect x="646" y="60" width="190" height="230" rx="16" fill="#ffffff" stroke="#bae6fd"/>
+                            <rect x="692" y="84" width="96" height="160" rx="14" fill="#1e293b"/>
+                            <rect x="704" y="104" width="72" height="110" rx="4" fill="#334155"/>
+                            <text x="740" y="132" text-anchor="middle" fill="#38bdf8" font-size="12" font-weight="800">24.5 C</text>
+                            <text x="740" y="154" text-anchor="middle" fill="#38bdf8" font-size="12" font-weight="800">58 %</text>
+                            <rect x="716" y="176" width="48" height="20" rx="10" fill="#22c55e"/>
+                            <text x="740" y="190" text-anchor="middle" fill="white" font-size="10" font-weight="800">LED ON</text>
+                            <circle cx="740" cy="228" r="5" fill="#475569"/>
+                            <text x="740" y="274" text-anchor="middle" fill="#0f172a" font-size="12" font-weight="800">스마트폰 / 웹 대시보드</text>
                         </g>
-                        <circle cx="612" cy="120" r="6" fill="#16a34a"/>
-                        <circle cx="612" cy="202" r="6" fill="#7c3aed"/>
 
-                        <rect x="80" y="276" width="660" height="30" rx="8" fill="#ffffff" stroke="#e2e8f0"/>
-                        <text x="410" y="296" text-anchor="middle" fill="#475569" font-size="12">전원은 DHT11 VCC->3V3, LCD VCC->5V 또는 3V3(모듈 사양 확인), 모든 GND는 공통 연결</text>
+                        <rect x="88" y="306" width="724" height="30" rx="8" fill="#ffffff" stroke="#e2e8f0"/>
+                        <text x="450" y="326" text-anchor="middle" fill="#475569" font-size="12">Publish는 센서 데이터 전송, Subscribe는 클라우드 명령 수신입니다. 두 방향을 구분하면 IoT 구조가 훨씬 선명해집니다.</text>
                     </svg>
-                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">DHT11: VCC→3V3, Data→GP15, GND→GND. LCD는 SDA→GP8, SCL→GP9에 연결합니다.</p>
                 </div>
 
-                <h2>11.1 준비물과 연결 핀</h2>
-                <p>센서와 LCD를 함께 쓰는 장이므로 데이터 선과 I2C 선을 구분해서 연결합니다. LCD 주소가 다르면 Chapter 9의 I2C 스캔 코드로 주소를 먼저 확인하세요.</p>
+                <h2>11.1 Adafruit IO 설정 및 연결 구성</h2>
+                <p>1. <a href="https://io.adafruit.com" target="_blank">Adafruit IO</a>에 가입하여 <code>AIO Key</code>를 복사해 두세요.<br>
+                2. Thonny의 [Tools] -> [Manage Packages]에서 <strong><code>umqtt.simple</code></strong>을 검색해 설치해야 합니다.</p>
 
                 <table style="width: 100%; border-collapse: collapse; margin: 20px 0 30px; font-size: 0.98rem;">
                     <thead>
                         <tr style="background: #f1f5f9; color: #0f172a;">
-                            <th style="border: 1px solid #e2e8f0; padding: 10px;">부품</th>
-                            <th style="border: 1px solid #e2e8f0; padding: 10px;">Pico 2 W 핀</th>
+                            <th style="border: 1px solid #e2e8f0; padding: 10px;">항목</th>
+                            <th style="border: 1px solid #e2e8f0; padding: 10px;">설정값</th>
                             <th style="border: 1px solid #e2e8f0; padding: 10px;">역할</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">DHT11 Data</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>GP15</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">온습도 데이터 입력</td></tr>
-                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">LCD SDA / SCL</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>GP8</code> / <code>GP9</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">I2C 화면 출력</td></tr>
-                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">전원 / GND</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>3V3</code>, <code>GND</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">공통 전원 기준</td></tr>
+                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">DHT11 Data</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>GP15</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">온습도 측정</td></tr>
+                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">상태 LED</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>LED</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">클라우드 명령 확인</td></tr>
+                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">MQTT Feed</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>temperature</code>, <code>humidity</code>, <code>led-cmd</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">데이터 전송과 원격 제어</td></tr>
                     </tbody>
                 </table>
 
-                <h2>11.2 실시간 환경 모니터링 소스 코드</h2>
-                <p>MicroPython의 내장 <code>dht</code> 라이브러리를 사용합니다. Chapter 9에서 사용한 LCD 라이브러리가 Pico에 이미 저장되어 있어야 합니다.</p>
+                <h2>11.2 MQTT 발행과 구독 소스 코드</h2>
 
-                <pre><code>import machine
+                <pre><code>import time
+import machine
+import network
 import dht
-import time
-from pico_i2c_lcd import I2cLcd
+from umqtt.simple import MQTTClient
 
-# I2C LCD 설정
-i2c = machine.I2C(0, sda=machine.Pin(8), scl=machine.Pin(9), freq=400000)
-lcd = I2cLcd(i2c, 0x27, 2, 16)
+# Wi-Fi & Adafruit IO 설정
+WIFI_SSID = "your_wifi_name"
+WIFI_PASS = "your_wifi_password"
+AIO_USER = "your_username"
+AIO_KEY = "your_aio_key"
+
+BROKER = "io.adafruit.com"
+CLIENT_ID = "pico2-weather-node"
+TEMP_FEED = AIO_USER + "/feeds/temperature"
+HUM_FEED = AIO_USER + "/feeds/humidity"
+LED_CMD_FEED = AIO_USER + "/feeds/led-cmd"
 
 sensor = dht.DHT11(machine.Pin(15))
+led = machine.Pin("LED", machine.Pin.OUT)
 
-def lcd_line(row, text):
-    lcd.move_to(0, row)
-    lcd.putstr(text[:16].ljust(16))
+def connect_wifi():
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    wlan.connect(WIFI_SSID, WIFI_PASS)
+    print("Wi-Fi 연결 중...")
 
-def show_status(temp=None, hum=None, error=None):
-    if error:
-        lcd_line(0, "DHT11 Error")
-        lcd_line(1, "Check wiring")
-        print("센서 읽기 실패:", error)
-        return
+    for _ in range(20):
+        if wlan.isconnected():
+            print("Wi-Fi Connected:", wlan.ifconfig()[0])
+            return
+        time.sleep(0.5)
 
-    lcd_line(0, f"Temp: {temp:>2} C")
-    lcd_line(1, f"Hum : {hum:>2} %")
-    print(f"온도: {temp}C, 습도: {hum}%")
+    raise RuntimeError("Wi-Fi connection failed")
 
-print("온습도 모니터링 시스템 시작...")
-lcd_line(0, "DHT11 + LCD")
-lcd_line(1, "Initializing...")
-time.sleep(1)
+def on_message(topic, msg):
+    command = msg.decode().strip().lower()
+    print("수신:", topic.decode(), command)
+
+    if command in ("on", "1", "true"):
+        led.on()
+    elif command in ("off", "0", "false"):
+        led.off()
+
+def connect_mqtt():
+    client = MQTTClient(CLIENT_ID, BROKER, user=AIO_USER, password=AIO_KEY)
+    client.set_callback(on_message)
+    client.connect()
+    client.subscribe(LED_CMD_FEED)
+    print("MQTT Connected and subscribed:", LED_CMD_FEED)
+    return client
+
+connect_wifi()
+client = connect_mqtt()
+last_publish = time.ticks_ms()
 
 while True:
     try:
-        sensor.measure()
-        temp = sensor.temperature()
-        hum = sensor.humidity()
-        show_status(temp, hum)
+        # 구독한 led-cmd feed에 새 명령이 있는지 확인합니다.
+        client.check_msg()
+
+        if time.ticks_diff(time.ticks_ms(), last_publish) >= 10000:
+            sensor.measure()
+            temp = sensor.temperature()
+            hum = sensor.humidity()
+
+            client.publish(TEMP_FEED, str(temp))
+            client.publish(HUM_FEED, str(hum))
+            print(f"Published: {temp}C, {hum}%")
+            last_publish = time.ticks_ms()
+
+        time.sleep(0.1)
+
     except OSError as e:
-        show_status(error=e)
-    
-    # DHT11은 너무 자주 읽으면 실패하므로 2초 이상 간격을 둡니다.
-    time.sleep(2)
+        print("MQTT 오류, 재연결 시도:", e)
+        time.sleep(3)
+        connect_wifi()
+        client = connect_mqtt()
 </code></pre>
 
-                <h2>11.3 동작 흐름</h2>
-                <p>Pico는 2초마다 DHT11에 측정을 요청하고 온도와 습도 값을 읽습니다. 정상 값은 LCD 두 줄에 고정 폭으로 표시하고, 읽기 실패가 발생하면 배선 확인 메시지를 띄워 수업 중 디버깅이 쉽도록 했습니다.</p>
-
                 <div class="callout info">
-                    <h4>💡 DHT11 사용 팁</h4>
-                    <p>DHT11은 매우 저렴하고 대중적이지만, 온도는 ±2℃, 습도는 ±5% 정도의 오차가 있을 수 있습니다. 더 정밀한 프로젝트를 원하신다면 <strong>DHT22</strong>나 <strong>BME280</strong> 센서를 고려해 보세요. 코드 구조는 거의 동일합니다.</p>
+                    <h4>💡 Feed 이름 확인</h4>
+                    <p>Adafruit IO에서 <code>temperature</code>, <code>humidity</code>, <code>led-cmd</code> feed를 먼저 만들어 두세요. 대시보드 버튼에서 <code>led-cmd</code>에 <code>on</code> 또는 <code>off</code>를 보내면 Pico의 내장 LED가 반응합니다.</p>
                 </div>
+
+                <h2>11.3 동작 흐름</h2>
+                <p>Pico는 10초마다 DHT11 값을 읽어 온도와 습도 feed로 발행합니다. 동시에 <code>led-cmd</code> feed를 구독하고 있다가 클라우드 대시보드에서 명령이 들어오면 내장 LED를 켜거나 끕니다. 이 구조가 IoT에서 가장 기본적인 양방향 통신 패턴입니다.</p>
 
                 <div class="nav-btns">
                     <a href="chapter_10.html" class="btn btn-prev">◀ CHAPTER 10</a>
@@ -224,7 +258,6 @@ while True:
             openBtn.addEventListener('click', () => modal.classList.add('active'));
             closeBtn.addEventListener('click', () => modal.classList.remove('active'));
             backdrop.addEventListener('click', () => modal.classList.remove('active'));
-            
             window.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && modal.classList.contains('active')) {
                     modal.classList.remove('active');
