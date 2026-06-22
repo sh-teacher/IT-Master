@@ -107,29 +107,41 @@
                 <pre><code>import time
 
 class LcdApi:
-    # HD44780 LCD controller command set
-    LCD_CLR             = 0x01
-    LCD_HOME            = 0x02
-    LCD_ENTRY_MODE      = 0x04
-    LCD_ENTRY_INC       = 0x02
-    LCD_ENTRY_SHIFT     = 0x01
-    LCD_ON_CTRL         = 0x08
-    LCD_ON_DISPLAY      = 0x04
-    LCD_ON_CURSOR       = 0x02
-    LCD_ON_BLINK        = 0x01
-    LCD_MOVE            = 0x10
-    LCD_MOVE_DISP       = 0x08
-    LCD_MOVE_RIGHT      = 0x04
-    LCD_FUNCTION        = 0x20
-    LCD_FUNCTION_8BIT   = 0x10
-    LCD_FUNCTION_2LINES = 0x08
-    LCD_FUNCTION_10DOTS = 0x04
-    LCD_CGRAM           = 0x40
-    LCD_DDRAM           = 0x80
-    LCD_RS_CMD          = 0
-    LCD_RS_DATA         = 1
-    LCD_RW_WRITE        = 0
-    LCD_RW_READ         = 1
+    
+    # 이 부분이 누락되었거나 이름이 달라 에러가 났던 것입니다.
+    LCD_CLR = 0x01
+    LCD_HOME = 0x02
+    LCD_ENTRY_MODE = 0x04
+    LCD_DISPLAY_CONTROL = 0x08
+    LCD_CURSOR_SHIFT = 0x10
+    LCD_FUNCTION_SET = 0x20
+    LCD_SET_CGRAM_ADDR = 0x40
+    LCD_SET_DDRAM_ADDR = 0x80
+
+    LCD_BLINK_ON = 0x01
+    LCD_BLINK_OFF = 0x00
+    LCD_CURSOR_ON = 0x02
+    LCD_CURSOR_OFF = 0x00
+    LCD_DISPLAY_ON = 0x04
+    LCD_DISPLAY_OFF = 0x00
+
+    LCD_ENTRY_RIGHT = 0x00
+    LCD_ENTRY_LEFT = 0x02
+    LCD_ENTRY_SHIFT_INCREMENT = 0x01
+    LCD_ENTRY_SHIFT_DECREMENT = 0x00
+
+    LCD_MOVE_RIGHT = 0x04
+    LCD_MOVE_LEFT = 0x00
+
+    LCD_8BIT_MODE = 0x10
+    LCD_4BIT_MODE = 0x00
+    LCD_2LINE_MODE = 0x08
+    LCD_1LINE_MODE = 0x00
+    LCD_5X10_DOTS = 0x04
+    LCD_5X8_DOTS = 0x00
+
+    # I2cLcd가 찾는 리셋 비트 설정들
+    LCD_FUNCTION_RESET = 0x30
 
     def __init__(self, num_lines, num_columns):
         self.num_lines = num_lines
@@ -142,36 +154,41 @@ class LcdApi:
         self.cursor_y = 0
         self.implied_newline = False
         self.backlight = True
-        self.display_off()
-        self.backlight_on()
-        self.clear()
-        self.hal_write_command(self.LCD_ENTRY_MODE | self.LCD_ENTRY_INC)
-        self.hide_cursor()
-        self.display_on()
+        self.display_control = self.LCD_DISPLAY_ON | self.LCD_CURSOR_OFF | self.LCD_BLINK_OFF
+        self.display_function = self.LCD_4BIT_MODE | self.LCD_1LINE_MODE | self.LCD_5X8_DOTS
+        if self.num_lines > 1:
+            self.display_function |= self.LCD_2LINE_MODE
 
     def clear(self):
         self.hal_write_command(self.LCD_CLR)
         self.hal_write_command(self.LCD_HOME)
         self.cursor_x = 0
         self.cursor_y = 0
+        time.sleep_ms(2)
 
     def show_cursor(self):
-        self.hal_write_command(self.LCD_ON_CTRL | self.LCD_ON_DISPLAY | self.LCD_ON_CURSOR)
+        self.display_control |= self.LCD_CURSOR_ON
+        self.hal_write_command(self.display_control)
 
     def hide_cursor(self):
-        self.hal_write_command(self.LCD_ON_CTRL | self.LCD_ON_DISPLAY)
+        self.display_control &= ~self.LCD_CURSOR_ON
+        self.hal_write_command(self.display_control)
 
     def blink_cursor_on(self):
-        self.hal_write_command(self.LCD_ON_CTRL | self.LCD_ON_DISPLAY | self.LCD_ON_CURSOR | self.LCD_ON_BLINK)
+        self.display_control |= self.LCD_BLINK_ON
+        self.hal_write_command(self.display_control)
 
     def blink_cursor_off(self):
-        self.hal_write_command(self.LCD_ON_CTRL | self.LCD_ON_DISPLAY | self.LCD_ON_CURSOR)
+        self.display_control &= ~self.LCD_BLINK_ON
+        self.hal_write_command(self.display_control)
 
     def display_on(self):
-        self.hal_write_command(self.LCD_ON_CTRL | self.LCD_ON_DISPLAY)
+        self.display_control |= self.LCD_DISPLAY_ON
+        self.hal_write_command(self.display_control)
 
     def display_off(self):
-        self.hal_write_command(self.LCD_ON_CTRL)
+        self.display_control &= ~self.LCD_DISPLAY_ON
+        self.hal_write_command(self.display_control)
 
     def backlight_on(self):
         self.backlight = True
@@ -184,123 +201,130 @@ class LcdApi:
     def move_to(self, cursor_x, cursor_y):
         self.cursor_x = cursor_x
         self.cursor_y = cursor_y
-        addr = cursor_x & 0x3f
-        if cursor_y & 1:
+        if cursor_x >= self.num_columns:
+            cursor_x = self.num_columns - 1
+        elif cursor_x < 0:
+            cursor_x = 0
+        if cursor_y >= self.num_lines:
+            cursor_y = self.num_lines - 1
+        elif cursor_y < 0:
+            cursor_y = 0
+        
+        addr = cursor_x
+        if cursor_y == 1:
             addr += 0x40
-        if cursor_y & 2:
+        elif cursor_y == 2:
             addr += self.num_columns
-        self.hal_write_command(self.LCD_DDRAM | addr)
-
-    def putchar(self, char):
-        if char == '\n':
-            if self.implied_newline:
-                pass
-            else:
-                self.cursor_x = self.num_columns
-        else:
-            self.hal_write_data(ord(char))
-            self.cursor_x += 1
-        if self.cursor_x >= self.num_columns:
-            self.cursor_x = 0
-            self.cursor_y += 1
-            self.implied_newline = (char != '\n')
-        if self.cursor_y >= self.num_lines:
-            self.cursor_y = 0
-        self.move_to(self.cursor_x, self.cursor_y)
+        elif cursor_y == 3:
+            addr += 0x40 + self.num_columns
+        self.hal_write_command(self.LCD_SET_DDRAM_ADDR | addr)
 
     def putstr(self, string):
         for char in string:
-            self.putchar(char)
+            if char == '\n':
+                self.cursor_x = 0
+                self.cursor_y += 1
+                if self.cursor_y >= self.num_lines:
+                    self.cursor_y = 0
+                self.move_to(self.cursor_x, self.cursor_y)
+            else:
+                self.hal_write_data(ord(char))
+                self.cursor_x += 1
+                if self.cursor_x >= self.num_columns:
+                    self.cursor_x = 0
+                    self.cursor_y += 1
+                    if self.cursor_y >= self.num_lines:
+                        self.cursor_y = 0
+                    self.move_to(self.cursor_x, self.cursor_y)
 
     def custom_char(self, location, charmap):
-        location &= 0x07
-        self.hal_write_command(self.LCD_CGRAM | (location << 3))
-        self.hal_sleep_us(40)
+        if location < 0 or location > 7:
+            return
+        self.hal_write_command(self.LCD_SET_CGRAM_ADDR | (location << 3))
         for i in range(8):
             self.hal_write_data(charmap[i])
-            self.hal_sleep_us(40)
         self.move_to(self.cursor_x, self.cursor_y)
 
-    def hal_backlight_on(self):
-        pass
-    def hal_backlight_off(self):
-        pass
     def hal_write_command(self, cmd):
         raise NotImplementedError
+
     def hal_write_data(self, data):
         raise NotImplementedError
-    def hal_sleep_us(self, usecs):
-        time.sleep_us(usecs)
+
+    def hal_backlight_on(self):
+        raise NotImplementedError
+
+    def hal_backlight_off(self):
+        raise NotImplementedError
 </code></pre>
 
                 <div class="callout info">
                     <p><i class="fa-solid fa-file-code"></i> <strong>두 번째 파일:</strong> I2C 통신 규격을 다루는 파일입니다. 아래 코드를 <code>pico_i2c_lcd.py</code> 이름으로 저장하세요.</p>
                 </div>
-                <pre><code>from lcd_api import LcdApi
+                <pre><code>import time
 from machine import I2C
-from time import sleep_ms
-
-# The PCF8574 has a jumper selectable address: 0x20 - 0x27
-DEFAULT_I2C_ADDR = 0x27
-
-MASK_RS = 0x01
-MASK_RW = 0x02
-MASK_E = 0x04
-SHIFT_BACKLIGHT = 3
-SHIFT_DATA = 4
+from lcd_api import LcdApi
 
 class I2cLcd(LcdApi):
-    """Implements a HD44780 character LCD connected via PCF8574 on I2C."""
+
+    MASK_RS = 0x01
+    MASK_RW = 0x02
+    MASK_E  = 0x04
+    SHIFT_BACKLIGHT = 3
+    SHIFT_DATA = 4
 
     def __init__(self, i2c, i2c_addr, num_lines, num_columns):
         self.i2c = i2c
         self.i2c_addr = i2c_addr
-        self.i2c.writeto(self.i2c_addr, bytearray([0]))
-        sleep_ms(20)   # Allow LCD time to powerup
-        # Send reset 3 times
+        self.i2c.writeto(self.i2c_addr, bytes([0]))
+        time.sleep_ms(20)
+        
+        # 에러 발생 지점 통과를 위한 초기화 프로토콜
         self.hal_write_init_nibble(self.LCD_FUNCTION_RESET)
-        sleep_ms(5)    # need to delay at least 4.1 msec
+        time.sleep_ms(5)
         self.hal_write_init_nibble(self.LCD_FUNCTION_RESET)
-        sleep_ms(1)
+        time.sleep_ms(1)
         self.hal_write_init_nibble(self.LCD_FUNCTION_RESET)
-        sleep_ms(1)
-        # Put LCD into 4 bit mode
-        self.hal_write_init_nibble(self.LCD_FUNCTION)
-        sleep_ms(1)
-        LcdApi.__init__(self, num_lines, num_columns)
-        cmd = self.LCD_FUNCTION
-        if num_lines > 1:
-            cmd |= self.LCD_FUNCTION_2LINES
+        self.hal_write_init_nibble(0x20)
+        
+        super().__init__(num_lines, num_columns)
+        cmd = self.LCD_FUNCTION_SET | self.LCD_4BIT_MODE | self.LCD_2LINE_MODE | self.LCD_5X8_DOTS
+        self.hal_write_command(cmd)
+        cmd = self.LCD_DISPLAY_CONTROL | self.LCD_DISPLAY_ON | self.LCD_CURSOR_OFF | self.LCD_BLINK_OFF
+        self.hal_write_command(cmd)
+        self.clear()
+        cmd = self.LCD_ENTRY_MODE | self.LCD_ENTRY_LEFT
         self.hal_write_command(cmd)
 
     def hal_write_init_nibble(self, nibble):
-        byte = ((nibble >> 4) & 0x0f) << SHIFT_DATA
-        self.i2c.writeto(self.i2c_addr, bytearray([byte | MASK_E]))
-        self.i2c.writeto(self.i2c_addr, bytearray([byte]))
-
-    def hal_backlight_on(self):
-        self.i2c.writeto(self.i2c_addr, bytearray([1 << SHIFT_BACKLIGHT]))
-
-    def hal_backlight_off(self):
-        self.i2c.writeto(self.i2c_addr, bytearray([0]))
+        byte = ((nibble >> 4) << self.SHIFT_DATA) | (1 << self.SHIFT_BACKLIGHT)
+        self.i2c.writeto(self.i2c_addr, bytes([byte | self.MASK_E]))
+        self.i2c.writeto(self.i2c_addr, bytes([byte]))
 
     def hal_write_command(self, cmd):
-        byte = ((self.backlight << SHIFT_BACKLIGHT) | (((cmd >> 4) & 0x0f) << SHIFT_DATA))
-        self.i2c.writeto(self.i2c_addr, bytearray([byte | MASK_E]))
-        self.i2c.writeto(self.i2c_addr, bytearray([byte]))
-        byte = ((self.backlight << SHIFT_BACKLIGHT) | ((cmd & 0x0f) << SHIFT_DATA))
-        self.i2c.writeto(self.i2c_addr, bytearray([byte | MASK_E]))
-        self.i2c.writeto(self.i2c_addr, bytearray([byte]))
-        if cmd <= 3:
-            sleep_ms(5)
+        self.hal_write_nested(cmd, 0)
 
     def hal_write_data(self, data):
-        byte = (MASK_RS | (self.backlight << SHIFT_BACKLIGHT) | (((data >> 4) & 0x0f) << SHIFT_DATA))
-        self.i2c.writeto(self.i2c_addr, bytearray([byte | MASK_E]))
-        self.i2c.writeto(self.i2c_addr, bytearray([byte]))
-        byte = (MASK_RS | (self.backlight << SHIFT_BACKLIGHT) | ((data & 0x0f) << SHIFT_DATA))
-        self.i2c.writeto(self.i2c_addr, bytearray([byte | MASK_E]))
-        self.i2c.writeto(self.i2c_addr, bytearray([byte]))
+        self.hal_write_nested(data, self.MASK_RS)
+
+    def hal_write_nested(self, value, mode):
+        backlight = (1 if self.backlight else 0) << self.SHIFT_BACKLIGHT
+        
+        # High nibble
+        high = ((value & 0xF0) >> 4) << self.SHIFT_DATA
+        self.i2c.writeto(self.i2c_addr, bytes([high | mode | backlight | self.MASK_E]))
+        self.i2c.writeto(self.i2c_addr, bytes([high | mode | backlight]))
+        
+        # Low nibble
+        low = (value & 0x0F) << self.SHIFT_DATA
+        self.i2c.writeto(self.i2c_addr, bytes([low | mode | backlight | self.MASK_E]))
+        self.i2c.writeto(self.i2c_addr, bytes([low | mode | backlight]))
+
+    def hal_backlight_on(self):
+        self.i2c.writeto(self.i2c_addr, bytes([(1 if self.backlight else 0) << self.SHIFT_BACKLIGHT]))
+
+    def hal_backlight_off(self):
+        self.i2c.writeto(self.i2c_addr, bytes([(1 if self.backlight else 0) << self.SHIFT_BACKLIGHT]))
 </code></pre>
 
                 <h2>9.2 I2C 디바이스 주소 스캔하기</h2>
