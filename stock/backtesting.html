@@ -636,17 +636,21 @@ async function runBacktest() {
 
             // 현재 날짜의 포트폴리오 가치 계산
             totalValue = 0;
+            const dailyValues = {};
             for (let p of portfolio) {
                 const daily = p.data.dailyData || [];
                 const price = findPriceByDate(daily, date);
                 if (price && price.c) {
-                    totalValue += holdings[p.code] * Number(price.c);
+                    const value = holdings[p.code] * Number(price.c);
+                    dailyValues[p.code] = value;
+                    totalValue += value;
                 }
             }
 
             results.push({
                 date: date,
-                value: totalValue
+                value: totalValue,
+                dailyValues: dailyValues
             });
         }
 
@@ -683,28 +687,60 @@ function renderBacktestChart(results) {
     });
     const values = results.map(r => r.value);
 
+    const colors = ['#6366f1', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#06b6d4', '#84cc16'];
+    const datasets = [{
+        label: '포트폴리오 총가치',
+        data: values,
+        borderColor: '#1e1b4b',
+        backgroundColor: 'rgba(30,27,75,.08)',
+        borderWidth: 2.5,
+        fill: true,
+        tension: 0.25,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        order: 1
+    }];
+
+    // 종목별 가치 라인 추가
+    portfolio.forEach((p, idx) => {
+        const stockValues = results.map(r => r.dailyValues[p.code] || 0);
+        datasets.push({
+            label: p.name + ' (' + p.weight + '%)',
+            data: stockValues,
+            borderColor: colors[idx % colors.length],
+            backgroundColor: 'transparent',
+            borderWidth: 1.2,
+            fill: false,
+            tension: 0.25,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            order: 2
+        });
+    });
+
     btChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: labels,
-            datasets: [{
-                label: '포트폴리오 가치',
-                data: values,
-                borderColor: '#6366f1',
-                backgroundColor: 'rgba(99,102,241,.06)',
-                borderWidth: 1.5,
-                fill: true,
-                tension: 0.25,
-                pointRadius: 0,
-                pointHoverRadius: 4
-            }]
+            datasets: datasets
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { display: true, position: 'top', labels: { font: { size: 11 }, boxWidth: 12 } },
-                tooltip: { callbacks: { label: c => '₩' + Math.round(c.parsed.y).toLocaleString() } }
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: { font: { size: 11 }, boxWidth: 12 },
+                    onClick: (e, legendItem, legend) => {
+                        const index = legendItem.datasetIndex;
+                        const chart = legend.chart;
+                        const meta = chart.getDatasetMeta(index);
+                        meta.hidden = !meta.hidden;
+                        chart.update();
+                    }
+                },
+                tooltip: { callbacks: { label: c => c.dataset.label + ': ₩' + Math.round(c.parsed.y).toLocaleString() } }
             },
             scales: {
                 x: { ticks: { maxTicksLimit: 12, font: { size: 10 }, color: '#9ca3af' }, grid: { color: 'rgba(0,0,0,.04)' } },
