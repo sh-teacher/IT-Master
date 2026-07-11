@@ -29,6 +29,8 @@
                 <li><a href="chapter_11.html">CHAPTER 11 - MQTT 클라우드</a></li>
                 <li><a href="chapter_12.html">CHAPTER 12 - OLED & RTC</a></li>
                 <li><a href="chapter_13.html">CHAPTER 13 - 종합 프로젝트</a></li>
+                <li class="menu-divider">나만의 작품 만들기</li>
+                <li><a href="chapter_16.html">CHAPTER 16 - 바이브 코딩 캡스톤</a></li>
             </ul>
             <div class="sidebar-footer">
                 <button class="pinout-btn" id="openPinout"><i class="fa-solid fa-diagram-project"></i> GPIO 핀아웃 맵 보기</button>
@@ -542,6 +544,139 @@ while True:
 
     time.sleep(0.1)
 </code></pre>
+
+                <hr>
+
+                <h2>10.9 과제 해결해보기!</h2>
+
+                <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin-bottom: 24px;">
+                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 과제 1. 웹 서버에 LED 상태를 보여주는 텍스트 페이지 추가하기</h4>
+                    <p style="margin-bottom:16px;">10.2의 웹 서버 코드를 참고하여, 브라우저에서 <code>/status</code> 경로로 접속하면 현재 내장 LED가 켜져 있는지 꺼져 있는지 <strong>텍스트로 "LED is ON" / "LED is OFF"</strong>를 보여주는 기능을 추가해 보세요. (힌트: <code>request</code> 문자열 안에 <code>"GET /status"</code>가 들어있는지 확인하면 됩니다.)</p>
+
+                    <details style="border-radius:8px; border:1px solid #c4b5fd; overflow:hidden;">
+                        <summary style="background:#ede9fe; padding:11px 15px; cursor:pointer; font-weight:600; color:#6d28d9; list-style:none;">
+                            💻 정답 코드 보기
+                        </summary>
+                        <div style="padding:15px;">
+<pre style="margin:0;"><code># 10.2의 while True 루프 안 요청 분기 부분을 아래처럼 수정합니다.
+
+while True:
+    try:
+        client, addr = server.accept()
+        request = client.recv(1024).decode()
+
+        if "POST /toggle" in request:
+            led_state = not led_state
+            led.value(led_state)
+            client.send("HTTP/1.1 303 See Other\r\nLocation: /\r\n\r\n")
+
+        elif "GET /status" in request:
+            status_text = "LED is ON" if led_state else "LED is OFF"
+            client.send("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n")
+            client.send(status_text)
+
+        else:
+            html = make_html()
+            client.send("HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n")
+            client.send(html)
+
+        client.close()
+    except OSError:
+        pass
+
+# 브라우저 주소창에 http://<pico_ip>/status 로 접속하면
+# "LED is ON" 또는 "LED is OFF" 텍스트만 표시됩니다.</code></pre>
+                        </div>
+                    </details>
+                </div>
+
+                <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin-bottom: 30px;">
+                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 과제 2. BLE로 밝기 최대 모드(깜빡임) 명령어 추가하기</h4>
+                    <p>10.4의 <code>CustomIoTController</code>를 참고하여, 스마트폰에서 <code>"bright"</code>라는 문자열을 보내면 내장 LED를 <strong>0.2초 간격으로 3번 깜빡인 뒤</strong> "밝기 최대 모드입니다"라는 응답을 돌려주는 명령어를 추가해 보세요.</p>
+                    <ul style="line-height:2; color:#374151; margin-bottom:16px;">
+                        <li>기존의 <code>"on"</code>, <code>"off"</code> 명령어는 그대로 유지합니다.</li>
+                        <li><code>elif</code> 분기를 하나 추가하면 됩니다.</li>
+                    </ul>
+                    <details style="border-radius:8px; border:1px solid #c4b5fd; overflow:hidden;">
+                        <summary style="background:#ede9fe; padding:11px 15px; cursor:pointer; font-weight:600; color:#6d28d9; list-style:none;">
+                            💻 정답 코드 보기
+                        </summary>
+                        <div style="padding:15px;">
+<pre style="margin:0;"><code>from ble_uart import PicoBLEUART
+from machine import Pin
+import time
+
+led = Pin("LED", Pin.OUT)
+
+class CustomIoTController(PicoBLEUART):
+    def on_rx(self, msg):
+        print(f"📱 블루투스 명령 접수: {msg}")
+
+        if msg == "on":
+            led.value(1)
+            self.send("Pico2W > LED가 켜졌습니다!")
+        elif msg == "off":
+            led.value(0)
+            self.send("Pico2W > LED가 꺼졌습니다!")
+        elif msg == "bright":
+            for _ in range(3):
+                led.value(1)
+                time.sleep(0.2)
+                led.value(0)
+                time.sleep(0.2)
+            self.send("Pico2W > 밝기 최대 모드입니다")
+        else:
+            self.send(f"알 수 없는 명령어: {msg}")
+
+iot_server = CustomIoTController()
+
+while True:
+    time.sleep(1)</code></pre>
+                        </div>
+                    </details>
+                </div>
+
+                <hr>
+
+                <h2>10.10 Wokwi 시뮬레이션으로 실습하기</h2>
+                <p>Chapter 1.8에서 소개한 <a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">Wokwi</a> 온라인 시뮬레이터로 이번 챕터의 일부 실습을 미리 확인해 볼 수 있습니다.</p>
+
+                <div class="callout warn">
+                    <h4>⚠️ 중요: Wi-Fi와 BLE는 Wokwi 무료 플랜에서 시뮬레이션 불가</h4>
+                    <p>Wokwi의 무료(Free) 플랜은 Pico 프로젝트에서 <strong>실제 인터넷/Wi-Fi 접속과 블루투스(BLE) 통신을 지원하지 않습니다.</strong> 즉, 10.1~10.2의 <code>network.WLAN</code> Wi-Fi 연결 및 소켓 웹 서버, 10.3~10.4의 BLE UART 코드는 Wokwi 위에서 실제로 동작을 확인할 수 없습니다. 이 부분은 반드시 실제 Pico 2 W 보드로 실습해야 합니다.</p>
+                    <p style="margin-top:10px;">반면 10.5~10.8의 <strong>IR 리모컨 학습 부분은 Wokwi에서 시뮬레이션이 가능</strong>합니다. Wokwi가 제공하는 <code>wokwi-ir-remote</code>(가상 리모컨)와 <code>wokwi-ir-receiver</code>(가상 IR 수신기) 부품을 이용하면 실제 리모컨과 수신 모듈 없이도 IR 신호 수신 로직을 테스트해 볼 수 있습니다.</p>
+                </div>
+
+                <div class="callout info">
+                    <h4>💻 IR 리모컨 학습 파트 실습 순서</h4>
+                    <ol style="margin-top: 8px; line-height: 2.2;">
+                        <li><a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">wokwi.com</a>에서 [New Project] → "Raspberry Pi Pico" (MicroPython) 템플릿을 선택합니다.</li>
+                        <li>왼쪽 <strong>diagram.json</strong> 탭에 아래 코드를 붙여넣어 Pico, 가상 IR 리모컨, 가상 IR 수신기를 자동으로 연결합니다.</li>
+                        <li>오른쪽 <strong>main.py</strong> 탭에 10.6의 기초 리모컨 자동 학습 코드를 붙여넣습니다.</li>
+                        <li>화면 상단의 <strong>▶️ (녹색 재생 버튼)</strong>을 누른 뒤, 시뮬레이터 화면의 가상 리모컨 버튼을 클릭하면 IR 신호가 전송되고 Shell 창에서 학습 결과를 확인할 수 있습니다.</li>
+                    </ol>
+                </div>
+
+                <pre><code>{
+  "version": 1,
+  "author": "Pico 2 IoT Guide",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-pi-pico", "id": "pico", "top": 0, "left": 0, "attrs": {} },
+    { "type": "wokwi-ir-receiver", "id": "ir_recv", "top": -40, "left": 150, "attrs": {} },
+    { "type": "wokwi-ir-remote", "id": "ir_remote", "top": -40, "left": 300, "attrs": {} }
+  ],
+  "connections": [
+    [ "pico:GP2", "ir_recv:OUT", "green", [] ],
+    [ "pico:3V3", "ir_recv:VCC", "red", [] ],
+    [ "pico:GND", "ir_recv:GND", "black", [] ]
+  ]
+}</code></pre>
+
+                <div class="callout warn">
+                    <h4>⚠️ 참고 사항</h4>
+                    <p>Wokwi의 <code>wokwi-ir-remote</code>, <code>wokwi-ir-receiver</code> 부품 이름과 속성은 버전에 따라 달라질 수 있습니다. 부품이 보이지 않거나 이름이 다르다면, 에디터 좌측의 <strong>부품 검색(parts search)</strong>에서 "ir"로 검색하여 정확한 부품명을 확인하고 <code>type</code> 값을 알맞게 수정하세요. 또한 가상 리모컨이 보내는 적외선 프로토콜(NEC 등)이 실제 리모컨과 100% 동일하지 않을 수 있으니, 최종 검증은 실제 하드웨어로 진행하세요.</p>
+                </div>
 
                 <div class="nav-btns">
                     <a href="chapter_09.html" class="btn btn-prev">◀ CHAPTER 9</a>

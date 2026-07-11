@@ -29,6 +29,8 @@
                 <li><a href="chapter_11.html">CHAPTER 11 - MQTT 클라우드</a></li>
                 <li><a href="chapter_12.html">CHAPTER 12 - OLED & RTC</a></li>
                 <li><a href="chapter_13.html">CHAPTER 13 - 종합 프로젝트</a></li>
+                <li class="menu-divider">나만의 작품 만들기</li>
+                <li><a href="chapter_16.html">CHAPTER 16 - 바이브 코딩 캡스톤</a></li>
             </ul>
             <div class="sidebar-footer">
                 <button class="pinout-btn" id="openPinout"><i class="fa-solid fa-diagram-project"></i> GPIO 핀아웃 맵 보기</button>
@@ -149,6 +151,54 @@ while True:
     time.sleep(0.5)
 </code></pre>
 
+                <div class="callout info">
+                    <h4>💡 왜 <code>time_pulse_us()</code> 대신 while문으로 시간을 직접 재나요?</h4>
+                    <p>MicroPython의 <code>machine.time_pulse_us(echo, 1)</code> 함수를 사용하면 위 코드의 2·3단계(Echo 핀의 상태 변화 감지)를 한 줄로 대체할 수 있습니다. 다만 원리를 이해하는 첫 학습 단계에서는 <code>while</code> 문으로 신호 시작·종료 시각을 직접 기록하는 방식이 "왜 초음파 센서가 시간을 측정하는지" 감을 잡기에 좋습니다. 아래는 <code>time_pulse_us()</code>를 사용한 더 안전한 버전입니다.</p>
+                    <pre style="margin-top:12px;"><code>from machine import Pin
+import time
+
+trig = Pin(17, Pin.OUT)
+echo = Pin(16, Pin.IN)
+
+def get_distance():
+    trig.value(0)
+    time.sleep_us(2)
+    trig.value(1)
+    time.sleep_us(10)
+    trig.value(0)
+
+    # timeout(30000us)을 지정하면 물체가 없어 반사파가 오지 않을 때도
+    # 프로그램이 멈추지 않고 -2(timeout) 등의 값을 반환합니다.
+    duration = time.time_pulse_us(echo, 1, 30000)
+    if duration < 0:
+        return None  # 측정 실패(범위 밖 또는 timeout)
+
+    distance = (duration * 0.0343) / 2
+    return distance
+
+while True:
+    dist = get_distance()
+    if dist is None:
+        print("측정 실패: 범위를 벗어났거나 물체가 없습니다.")
+    else:
+        print(f"물체와의 거리: {dist:.1f} cm")
+    time.sleep(0.5)</code></pre>
+                    <p style="margin-top:10px;"><code>time_pulse_us(pin, pulse_level, timeout_us)</code>는 지정한 레벨(여기서는 1=High)이 유지되는 시간을 마이크로초 단위로 반환하며, <code>while</code>문과 달리 반사파가 아예 오지 않아도 무한정 멈추지 않고 timeout 후 음수를 반환합니다. 실전 프로젝트에서는 이 방식을 권장합니다.</p>
+                </div>
+
+                <details style="margin: 20px 0; border-radius: 8px; border: 1px solid #fca5a5; overflow:hidden;">
+                    <summary style="background:#fef2f2; padding:12px 16px; cursor:pointer; font-weight:600; color:#991b1b; list-style:none; display:flex; align-items:center; gap:8px;">
+                        <i class="fa-solid fa-circle-exclamation" style="color:#ef4444;"></i> 거리 값이 이상하게 튀거나 측정되지 않는다면?
+                    </summary>
+                    <ul style="margin:0; padding:15px 20px 15px 35px; background:#fff5f5; line-height:2.1; color:#374151;">
+                        <li>Trig와 Echo 핀이 <strong>서로 바뀌어</strong> 연결되지 않았는지 확인하기</li>
+                        <li>측정 대상 물체가 센서 정면 <strong>2cm~400cm</strong> 범위 안에 있는지 확인하기 (HC-SR04 공식 측정 범위)</li>
+                        <li>물체 표면이 소리를 잘 흡수하는 스펀지·천 등이면 반사파가 약해 오류가 날 수 있음</li>
+                        <li>VCC를 3V3이 아닌 <strong>VSYS(5V)</strong>에 연결하면 더 안정적으로 동작하는 경우가 많음</li>
+                        <li>배선이 길거나 느슨하면 노이즈로 인해 값이 튈 수 있으니 점퍼선 연결 상태 점검하기</li>
+                    </ul>
+                </details>
+
                 <h2>5.2 PIR 적외선 인체 감지 센서</h2>
                 <p>사람이나 동물의 움직임으로 발생하는 적외선의 변화량을 측정하여 움직임 유무를 디지털 값(0 또는 1)으로 반환합니다.</p>
 
@@ -206,6 +256,125 @@ while True:
         print("안전 - 움직임 없음")
     time.sleep(0.5)
 </code></pre>
+
+                <div class="callout info">
+                    <h4>💡 PIR 센서의 원리 이해하기</h4>
+                    <p>PIR(Passive Infrared, 수동형 적외선)은 모든 물체가 방출하는 적외선 열복사량을 감지합니다. 사람이나 동물처럼 체온을 가진 물체가 센서 앞을 지나가면 감지 영역 내 적외선 양이 급격히 변하고, 이 변화를 센서 내부 회로가 감지해 OUT 핀을 <strong>HIGH(1)</strong>로 바꿉니다. 움직임이 없으면 OUT 핀은 <strong>LOW(0)</strong> 상태를 유지합니다. 카메라처럼 이미지를 분석하는 것이 아니라 "변화량"만 보기 때문에 매우 저렴하고 소비전력도 적습니다.</p>
+                </div>
+
+                <h3>🏆 과제 해결해보기!</h3>
+
+                <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin-bottom: 24px;">
+                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 과제 1. 초음파 센서로 자동문 흉내내기</h4>
+                    <p style="margin-bottom:16px;">HC-SR04로 거리를 측정하여, 물체가 <strong>20cm 이내</strong>로 가까이 오면 "문이 열립니다!"를 출력하고, 그렇지 않으면 "문이 닫혀 있습니다."를 출력하는 코드를 작성해 보세요.</p>
+                    <details style="border-radius:8px; border:1px solid #c4b5fd; overflow:hidden;">
+                        <summary style="background:#ede9fe; padding:11px 15px; cursor:pointer; font-weight:600; color:#6d28d9; list-style:none;">
+                            💻 정답 코드 보기
+                        </summary>
+                        <div style="padding:15px;">
+<pre style="margin:0;"><code>from machine import Pin
+import time
+
+trig = Pin(17, Pin.OUT)
+echo = Pin(16, Pin.IN)
+
+def get_distance():
+    trig.value(0)
+    time.sleep_us(2)
+    trig.value(1)
+    time.sleep_us(10)
+    trig.value(0)
+    duration = time.time_pulse_us(echo, 1, 30000)
+    if duration < 0:
+        return None
+    return (duration * 0.0343) / 2
+
+while True:
+    dist = get_distance()
+    if dist is not None and dist <= 20:
+        print("🚪 문이 열립니다! (거리: %.1f cm)" % dist)
+    else:
+        print("문이 닫혀 있습니다.")
+    time.sleep(0.5)</code></pre>
+                        </div>
+                    </details>
+                </div>
+
+                <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin-bottom: 30px;">
+                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 과제 2. 초음파 + PIR 이중 보안 시스템</h4>
+                    <p>PIR 센서로 움직임이 감지되었을 때만 HC-SR04로 거리를 측정하여, <strong>움직임이 있고 동시에 거리가 50cm 이내</strong>일 경우에만 "🚨 침입 경고!"를 출력하는 코드를 작성해 보세요. (두 센서를 함께 써서 오작동을 줄이는 실무 아이디어입니다.)</p>
+                    <details style="border-radius:8px; border:1px solid #c4b5fd; overflow:hidden; margin-top:14px;">
+                        <summary style="background:#ede9fe; padding:11px 15px; cursor:pointer; font-weight:600; color:#6d28d9; list-style:none;">
+                            💻 정답 코드 보기
+                        </summary>
+                        <div style="padding:15px;">
+<pre style="margin:0;"><code>from machine import Pin
+import time
+
+trig = Pin(17, Pin.OUT)
+echo = Pin(16, Pin.IN)
+pir  = Pin(18, Pin.IN)
+
+def get_distance():
+    trig.value(0)
+    time.sleep_us(2)
+    trig.value(1)
+    time.sleep_us(10)
+    trig.value(0)
+    duration = time.time_pulse_us(echo, 1, 30000)
+    if duration < 0:
+        return None
+    return (duration * 0.0343) / 2
+
+print("이중 보안 시스템 가동중...")
+time.sleep(2)  # PIR 안정화 대기
+
+while True:
+    if pir.value() == 1:
+        dist = get_distance()
+        if dist is not None and dist <= 50:
+            print(f"🚨 침입 경고! (거리: {dist:.1f} cm)")
+        else:
+            print("움직임 감지됨 (거리 범위 밖)")
+    else:
+        print("안전 - 움직임 없음")
+    time.sleep(0.5)</code></pre>
+                        </div>
+                    </details>
+                </div>
+
+                <h2>5.3 Wokwi 시뮬레이션으로 실습하기</h2>
+                <p>Chapter 1의 <a href="chapter_01.html">1.8 실물 없이도 실습! Wokwi 온라인 시뮬레이터</a>에서 소개한 대로, <a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">Wokwi</a>를 사용하면 실제 HC-SR04나 PIR 센서가 아직 없어도 브라우저에서 바로 회로 동작을 확인할 수 있습니다.</p>
+
+                <div class="callout info">
+                    <h4>📄 diagram.json 예시 (HC-SR04 + PIR)</h4>
+                    <p>Wokwi 프로젝트의 <code>diagram.json</code> 탭에 아래 내용을 붙여넣으면 Pico 2, 초음파 센서, PIR 센서가 자동으로 배치됩니다.</p>
+<pre style="margin-top:10px;"><code>{
+  "version": 1,
+  "author": "picostudy",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-pi-pico", "id": "pico", "top": 0, "left": 0, "attrs": {} },
+    { "type": "wokwi-hc-sr04", "id": "sr04", "top": -40, "left": 200, "attrs": {} },
+    { "type": "wokwi-pir-motion-sensor", "id": "pir1", "top": 100, "left": 200, "attrs": {} }
+  ],
+  "connections": [
+    [ "pico:GP17", "sr04:trig", "yellow", [] ],
+    [ "pico:GP16", "sr04:echo", "cyan", [] ],
+    [ "pico:3V3",  "sr04:vcc",  "red", [] ],
+    [ "pico:GND",  "sr04:gnd",  "black", [] ],
+    [ "pico:GP18", "pir1:OUT",  "cyan", [] ],
+    [ "pico:3V3",  "pir1:VCC",  "red", [] ],
+    [ "pico:GND",  "pir1:GND",  "black", [] ]
+  ]
+}</code></pre>
+                    <p style="margin-top:12px;">회로를 구성한 뒤 <code>main.py</code> 탭을 열어 이 챕터에서 작성한 코드(5.1 또는 5.2의 코드)를 붙여넣고, 화면 상단의 <strong>▶️ (초록색 재생) 버튼</strong>을 누르면 시뮬레이션이 시작됩니다. PIR 센서는 Wokwi 화면에서 클릭하면 움직임 감지를 흉내내는 체크박스가 나타나고, HC-SR04는 슬라이더로 가상의 물체 거리를 조절할 수 있습니다.</p>
+                </div>
+
+                <div style="background:#fef2f2; padding:18px 20px; border-radius:8px; border-left:4px solid #ef4444; margin-bottom:30px;">
+                    <h4 style="margin-top:0; margin-bottom:8px; color:#991b1b;"><i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> 시뮬레이터 사용 시 주의사항</h4>
+                    <p style="margin-bottom:0; line-height:1.7;">Wokwi 라이브러리의 부품 이름은 버전에 따라 조금씩 바뀔 수 있으므로, 부품 검색창에서 "HC-SR04", "PIR Motion Sensor" 등으로 직접 검색해 정확한 <code>type</code> 값을 확인하세요. 시뮬레이션은 실제 하드웨어의 미세한 오차(노이즈, 반사각 등)까지 완벽히 재현하지는 않으므로, 코드 로직 검증용으로 활용하고 최종 확인은 실제 부품으로 진행하는 것을 권장합니다.</p>
+                </div>
 
                 <div class="nav-btns">
                     <a href="chapter_04.html" class="btn btn-prev">◀ CHAPTER 4</a>

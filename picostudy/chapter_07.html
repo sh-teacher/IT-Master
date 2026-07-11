@@ -29,6 +29,8 @@
                 <li><a href="chapter_11.html">CHAPTER 11 - MQTT 클라우드</a></li>
                 <li><a href="chapter_12.html">CHAPTER 12 - OLED & RTC</a></li>
                 <li><a href="chapter_13.html">CHAPTER 13 - 종합 프로젝트</a></li>
+                <li class="menu-divider">나만의 작품 만들기</li>
+                <li><a href="chapter_16.html">CHAPTER 16 - 바이브 코딩 캡스톤</a></li>
             </ul>
             <div class="sidebar-footer">
                 <button class="pinout-btn" id="openPinout"><i class="fa-solid fa-diagram-project"></i> GPIO 핀아웃 맵 보기</button>
@@ -167,8 +169,170 @@ while True:
                 <p>Pico는 2초마다 DHT11에 측정을 요청하고 온도와 습도 값을 읽습니다. 정상 값은 LCD 두 줄에 고정 폭으로 표시하고, 읽기 실패가 발생하면 배선 확인 메시지를 띄워 수업 중 디버깅이 쉽도록 했습니다.</p>
 
                 <div class="callout info">
+                    <h4>💡 DHT11은 왜 다른 센서와 다르게 다루기가 까다로운가요?</h4>
+                    <p>HC-SR04나 가변저항과 달리, DHT11은 <strong>단일 데이터 핀(1-Wire와 유사한 독자 프로토콜)</strong>으로 온도와 습도 값을 순서대로 통신하여 전달합니다. 이 통신 타이밍은 매우 엄격해서 사람이 직접 <code>time.sleep_us()</code>로 구현하기 어렵기 때문에, MicroPython에 내장된 <code>dht</code> 모듈이 이 저수준 통신을 대신 처리해 줍니다. 그래서 우리는 <code>sensor.measure()</code>(측정 요청) → <code>sensor.temperature()</code>(온도 읽기) → <code>sensor.humidity()</code>(습도 읽기) 세 단계만 호출하면 됩니다.</p>
+                </div>
+
+                <div class="callout info">
+                    <h4>💡 왜 2초보다 자주 측정하면 안 되나요?</h4>
+                    <p>DHT11 센서 자체의 하드웨어 한계로, 한 번 측정한 뒤 최소 1~2초의 회복 시간이 필요합니다. 이 간격보다 빠르게 <code>measure()</code>를 호출하면 통신 타이밍이 꼬여 <code>OSError</code>(체크섬 오류 등)가 자주 발생합니다. 코드에서 <code>time.sleep(2)</code>로 충분한 간격을 두는 이유입니다.</p>
+                </div>
+
+                <details style="margin: 20px 0; border-radius: 8px; border: 1px solid #fca5a5; overflow:hidden;">
+                    <summary style="background:#fef2f2; padding:12px 16px; cursor:pointer; font-weight:600; color:#991b1b; list-style:none; display:flex; align-items:center; gap:8px;">
+                        <i class="fa-solid fa-circle-exclamation" style="color:#ef4444;"></i> "DHT11 Error"가 계속 뜨거나 LCD에 아무것도 안 보인다면?
+                    </summary>
+                    <ul style="margin:0; padding:15px 20px 15px 35px; background:#fff5f5; line-height:2.1; color:#374151;">
+                        <li>DHT11의 Data 핀이 <strong>GP15</strong>에 정확히 연결되었는지 확인하기</li>
+                        <li>DHT11 모듈에 따라 3.3V가 아닌 5V가 필요한 경우가 있으니 모듈 사양 확인하기</li>
+                        <li>측정 간격을 2초 미만으로 줄이지 않았는지 확인하기 (너무 잦은 측정은 오류의 주 원인)</li>
+                        <li>LCD가 안 보인다면 I2C 주소(<code>0x27</code>)가 실제 모듈과 다를 수 있으니 Chapter 9의 I2C 스캔 코드로 주소를 먼저 확인하기</li>
+                        <li>SDA/SCL 선이 바뀌어 연결되지 않았는지(GP8=SDA, GP9=SCL) 확인하기</li>
+                        <li><code>pico_i2c_lcd.py</code>와 <code>lcd_api.py</code> 드라이버 파일이 Pico 내부에 저장되어 있는지 확인하기</li>
+                    </ul>
+                </details>
+
+                <div class="callout info">
                     <h4>💡 DHT11 사용 팁</h4>
                     <p>DHT11은 매우 저렴하고 대중적이지만, 온도는 ±2℃, 습도는 ±5% 정도의 오차가 있을 수 있습니다. 더 정밀한 프로젝트를 원하신다면 <strong>DHT22</strong>나 <strong>BME280</strong> 센서를 고려해 보세요. 코드 구조는 거의 동일합니다.</p>
+                </div>
+
+                <h3>🏆 과제 해결해보기!</h3>
+
+                <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin-bottom: 24px;">
+                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 과제 1. 온도에 따라 경고 메시지 표시하기</h4>
+                    <p style="margin-bottom:16px;">측정한 온도가 <strong>28℃ 이상</strong>이면 LCD 두 번째 줄에 "Hum : xx % HOT!"처럼 경고를 표시하고, 그렇지 않으면 평소처럼 습도만 표시하는 코드를 작성해 보세요.</p>
+                    <details style="border-radius:8px; border:1px solid #c4b5fd; overflow:hidden;">
+                        <summary style="background:#ede9fe; padding:11px 15px; cursor:pointer; font-weight:600; color:#6d28d9; list-style:none;">
+                            💻 정답 코드 보기
+                        </summary>
+                        <div style="padding:15px;">
+<pre style="margin:0;"><code>import machine
+import dht
+import time
+from pico_i2c_lcd import I2cLcd
+
+i2c = machine.I2C(0, sda=machine.Pin(8), scl=machine.Pin(9), freq=400000)
+lcd = I2cLcd(i2c, 0x27, 2, 16)
+sensor = dht.DHT11(machine.Pin(15))
+
+def lcd_line(row, text):
+    lcd.move_to(0, row)
+    lcd.putstr(text[:16].ljust(16))
+
+while True:
+    try:
+        sensor.measure()
+        temp = sensor.temperature()
+        hum = sensor.humidity()
+
+        lcd_line(0, f"Temp: {temp:>2} C")
+        if temp >= 28:
+            lcd_line(1, f"Hum : {hum:>2}% HOT!")
+        else:
+            lcd_line(1, f"Hum : {hum:>2} %")
+
+        print(f"온도: {temp}C, 습도: {hum}%")
+    except OSError as e:
+        lcd_line(0, "DHT11 Error")
+        lcd_line(1, "Check wiring")
+        print("센서 읽기 실패:", e)
+
+    time.sleep(2)</code></pre>
+                        </div>
+                    </details>
+                </div>
+
+                <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin-bottom: 30px;">
+                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 과제 2. 최고/최저 온도 기록하기</h4>
+                    <p>측정을 반복하는 동안 지금까지 측정된 값 중 <strong>가장 높았던 온도</strong>와 <strong>가장 낮았던 온도</strong>를 변수에 저장해두었다가, 매 측정마다 콘솔에 "현재 / 최고 / 최저" 온도를 함께 출력하는 코드를 작성해 보세요.</p>
+                    <details style="border-radius:8px; border:1px solid #c4b5fd; overflow:hidden; margin-top:14px;">
+                        <summary style="background:#ede9fe; padding:11px 15px; cursor:pointer; font-weight:600; color:#6d28d9; list-style:none;">
+                            💻 정답 코드 보기
+                        </summary>
+                        <div style="padding:15px;">
+<pre style="margin:0;"><code>import machine
+import dht
+import time
+
+sensor = dht.DHT11(machine.Pin(15))
+
+max_temp = None
+min_temp = None
+
+while True:
+    try:
+        sensor.measure()
+        temp = sensor.temperature()
+        hum = sensor.humidity()
+
+        if max_temp is None or temp > max_temp:
+            max_temp = temp
+        if min_temp is None or temp < min_temp:
+            min_temp = temp
+
+        print(f"현재: {temp}C (습도 {hum}%) | 최고: {max_temp}C | 최저: {min_temp}C")
+    except OSError as e:
+        print("센서 읽기 실패:", e)
+
+    time.sleep(2)</code></pre>
+                        </div>
+                    </details>
+                </div>
+
+                <h2>7.4 Wokwi 시뮬레이션으로 실습하기</h2>
+                <p>Chapter 1의 <a href="chapter_01.html">1.8 실물 없이도 실습! Wokwi 온라인 시뮬레이터</a>에서 소개한 대로, <a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">Wokwi</a>를 사용하면 DHT11과 I2C LCD가 아직 없어도 브라우저에서 온습도 모니터링 회로를 미리 실습해 볼 수 있습니다.</p>
+
+                <div style="background:#fef2f2; padding:18px 20px; border-radius:8px; border-left:4px solid #ef4444; margin-bottom:20px;">
+                    <h4 style="margin-top:0; margin-bottom:8px; color:#991b1b;"><i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> DHT11 부품 대체 안내</h4>
+                    <p style="margin-bottom:0; line-height:1.7;">Wokwi 부품 라이브러리에는 <strong>DHT11이 없고 DHT22(wokwi-dht22)만 제공</strong>됩니다. 시뮬레이션 목적으로는 DHT22 부품을 사용하되, <code>main.py</code> 코드에서도 <code>dht.DHT11(...)</code> 대신 <code>dht.DHT22(...)</code>로 바꿔서 붙여넣어야 정상 동작합니다. 실제 하드웨어(교실의 실물 DHT11)로 테스트할 때는 원래대로 <code>dht.DHT11(...)</code>을 사용하세요.</p>
+                </div>
+
+                <div class="callout info">
+                    <h4>📄 diagram.json 예시 (DHT22로 대체 + I2C LCD1602)</h4>
+<pre style="margin-top:10px;"><code>{
+  "version": 1,
+  "author": "picostudy",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-pi-pico", "id": "pico", "top": 0, "left": 0, "attrs": {} },
+    { "type": "wokwi-dht22", "id": "dht1", "top": -60, "left": 200, "attrs": {} },
+    { "type": "wokwi-lcd1602", "id": "lcd1", "top": 100, "left": 220, "attrs": { "pins": "i2c" } }
+  ],
+  "connections": [
+    [ "pico:GP15", "dht1:SDA", "green", [] ],
+    [ "pico:3V3",  "dht1:VCC", "red", [] ],
+    [ "pico:GND",  "dht1:GND", "black", [] ],
+    [ "pico:GP8",  "lcd1:SDA", "green", [] ],
+    [ "pico:GP9",  "lcd1:SCL", "yellow", [] ],
+    [ "pico:3V3",  "lcd1:VCC", "red", [] ],
+    [ "pico:GND",  "lcd1:GND", "black", [] ]
+  ]
+}</code></pre>
+                    <p style="margin-top:12px;">아래는 Wokwi 시뮬레이션 전용으로 <code>DHT11</code>을 <code>DHT22</code>로 바꾼 예시 코드입니다. 실제 라이브러리 파일(<code>pico_i2c_lcd.py</code>, <code>lcd_api.py</code>)은 Wokwi 프로젝트의 파일 추가(+) 버튼으로 함께 업로드해야 합니다.</p>
+<pre style="margin-top:10px;"><code>import machine
+import dht          # 시뮬레이션 전용: DHT11 대신 DHT22 클래스 사용
+import time
+from pico_i2c_lcd import I2cLcd
+
+i2c = machine.I2C(0, sda=machine.Pin(8), scl=machine.Pin(9), freq=400000)
+lcd = I2cLcd(i2c, 0x27, 2, 16)
+
+sensor = dht.DHT22(machine.Pin(15))   # 실제 하드웨어에서는 dht.DHT11(...)로 되돌리기
+
+while True:
+    try:
+        sensor.measure()
+        temp = sensor.temperature()
+        hum = sensor.humidity()
+        lcd.move_to(0, 0)
+        lcd.putstr(f"Temp: {temp:>2} C".ljust(16))
+        lcd.move_to(0, 1)
+        lcd.putstr(f"Hum : {hum:>2} %".ljust(16))
+    except OSError as e:
+        print("측정 실패:", e)
+    time.sleep(2)</code></pre>
+                    <p style="margin-top:12px;">회로와 코드를 준비했다면 화면 상단의 <strong>▶️ (초록색 재생) 버튼</strong>을 눌러 시뮬레이션을 시작하세요. Wokwi 화면에서 DHT22 부품을 클릭하면 가상의 온도·습도 슬라이더가 나타나 값을 자유롭게 바꿔가며 LCD 출력을 확인할 수 있습니다.</p>
                 </div>
 
                 <div class="nav-btns">

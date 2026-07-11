@@ -29,6 +29,8 @@
                 <li><a href="chapter_11.html">CHAPTER 11 - MQTT 클라우드</a></li>
                 <li><a href="chapter_12.html">CHAPTER 12 - OLED & RTC</a></li>
                 <li><a href="chapter_13.html">CHAPTER 13 - 종합 프로젝트</a></li>
+                <li class="menu-divider">나만의 작품 만들기</li>
+                <li><a href="chapter_16.html">CHAPTER 16 - 바이브 코딩 캡스톤</a></li>
             </ul>
             <div class="sidebar-footer">
                 <button class="pinout-btn" id="openPinout"><i class="fa-solid fa-diagram-project"></i> GPIO 핀아웃 맵 보기</button>
@@ -326,6 +328,11 @@ class I2cLcd(LcdApi):
         self.i2c.writeto(self.i2c_addr, bytes([(1 if self.backlight else 0) << self.SHIFT_BACKLIGHT]))
 </code></pre>
 
+                <div class="callout info">
+                    <h4>💡 I2C란 무엇이고, 왜 선이 2개뿐일까?</h4>
+                    <p><strong>I2C(아이스퀘어씨)</strong>는 여러 부품을 단 2개의 신호선(<code>SDA</code>=데이터, <code>SCL</code>=클럭)만으로 통신하게 해주는 규격입니다. 원래 LCD1602는 데이터 핀만 6~11개가 필요한 부품이지만, 뒷면에 <strong>I2C 백팩(PCF8574 칩)</strong>이 추가로 붙어서 그 많은 핀을 SDA/SCL 단 2가닥으로 압축·변환해 줍니다. 그래서 우리는 4가닥(VCC, GND, SDA, SCL)만 연결하면 됩니다.</p>
+                </div>
+
                 <h2>9.2 I2C 디바이스 주소 스캔하기</h2>
                 <p>라이브러리 준비가 끝났다면 하드웨어가 올바른 물리 채널에 접속되었는지 확인해야 합니다. 아래 코드를 실행하여 내 디스플레이의 고유 16진수 주소(Address)를 알아냅니다.</p>
                 <pre><code>from machine import I2C, Pin
@@ -373,6 +380,150 @@ while True:
     count += 1
     time.sleep(1.0)
 </code></pre>
+
+                <h2>9.4 긴 문자열 스크롤 효과 만들기</h2>
+                <p>LCD1602는 한 줄에 16글자밖에 표시하지 못합니다. 그보다 긴 문장을 보여주고 싶다면, 문자열의 시작 위치를 한 글자씩 밀어가며 반복 출력하는 "스크롤(scroll)" 기법을 사용합니다.</p>
+                <pre><code>from machine import I2C, Pin
+import time
+from pico_i2c_lcd import I2cLcd
+
+i2c = I2C(0, sda=Pin(8), scl=Pin(9), freq=400000)
+lcd = I2cLcd(i2c, 0x27, 2, 16)
+lcd.backlight_on()
+
+def scroll_text(lcd, row, text, width=16, delay=0.3):
+    # 문장 앞뒤에 여백을 붙여서 자연스럽게 화면 밖으로 흘러가도록 만듭니다.
+    padded = " " * width + text + " " * width
+    for start in range(len(padded) - width + 1):
+        frame = padded[start:start + width]
+        lcd.move_to(0, row)
+        lcd.putstr(frame)
+        time.sleep(delay)
+
+lcd.move_to(0, 0)
+lcd.putstr("Pico 2 IoT Monitor")
+
+message = "Chapter 9 - I2C LCD 스크롤 예제입니다. 계속 흘러갑니다!"
+
+while True:
+    scroll_text(lcd, 1, message)
+</code></pre>
+
+                <div class="callout info">
+                    <h4>💡 스크롤 원리</h4>
+                    <p><code>padded</code> 문자열은 실제 문장 앞뒤에 16칸(<code>width</code>)만큼의 공백을 붙여둔 형태입니다. <code>start</code> 값을 1씩 늘려가며 그 위치부터 16글자를 잘라 <code>putstr()</code>로 다시 찍으면, 마치 글씨가 왼쪽으로 흘러가는 것처럼 보입니다. <code>lcd.move_to(0, row)</code>로 매번 커서를 줄 맨 앞으로 되돌리는 것이 핵심입니다.</p>
+                </div>
+
+                <h2>9.5 과제 해결해보기!</h2>
+
+                <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin-bottom: 24px;">
+                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 과제 1. 카운트다운 타이머 표시하기</h4>
+                    <p style="margin-bottom:16px;">1행에는 "Countdown:" 문자를 고정 출력하고, 2행에는 <strong>10초부터 0초까지 1초 간격으로 숫자가 줄어드는</strong> 타이머를 LCD에 표시해 보세요. 0초에 도달하면 "Time Up!"을 출력합니다.</p>
+
+                    <details style="border-radius:8px; border:1px solid #c4b5fd; overflow:hidden;">
+                        <summary style="background:#ede9fe; padding:11px 15px; cursor:pointer; font-weight:600; color:#6d28d9; list-style:none;">
+                            💻 정답 코드 보기
+                        </summary>
+                        <div style="padding:15px;">
+<pre style="margin:0;"><code>from machine import I2C, Pin
+import time
+from pico_i2c_lcd import I2cLcd
+
+i2c = I2C(0, sda=Pin(8), scl=Pin(9), freq=400000)
+lcd = I2cLcd(i2c, 0x27, 2, 16)
+lcd.backlight_on()
+lcd.clear()
+
+lcd.move_to(0, 0)
+lcd.putstr("Countdown:")
+
+for remaining in range(10, -1, -1):
+    lcd.move_to(0, 1)
+    lcd.putstr(f"{remaining:>2} sec      ")  # 뒤에 공백을 붙여 이전 숫자 잔상 제거
+    time.sleep(1)
+
+lcd.move_to(0, 1)
+lcd.putstr("Time Up!        ")</code></pre>
+                        </div>
+                    </details>
+                </div>
+
+                <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin-bottom: 30px;">
+                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 과제 2. 온도 값에 따라 경고 문구 스크롤하기</h4>
+                    <p>임의의 온도 변수 <code>temp = 32</code>가 있을 때, <strong>온도가 30 이상이면</strong> 2행에 "WARNING: TOO HOT! PLEASE CHECK THE ROOM."이라는 긴 문장을 9.4에서 배운 <code>scroll_text()</code> 함수로 흘려보내고, <strong>30 미만이면</strong> "Temp OK"를 고정 출력하는 코드를 작성해 보세요.</p>
+                    <ul style="line-height:2; color:#374151; margin-bottom:16px;">
+                        <li>1행에는 항상 <code>f"Temp: {temp}C"</code>를 고정 출력합니다.</li>
+                        <li>9.4의 <code>scroll_text()</code> 함수를 그대로 재사용하면 됩니다.</li>
+                    </ul>
+                    <details style="border-radius:8px; border:1px solid #c4b5fd; overflow:hidden;">
+                        <summary style="background:#ede9fe; padding:11px 15px; cursor:pointer; font-weight:600; color:#6d28d9; list-style:none;">
+                            💻 정답 코드 보기
+                        </summary>
+                        <div style="padding:15px;">
+<pre style="margin:0;"><code>from machine import I2C, Pin
+import time
+from pico_i2c_lcd import I2cLcd
+
+i2c = I2C(0, sda=Pin(8), scl=Pin(9), freq=400000)
+lcd = I2cLcd(i2c, 0x27, 2, 16)
+lcd.backlight_on()
+
+def scroll_text(lcd, row, text, width=16, delay=0.3):
+    padded = " " * width + text + " " * width
+    for start in range(len(padded) - width + 1):
+        frame = padded[start:start + width]
+        lcd.move_to(0, row)
+        lcd.putstr(frame)
+        time.sleep(delay)
+
+temp = 32  # 실제로는 온도 센서 값을 여기에 대입합니다.
+
+lcd.move_to(0, 0)
+lcd.putstr(f"Temp: {temp}C     ")
+
+if temp >= 30:
+    while True:
+        scroll_text(lcd, 1, "WARNING: TOO HOT! PLEASE CHECK THE ROOM.")
+else:
+    lcd.move_to(0, 1)
+    lcd.putstr("Temp OK         ")</code></pre>
+                        </div>
+                    </details>
+                </div>
+
+                <h2>9.6 Wokwi 시뮬레이션으로 실습하기</h2>
+                <p>Chapter 1.8에서 소개한 <a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">Wokwi</a> 온라인 시뮬레이터에서는 I2C LCD1602 모듈도 지원되므로, 실제 부품 없이도 문자열 출력과 스크롤 효과를 미리 확인해 볼 수 있습니다.</p>
+
+                <div class="callout info">
+                    <h4>💻 실습 순서</h4>
+                    <ol style="margin-top: 8px; line-height: 2.2;">
+                        <li><a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">wokwi.com</a>에서 [New Project] → "Raspberry Pi Pico" (MicroPython) 템플릿을 선택합니다.</li>
+                        <li>왼쪽 <strong>diagram.json</strong> 탭에 아래 코드를 붙여넣어 Pico와 I2C LCD1602를 자동으로 연결합니다.</li>
+                        <li>Wokwi의 파일 트리에서 <code>lcd_api.py</code>, <code>pico_i2c_lcd.py</code> 파일을 새로 만들어 9.1의 라이브러리 코드를 각각 붙여넣고, <code>main.py</code>에는 9.3 또는 9.4의 코드를 붙여넣습니다.</li>
+                        <li>화면 상단의 <strong>▶️ (녹색 재생 버튼)</strong>을 클릭하면 시뮬레이션이 시작되고, LCD 화면에 문자열이 출력/스크롤되는 것을 확인할 수 있습니다.</li>
+                    </ol>
+                </div>
+
+                <pre><code>{
+  "version": 1,
+  "author": "Pico 2 IoT Guide",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-pi-pico", "id": "pico", "top": 0, "left": 0, "attrs": {} },
+    { "type": "wokwi-lcd1602", "id": "lcd1", "top": -40, "left": 180, "attrs": { "pins": "i2c" } }
+  ],
+  "connections": [
+    [ "pico:GP8", "lcd1:SDA", "green", [] ],
+    [ "pico:GP9", "lcd1:SCL", "yellow", [] ],
+    [ "pico:3V3", "lcd1:VCC", "red", [] ],
+    [ "pico:GND", "lcd1:GND", "black", [] ]
+  ]
+}</code></pre>
+
+                <div class="callout warn">
+                    <h4>⚠️ 참고 사항</h4>
+                    <p>Wokwi의 <code>wokwi-lcd1602</code> 부품 이름이나 <code>pins</code> 속성 값은 버전에 따라 달라질 수 있습니다. I2C 주소가 다르게 표시되거나 화면이 나오지 않으면, 에디터 좌측의 <strong>부품 검색(parts search)</strong>에서 "lcd1602"를 검색해 정확한 부품명을 확인하고 <code>type</code> 값을 알맞게 수정하세요.</p>
+                </div>
 
                 <div class="nav-btns">
                     <a href="chapter_08.html" class="btn btn-prev">◀ CHAPTER 8</a>

@@ -29,6 +29,8 @@
                 <li><a href="chapter_11.html" class="active">CHAPTER 11 - MQTT 클라우드</a></li>
                 <li><a href="chapter_12.html">CHAPTER 12 - OLED & RTC</a></li>
                 <li><a href="chapter_13.html">CHAPTER 13 - 종합 프로젝트</a></li>
+                <li class="menu-divider">나만의 작품 만들기</li>
+                <li><a href="chapter_16.html">CHAPTER 16 - 바이브 코딩 캡스톤</a></li>
             </ul>
             <div class="sidebar-footer">
                 <button class="pinout-btn" id="openPinout"><i class="fa-solid fa-diagram-project"></i> GPIO 핀아웃 맵 보기</button>
@@ -97,7 +99,20 @@
                     </svg>
                 </div>
 
+                <div class="callout info">
+                    <h4>📡 MQTT란 무엇인가요?</h4>
+                    <p><strong>MQTT(Message Queuing Telemetry Transport)</strong>는 IoT 기기처럼 배터리와 데이터 사용량이 제한된 장치를 위해 설계된 초경량 통신 프로토콜입니다. 웹사이트가 쓰는 HTTP보다 훨씬 가볍고, 실시간으로 값이 바뀔 때마다 즉시 전달할 수 있어 센서 데이터 전송에 매우 적합합니다.</p>
+                    <p style="margin-top:10px;">MQTT 통신에는 3개의 역할이 있습니다.</p>
+                    <ul style="margin-top: 8px; line-height: 2.2;">
+                        <li><strong>Publisher(발행자)</strong> — 데이터를 보내는 쪽. 예) Pico가 측정한 온습도 값</li>
+                        <li><strong>Broker(브로커)</strong> — 메시지를 중계하는 서버. 이 챕터에서는 <code>Adafruit IO</code>가 브로커 역할을 합니다</li>
+                        <li><strong>Subscriber(구독자)</strong> — 데이터를 받는 쪽. 예) 스마트폰 대시보드, 혹은 명령을 받는 Pico 자신</li>
+                    </ul>
+                    <p style="margin-top: 10px;">중요한 점은 Publisher와 Subscriber가 서로의 IP 주소나 위치를 몰라도 된다는 것입니다. 모두가 브로커의 <strong>Topic(토픽)</strong>이라는 "채널"만 바라보고 통신하기 때문에, Pico 한 대가 데이터를 발행(publish)하면서 동시에 다른 토픽을 구독(subscribe)하는 양방향 통신도 자연스럽게 가능합니다.</p>
+                </div>
+
                 <h2>11.1 Adafruit IO 설정 및 연결 구성</h2>
+                <p><strong>Adafruit IO</strong>는 무료로 사용할 수 있는 MQTT 브로커 겸 클라우드 대시보드 서비스입니다. 센서 데이터를 받아 그래프로 보여주고, 버튼이나 스위치 위젯으로 다시 기기에 명령을 내려보낼 수 있습니다. Adafruit IO에서는 각 데이터 채널을 <strong>Feed(피드)</strong>라고 부르며, MQTT 토픽 이름은 항상 <code>사용자이름/feeds/피드이름</code> 형식을 따릅니다.</p>
                 <p>1. <a href="https://io.adafruit.com" target="_blank">Adafruit IO</a>에 가입하여 <code>AIO Key</code>를 복사해 두세요.<br>
                 2. Thonny의 [Tools] -> [Manage Packages]에서 <strong><code>umqtt.simple</code></strong>을 검색해 설치해야 합니다.</p>
 
@@ -205,6 +220,98 @@ while True:
 
                 <h2>11.3 동작 흐름</h2>
                 <p>Pico는 10초마다 DHT11 값을 읽어 온도와 습도 feed로 발행합니다. 동시에 <code>led-cmd</code> feed를 구독하고 있다가 클라우드 대시보드에서 명령이 들어오면 내장 LED를 켜거나 끕니다. 이 구조가 IoT에서 가장 기본적인 양방향 통신 패턴입니다.</p>
+
+                <h3>🏆 과제 해결해보기!</h3>
+
+                <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin-bottom: 24px;">
+                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 과제 1. 발행 주기 단축하고 새 Feed 추가하기</h4>
+                    <p style="margin-bottom:16px;">현재 코드는 10초마다 <code>temperature</code>, <code>humidity</code> 두 개의 feed만 발행합니다. 발행 주기를 <strong>5초</strong>로 줄이고, DHT11의 습도값이 <strong>70% 이상</strong>일 때 <code>alert</code>라는 이름의 새 feed에 문자열 <code>"HIGH_HUMIDITY"</code>를 추가로 발행하도록 코드를 수정해 보세요.</p>
+                    <details style="border-radius:8px; border:1px solid #c4b5fd; overflow:hidden;">
+                        <summary style="background:#ede9fe; padding:11px 15px; cursor:pointer; font-weight:600; color:#6d28d9; list-style:none;">
+                            💻 정답 코드 보기
+                        </summary>
+                        <div style="padding:15px;">
+<pre style="margin:0;"><code>ALERT_FEED = AIO_USER + "/feeds/alert"
+
+# ... 기존 while True 반복문 안, 발행 조건을 아래처럼 수정합니다.
+if time.ticks_diff(time.ticks_ms(), last_publish) >= 5000:   # 10000 -> 5000으로 단축
+    sensor.measure()
+    temp = sensor.temperature()
+    hum = sensor.humidity()
+
+    client.publish(TEMP_FEED, str(temp))
+    client.publish(HUM_FEED, str(hum))
+
+    if hum >= 70:
+        client.publish(ALERT_FEED, "HIGH_HUMIDITY")
+        print("경고: 습도가 너무 높습니다!")
+
+    print(f"Published: {temp}C, {hum}%")
+    last_publish = time.ticks_ms()</code></pre>
+                        </div>
+                    </details>
+                </div>
+
+                <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin-bottom: 30px;">
+                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 과제 2. 여러 개의 명령어로 LED 밝기 제어하기</h4>
+                    <p>현재 <code>led-cmd</code> feed는 <code>on</code>/<code>off</code> 두 가지 명령만 처리합니다. PWM을 이용해 <code>0</code>~<code>100</code> 사이의 숫자 문자열을 받으면 LED 밝기를 그 값에 비례하도록 조절하는 <code>on_message</code> 콜백을 작성해 보세요. (힌트: <code>machine.PWM</code>과 <code>duty_u16()</code>을 사용합니다.)</p>
+                    <details style="border-radius:8px; border:1px solid #c4b5fd; overflow:hidden; margin-top:12px;">
+                        <summary style="background:#ede9fe; padding:11px 15px; cursor:pointer; font-weight:600; color:#6d28d9; list-style:none;">
+                            💻 정답 코드 보기
+                        </summary>
+                        <div style="padding:15px;">
+<pre style="margin:0;"><code>from machine import Pin, PWM
+
+led_pwm = PWM(Pin("LED"))
+led_pwm.freq(1000)
+
+def on_message(topic, msg):
+    command = msg.decode().strip().lower()
+    print("수신:", topic.decode(), command)
+
+    if command in ("on", "1", "true"):
+        led_pwm.duty_u16(65535)
+    elif command in ("off", "0", "false"):
+        led_pwm.duty_u16(0)
+    elif command.isdigit():
+        percent = max(0, min(100, int(command)))
+        led_pwm.duty_u16(int(percent / 100 * 65535))</code></pre>
+                        </div>
+                    </details>
+                </div>
+
+                <h2>11.4 Wokwi 시뮬레이션으로 실습하기</h2>
+                <p>Chapter 1(1.8)에서 소개한 <a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">Wokwi</a> 온라인 시뮬레이터로 이 챕터의 코드 일부를 미리 테스트해볼 수 있습니다.</p>
+
+                <div class="callout info">
+                    <h4>⚠️ Wokwi에서는 실제 MQTT 통신을 테스트할 수 없어요</h4>
+                    <p>Wokwi의 무료 시뮬레이션 Pico 보드는 기본적으로 <strong>실제 인터넷에 연결되지 않습니다.</strong> 따라서 <code>network.WLAN</code>으로 Wi-Fi에 접속하거나 <code>umqtt.simple</code>로 Adafruit IO 브로커에 실제로 연결하는 부분은 시뮬레이터에서 동작하지 않습니다.</p>
+                    <p style="margin-top:10px;">대신 아래처럼 나누어 연습하는 것을 권장합니다.</p>
+                    <ol style="margin-top: 8px; line-height: 2.2;">
+                        <li><strong>Wokwi에서 연습:</strong> DHT11 센서를 읽어 온도/습도 값을 출력하는 부분(<code>sensor.measure()</code>, <code>sensor.temperature()</code>, <code>sensor.humidity()</code>)만 따로 떼어 로컬 동작을 확인합니다.</li>
+                        <li><strong>실제 하드웨어에서 확인:</strong> Wi-Fi 연결과 <code>client.publish()</code>, <code>client.subscribe()</code> 등 실제 MQTT 송수신은 반드시 진짜 Pico 2 W 보드와 실제 Wi-Fi 환경에서 테스트하세요.</li>
+                    </ol>
+                    <p style="margin-top: 12px;"><strong>💡 Tip:</strong> 아래는 DHT11 센서 읽기 로직만 검증할 수 있는 최소 <code>diagram.json</code> 예시입니다. Wokwi 화면에서 [+ New Project] → [MicroPython] 선택 후, 아래 <code>diagram.json</code> 내용을 프로젝트의 diagram 편집기에 붙여넣고, <code>main.py</code>에는 DHT11을 읽어 <code>print()</code>로 출력하는 부분만 넣어 초록색 ▶️ 재생 버튼을 눌러 실행하세요.</p>
+                </div>
+
+                <pre><code>{
+  "version": 1,
+  "author": "Pico 2 Guide",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-pi-pico", "id": "pico", "top": 0, "left": 0, "attrs": { "env": "micropython-20231005-v1.21.0" } },
+    { "type": "wokwi-dht22", "id": "dht1", "top": -40, "left": 100, "attrs": { "temperature": "24", "humidity": "55" } }
+  ],
+  "connections": [
+    [ "pico:GP15", "dht1:SDA", "green", [] ],
+    [ "dht1:VCC", "pico:3V3", "red", [] ],
+    [ "dht1:GND", "pico:GND", "black", [] ]
+  ]
+}</code></pre>
+
+                <div class="callout info">
+                    <p><strong>💡 참고:</strong> Wokwi 부품 라이브러리에는 DHT11 전용 부품이 없어 <code>wokwi-dht22</code> 부품으로 대체했습니다(코드에서 <code>dht.DHT11</code> 대신 <code>dht.DHT22</code>를 사용하면 됩니다). 정확한 부품 이름은 Wokwi 편집기 좌측의 부품 검색창에서 다시 한번 확인하는 것을 권장합니다.</p>
+                </div>
 
                 <div class="nav-btns">
                     <a href="chapter_10.html" class="btn btn-prev">◀ CHAPTER 10</a>

@@ -30,6 +30,8 @@
                 <li><a href="chapter_11.html">CHAPTER 11 - MQTT 클라우드</a></li>
                 <li><a href="chapter_12.html">CHAPTER 12 - OLED & RTC</a></li>
                 <li><a href="chapter_13.html">CHAPTER 13 - 종합 프로젝트</a></li>
+                <li class="menu-divider">나만의 작품 만들기</li>
+                <li><a href="chapter_16.html">CHAPTER 16 - 바이브 코딩 캡스톤</a></li>
             </ul>
             <div class="sidebar-footer">
                 <button class="pinout-btn" id="openPinout"><i class="fa-solid fa-diagram-project"></i> GPIO 핀아웃 맵 보기</button>
@@ -71,6 +73,7 @@
 
                 <h2>4.1 스위치 입력을 받아 외장 LED 제어하기</h2>
                 <p>스위치가 눌렸을 때 발생하는 전류 신호를 읽어 외부 LED를 켜는 조건문 실습입니다. 안정적인 입력을 위해 내부 풀다운(Pull-Down) 저항을 활성화합니다.</p>
+                <p>스위치는 평소에 회로가 끊겨 있다가, 사람이 누르는 순간에만 회로를 연결해 전류가 흐르게 하는 부품입니다. 그런데 스위치를 누르지 않은 상태에서 GPIO 핀을 그냥 두면 전압이 정해지지 않고 <strong>공중에 떠 있는(floating)</strong> 상태가 되어, 노이즈로 인해 값이 0과 1 사이를 무작위로 오갈 수 있습니다. 이를 막기 위해 <code>Pin.PULL_DOWN</code> 옵션으로 <strong>내부 풀다운 저항</strong>을 활성화하면, 스위치를 누르지 않았을 때는 핀이 확실하게 GND(0)로 끌어당겨지고, 스위치를 눌러 3.3V가 연결되는 순간에만 1(High)로 값이 바뀝니다.</p>
 
                 <div style="text-align: center; margin: 20px 0;">
                     <svg viewBox="0 0 640 215" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 12px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.06);">
@@ -161,6 +164,22 @@ while True:
 
                 <h2>4.2 능동 부저 vs 수동 부저 제어</h2>
                 <p>능동 부저(Active Buzzer)는 전원만 주면 단일 경고음이 나고, 수동 부저(Passive Buzzer)는 주파수 신호(PWM)를 주어야 원하는 음계(도레미파)를 연주할 수 있습니다.</p>
+                <p>능동 부저 내부에는 발진 회로가 이미 내장되어 있어서, 전기가 흐르기만 하면 정해진 하나의 음(삐- 소리)이 자동으로 납니다. 그래서 능동 부저는 LED처럼 <code>Pin.OUT</code>으로 설정하고 <code>on()</code> / <code>off()</code>만으로 제어할 수 있습니다. 반면 수동 부저는 발진 회로가 없어서, 우리가 직접 <strong>PWM(Pulse Width Modulation)</strong> 신호로 주파수(Hz)를 만들어 보내주어야만 소리가 나며, 주파수를 바꾸면 음높이도 바뀌기 때문에 멜로디 연주가 가능합니다.</p>
+
+                <h3>[실습] 능동 부저로 단일음 울리기</h3>
+                <p>능동 부저는 아래처럼 LED와 동일한 방식으로 간단하게 제어할 수 있습니다.</p>
+                <pre><code>from machine import Pin
+import time
+
+# GPIO 16번에 능동 부저 연결 (출력 모드)
+active_buzzer = Pin(16, Pin.OUT)
+
+print("능동 부저 테스트를 시작합니다.")
+
+active_buzzer.on()     # 부저 울리기
+time.sleep(0.5)
+active_buzzer.off()    # 부저 끄기
+time.sleep(0.5)</code></pre>
 
                 <div style="text-align: center; margin: 20px 0;">
                     <svg viewBox="0 0 560 165" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 12px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.06);">
@@ -235,6 +254,98 @@ finally:
     buzzer.deinit()
     print("시스템이 안전하게 종료되었습니다.")
 </code></pre>
+
+                <h3>🏆 과제 해결해보기!</h3>
+
+                <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin-bottom: 24px;">
+                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 과제 1. 스위치를 누를 때만 LED 깜빡이기</h4>
+                    <p style="margin-bottom:16px;">4.1절 회로를 그대로 사용해서, 스위치를 누르고 있는 동안에는 LED가 <strong>계속 켜져 있는 것이 아니라 0.2초 간격으로 깜빡이도록</strong> 코드를 수정해 봅시다. 스위치를 떼면 LED는 완전히 꺼져야 합니다.</p>
+                    <details style="border-radius:8px; border:1px solid #c4b5fd; overflow:hidden;">
+                        <summary style="background:#ede9fe; padding:11px 15px; cursor:pointer; font-weight:600; color:#6d28d9; list-style:none;">
+                            💻 정답 코드 보기
+                        </summary>
+                        <div style="padding:15px;">
+<pre style="margin:0;"><code>from machine import Pin
+import time
+
+external_led = Pin(15, Pin.OUT)
+switch = Pin(14, Pin.IN, Pin.PULL_DOWN)
+
+while True:
+    if switch.value() == 1:      # 스위치가 눌린 동안
+        external_led.toggle()    # LED 상태를 반전시켜 깜빡이게 함
+        time.sleep(0.2)
+    else:                        # 스위치를 떼면
+        external_led.off()       # LED를 완전히 끔</code></pre>
+                        </div>
+                    </details>
+                </div>
+
+                <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin-bottom: 30px;">
+                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 과제 2. 수동 부저로 도레미파솔라시도 연주하기</h4>
+                    <p style="margin-bottom:16px;">4.2절의 <code>tones</code> 딕셔너리에 '솔(SOL, 392Hz)', '라(LA, 440Hz)', '시(SI, 494Hz)', '높은 도(DO2, 523Hz)'를 추가하여, 도레미파솔라시도 8음계를 순서대로 연주하는 코드를 작성해 봅시다.</p>
+                    <details style="border-radius:8px; border:1px solid #c4b5fd; overflow:hidden;">
+                        <summary style="background:#ede9fe; padding:11px 15px; cursor:pointer; font-weight:600; color:#6d28d9; list-style:none;">
+                            💻 정답 코드 보기
+                        </summary>
+                        <div style="padding:15px;">
+<pre style="margin:0;"><code>from machine import Pin, PWM
+import time
+
+buzzer = PWM(Pin(16))
+
+tones = {
+    'DO': 262, 'RE': 294, 'MI': 330, 'FA': 349,
+    'SOL': 392, 'LA': 440, 'SI': 494, 'DO2': 523
+}
+
+def play_tone(frequency, duration):
+    buzzer.freq(frequency)
+    buzzer.duty_u16(32768)
+    time.sleep(duration)
+    buzzer.duty_u16(0)
+    time.sleep(0.05)
+
+try:
+    for note in ['DO', 'RE', 'MI', 'FA', 'SOL', 'LA', 'SI', 'DO2']:
+        play_tone(tones[note], 0.4)
+finally:
+    buzzer.duty_u16(0)
+    buzzer.deinit()</code></pre>
+                        </div>
+                    </details>
+                </div>
+
+                <h2>4.3 Wokwi 시뮬레이션으로 실습하기</h2>
+                <p>1.8절에서 소개한 <strong><a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">Wokwi</a></strong>에서 이번 챕터의 스위치·LED·부저 회로를 실제 부품 없이 미리 실습해 볼 수 있습니다. 아래 <code>diagram.json</code>을 Wokwi 프로젝트의 회로 편집기(diagram.json)에 붙여넣고, 4.1절과 4.2절의 <code>main.py</code> 코드를 코드 편집기에 붙여넣은 뒤 초록색 ▶ 실행 버튼을 누르면 동작을 확인할 수 있습니다.</p>
+
+                <pre><code>{
+  "version": 1,
+  "author": "Pico 2 IoT Guide",
+  "editor": "code",
+  "parts": [
+    { "type": "wokwi-pi-pico", "id": "pico", "top": 0, "left": 0, "attrs": {} },
+    { "type": "wokwi-pushbutton", "id": "btn1", "top": 40, "left": -120, "attrs": {} },
+    { "type": "wokwi-resistor", "id": "r1", "top": 60, "left": 150, "attrs": { "value": "330" } },
+    { "type": "wokwi-led", "id": "led1", "top": 60, "left": 220, "attrs": { "color": "red" } },
+    { "type": "wokwi-buzzer", "id": "bz1", "top": 120, "left": 220, "attrs": { "volume": "0.1" } }
+  ],
+  "connections": [
+    [ "pico:3V3", "btn1:1.l", "red", [] ],
+    [ "btn1:2.l", "pico:GP14", "green", [] ],
+    [ "pico:GP15", "r1:1", "orange", [] ],
+    [ "r1:2", "led1:A", "orange", [] ],
+    [ "led1:C", "pico:GND", "black", [] ],
+    [ "pico:GP16", "bz1:1", "purple", [] ],
+    [ "bz1:2", "pico:GND", "black", [] ]
+  ],
+  "dependencies": {}
+}</code></pre>
+
+                <div class="callout info">
+                    <h4>💡 참고</h4>
+                    <p>Wokwi의 부품 이름(<code>wokwi-pushbutton</code>, <code>wokwi-buzzer</code> 등)이나 핀 이름은 라이브러리 버전에 따라 조금씩 달라질 수 있습니다. 부품을 추가했는데 오류가 표시된다면, 좌측 부품 라이브러리(Parts) 검색창에서 정확한 이름을 다시 확인해 보세요.</p>
+                </div>
 
                 <div class="nav-btns">
                     <a href="chapter_03.html" class="btn btn-prev">◀ CHAPTER 3</a>

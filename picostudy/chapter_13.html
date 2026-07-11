@@ -29,6 +29,8 @@
                 <li><a href="chapter_11.html">CHAPTER 11 - MQTT 클라우드</a></li>
                 <li><a href="chapter_12.html">CHAPTER 12 - OLED & RTC</a></li>
                 <li><a href="chapter_13.html" class="active">CHAPTER 13 - 종합 프로젝트</a></li>
+                <li class="menu-divider">나만의 작품 만들기</li>
+                <li><a href="chapter_16.html">CHAPTER 16 - 바이브 코딩 캡스톤</a></li>
             </ul>
             <div class="sidebar-footer">
                 <button class="pinout-btn" id="openPinout"><i class="fa-solid fa-diagram-project"></i> GPIO 핀아웃 맵 보기</button>
@@ -187,6 +189,19 @@
                         </tr>
                     </tbody>
                 </table>
+
+                <div class="callout info">
+                    <h4>🧩 이 프로젝트는 어떻게 조립되었나요?</h4>
+                    <p>이번 종합 프로젝트는 지금까지 배운 4가지 기술을 하나의 <code>while True</code> 반복문 안에서 순서대로 실행하는 구조입니다. 각 부분이 어디서 왔는지 정리하면 다음과 같습니다.</p>
+                    <ul style="margin-top: 8px; line-height: 2.2;">
+                        <li><strong>PIR 센서 (Chapter 5):</strong> <code>machine.Pin(18, machine.Pin.IN)</code>으로 움직임을 감지합니다. 값이 <code>1</code>이면 사람이 움직였다는 뜻입니다.</li>
+                        <li><strong>초음파 센서 HC-SR04 (Chapter 5):</strong> <code>trig</code>에 짧은 펄스를 보내고 <code>echo</code>가 반응하기까지 걸린 시간을 재서 거리(cm)로 환산합니다.</li>
+                        <li><strong>I2C LCD (Chapter 7/9):</strong> <code>I2cLcd</code> 객체로 현재 상태(정상/경고/Wi-Fi 정보)를 2줄짜리 화면에 표시합니다.</li>
+                        <li><strong>웹 서버 (Chapter 10):</strong> <code>socket</code> 모듈로 80번 포트에서 요청을 받아, <code>/arm</code>, <code>/disarm</code>, <code>/reset</code> 경로에 따라 시스템 상태를 원격으로 바꿉니다.</li>
+                    </ul>
+                    <p style="margin-top: 10px;">전체 흐름은 <strong>"센서 읽기 → 판단 → LCD 갱신 → (있다면) 웹 요청 처리 → 잠깐 대기"</strong>를 계속 반복하는 것입니다. 이렇게 하나의 반복문 안에서 여러 작업을 짧게 나누어 처리하는 방식을 <strong>협력적 멀티태스킹(cooperative multitasking)</strong>이라고 부르며, 마이크로컨트롤러처럼 운영체제 없이 동작하는 환경에서 자주 쓰이는 패턴입니다.</p>
+                    <p style="margin-top: 10px;"><code>server.settimeout(0.05)</code>로 <code>accept()</code> 대기시간을 아주 짧게 제한한 점이 핵심입니다. 만약 이 타임아웃이 없었다면 웹 브라우저가 접속하지 않는 동안 <code>accept()</code>에서 코드가 멈춰버려(blocking) PIR/초음파 센서를 실시간으로 확인하지 못했을 것입니다.</p>
+                </div>
 
                 <h2>13.2 통합 시스템 메인 소스 코드</h2>
                 <p>이 코드는 Ch 10(Web), Ch 5(Sensors), Ch 9(LCD)의 내용을 실제로 합친 예시입니다. 브라우저에서 Pico의 IP 주소로 접속하면 보안 모드 켜기/끄기, 경보 초기화, 현재 거리와 움직임 상태를 확인할 수 있습니다.</p>
@@ -375,6 +390,90 @@ while True:
 
                 <h2>13.3 동작 흐름</h2>
                 <p>시스템은 0.1초 간격으로 PIR과 초음파 센서를 읽습니다. 보안 모드가 켜져 있고 움직임이 감지되거나 거리가 <code>20cm</code>보다 가까워지면 LCD에 경고를 띄우고 부저를 울립니다. 웹 대시보드에서 <strong>DISARM</strong>을 누르면 감지를 잠시 끄고, <strong>ARM</strong>을 누르면 다시 감시를 시작합니다.</p>
+
+                <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin: 24px 0 30px;">
+                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 🚀 확장 과제. Wi-Fi 알림 기능 추가하기</h4>
+                    <p style="margin-bottom:16px;">현재 시스템은 침입이 감지되면 LCD와 부저로만 알려줍니다. 만약 집에 아무도 없다면 이 알림을 놓칠 수 있습니다. 침입이 감지되는 순간, <strong>Adafruit IO(Chapter 11)</strong>의 feed에 <code>"INTRUDER_ALERT"</code> 메시지를 발행(publish)해서 스마트폰 대시보드로 실시간 알림을 받도록 코드를 확장해 보세요.</p>
+                    <details style="border-radius:8px; border:1px solid #c4b5fd; overflow:hidden;">
+                        <summary style="background:#ede9fe; padding:11px 15px; cursor:pointer; font-weight:600; color:#6d28d9; list-style:none;">
+                            💻 정답 코드 보기
+                        </summary>
+                        <div style="padding:15px;">
+<pre style="margin:0;"><code># 1. 파일 상단에 umqtt 관련 import와 설정을 추가합니다.
+from umqtt.simple import MQTTClient
+
+AIO_USER = "your_username"
+AIO_KEY = "your_aio_key"
+ALERT_FEED = AIO_USER + "/feeds/security-alert"
+
+mqtt_client = MQTTClient("pico2-security-node", "io.adafruit.com", user=AIO_USER, password=AIO_KEY)
+mqtt_client.connect()
+
+# 2. 중복 알림을 막기 위한 플래그를 전역 변수로 추가합니다.
+alert_sent = False
+
+# 3. while True 반복문 안, 침입 감지 블록을 아래처럼 수정합니다.
+if is_armed:
+    if last_motion == 1 or last_distance < DIST_LIMIT_CM:
+        alarm_on = True
+        lcd_message("!! WARNING !!", "INTRUDER")
+        beep(2)
+
+        if not alert_sent:
+            try:
+                mqtt_client.publish(ALERT_FEED, "INTRUDER_ALERT")
+                alert_sent = True
+                print("Adafruit IO로 침입 알림을 발행했습니다.")
+            except OSError as e:
+                print("MQTT 발행 실패:", e)
+    else:
+        alert_sent = False   # 상태가 정상으로 돌아오면 다음 침입에 다시 알림 가능
+        lcd.move_to(0, 0)
+        lcd.putstr("Status: Secure  ")
+        lcd.move_to(0, 1)
+        lcd.putstr(f"Dist:{last_distance:5.1f}cm ")</code></pre>
+                        </div>
+                    </details>
+                </div>
+
+                <h2>13.4 Wokwi 시뮬레이션으로 실습하기</h2>
+                <p>Chapter 1(1.8)에서 소개한 <a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">Wokwi</a> 온라인 시뮬레이터에서 센서와 LCD 부분을 미리 연습해볼 수 있습니다.</p>
+
+                <div class="callout info">
+                    <h4>⚠️ 웹 서버/Wi-Fi 부분은 시뮬레이터에서 테스트할 수 없어요</h4>
+                    <p>Wokwi 시뮬레이션 Pico 보드는 실제 인터넷에 연결되지 않으므로, <code>network.WLAN</code> 연결과 <code>socket</code> 웹 서버 부분은 동작을 확인할 수 없습니다. 대신 <strong>PIR 센서 + 초음파 센서 + LCD</strong> 조합의 감지·표시 로직은 Wokwi에서 그대로 실습할 수 있습니다. 완성된 코드는 반드시 실제 Pico 2 W와 Wi-Fi 환경에서 웹 서버까지 함께 테스트하세요.</p>
+                </div>
+
+                <p>아래 <code>diagram.json</code>을 Wokwi 프로젝트의 diagram 편집기에 붙여넣고, <code>main.py</code>에는 PIR·초음파·LCD 로직만 남긴 축소 버전(웹 서버 부분 제외)을 넣어 초록색 ▶️ 재생 버튼으로 실행해 보세요.</p>
+
+                <pre><code>{
+  "version": 1,
+  "author": "Pico 2 Guide",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-pi-pico", "id": "pico", "top": 0, "left": 0, "attrs": { "env": "micropython-20231005-v1.21.0" } },
+    { "type": "wokwi-pir-motion-sensor", "id": "pir1", "top": -80, "left": -40, "attrs": {} },
+    { "type": "wokwi-hc-sr04", "id": "us1", "top": -80, "left": 100, "attrs": {} },
+    { "type": "wokwi-lcd1602", "id": "lcd1", "top": 60, "left": 40, "attrs": { "pins": "i2c" } }
+  ],
+  "connections": [
+    [ "pico:GP18", "pir1:OUT", "green", [] ],
+    [ "pir1:VCC", "pico:3V3", "red", [] ],
+    [ "pir1:GND", "pico:GND", "black", [] ],
+    [ "pico:GP17", "us1:TRIG", "blue", [] ],
+    [ "pico:GP16", "us1:ECHO", "orange", [] ],
+    [ "us1:VCC", "pico:VBUS", "red", [] ],
+    [ "us1:GND", "pico:GND", "black", [] ],
+    [ "pico:GP8", "lcd1:SDA", "green", [] ],
+    [ "pico:GP9", "lcd1:SCL", "yellow", [] ],
+    [ "lcd1:VCC", "pico:3V3", "red", [] ],
+    [ "lcd1:GND", "pico:GND", "black", [] ]
+  ]
+}</code></pre>
+
+                <div class="callout info">
+                    <p><strong>💡 Tip:</strong> 정확한 부품 이름과 핀 속성은 Wokwi 편집기 좌측의 부품 검색창에서 다시 확인하는 것을 권장합니다. HC-SR04는 보통 5V 전원을 필요로 하므로 Wokwi에서도 <code>VBUS</code>(5V) 핀에 연결하는 것이 안전합니다.</p>
+                </div>
 
                 <div class="callout warn">
                     <h4>🏁 완강을 축하드립니다!</h4>

@@ -29,6 +29,8 @@
                 <li><a href="chapter_11.html">CHAPTER 11 - MQTT 클라우드</a></li>
                 <li><a href="chapter_12.html">CHAPTER 12 - OLED & RTC</a></li>
                 <li><a href="chapter_13.html">CHAPTER 13 - 종합 프로젝트</a></li>
+                <li class="menu-divider">나만의 작품 만들기</li>
+                <li><a href="chapter_16.html">CHAPTER 16 - 바이브 코딩 캡스톤</a></li>
             </ul>
             <div class="sidebar-footer">
                 <button class="pinout-btn" id="openPinout"><i class="fa-solid fa-diagram-project"></i> GPIO 핀아웃 맵 보기</button>
@@ -125,6 +127,72 @@ while True:
     time.sleep(0.3)
 </code></pre>
 
+                <div class="callout info">
+                    <h4>💡 ADC란 무엇이고 왜 필요한가요?</h4>
+                    <p>ADC(Analog-to-Digital Converter, 아날로그-디지털 변환기)는 연속적으로 변하는 아날로그 전압(0V~3.3V)을 컴퓨터가 이해할 수 있는 디지털 숫자로 바꿔주는 장치입니다. 디지털 핀은 0(LOW) 또는 1(HIGH)만 표현하지만, 가변저항·조도센서·마이크 등 아날로그 부품은 그 사이의 무한한 값을 출력하기 때문에 반드시 ADC를 거쳐야 마이크로컨트롤러가 값을 읽을 수 있습니다. Pico 2는 GP26, GP27, GP28번 핀이 ADC 전용(ADC0~ADC2) 핀으로 지정되어 있습니다.</p>
+                </div>
+
+                <div class="callout info">
+                    <h4>📐 0~65535 값을 백분율(%)로 바꾸기</h4>
+                    <p>ADC 원시값을 사람이 이해하기 쉬운 퍼센트로 변환하려면 아래와 같이 계산합니다.</p>
+                    <pre style="margin-top:10px;"><code>from machine import ADC, Pin
+import time
+
+potentiometer = ADC(Pin(26))
+
+while True:
+    raw_value = potentiometer.read_u16()
+
+    voltage = (raw_value * 3.3) / 65535           # 전압(V) 환산
+    percent = (raw_value / 65535) * 100           # 백분율(%) 환산
+
+    print(f"raw={raw_value} | {voltage:.2f}V | {percent:.1f}%")
+    time.sleep(0.3)</code></pre>
+                    <p style="margin-top:10px;"><code>read_u16()</code>은 항상 <strong>0~65535</strong> 범위(부호 없는 16비트)로 결과를 돌려줍니다. Pico 2의 ADC 하드웨어 자체는 12비트(0~4095) 해상도이지만, MicroPython이 이를 16비트 범위로 스케일링하여 다른 보드와 코드 호환성을 유지해 줍니다.</p>
+                </div>
+
+                <details style="margin: 20px 0; border-radius: 8px; border: 1px solid #fca5a5; overflow:hidden;">
+                    <summary style="background:#fef2f2; padding:12px 16px; cursor:pointer; font-weight:600; color:#991b1b; list-style:none; display:flex; align-items:center; gap:8px;">
+                        <i class="fa-solid fa-circle-exclamation" style="color:#ef4444;"></i> ADC 값이 항상 0이거나 항상 최댓값으로만 나온다면?
+                    </summary>
+                    <ul style="margin:0; padding:15px 20px 15px 35px; background:#fff5f5; line-height:2.1; color:#374151;">
+                        <li>가변저항의 <strong>가운데(Wiper) 핀</strong>이 GP26에 정확히 연결되었는지 확인하기</li>
+                        <li>양 끝 핀이 각각 <strong>3V3과 GND</strong>에 제대로 연결되었는지 확인하기 (반대로 연결해도 값은 나오지만 회전 방향이 반대가 됨)</li>
+                        <li>ADC 전용 핀(GP26~GP28)이 아닌 일반 GPIO 핀에 연결하면 <code>ADC()</code> 생성 시 오류가 발생하므로 핀 번호 재확인하기</li>
+                    </ul>
+                </details>
+
+                <h3>🏆 과제 해결해보기!</h3>
+                <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin-bottom: 30px;">
+                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 과제 1. 가변저항 값에 따라 LED 밝기 3단계 표시하기</h4>
+                    <p style="margin-bottom:16px;">가변저항 값을 백분율로 바꿔서, <strong>0~33%</strong>이면 "낮음", <strong>34~66%</strong>이면 "보통", <strong>67~100%</strong>이면 "높음"을 출력하는 코드를 작성해 보세요.</p>
+                    <details style="border-radius:8px; border:1px solid #c4b5fd; overflow:hidden;">
+                        <summary style="background:#ede9fe; padding:11px 15px; cursor:pointer; font-weight:600; color:#6d28d9; list-style:none;">
+                            💻 정답 코드 보기
+                        </summary>
+                        <div style="padding:15px;">
+<pre style="margin:0;"><code>from machine import ADC, Pin
+import time
+
+pot = ADC(Pin(26))
+
+while True:
+    raw = pot.read_u16()
+    percent = (raw / 65535) * 100
+
+    if percent <= 33:
+        level = "낮음"
+    elif percent <= 66:
+        level = "보통"
+    else:
+        level = "높음"
+
+    print(f"{percent:.1f}% -> 밝기 단계: {level}")
+    time.sleep(0.3)</code></pre>
+                        </div>
+                    </details>
+                </div>
+
                 <h2>6.2 SG90 서보모터 정밀 각도 통제</h2>
                 <p>서보모터는 50Hz 주기의 PWM 펄스 폭을 조절하여 0도부터 180도까지의 원하는 각도를 정밀 조율합니다.</p>
 
@@ -168,6 +236,30 @@ while True:
                     <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">SG90 서보: 빨간선→VSYS(5V), 주황선→GP19(PWM), 갈색선→GND. 서보는 5V 구동이 필요하므로 VSYS 핀을 사용합니다. USB 전원 시 최대 전류 제한에 주의하세요.</p>
                 </div>
 
+                <div class="callout info">
+                    <h4>💡 서보모터 듀티(duty) 값은 어떻게 계산되나요?</h4>
+                    <p>SG90 서보모터는 50Hz(1초에 50번, 즉 <strong>20ms 주기</strong>)의 펄스를 받아 그 중 <strong>HIGH로 유지되는 시간(펄스 폭)</strong>에 따라 각도가 결정됩니다. 일반적으로 펄스 폭이 <strong>0.5ms이면 0°</strong>, <strong>1.5ms이면 90°</strong>, <strong>2.5ms이면 180°</strong>를 가리킵니다.</p>
+                    <p style="margin-top:10px;">MicroPython의 <code>duty_u16()</code>은 0~65535 범위로 "주기 대비 HIGH 비율"을 지정합니다. 계산 공식은 다음과 같습니다.</p>
+                    <pre style="margin-top:10px;"><code># duty_u16 = (펄스 폭(ms) / 주기(20ms)) × 65535
+
+# 0도:   (0.5 / 20) × 65535 ≈ 1638
+# 90도:  (1.5 / 20) × 65535 ≈ 4915
+# 180도: (2.5 / 20) × 65535 ≈ 8192</code></pre>
+                    <p style="margin-top:10px;">본 교재의 <code>set_angle()</code> 함수는 이 1638(0°)과 8192(180°) 두 지점을 기준으로 각도(0~180)를 선형 비례식으로 환산하여 <code>duty_u16()</code>에 전달합니다.</p>
+                </div>
+
+                <details style="margin: 20px 0; border-radius: 8px; border: 1px solid #fca5a5; overflow:hidden;">
+                    <summary style="background:#fef2f2; padding:12px 16px; cursor:pointer; font-weight:600; color:#991b1b; list-style:none; display:flex; align-items:center; gap:8px;">
+                        <i class="fa-solid fa-circle-exclamation" style="color:#ef4444;"></i> 서보모터가 떨리거나(jitter) 움직이지 않는다면?
+                    </summary>
+                    <ul style="margin:0; padding:15px 20px 15px 35px; background:#fff5f5; line-height:2.1; color:#374151;">
+                        <li>USB 전원만으로는 전류가 부족할 수 있으니 가능하면 <strong>VSYS(5V)</strong>나 별도 5V 전원을 사용하기</li>
+                        <li><code>servo.freq(50)</code>을 빼먹지 않았는지 확인하기 (주파수를 설정하지 않으면 기본값이 서보와 맞지 않아 오작동함)</li>
+                        <li>duty 값이 1638~8192 범위를 벗어나면 서보 기어에 무리가 갈 수 있으니 계산식을 다시 점검하기</li>
+                        <li>여러 서보모터를 동시에 구동할 때는 전원 용량 부족으로 떨림이 발생할 수 있음</li>
+                    </ul>
+                </details>
+
                 <h3>[응용 실습] 가변저항 돌리는 대로 서보모터 동적 조각하기</h3>
                 <pre><code>from machine import Pin, PWM, ADC
 import time
@@ -194,6 +286,103 @@ while True:
     print(f"가변저항 위치: {pot_val} -> 모터 제어 각도: {target_angle:.1f}°")
     time.sleep(0.05)
 </code></pre>
+
+                <h3>🏆 과제 해결해보기!</h3>
+
+                <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin-bottom: 24px;">
+                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 과제 1. 서보모터로 0°→180°→0° 왕복운동 만들기</h4>
+                    <p style="margin-bottom:16px;"><code>for</code> 반복문을 사용하여 서보모터를 0도부터 180도까지 서서히 회전시킨 뒤, 다시 180도부터 0도까지 되돌아오는 왕복운동 코드를 작성해 보세요. (힌트: <code>range()</code>를 활용하면 각도를 1도씩 증가·감소시킬 수 있습니다.)</p>
+                    <details style="border-radius:8px; border:1px solid #c4b5fd; overflow:hidden;">
+                        <summary style="background:#ede9fe; padding:11px 15px; cursor:pointer; font-weight:600; color:#6d28d9; list-style:none;">
+                            💻 정답 코드 보기
+                        </summary>
+                        <div style="padding:15px;">
+<pre style="margin:0;"><code>from machine import Pin, PWM
+import time
+
+servo = PWM(Pin(19))
+servo.freq(50)
+
+def set_angle(angle):
+    duty = int(1638 + (angle * (8192 - 1638) / 180))
+    servo.duty_u16(duty)
+
+while True:
+    for angle in range(0, 181, 1):      # 0 -> 180도 (1도씩 증가)
+        set_angle(angle)
+        time.sleep(0.01)
+
+    for angle in range(180, -1, -1):    # 180 -> 0도 (1도씩 감소)
+        set_angle(angle)
+        time.sleep(0.01)</code></pre>
+                        </div>
+                    </details>
+                </div>
+
+                <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin-bottom: 30px;">
+                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 과제 2. 가변저항 값에 따라 3단계 경보등 만들기</h4>
+                    <p>가변저항 값을 백분율로 환산해서, <strong>70% 이상</strong>이면 서보모터를 180도(경보 발생 위치)로 돌리고, 그렇지 않으면 0도(평상시 위치)로 유지하는 코드를 작성해 보세요.</p>
+                    <details style="border-radius:8px; border:1px solid #c4b5fd; overflow:hidden; margin-top:14px;">
+                        <summary style="background:#ede9fe; padding:11px 15px; cursor:pointer; font-weight:600; color:#6d28d9; list-style:none;">
+                            💻 정답 코드 보기
+                        </summary>
+                        <div style="padding:15px;">
+<pre style="margin:0;"><code>from machine import Pin, PWM, ADC
+import time
+
+pot = ADC(Pin(26))
+servo = PWM(Pin(19))
+servo.freq(50)
+
+def set_angle(angle):
+    duty = int(1638 + (angle * (8192 - 1638) / 180))
+    servo.duty_u16(duty)
+
+while True:
+    percent = (pot.read_u16() / 65535) * 100
+
+    if percent >= 70:
+        set_angle(180)
+        print(f"{percent:.1f}% -> 경보 발생! 서보 180도")
+    else:
+        set_angle(0)
+        print(f"{percent:.1f}% -> 평상시. 서보 0도")
+
+    time.sleep(0.2)</code></pre>
+                        </div>
+                    </details>
+                </div>
+
+                <h2>6.3 Wokwi 시뮬레이션으로 실습하기</h2>
+                <p>Chapter 1의 <a href="chapter_01.html">1.8 실물 없이도 실습! Wokwi 온라인 시뮬레이터</a>에서 소개한 대로, <a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">Wokwi</a>를 이용하면 가변저항과 SG90 서보모터가 없어도 브라우저에서 곧바로 회로를 구성하고 코드를 검증할 수 있습니다.</p>
+
+                <div class="callout info">
+                    <h4>📄 diagram.json 예시 (가변저항 + SG90 서보)</h4>
+<pre style="margin-top:10px;"><code>{
+  "version": 1,
+  "author": "picostudy",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-pi-pico", "id": "pico", "top": 0, "left": 0, "attrs": {} },
+    { "type": "wokwi-potentiometer", "id": "pot1", "top": -60, "left": 200, "attrs": {} },
+    { "type": "wokwi-servo", "id": "servo1", "top": 100, "left": 220, "attrs": {} }
+  ],
+  "connections": [
+    [ "pico:GP26", "pot1:SIG", "yellow", [] ],
+    [ "pico:3V3",  "pot1:VCC", "red", [] ],
+    [ "pico:GND",  "pot1:GND", "black", [] ],
+    [ "pico:GP19", "servo1:PWM", "orange", [] ],
+    [ "pico:VSYS", "servo1:V+",  "red", [] ],
+    [ "pico:GND",  "servo1:GND", "black", [] ]
+  ]
+}</code></pre>
+                    <p style="margin-top:12px;">회로를 구성한 뒤 <code>main.py</code> 탭에 이 챕터의 6.1 또는 6.2 코드를 붙여넣고 화면 상단의 <strong>▶️ (초록색 재생) 버튼</strong>을 누르면 시뮬레이션이 시작됩니다. Wokwi 화면에서 가변저항 노브를 마우스로 드래그하면 실시간으로 ADC 값이 바뀌고, 서보모터 화살표가 회전하는 모습을 눈으로 확인할 수 있습니다.</p>
+                </div>
+
+                <div style="background:#fef2f2; padding:18px 20px; border-radius:8px; border-left:4px solid #ef4444; margin-bottom:30px;">
+                    <h4 style="margin-top:0; margin-bottom:8px; color:#991b1b;"><i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> 시뮬레이터 사용 시 주의사항</h4>
+                    <p style="margin-bottom:0; line-height:1.7;">Wokwi 라이브러리의 부품명은 "Potentiometer", "Servo Motor" 등으로 검색해 정확한 <code>type</code> 값을 확인하세요 (환경에 따라 <code>wokwi-potentiometer-onoff</code> 처럼 전원 스위치가 달린 버전도 있습니다). 시뮬레이션 상의 서보모터는 실제 SG90의 미세한 오차나 반응 지연을 완벽히 재현하지 않으므로, 코드 로직 검증 용도로만 활용하고 최종 동작 확인은 실제 부품으로 진행하세요.</p>
+                </div>
 
                 <div class="nav-btns">
                     <a href="chapter_05.html" class="btn btn-prev">◀ CHAPTER 5</a>
