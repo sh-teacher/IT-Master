@@ -155,6 +155,7 @@ while True:
                     <h4>💡 왜 <code>time_pulse_us()</code> 대신 while문으로 시간을 직접 재나요?</h4>
                     <p>MicroPython의 <code>machine.time_pulse_us(echo, 1)</code> 함수를 사용하면 위 코드의 2·3단계(Echo 핀의 상태 변화 감지)를 한 줄로 대체할 수 있습니다. 다만 원리를 이해하는 첫 학습 단계에서는 <code>while</code> 문으로 신호 시작·종료 시각을 직접 기록하는 방식이 "왜 초음파 센서가 시간을 측정하는지" 감을 잡기에 좋습니다. 아래는 <code>time_pulse_us()</code>를 사용한 더 안전한 버전입니다.</p>
                     <pre style="margin-top:12px;"><code>from machine import Pin
+import machine
 import time
 
 trig = Pin(17, Pin.OUT)
@@ -169,7 +170,7 @@ def get_distance():
 
     # timeout(30000us)을 지정하면 물체가 없어 반사파가 오지 않을 때도
     # 프로그램이 멈추지 않고 -2(timeout) 등의 값을 반환합니다.
-    duration = time.time_pulse_us(echo, 1, 30000)
+    duration = machine.time_pulse_us(echo, 1, 30000)
     if duration < 0:
         return None  # 측정 실패(범위 밖 또는 timeout)
 
@@ -273,6 +274,7 @@ while True:
                         </summary>
                         <div style="padding:15px;">
 <pre style="margin:0;"><code>from machine import Pin
+import machine
 import time
 
 trig = Pin(17, Pin.OUT)
@@ -284,7 +286,7 @@ def get_distance():
     trig.value(1)
     time.sleep_us(10)
     trig.value(0)
-    duration = time.time_pulse_us(echo, 1, 30000)
+    duration = machine.time_pulse_us(echo, 1, 30000)
     if duration < 0:
         return None
     return (duration * 0.0343) / 2
@@ -309,6 +311,7 @@ while True:
                         </summary>
                         <div style="padding:15px;">
 <pre style="margin:0;"><code>from machine import Pin
+import machine
 import time
 
 trig = Pin(17, Pin.OUT)
@@ -321,7 +324,7 @@ def get_distance():
     trig.value(1)
     time.sleep_us(10)
     trig.value(0)
-    duration = time.time_pulse_us(echo, 1, 30000)
+    duration = machine.time_pulse_us(echo, 1, 30000)
     if duration < 0:
         return None
     return (duration * 0.0343) / 2
