@@ -355,14 +355,14 @@ while True:
   "editor": "wokwi",
   "parts": [
     { "type": "wokwi-pi-pico", "id": "pico", "top": 0, "left": 0, "attrs": {} },
-    { "type": "wokwi-hc-sr04", "id": "sr04", "top": -40, "left": 200, "attrs": {} },
-    { "type": "wokwi-pir-motion-sensor", "id": "pir1", "top": 100, "left": 200, "attrs": {} }
+    { "type": "wokwi-hc-sr04", "id": "sr04", "top": -60, "left": 220, "attrs": {} },
+    { "type": "wokwi-pir-motion-sensor", "id": "pir1", "top": 120, "left": 220, "attrs": {} }
   ],
   "connections": [
-    [ "pico:GP17", "sr04:trig", "yellow", [] ],
-    [ "pico:GP16", "sr04:echo", "cyan", [] ],
-    [ "pico:3V3",  "sr04:vcc",  "red", [] ],
-    [ "pico:GND",  "sr04:gnd",  "black", [] ],
+    [ "pico:GP17", "sr04:TRIG", "yellow", [] ],
+    [ "pico:GP16", "sr04:ECHO", "cyan", [] ],
+    [ "pico:3V3",  "sr04:VCC",  "red", [] ],
+    [ "pico:GND",  "sr04:GND",  "black", [] ],
     [ "pico:GP18", "pir1:OUT",  "cyan", [] ],
     [ "pico:3V3",  "pir1:VCC",  "red", [] ],
     [ "pico:GND",  "pir1:GND",  "black", [] ]
