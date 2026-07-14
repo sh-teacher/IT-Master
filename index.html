@@ -245,6 +245,46 @@
         body.dark-mode .bus-stop-name { color: #93c5fd; }
         body.dark-mode .bus-stop-dir, body.dark-mode .bus-meta { color: #93a5c4; }
         body.dark-mode .bus-eta { color: #60a5fa; }
+
+        /* ---- 버스 상세정보 모달 ---- */
+        .bus-modal {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+            z-index: 1000; align-items: center; justify-content: center; padding: 20px;
+        }
+        .bus-modal.open { display: flex; }
+        .bus-modal-content {
+            width: 100%; max-width: 360px; background: #fff; border: 1px solid #e0e0e0;
+            border-radius: 8px; box-shadow: 0 8px 28px rgba(0,0,0,0.18); padding: 20px;
+        }
+        .bus-modal-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #eaeaea;
+        }
+        .bus-modal-header h3 { font-size: 16px; font-weight: 700; color: #1e3a8a; margin: 0; }
+        .bus-modal-close {
+            background: none; border: none; font-size: 20px; line-height: 1; cursor: pointer;
+            color: #999; padding: 2px 6px; border-radius: 4px; transition: all 0.15s;
+        }
+        .bus-modal-close:hover { background: #f0f0f0; color: #333; }
+        .bus-detail-row { display: flex; justify-content: space-between; padding: 9px 2px; border-bottom: 1px dashed #eee; font-size: 14px; }
+        .bus-detail-row:last-of-type { border-bottom: none; }
+        .bus-detail-row .k { color: #787774; }
+        .bus-detail-row .v { font-weight: 700; color: #37352f; text-align: right; }
+        .bus-modal-map-btn {
+            display: block; margin-top: 14px; text-align: center; text-decoration: none;
+            background: #2563eb; color: #fff; font-weight: 700; padding: 10px; border-radius: 6px; font-size: 14px;
+            transition: background 0.15s;
+        }
+        .bus-modal-map-btn:hover { background: #1d4ed8; }
+
+        body.dark-mode .bus-modal-content { background: #252526; border-color: #444; }
+        body.dark-mode .bus-modal-header { border-bottom-color: #444; }
+        body.dark-mode .bus-modal-header h3 { color: #93c5fd; }
+        body.dark-mode .bus-modal-close { color: #aaa; }
+        body.dark-mode .bus-modal-close:hover { background: #3e3e42; color: #fff; }
+        body.dark-mode .bus-detail-row { border-bottom-color: #444; }
+        body.dark-mode .bus-detail-row .k { color: #aaa; }
+        body.dark-mode .bus-detail-row .v { color: #e0e0e0; }
     </style>
 </head>
 <body>
@@ -382,6 +422,16 @@
             <div id="calendarContainer" class="calendar-container" style="display: none;">
                 <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=Asia%2FSeoul&showPrint=0&src=Y29taHdhbkBnbWFpbC5jb20&src=YjAxOWI3MWE3ZjEzYjRlZjQ1MmU0ZGU5ZmE1MzdmNDdhNzYyZTVjMDNjN2Y1YmQzMjBkNzU5YzdjNTZjYzgxY0Bncm91cC5jYWxlbmRhci5nb29nbGUuY29t&src=ZmFtaWx5MDk0NTQ4MTA1NDc1ODg4OTQ1MjRAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ&color=%237986cb&color=%237cb342&color=%23e67c73" style="border-width:0" width="100%" height="100%" frameborder="0" scrolling="no"></iframe>
             </div>
+        </div>
+    </div>
+
+    <div id="busDetailModal" class="bus-modal" onclick="if(event.target===this) closeBusDetail()">
+        <div class="bus-modal-content">
+            <div class="bus-modal-header">
+                <h3 id="busDetailTitle">버스 상세정보</h3>
+                <button onclick="closeBusDetail()" class="bus-modal-close">&times;</button>
+            </div>
+            <div id="busDetailBody" class="bus-modal-body"></div>
         </div>
     </div>
 
@@ -946,6 +996,35 @@
             '문성고': '문성고 3121'
         };
 
+        // arriveInfo에는 차량 관리번호(BUS_ID)만 나오므로, busLocationInfo와 대조해 실제 번호판(CARNO)을 조회
+        let busLocationCache = {};
+        function normalizeBusId(id) {
+            const s = String(id || '').trim();
+            if (!s) return '';
+            const t = s.replace(/^0+/, '');
+            return t === '' ? '0' : t;
+        }
+        async function getBusPlateMap(lineId) {
+            if (!lineId) return {};
+            if (!busLocationCache[lineId]) {
+                busLocationCache[lineId] = (async () => {
+                    try {
+                        const url = `https://apis.data.go.kr/6290000/gj_bis/busLocationInfo?serviceKey=${BUS_SERVICE_KEY}&LINE_ID=${lineId}&resultType=json`;
+                        const res = await fetch(url);
+                        const data = await res.json();
+                        let items = data?.RESPONSE?.BUSLOCATION_LIST?.ITEM || [];
+                        if (!Array.isArray(items)) items = [items];
+                        const map = {};
+                        items.forEach(it => { map[normalizeBusId(it.BUS_ID)] = it.CARNO; });
+                        return map;
+                    } catch (e) {
+                        return {};
+                    }
+                })();
+            }
+            return busLocationCache[lineId];
+        }
+
         async function fetchOneBusStop(stop) {
             const url = `https://apis.data.go.kr/6290000/gj_bis/arriveInfo?serviceKey=${BUS_SERVICE_KEY}&BUSSTOP_ID=${stop.id}&resultType=json`;
             try {
@@ -954,17 +1033,17 @@
                 let items = data?.RESPONSE?.ARRIVE_LIST?.ITEM || [];
                 if (!Array.isArray(items)) items = [items];
                 const found = items.find(it => it.LINE_NAME === BUS_ROUTE_NAME);
+                if (found) {
+                    const plateMap = await getBusPlateMap(found.LINE_ID);
+                    found.plateNo = plateMap[normalizeBusId(found.BUS_ID)] || null;
+                }
                 return { stop, ok: true, info: found || null };
             } catch (e) {
                 return { stop, ok: false, info: null };
             }
         }
 
-        function busRowHtml({ stop, ok, info }) {
-            const stopName = stop.label.split(' (')[0];
-            const kakaoKeyword = BUS_KAKAO_KEYWORDS[stopName] || (stopName + ' 정류장');
-            const kakaoUrl = `https://map.kakao.com/link/search/${encodeURIComponent(kakaoKeyword)}`;
-
+        function busRowHtml({ stop, ok, info }, index) {
             let dirText = '정보를 불러오지 못했습니다';
             let etaText = '-';
             let metaText = '';
@@ -981,7 +1060,7 @@
             }
 
             return `
-                <div class="bus-row" onclick="window.open('${kakaoUrl}', '_blank')">
+                <div class="bus-row" data-index="${index}">
                     <div>
                         <div class="bus-stop-name">${stop.label}</div>
                         <div class="bus-stop-dir">${dirText}</div>
@@ -993,12 +1072,60 @@
                 </div>`;
         }
 
+        let lastBusResults = [];
+
+        function openBusDetail(result) {
+            const modal = document.getElementById('busDetailModal');
+            if (!modal || !result || !result.info) return;
+            const { stop, info } = result;
+            document.getElementById('busDetailTitle').textContent = stop.label;
+
+            const stopName = stop.label.split(' (')[0];
+            const kakaoKeyword = BUS_KAKAO_KEYWORDS[stopName] || (stopName + ' 정류장');
+            const kakaoUrl = `https://map.kakao.com/link/search/${encodeURIComponent(kakaoKeyword)}`;
+
+            const min = parseInt(info.REMAIN_MIN, 10) || 0;
+            const etaText = min <= 0 ? '곧 도착' : `${min}분 후`;
+
+            document.getElementById('busDetailBody').innerHTML = `
+                <div class="bus-detail-row"><span class="k">차량번호</span><span class="v">${info.plateNo || (info.BUS_ID ? `관리번호 ${info.BUS_ID}` : '정보 없음')}</span></div>
+                <div class="bus-detail-row"><span class="k">도착예정</span><span class="v">${etaText}</span></div>
+                <div class="bus-detail-row"><span class="k">남은 정류장</span><span class="v">${info.REMAIN_STOP ?? '-'}개</span></div>
+                <div class="bus-detail-row"><span class="k">현재 위치</span><span class="v">${info.BUSSTOP_NAME || '-'}</span></div>
+                <div class="bus-detail-row"><span class="k">기점 → 종점</span><span class="v">${info.DIR_START || '-'} → ${info.DIR_END || '-'}</span></div>
+                <div class="bus-detail-row"><span class="k">저상버스</span><span class="v">${info.LOW_BUS === '1' ? '예' : '아니오'}</span></div>
+                <a class="bus-modal-map-btn" href="${kakaoUrl}" target="_blank" rel="noopener">🗺️ 카카오맵에서 정류장 보기</a>
+            `;
+            modal.classList.add('open');
+        }
+
+        function closeBusDetail() {
+            document.getElementById('busDetailModal')?.classList.remove('open');
+        }
+
+        document.getElementById('bus-container')?.addEventListener('click', (e) => {
+            const row = e.target.closest('.bus-row');
+            if (!row) return;
+            const result = lastBusResults[Number(row.dataset.index)];
+            if (!result) return;
+
+            if (result.ok && result.info) {
+                openBusDetail(result);
+            } else {
+                const stopName = result.stop.label.split(' (')[0];
+                const kakaoKeyword = BUS_KAKAO_KEYWORDS[stopName] || (stopName + ' 정류장');
+                window.open(`https://map.kakao.com/link/search/${encodeURIComponent(kakaoKeyword)}`, '_blank');
+            }
+        });
+
         async function fetchBusInfo() {
             const container = document.getElementById('bus-container');
             const updatedEl = document.getElementById('bus-updated');
             try {
+                busLocationCache = {}; // 매 새로고침마다 차량 위치를 다시 조회
                 const results = await Promise.all(BUS_STOPS.map(fetchOneBusStop));
-                container.innerHTML = results.map(busRowHtml).join('');
+                lastBusResults = results;
+                container.innerHTML = results.map((r, i) => busRowHtml(r, i)).join('');
                 updatedEl.textContent = `업데이트 ${new Date().toLocaleTimeString('ko-KR', { hour12: false })}`;
             } catch (e) {
                 console.error('버스 도착정보 로드 실패:', e);
