@@ -937,9 +937,14 @@
         const BUS_SERVICE_KEY = 'ed4bb0181dd6f25d2a6db826cdb5132dbff7c10467d6449d08e9bee4bf70d0c9';
         const BUS_ROUTE_NAME = '송암68';
         const BUS_STOPS = [
-            { id: '495', label: '봉선동 (남구 내지제 방향)' },
+            { id: '495', label: '버들마을 (버스터미널 방면)' },
             { id: '3013', label: '문성고 (서구 방향)' }
         ];
+        // 정류장명 검색만으로는 동명의 정류장이 여러 개 잡히므로, ARS 번호를 붙여 정확한 위치로 고정
+        const BUS_KAKAO_KEYWORDS = {
+            '버들마을': '버들마을 2192',
+            '문성고': '문성고 3121'
+        };
 
         async function fetchOneBusStop(stop) {
             const url = `https://apis.data.go.kr/6290000/gj_bis/arriveInfo?serviceKey=${BUS_SERVICE_KEY}&BUSSTOP_ID=${stop.id}&resultType=json`;
@@ -957,7 +962,8 @@
 
         function busRowHtml({ stop, ok, info }) {
             const stopName = stop.label.split(' (')[0];
-            const kakaoUrl = `https://map.kakao.com/link/search/${encodeURIComponent(stopName + ' 정류장')}`;
+            const kakaoKeyword = BUS_KAKAO_KEYWORDS[stopName] || (stopName + ' 정류장');
+            const kakaoUrl = `https://map.kakao.com/link/search/${encodeURIComponent(kakaoKeyword)}`;
 
             let dirText = '정보를 불러오지 못했습니다';
             let etaText = '-';
