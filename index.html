@@ -215,9 +215,36 @@
         body.dark-mode .meal-nav-btn:hover { background-color: #333; color: #fff; }
 
         /* 다크모드 대응 */
-        body.dark-mode .meal-box { 
-            background-color: #1e3a29; border-color: #34a853; color: #a7f3d0; 
+        body.dark-mode .meal-box {
+            background-color: #1e3a29; border-color: #34a853; color: #a7f3d0;
         }
+
+        /* =========================================
+           🚌 버스 도착정보 위젯 스타일
+           ========================================= */
+        .bus-box {
+            background-color: #eff6ff; border: 1px solid #bfdbfe;
+            padding: 6px 20px; border-radius: 8px; font-size: 14px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .bus-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 0; border-bottom: 1px dashed #bfdbfe; gap: 12px;
+            cursor: pointer; transition: opacity 0.2s;
+        }
+        .bus-row:last-child { border-bottom: none; }
+        .bus-row:hover { opacity: 0.75; }
+        .bus-stop-name { font-weight: 700; font-size: 14px; color: #1e3a8a; }
+        .bus-stop-dir { font-size: 11.5px; color: #64748b; margin-top: 3px; }
+        .bus-eta { font-weight: 900; font-size: 17px; color: #2563eb; font-variant-numeric: tabular-nums; text-align: right; }
+        .bus-meta { font-size: 11.5px; color: #64748b; text-align: right; margin-top: 3px; }
+
+        /* 다크모드 대응 */
+        body.dark-mode .bus-box { background-color: #16233a; border-color: #2c4a70; }
+        body.dark-mode .bus-row { border-bottom-color: #2c4a70; }
+        body.dark-mode .bus-stop-name { color: #93c5fd; }
+        body.dark-mode .bus-stop-dir, body.dark-mode .bus-meta { color: #93a5c4; }
+        body.dark-mode .bus-eta { color: #60a5fa; }
     </style>
 </head>
 <body>
@@ -297,6 +324,15 @@
             </div>
             <div id="meal-container" class="meal-box">
                 급식 정보를 불러오는 중입니다... ⏳
+            </div>
+        </div>
+        <div class="section">
+            <div class="section-title">
+                <span>🚌 실시간 버스 도착정보 (송암68)</span>
+                <span id="bus-updated" style="font-size: 12px; color: #999; font-weight: 400;">업데이트 --:--:--</span>
+            </div>
+            <div id="bus-container" class="bus-box">
+                버스 도착정보를 불러오는 중입니다... ⏳
             </div>
         </div>
         <div class="section">
@@ -895,6 +931,75 @@
                 mealContainer.innerHTML = "급식 정보를 불러오지 못했습니다. (새로고침 해주세요)";
             }
         }
+        /* ==========================================
+            🚌 광주 BIS 실시간 버스 도착정보
+           ========================================== */
+        const BUS_SERVICE_KEY = 'ed4bb0181dd6f25d2a6db826cdb5132dbff7c10467d6449d08e9bee4bf70d0c9';
+        const BUS_ROUTE_NAME = '송암68';
+        const BUS_STOPS = [
+            { id: '495', label: '봉선동 (남구 내지제 방향)' },
+            { id: '3013', label: '문성고 (서구 방향)' }
+        ];
+
+        async function fetchOneBusStop(stop) {
+            const url = `https://apis.data.go.kr/6290000/gj_bis/arriveInfo?serviceKey=${BUS_SERVICE_KEY}&BUSSTOP_ID=${stop.id}&resultType=json`;
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                let items = data?.RESPONSE?.ARRIVE_LIST?.ITEM || [];
+                if (!Array.isArray(items)) items = [items];
+                const found = items.find(it => it.LINE_NAME === BUS_ROUTE_NAME);
+                return { stop, ok: true, info: found || null };
+            } catch (e) {
+                return { stop, ok: false, info: null };
+            }
+        }
+
+        function busRowHtml({ stop, ok, info }) {
+            const stopName = stop.label.split(' (')[0];
+            const kakaoUrl = `https://map.kakao.com/link/search/${encodeURIComponent(stopName + ' 정류장')}`;
+
+            let dirText = '정보를 불러오지 못했습니다';
+            let etaText = '-';
+            let metaText = '';
+            let etaColor = '#94a3b8';
+
+            if (ok && info) {
+                const min = parseInt(info.REMAIN_MIN, 10) || 0;
+                etaText = min <= 0 ? '곧 도착' : `${min}분 후`;
+                etaColor = '#2563eb';
+                dirText = `${info.DIR_START || ''} → ${info.DIR_END || ''}${info.LOW_BUS === '1' ? ' · 저상' : ''}`;
+                metaText = info.REMAIN_STOP ? `${info.REMAIN_STOP}번째 전 정류장` : '';
+            } else if (ok && !info) {
+                dirText = '도착 예정 정보 없음';
+            }
+
+            return `
+                <div class="bus-row" onclick="window.open('${kakaoUrl}', '_blank')">
+                    <div>
+                        <div class="bus-stop-name">${stop.label}</div>
+                        <div class="bus-stop-dir">${dirText}</div>
+                    </div>
+                    <div>
+                        <div class="bus-eta" style="color:${etaColor};">${etaText}</div>
+                        <div class="bus-meta">${metaText}</div>
+                    </div>
+                </div>`;
+        }
+
+        async function fetchBusInfo() {
+            const container = document.getElementById('bus-container');
+            const updatedEl = document.getElementById('bus-updated');
+            try {
+                const results = await Promise.all(BUS_STOPS.map(fetchOneBusStop));
+                container.innerHTML = results.map(busRowHtml).join('');
+                updatedEl.textContent = `업데이트 ${new Date().toLocaleTimeString('ko-KR', { hour12: false })}`;
+            } catch (e) {
+                console.error('버스 도착정보 로드 실패:', e);
+                container.innerHTML = '버스 도착정보를 불러오지 못했습니다. (새로고침 해주세요)';
+            }
+        }
+
         // 🍚 급식 날짜 하루 전/후로 이동하는 함수
         function changeMealDate(offset) {
             const datePicker = document.getElementById('meal-date-picker');
@@ -932,7 +1037,10 @@
 
             fetchMeal();
             // 시트에서 데이터를 불러와 덮어씌웁니다.
-            loadDataFromSheet(); 
+            loadDataFromSheet();
+
+            fetchBusInfo();
+            setInterval(fetchBusInfo, 20000);
         };
     </script>
 </body>
