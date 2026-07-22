@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude 계정 조회 시스템</title>
+<style>
+  :root{
+    --bg:#f5f4f0;
+    --card:#ffffff;
+    --ink:#20201d;
+    --sub:#6b6a66;
+    --accent:#c96442;
+    --accent-ink:#ffffff;
+    --border:#e5e3dd;
+    --good-bg:#faf7f2;
+    --shadow:0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#1a1915;
+      --card:#252420;
+      --ink:#eeece7;
+      --sub:#a6a49d;
+      --accent:#d97757;
+      --accent-ink:#1a1915;
+      --border:#3a3833;
+      --good-bg:#2c2a24;
+      --shadow:0 1px 3px rgba(0,0,0,.3);
+    }
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Pretendard,"Noto Sans KR",sans-serif;
+    line-height:1.5;
+    padding:24px 16px 64px;
+  }
+  .wrap{max-width:520px;margin:0 auto;}
+  header{text-align:center;margin-bottom:24px;}
+  header h1{font-size:1.4rem;margin:0 0 6px;}
+  header p{margin:0;color:var(--sub);font-size:.92rem;}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:22px;
+    box-shadow:var(--shadow);
+    margin-bottom:16px;
+  }
+
+  label{display:block;font-size:.85rem;font-weight:600;margin-bottom:6px;color:var(--ink);}
+  .field{margin-bottom:16px;}
+  .hint{font-size:.78rem;color:var(--sub);margin-top:5px;}
+
+  select, input[type=text]{
+    width:100%;
+    padding:11px 12px;
+    border-radius:9px;
+    border:1px solid var(--border);
+    background:var(--bg);
+    color:var(--ink);
+    font-size:1rem;
+    outline:none;
+  }
+  select:focus, input[type=text]:focus{border-color:var(--accent);}
+
+  button.submit{
+    width:100%;
+    padding:13px;
+    border:none;
+    border-radius:9px;
+    background:var(--accent);
+    color:var(--accent-ink);
+    font-size:1rem;
+    font-weight:700;
+    cursor:pointer;
+  }
+  button.submit:active{opacity:.85;}
+
+  .result{display:none;}
+  .result.show{display:block;}
+
+  .msg{
+    text-align:center;
+    padding:14px;
+    border-radius:9px;
+    font-size:.92rem;
+  }
+  .msg.error{background:#fbeceb;color:#a4342a;}
+  @media (prefers-color-scheme: dark){
+    .msg.error{background:#3a2320;color:#f0a89f;}
+  }
+
+  .who{font-size:.9rem;color:var(--sub);margin-bottom:14px;text-align:center;}
+  .who b{color:var(--ink);}
+
+  .kv{margin-bottom:14px;}
+  .kv .k{font-size:.8rem;color:var(--sub);font-weight:600;margin-bottom:4px;}
+  .kv .v{
+    font-size:1.35rem;
+    font-weight:800;
+    color:var(--ink);
+    word-break:break-all;
+    background:var(--good-bg);
+    border:1px solid var(--border);
+    border-radius:9px;
+    padding:12px 14px;
+  }
+  .kv .v.period{font-size:1.1rem;}
+
+  .warn{
+    font-size:.8rem;
+    color:var(--sub);
+    text-align:center;
+    margin-top:4px;
+    margin-bottom:4px;
+  }
+
+  .divider{
+    border:none;
+    border-top:1px solid var(--border);
+    margin:22px 0;
+  }
+
+  .guide h2{font-size:1.05rem;margin:0 0 4px;}
+  .guide > p{color:var(--sub);font-size:.85rem;margin:0 0 16px;}
+
+  .step{display:flex;gap:12px;margin-bottom:16px;}
+  .step .num{
+    flex:0 0 26px;
+    height:26px;
+    border-radius:50%;
+    background:var(--accent);
+    color:var(--accent-ink);
+    font-weight:700;
+    font-size:.85rem;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .step .txt{font-size:.9rem;padding-top:2px;}
+  .step .txt b{color:var(--accent);}
+
+  .claude-link{
+    display:block;
+    text-align:center;
+    background:var(--accent);
+    color:var(--accent-ink);
+    text-decoration:none;
+    font-weight:700;
+    padding:13px;
+    border-radius:9px;
+    margin-bottom:18px;
+  }
+  .claude-link.pw-link{
+    background:transparent;
+    color:var(--accent);
+    border:1.5px solid var(--accent);
+    margin-top:4px;
+    margin-bottom:8px;
+  }
+
+  /* mock login card illustrating the "Google 계정으로 로그인" button */
+  .mock{
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:20px 16px;
+    background:var(--good-bg);
+    text-align:center;
+    margin-bottom:8px;
+  }
+  .mock .mock-title{font-size:.85rem;font-weight:700;margin-bottom:14px;color:var(--sub);}
+  .google-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    background:#fff;
+    color:#3c4043;
+    border:1px solid #dadce0;
+    border-radius:8px;
+    padding:10px 18px;
+    font-size:.92rem;
+    font-weight:600;
+    font-family:inherit;
+  }
+  .google-btn svg{flex:0 0 18px;width:18px;height:18px;}
+  .mock-caption{font-size:.75rem;color:var(--sub);margin-top:10px;}
+
+  footer{text-align:center;color:var(--sub);font-size:.75rem;margin-top:28px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Claude 계정 조회</h1>
+    <p>학교명 · 학년-반 · 이름을 입력하면 배정된 Claude 계정을 확인할 수 있어요</p>
+  </header>
+
+  <div class="card">
+    <form id="lookupForm">
+      <div class="field">
+        <label for="school">학교명</label>
+        <select id="school" required>
+          <option value="" disabled selected>학교를 선택하세요</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="cls">학년-반</label>
+        <input type="text" id="cls" placeholder="예: 1-1" required>
+        <div class="hint">학년과 반을 붙임표(-)로 구분해서 입력하세요. 예) 2학년 3반 → 2-3</div>
+      </div>
+
+      <div class="field">
+        <label for="name">이름</label>
+        <input type="text" id="name" placeholder="예: 홍길동" required>
+      </div>
+
+      <button type="submit" class="submit" id="submitBtn" disabled>데이터를 불러오는 중...</button>
+    </form>
+  </div>
+
+  <div id="errorBox" class="card msg error" style="display:none;"></div>
+
+  <div id="resultBox" class="result">
+    <div class="card">
+      <div class="who">입력한 정보: <b id="whoText"></b></div>
+
+      <div class="kv">
+        <div class="k">Claude 계정 (이메일)</div>
+        <div class="v" id="outAccount"></div>
+      </div>
+      <div class="kv">
+        <div class="k">비밀번호</div>
+        <div class="v" id="outPw"></div>
+      </div>
+      <div class="kv">
+        <div class="k">구독 기간</div>
+        <div class="v period" id="outPeriod"></div>
+      </div>
+
+      <div class="warn">본인의 계정 정보이니 다른 사람과 공유하지 마세요.</div>
+    </div>
+
+    <div class="card guide">
+      <h2>로그인 방법 안내</h2>
+      <p>아래 순서대로 진행하면 바로 로그인할 수 있어요.</p>
+
+      <a class="claude-link" href="https://claude.ai/login" target="_blank" rel="noopener">
+        Claude 로그인 페이지 바로가기 →
+      </a>
+
+      <div class="step">
+        <div class="num">1</div>
+        <div class="txt">위 버튼을 눌러 Claude 로그인 페이지로 이동합니다.</div>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <div class="txt">로그인 화면에서 <b>“Google로 계속하기(Continue with Google)”</b> 버튼을 클릭합니다.</div>
+      </div>
+
+      <div class="mock">
+        <div class="mock-title">Claude 로그인 화면 예시</div>
+        <div class="google-btn">
+          <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.6 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.4-.4-3.5z"/>
+            <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.9 19 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4c-7.5 0-14 4.2-17.7 10.7z"/>
+            <path fill="#4CAF50" d="M24 44c5.2 0 10-2 13.6-5.2l-6.3-5.3C29.3 35.4 26.8 36 24 36c-5.2 0-9.7-3.4-11.3-8.1l-6.5 5C9.9 39.7 16.4 44 24 44z"/>
+            <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.2 5.5l6.3 5.3C40.6 36 44 30.7 44 24c0-1.2-.1-2.4-.4-3.5z"/>
+          </svg>
+          Google로 계속하기
+        </div>
+        <div class="mock-caption">※ 실제 화면 디자인은 업데이트에 따라 조금 다를 수 있어요.</div>
+      </div>
+
+      <div class="step" style="margin-top:16px;">
+        <div class="num">3</div>
+        <div class="txt">위에서 확인한 <b>계정(이메일)</b>과 <b>비밀번호</b>를 Google 로그인 화면에 입력합니다.</div>
+      </div>
+      <div class="step">
+        <div class="num">4</div>
+        <div class="txt">로그인이 완료되면 Claude를 바로 사용할 수 있어요.</div>
+      </div>
+      <div class="step">
+        <div class="num">5</div>
+        <div class="txt">로그인 후에는 <b>반드시 비밀번호를 변경</b>하세요. 처음 지급된 비밀번호는 다른 사람도 알고 있을 수 있어 그대로 사용하면 안전하지 않아요.</div>
+      </div>
+
+      <a class="claude-link pw-link" href="https://claude.ai/settings/account" target="_blank" rel="noopener">
+        비밀번호 변경하러 가기 →
+      </a>
+      <div class="mock-caption" style="text-align:center;margin-top:-10px;margin-bottom:6px;">Claude 로그인 후 &gt; 설정(Settings) &gt; 계정(Account)에서도 변경할 수 있어요.</div>
+    </div>
+  </div>
+
+  <footer>문의: 담당 선생님 또는 관리자에게 연락하세요.</footer>
+</div>
+
+<script>
+// Apps Script 웹 앱 배포 후 나오는 URL(.../exec)을 여기에 붙여넣으세요.
+const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbxr9kB7m565yjXDF0ClJTMN0oQJh2n77ZwbUG2KuvQGJipUnDRZD68cxmJ3By59RrF1/exec';
+
+const schoolSelect = document.getElementById('school');
+const submitBtn = document.getElementById('submitBtn');
+const errorBox = document.getElementById('errorBox');
+
+const norm = s => (s || '').replace(/\s+/g, '').trim();
+
+function showError(text) {
+  errorBox.textContent = text;
+  errorBox.style.display = 'block';
+}
+
+// 페이지 로드 시에는 "학교명 목록"만 요청한다 (개인정보 없이 서버에서 필터링해서 줌).
+async function loadSchools() {
+  try {
+    const res = await fetch(SHEET_API_URL + '?action=schools');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const body = await res.json();
+    if (body.error) throw new Error(body.error);
+
+    for (const s of body.schools) {
+      const opt = document.createElement('option');
+      opt.value = s;
+      opt.textContent = s;
+      schoolSelect.appendChild(opt);
+    }
+
+    submitBtn.disabled = false;
+    submitBtn.textContent = '계정 조회하기';
+  } catch (err) {
+    showError('학교 목록을 불러오지 못했습니다. 구글 시트 연결(웹 앱 URL)을 확인해 주세요.');
+    submitBtn.textContent = '데이터를 불러올 수 없음';
+  }
+}
+
+loadSchools();
+
+document.getElementById('lookupForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const school = schoolSelect.value;
+  const cls = norm(document.getElementById('cls').value);
+  const name = norm(document.getElementById('name').value);
+
+  const resultBox = document.getElementById('resultBox');
+  errorBox.style.display = 'none';
+  resultBox.classList.remove('show');
+
+  submitBtn.disabled = true;
+  const originalLabel = submitBtn.textContent;
+  submitBtn.textContent = '조회 중...';
+
+  try {
+    // 서버(Apps Script)에 정확히 이 한 명만 조회 요청 — 전체 명단은 절대 내려받지 않는다.
+    const url = SHEET_API_URL
+      + '?school=' + encodeURIComponent(school)
+      + '&cls=' + encodeURIComponent(cls)
+      + '&name=' + encodeURIComponent(name);
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const body = await res.json();
+
+    if (!body.result) {
+      showError('일치하는 계정 정보를 찾을 수 없습니다. 학교명 · 학년-반 · 이름을 다시 확인해 주세요.');
+      return;
+    }
+
+    const match = body.result;
+    document.getElementById('whoText').textContent =
+      `${match.school} ${match.cls} ${match.name}`;
+    document.getElementById('outAccount').textContent = match.account;
+    document.getElementById('outPw').textContent = match.pw;
+    document.getElementById('outPeriod').textContent = match.period;
+
+    resultBox.classList.add('show');
+    resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (err) {
+    showError('조회 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalLabel;
+  }
+});
+</script>
+</body>
+</html>
