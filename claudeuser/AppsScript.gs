@@ -3,9 +3,15 @@
  *
  * 보안을 위해 전체 명단을 절대 한 번에 반환하지 않고,
  *  - ?action=schools  요청에는 "학교명 목록"만 (개인정보 없음)
- *  - ?school=&cls=&name= 요청에는 정확히 일치하는 "그 한 명"의 정보만
- * 돌려준다. 즉 이 URL을 알아내도 학교/반/이름을 정확히 아는 사람 1명씩만
+ *  - ?school=&cls=&name=&code= 요청에는 접근 코드가 맞을 때만
+ *    정확히 일치하는 "그 한 명"의 정보만 돌려준다.
+ * 즉 이 URL을 알아내도 접근 코드 + 학교/반/이름을 정확히 아는 사람 1명씩만
  * 조회 가능하고, 전체 계정을 한 번에 덤프할 수는 없다.
+ *
+ * 접근 코드 값은 이 파일(공개 저장소에 올라감)에 직접 적지 않고
+ * Apps Script 프로젝트의 "스크립트 속성(Script Properties)"에 저장한다.
+ * 설정 방법: Apps Script 편집기 좌측 톱니바퀴(프로젝트 설정) →
+ * 스크립트 속성 → 속성 추가 → 이름: ACCESS_CODE, 값: (원하는 코드) → 저장.
  *
  * 시트 헤더는 원본 CSV와 동일해야 합니다:
  * 학교명, 이름, 학년-반, 기수, 계정, 비밀번호, 구독기간
@@ -47,6 +53,16 @@ function doGet(e) {
     return json({ schools: schools });
   }
 
+  // 접근 코드 확인 (값은 코드에 없고 Script Properties에 저장되어 있음)
+  var accessCode = getAccessCode();
+  if (!accessCode) {
+    return json({ error: 'setup_required' });
+  }
+  var code = String(e.parameter.code || '').trim();
+  if (code !== accessCode) {
+    return json({ error: 'invalid_code' });
+  }
+
   // 조회: school + cls + name 세 가지가 모두 정확히 일치하는 "한 명"만 반환
   var school = String(e.parameter.school || '').trim();
   var cls = norm(e.parameter.cls);
@@ -69,6 +85,10 @@ function doGet(e) {
 
 function norm(s) {
   return String(s || '').replace(/\s+/g, '').trim();
+}
+
+function getAccessCode() {
+  return PropertiesService.getScriptProperties().getProperty('ACCESS_CODE');
 }
 
 function uniqueSorted(arr) {

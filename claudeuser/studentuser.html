@@ -219,6 +219,11 @@
         <input type="text" id="name" placeholder="예: 홍길동" required>
       </div>
 
+      <div class="field">
+        <label for="code">접근 코드</label>
+        <input type="password" id="code" placeholder="담당 선생님께 안내받은 접근 코드" required autocomplete="off">
+      </div>
+
       <button type="submit" class="submit" id="submitBtn" disabled>데이터를 불러오는 중...</button>
     </form>
   </div>
@@ -286,13 +291,13 @@
       </div>
       <div class="step">
         <div class="num">5</div>
-        <div class="txt">로그인 후에는 <b>반드시 비밀번호를 변경</b>하세요. 처음 지급된 비밀번호는 다른 사람도 알고 있을 수 있어 그대로 사용하면 안전하지 않아요.</div>
+        <div class="txt">로그인 후에는 <b>Google 계정 비밀번호를 반드시 변경</b>하세요. 처음 지급된 비밀번호는 다른 사람도 알고 있을 수 있어 그대로 사용하면 안전하지 않아요.</div>
       </div>
 
-      <a class="claude-link pw-link" href="https://claude.ai/settings/account" target="_blank" rel="noopener">
-        비밀번호 변경하러 가기 →
+      <a class="claude-link pw-link" href="https://myaccount.google.com/signinoptions/password" target="_blank" rel="noopener">
+        Google 비밀번호 변경하러 가기 →
       </a>
-      <div class="mock-caption" style="text-align:center;margin-top:-10px;margin-bottom:6px;">Claude 로그인 후 &gt; 설정(Settings) &gt; 계정(Account)에서도 변경할 수 있어요.</div>
+      <div class="mock-caption" style="text-align:center;margin-top:-10px;margin-bottom:6px;">Google 계정 &gt; 보안 및 로그인 &gt; Google 비밀번호 에서도 변경할 수 있어요.</div>
     </div>
   </div>
 
@@ -345,6 +350,7 @@ document.getElementById('lookupForm').addEventListener('submit', async (e) => {
   const school = schoolSelect.value;
   const cls = norm(document.getElementById('cls').value);
   const name = norm(document.getElementById('name').value);
+  const code = document.getElementById('code').value.trim();
 
   const resultBox = document.getElementById('resultBox');
   errorBox.style.display = 'none';
@@ -355,15 +361,24 @@ document.getElementById('lookupForm').addEventListener('submit', async (e) => {
   submitBtn.textContent = '조회 중...';
 
   try {
-    // 서버(Apps Script)에 정확히 이 한 명만 조회 요청 — 전체 명단은 절대 내려받지 않는다.
+    // 서버(Apps Script)에 정확히 이 한 명만 조회 요청 — 접근 코드가 맞아야만 응답하며, 전체 명단은 절대 내려받지 않는다.
     const url = SHEET_API_URL
       + '?school=' + encodeURIComponent(school)
       + '&cls=' + encodeURIComponent(cls)
-      + '&name=' + encodeURIComponent(name);
+      + '&name=' + encodeURIComponent(name)
+      + '&code=' + encodeURIComponent(code);
     const res = await fetch(url);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const body = await res.json();
 
+    if (body.error === 'invalid_code') {
+      showError('접근 코드가 올바르지 않습니다. 담당 선생님께 문의해 주세요.');
+      return;
+    }
+    if (body.error === 'setup_required') {
+      showError('시스템 설정이 완료되지 않았습니다. 관리자에게 문의해 주세요.');
+      return;
+    }
     if (!body.result) {
       showError('일치하는 계정 정보를 찾을 수 없습니다. 학교명 · 학년-반 · 이름을 다시 확인해 주세요.');
       return;
