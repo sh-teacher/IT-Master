@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AndroidLayouts">
+    <shared>
+      <config />
+    </shared>
+  </component>
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="NONE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="7647ffd3-5d7e-4dce-821a-3970bd222950" name="Changes" comment="jhg">
+      <change afterPath="$PROJECT_DIR$/../android/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/build.gradle.kts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/google-services.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/proguard-rules.pro" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/App.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/MainActivity.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/data/firebase/FirestoreRefs.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/data/model/FamilyRole.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/data/model/RecurrenceInput.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/data/model/Schedule.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/data/model/UserProfile.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/data/repository/AuthRepository.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/data/repository/ScheduleRepository.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/data/repository/UserRepository.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/notification/AlarmScheduler.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/notification/BootReceiver.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/notification/NotificationHelper.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/notification/NotificationReceiver.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/ui/auth/LoginScreen.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/ui/auth/RoleSelectScreen.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/ui/auth/SignUpScreen.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/ui/calendar/CalendarScreen.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/ui/common/LeadMinutesDropdown.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/ui/common/ScheduleListItem.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/ui/navigation/NavGraph.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/ui/schedule/AddEditScheduleScreen.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/ui/schedule/DeleteScheduleDialog.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/ui/schedule/PickerDialogs.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/ui/settings/SettingsScreen.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/ui/theme/Color.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/ui/theme/Theme.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/ui/theme/Type.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/ui/timeline/TimelineScreen.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/util/ScheduleTimeFormat.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/viewmodel/AuthViewModel.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/viewmodel/CalendarViewModel.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/viewmodel/ScheduleViewModel.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/viewmodel/SettingsViewModel.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/java/com/baefamily/schedule/viewmodel/TimelineViewModel.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/res/drawable/ic_launcher_background.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/res/drawable/ic_launcher_foreground.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/res/drawable/ic_notification.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/res/values/colors.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/res/values/strings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/app/src/main/res/values/themes.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/build.gradle.kts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/firebase.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/firestore.indexes.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/firestore.rules" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/gradle.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/gradle/libs.versions.toml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../android/settings.gradle.kts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.gradle/config.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/AndroidProjectSystem.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/deploymentTargetSelector.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/deviceManager.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/runConfigurations.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[]" />
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/sh-teacher/IT-Master.git",
+    "accountId": "b3646b43-85a3-47f6-8eab-33f2cf834963"
+  }
+}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4,
+  &quot;fromUser&quot;: false
+}</component>
+  <component name="ProjectId" id="3GrVRDQHxw37lYRZzNB3TzcOUXx" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "android.gradle.sync.needed": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "com.google.services.firebase.aqiPopupShown": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/Users/aiuser/Documents/GitHub/IT-Master/family-schedule-android",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.17",
+    "project.structure.side.proportion": "0.2"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration name="app" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false">
+      <module name="FamilySchedule.app" />
+      <option name="ANDROID_RUN_CONFIGURATION_SCHEMA_VERSION" value="1" />
+      <option name="DEPLOY" value="true" />
+      <option name="DEPLOY_APK_FROM_BUNDLE" value="false" />
+      <option name="DEPLOY_AS_INSTANT" value="false" />
+      <option name="ARTIFACT_NAME" value="" />
+      <option name="PM_INSTALL_OPTIONS" value="" />
+      <option name="ALL_USERS" value="false" />
+      <option name="ALWAYS_INSTALL_WITH_PM" value="false" />
+      <option name="ALLOW_ASSUME_VERIFIED" value="false" />
+      <option name="CLEAR_APP_STORAGE" value="false" />
+      <option name="DYNAMIC_FEATURES_DISABLED_LIST" value="" />
+      <option name="ACTIVITY_EXTRA_FLAGS" value="" />
+      <option name="MODE" value="default_activity" />
+      <option name="RESTORE_ENABLED" value="false" />
+      <option name="RESTORE_FILE" value="" />
+      <option name="RESTORE_FRESH_INSTALL_ONLY" value="false" />
+      <option name="CLEAR_LOGCAT" value="false" />
+      <option name="SHOW_LOGCAT_AUTOMATICALLY" value="false" />
+      <option name="TARGET_SELECTION_MODE" value="DEVICE_AND_SNAPSHOT_COMBO_BOX" />
+      <option name="DEBUGGER_TYPE" value="Auto" />
+      <Auto>
+        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
+        <option name="SHOW_STATIC_VARS" value="true" />
+        <option name="WORKING_DIR" value="" />
+        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
+        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
+        <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
+      </Auto>
+      <Hybrid>
+        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
+        <option name="SHOW_STATIC_VARS" value="true" />
+        <option name="WORKING_DIR" value="" />
+        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
+        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
+        <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
+      </Hybrid>
+      <Java>
+        <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
+      </Java>
+      <Native>
+        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
+        <option name="SHOW_STATIC_VARS" value="true" />
+        <option name="WORKING_DIR" value="" />
+        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
+        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
+        <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" />
+      </Native>
+      <Profilers>
+        <option name="ADVANCED_PROFILING_ENABLED" value="false" />
+        <option name="STARTUP_PROFILING_ENABLED" value="false" />
+        <option name="STARTUP_CPU_PROFILING_ENABLED" value="false" />
+        <option name="STARTUP_CPU_PROFILING_CONFIGURATION_NAME" value="Java/Kotlin Method Sample (legacy)" />
+        <option name="STARTUP_NATIVE_MEMORY_PROFILING_ENABLED" value="false" />
+        <option name="NATIVE_MEMORY_SAMPLE_RATE_BYTES" value="2048" />
+      </Profilers>
+      <option name="DEEP_LINK" value="" />
+      <option name="ACTIVITY" value="" />
+      <option name="ACTIVITY_CLASS" value="" />
+      <option name="SEARCH_ACTIVITY_IN_GLOBAL_SCOPE" value="false" />
+      <option name="SKIP_ACTIVITY_VALIDATION" value="false" />
+      <method v="2">
+        <option name="Android.Gradle.BeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="7647ffd3-5d7e-4dce-821a-3970bd222950" name="Changes" comment="" />
+      <created>1784729665962</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1784729665962</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="jhg" />
+    <option name="LAST_COMMIT_MESSAGE" value="jhg" />
+  </component>
+  <component name="play_dynamic_filters_status">
+    <option name="appIdToCheckInfo">
+      <map>
+        <entry key="com.baefamily.schedule">
+          <value>
+            <CheckInfo lastCheckTimestamp="1784731362676" />
+          </value>
+        </entry>
+        <entry key="com.baefamily.schedule.test">
+          <value>
+            <CheckInfo lastCheckTimestamp="1784731362676" />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

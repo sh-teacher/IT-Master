@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "724540020716",
+    "project_id": "family-schedule-2adb4",
+    "storage_bucket": "family-schedule-2adb4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:724540020716:android:4381209917731897f892c9",
+        "android_client_info": {
+          "package_name": "com.baefamily.schedule"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "724540020716-hqrb677l736hro75mrn8rdal8dtl2no5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCv5vQwUolrZiHVook7PrmLuYto2Vgk_lQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "724540020716-hqrb677l736hro75mrn8rdal8dtl2no5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

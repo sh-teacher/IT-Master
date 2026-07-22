@@ -1,0 +1,28 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isFamilyMember() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    // Any signed-in user can read the roster (needed during role selection, before their
+    // own profile doc exists), but can only create/update their own profile document.
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId;
+      allow delete: if false;
+    }
+
+    // All 4 family members can read every schedule, but only the schedule's owner
+    // can create/update/delete it.
+    match /schedules/{scheduleId} {
+      allow read: if isFamilyMember();
+      allow create: if isFamilyMember() && request.resource.data.ownerUid == request.auth.uid;
+      allow update, delete: if isFamilyMember() && resource.data.ownerUid == request.auth.uid;
+    }
+  }
+}
