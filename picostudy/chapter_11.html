@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ch 11. MQTT ?대씪?곕뱶 - Pico 2 媛?대뱶</title>
+    <title>Ch 11. MQTT 클라우드 - Pico 2 가이드</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -12,48 +12,49 @@
         <nav class="sidebar">
             <h2>PICO 2 IoT GUIDE</h2>
             <ul>
-                <li><a href="index.html">HOME - ?쒖옉?섍린</a></li>
-                <li class="menu-divider">湲곗큹 & ?듭떊 ?뚰듃</li>
-                <li><a href="chapter_01.html">CHAPTER 1 - ?섎뱶?⑥뼱 ?댄빐</a></li>
-                <li><a href="chapter_02.html">CHAPTER 2 - ?뚯썾???명똿</a></li>
-                <li><a href="chapter_03.html">CHAPTER 3 - 湲곗큹 肄붾뵫(Blink)</a></li>
-                <li><a href="chapter_04.html">CHAPTER 4 - 湲곕낯 ?낆텧???ㅼ쐞移?遺?)</a></li>
-                <li><a href="chapter_05.html">CHAPTER 5 - ?쇱꽌 ?쒖뼱(珥덉쓬??PIR)</a></li>
-                <li class="menu-divider">?ㅼ쟾 ?섎뱶?⑥뼱</li>
-                <li><a href="chapter_06.html">CHAPTER 6 - ?꾨궇濡쒓렇 & 紐⑦꽣</a></li>
-                <li><a href="chapter_07.html">CHAPTER 7 - ?⑥뒿??& ?곗씠??/a></li>
-                <li><a href="chapter_08.html">CHAPTER 8 - Neopixel ?쒖뼱</a></li>
-                <li><a href="chapter_09.html">CHAPTER 9 - I2C LCD ?붿뒪?뚮젅??/a></li>
-                <li><a href="chapter_10.html">CHAPTER 10 - 臾댁꽑 ?듭떊 & ?낅젰</a></li>
-                <li class="menu-divider">?ы솕 ?묒슜 ?꾨줈?앺듃</li>
-                <li><a href="chapter_11.html" class="active">CHAPTER 11 - MQTT ?대씪?곕뱶</a></li>
+                <li><a href="index.html">HOME - 시작하기</a></li>
+                <li class="menu-divider">기초 & 통신 파트</li>
+                <li><a href="chapter_01.html">CHAPTER 1 - 하드웨어 이해</a></li>
+                <li><a href="chapter_02.html">CHAPTER 2 - 펌웨어 세팅</a></li>
+                <li><a href="chapter_03.html">CHAPTER 3 - 기초 코딩(Blink)</a></li>
+                <li><a href="chapter_04.html">CHAPTER 4 - 기본 입출력(스위치/부저)</a></li>
+                <li><a href="chapter_05.html">CHAPTER 5 - 센서 제어(초음파/PIR)</a></li>
+                <li class="menu-divider">실전 하드웨어</li>
+                <li><a href="chapter_06.html">CHAPTER 6 - 아날로그 & 모터</a></li>
+                <li><a href="chapter_07.html">CHAPTER 7 - 온습도 & 데이터</a></li>
+                <li><a href="chapter_08.html">CHAPTER 8 - Neopixel 제어</a></li>
+                <li><a href="chapter_09.html">CHAPTER 9 - I2C LCD 디스플레이</a></li>
+                <li><a href="chapter_10.html">CHAPTER 10 - 무선 통신 & 입력</a></li>
+                <li class="menu-divider">심화 응용 프로젝트</li>
+                <li><a href="chapter_11.html" class="active">CHAPTER 11 - MQTT 클라우드</a></li>
                 <li><a href="chapter_12.html">CHAPTER 12 - OLED & RTC</a></li>
-                <li><a href="chapter_13.html">CHAPTER 13 - 醫낇빀 ?꾨줈?앺듃</a></li>
-                <li class="menu-divider">?섎쭔???묓뭹 留뚮뱾湲?/li>
-                <li><a href="chapter_16.html">CHAPTER 16 - 諛붿씠釉?肄붾뵫 罹≪뒪??/a></li>
+                <li><a href="chapter_13.html">CHAPTER 13 - 종합 프로젝트</a></li>
+                <li><a href="chapter_14.html">CHAPTER 14 - 스마트 온습도 모니터</a></li>
+                <li class="menu-divider">나만의 작품 만들기</li>
+                <li><a href="chapter_16.html">CHAPTER 16 - 바이브 코딩 캡스톤</a></li>
             </ul>
             <div class="sidebar-footer">
-                <button class="pinout-btn" id="openPinout"><i class="fa-solid fa-diagram-project"></i> GPIO ??꾩썐 留?蹂닿린</button>
+                <button class="pinout-btn" id="openPinout"><i class="fa-solid fa-diagram-project"></i> GPIO 핀아웃 맵 보기</button>
             </div>
         </nav>
         <main class="content">
             <div class="container">
-                <h1>Chapter 11. MQTT? Adafruit IO ?대씪?곕뱶 ?곕룞</h1>
-                <p>IoT???듭떖 ?꾨줈?좎퐳??<strong>MQTT</strong>瑜??숈뒿?⑸땲?? ??諛⑹쓽 ?쇱꽌 ?곗씠?곕? ???멸퀎 ?대뵒?쒕뱺 ?ㅻ쭏?명룿 ??쒕낫?쒕줈 紐⑤땲?곕쭅?????덈뒗 ?쒖뒪?쒖쓣 援ъ텞?⑸땲??</p>
+                <h1>Chapter 11. MQTT와 Adafruit IO 클라우드 연동</h1>
+                <p>IoT의 핵심 프로토콜인 <strong>MQTT</strong>를 학습합니다. 내 방의 센서 데이터를 전 세계 어디서든 스마트폰 대시보드로 모니터링할 수 있는 시스템을 구축합니다.</p>
 
                 <div style="text-align: center; margin: 30px 0;">
                     <svg viewBox="0 0 900 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="mqttDiagramTitle mqttDiagramDesc" style="max-width: 100%; height: auto; border-radius: 16px; background: #f8fafc; border: 1px solid #e2e8f0; box-shadow: 0 8px 24px rgba(15,23,42,0.08);">
-                        <title id="mqttDiagramTitle">Pico 2 W MQTT ?대씪?곕뱶 ?먮쫫??/title>
-                        <desc id="mqttDiagramDesc">Pico媛 ?쇱꽌 ?곗씠?곕? Adafruit IO MQTT 釉뚮줈而ㅻ줈 諛쒗뻾?섍퀬, ??쒕낫?쒖쓽 LED 紐낅졊??援щ룆???쒖뼱?⑸땲??</desc>
+                        <title id="mqttDiagramTitle">Pico 2 W MQTT 클라우드 흐름도</title>
+                        <desc id="mqttDiagramDesc">Pico가 센서 데이터를 Adafruit IO MQTT 브로커로 발행하고, 대시보드의 LED 명령을 구독해 제어합니다.</desc>
                         <defs>
                             <marker id="arr11Pub" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#2563eb"/></marker>
                             <marker id="arr11Sub" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#e11d48"/></marker>
                             <filter id="shadow11" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.14"/></filter>
                         </defs>
 
-                        <text x="134" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">?쇱꽌 ?몃뱶</text>
+                        <text x="134" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">센서 노드</text>
                         <text x="450" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">MQTT Broker</text>
-                        <text x="742" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">?대씪?곕뱶 ??쒕낫??/text>
+                        <text x="742" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">클라우드 대시보드</text>
 
                         <g fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M220 125 H350" stroke="#2563eb" stroke-width="4" marker-end="url(#arr11Pub)"/>
@@ -79,7 +80,7 @@
                             <circle cx="450" cy="125" r="44" fill="#60a5fa" opacity="0.65"/>
                             <text x="450" y="132" text-anchor="middle" fill="white" font-size="16" font-weight="800">Adafruit IO</text>
                             <text x="450" y="156" text-anchor="middle" fill="#dbeafe" font-size="12">MQTT Broker</text>
-                            <text x="450" y="208" text-anchor="middle" fill="#eff6ff" font-size="11">feeds濡??곗씠??以묎퀎</text>
+                            <text x="450" y="208" text-anchor="middle" fill="#eff6ff" font-size="11">feeds로 데이터 중계</text>
                         </g>
 
                         <g filter="url(#shadow11)">
@@ -91,47 +92,47 @@
                             <rect x="716" y="176" width="48" height="20" rx="10" fill="#22c55e"/>
                             <text x="740" y="190" text-anchor="middle" fill="white" font-size="10" font-weight="800">LED ON</text>
                             <circle cx="740" cy="228" r="5" fill="#475569"/>
-                            <text x="740" y="274" text-anchor="middle" fill="#0f172a" font-size="12" font-weight="800">?ㅻ쭏?명룿 / ????쒕낫??/text>
+                            <text x="740" y="274" text-anchor="middle" fill="#0f172a" font-size="12" font-weight="800">스마트폰 / 웹 대시보드</text>
                         </g>
 
                         <rect x="88" y="306" width="724" height="30" rx="8" fill="#ffffff" stroke="#e2e8f0"/>
-                        <text x="450" y="326" text-anchor="middle" fill="#475569" font-size="12">Publish???쇱꽌 ?곗씠???꾩넚, Subscribe???대씪?곕뱶 紐낅졊 ?섏떊?낅땲?? ??諛⑺뼢??援щ텇?섎㈃ IoT 援ъ“媛 ?⑥뵮 ?좊챸?댁쭛?덈떎.</text>
+                        <text x="450" y="326" text-anchor="middle" fill="#475569" font-size="12">Publish는 센서 데이터 전송, Subscribe는 클라우드 명령 수신입니다. 두 방향을 구분하면 IoT 구조가 훨씬 선명해집니다.</text>
                     </svg>
                 </div>
 
                 <div class="callout info">
-                    <h4>?뱻 MQTT? 臾댁뾿?멸???</h4>
-                    <p><strong>MQTT(Message Queuing Telemetry Transport)</strong>??IoT 湲곌린泥섎읆 諛고꽣由ъ? ?곗씠???ъ슜?됱씠 ?쒗븳???μ튂瑜??꾪빐 ?ㅺ퀎??珥덇꼍???듭떊 ?꾨줈?좎퐳?낅땲?? ?뱀궗?댄듃媛 ?곕뒗 HTTP蹂대떎 ?⑥뵮 媛蹂띻퀬, ?ㅼ떆媛꾩쑝濡?媛믪씠 諛붾??뚮쭏??利됱떆 ?꾨떖?????덉뼱 ?쇱꽌 ?곗씠???꾩넚??留ㅼ슦 ?곹빀?⑸땲??</p>
-                    <p style="margin-top:10px;">MQTT ?듭떊?먮뒗 3媛쒖쓽 ??븷???덉뒿?덈떎.</p>
+                    <h4>📡 MQTT란 무엇인가요?</h4>
+                    <p><strong>MQTT(Message Queuing Telemetry Transport)</strong>는 IoT 기기처럼 배터리와 데이터 사용량이 제한된 장치를 위해 설계된 초경량 통신 프로토콜입니다. 웹사이트가 쓰는 HTTP보다 훨씬 가볍고, 실시간으로 값이 바뀔 때마다 즉시 전달할 수 있어 센서 데이터 전송에 매우 적합합니다.</p>
+                    <p style="margin-top:10px;">MQTT 통신에는 3개의 역할이 있습니다.</p>
                     <ul style="margin-top: 8px; line-height: 2.2;">
-                        <li><strong>Publisher(諛쒗뻾??</strong> ???곗씠?곕? 蹂대궡??履? ?? Pico媛 痢≪젙???⑥뒿??媛?/li>
-                        <li><strong>Broker(釉뚮줈而?</strong> ??硫붿떆吏瑜?以묎퀎?섎뒗 ?쒕쾭. ??梨뺥꽣?먯꽌??<code>Adafruit IO</code>媛 釉뚮줈而???븷???⑸땲??/li>
-                        <li><strong>Subscriber(援щ룆??</strong> ???곗씠?곕? 諛쏅뒗 履? ?? ?ㅻ쭏?명룿 ??쒕낫?? ?뱀? 紐낅졊??諛쏅뒗 Pico ?먯떊</li>
+                        <li><strong>Publisher(발행자)</strong> — 데이터를 보내는 쪽. 예) Pico가 측정한 온습도 값</li>
+                        <li><strong>Broker(브로커)</strong> — 메시지를 중계하는 서버. 이 챕터에서는 <code>Adafruit IO</code>가 브로커 역할을 합니다</li>
+                        <li><strong>Subscriber(구독자)</strong> — 데이터를 받는 쪽. 예) 스마트폰 대시보드, 혹은 명령을 받는 Pico 자신</li>
                     </ul>
-                    <p style="margin-top: 10px;">以묒슂???먯? Publisher? Subscriber媛 ?쒕줈??IP 二쇱냼???꾩튂瑜?紐곕씪???쒕떎??寃껋엯?덈떎. 紐⑤몢媛 釉뚮줈而ㅼ쓽 <strong>Topic(?좏뵿)</strong>?대씪??"梨꾨꼸"留?諛붾씪蹂닿퀬 ?듭떊?섍린 ?뚮Ц?? Pico ???媛 ?곗씠?곕? 諛쒗뻾(publish)?섎㈃???숈떆???ㅻⅨ ?좏뵿??援щ룆(subscribe)?섎뒗 ?묐갑???듭떊???먯뿰?ㅻ읇寃?媛?ν빀?덈떎.</p>
+                    <p style="margin-top: 10px;">중요한 점은 Publisher와 Subscriber가 서로의 IP 주소나 위치를 몰라도 된다는 것입니다. 모두가 브로커의 <strong>Topic(토픽)</strong>이라는 "채널"만 바라보고 통신하기 때문에, Pico 한 대가 데이터를 발행(publish)하면서 동시에 다른 토픽을 구독(subscribe)하는 양방향 통신도 자연스럽게 가능합니다.</p>
                 </div>
 
-                <h2>11.1 Adafruit IO ?ㅼ젙 諛??곌껐 援ъ꽦</h2>
-                <p><strong>Adafruit IO</strong>??臾대즺濡??ъ슜?????덈뒗 MQTT 釉뚮줈而?寃??대씪?곕뱶 ??쒕낫???쒕퉬?ㅼ엯?덈떎. ?쇱꽌 ?곗씠?곕? 諛쏆븘 洹몃옒?꾨줈 蹂댁뿬二쇨퀬, 踰꾪듉?대굹 ?ㅼ쐞移??꾩젽?쇰줈 ?ㅼ떆 湲곌린??紐낅졊???대젮蹂대궪 ???덉뒿?덈떎. Adafruit IO?먯꽌??媛??곗씠??梨꾨꼸??<strong>Feed(?쇰뱶)</strong>?쇨퀬 遺瑜대ŉ, MQTT ?좏뵿 ?대쫫? ??긽 <code>?ъ슜?먯씠由?feeds/?쇰뱶?대쫫</code> ?뺤떇???곕쫭?덈떎.</p>
-                <p>1. <a href="https://io.adafruit.com" target="_blank">Adafruit IO</a>??媛?낇븯??<code>AIO Key</code>瑜?蹂듭궗???먯꽭??<br>
-                2. Thonny??[Tools] -> [Manage Packages]?먯꽌 <strong><code>umqtt.simple</code></strong>??寃?됲빐 ?ㅼ튂?댁빞 ?⑸땲??</p>
+                <h2>11.1 Adafruit IO 설정 및 연결 구성</h2>
+                <p><strong>Adafruit IO</strong>는 무료로 사용할 수 있는 MQTT 브로커 겸 클라우드 대시보드 서비스입니다. 센서 데이터를 받아 그래프로 보여주고, 버튼이나 스위치 위젯으로 다시 기기에 명령을 내려보낼 수 있습니다. Adafruit IO에서는 각 데이터 채널을 <strong>Feed(피드)</strong>라고 부르며, MQTT 토픽 이름은 항상 <code>사용자이름/feeds/피드이름</code> 형식을 따릅니다.</p>
+                <p>1. <a href="https://io.adafruit.com" target="_blank">Adafruit IO</a>에 가입하여 <code>AIO Key</code>를 복사해 두세요.<br>
+                2. Thonny의 [Tools] -> [Manage Packages]에서 <strong><code>umqtt.simple</code></strong>을 검색해 설치해야 합니다.</p>
 
                 <table style="width: 100%; border-collapse: collapse; margin: 20px 0 30px; font-size: 0.98rem;">
                     <thead>
                         <tr style="background: #f1f5f9; color: #0f172a;">
-                            <th style="border: 1px solid #e2e8f0; padding: 10px;">??ぉ</th>
-                            <th style="border: 1px solid #e2e8f0; padding: 10px;">?ㅼ젙媛?/th>
-                            <th style="border: 1px solid #e2e8f0; padding: 10px;">??븷</th>
+                            <th style="border: 1px solid #e2e8f0; padding: 10px;">항목</th>
+                            <th style="border: 1px solid #e2e8f0; padding: 10px;">설정값</th>
+                            <th style="border: 1px solid #e2e8f0; padding: 10px;">역할</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">DHT11 Data</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>GP15</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">?⑥뒿??痢≪젙</td></tr>
-                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">?곹깭 LED</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>LED</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">?대씪?곕뱶 紐낅졊 ?뺤씤</td></tr>
-                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">MQTT Feed</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>temperature</code>, <code>humidity</code>, <code>led-cmd</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">?곗씠???꾩넚怨??먭꺽 ?쒖뼱</td></tr>
+                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">DHT11 Data</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>GP15</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">온습도 측정</td></tr>
+                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">상태 LED</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>LED</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">클라우드 명령 확인</td></tr>
+                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">MQTT Feed</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>temperature</code>, <code>humidity</code>, <code>led-cmd</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">데이터 전송과 원격 제어</td></tr>
                     </tbody>
                 </table>
 
-                <h2>11.2 MQTT 諛쒗뻾怨?援щ룆 ?뚯뒪 肄붾뱶</h2>
+                <h2>11.2 MQTT 발행과 구독 소스 코드</h2>
 
                 <pre><code>import time
 import machine
@@ -139,7 +140,7 @@ import network
 import dht
 from umqtt.simple import MQTTClient
 
-# Wi-Fi & Adafruit IO ?ㅼ젙
+# Wi-Fi & Adafruit IO 설정
 WIFI_SSID = "your_wifi_name"
 WIFI_PASS = "your_wifi_password"
 AIO_USER = "your_username"
@@ -158,7 +159,7 @@ def connect_wifi():
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
     wlan.connect(WIFI_SSID, WIFI_PASS)
-    print("Wi-Fi ?곌껐 以?..")
+    print("Wi-Fi 연결 중...")
 
     for _ in range(20):
         if wlan.isconnected():
@@ -170,7 +171,7 @@ def connect_wifi():
 
 def on_message(topic, msg):
     command = msg.decode().strip().lower()
-    print("?섏떊:", topic.decode(), command)
+    print("수신:", topic.decode(), command)
 
     if command in ("on", "1", "true"):
         led.on()
@@ -191,7 +192,7 @@ last_publish = time.ticks_ms()
 
 while True:
     try:
-        # 援щ룆??led-cmd feed????紐낅졊???덈뒗吏 ?뺤씤?⑸땲??
+        # 구독한 led-cmd feed에 새 명령이 있는지 확인합니다.
         client.check_msg()
 
         if time.ticks_diff(time.ticks_ms(), last_publish) >= 10000:
@@ -207,34 +208,34 @@ while True:
         time.sleep(0.1)
 
     except OSError as e:
-        print("MQTT ?ㅻ쪟, ?ъ뿰寃??쒕룄:", e)
+        print("MQTT 오류, 재연결 시도:", e)
         time.sleep(3)
         connect_wifi()
         client = connect_mqtt()
 </code></pre>
 
                 <div class="callout info">
-                    <h4>?뮕 Feed ?대쫫 ?뺤씤</h4>
-                    <p>Adafruit IO?먯꽌 <code>temperature</code>, <code>humidity</code>, <code>led-cmd</code> feed瑜?癒쇱? 留뚮뱾???먯꽭?? ??쒕낫??踰꾪듉?먯꽌 <code>led-cmd</code>??<code>on</code> ?먮뒗 <code>off</code>瑜?蹂대궡硫?Pico???댁옣 LED媛 諛섏쓳?⑸땲??</p>
+                    <h4>💡 Feed 이름 확인</h4>
+                    <p>Adafruit IO에서 <code>temperature</code>, <code>humidity</code>, <code>led-cmd</code> feed를 먼저 만들어 두세요. 대시보드 버튼에서 <code>led-cmd</code>에 <code>on</code> 또는 <code>off</code>를 보내면 Pico의 내장 LED가 반응합니다.</p>
                 </div>
 
-                <h2>11.3 ?숈옉 ?먮쫫</h2>
-                <p>Pico??10珥덈쭏??DHT11 媛믪쓣 ?쎌뼱 ?⑤룄? ?듬룄 feed濡?諛쒗뻾?⑸땲?? ?숈떆??<code>led-cmd</code> feed瑜?援щ룆?섍퀬 ?덈떎媛 ?대씪?곕뱶 ??쒕낫?쒖뿉??紐낅졊???ㅼ뼱?ㅻ㈃ ?댁옣 LED瑜?耳쒓굅???뺣땲?? ??援ъ“媛 IoT?먯꽌 媛??湲곕낯?곸씤 ?묐갑???듭떊 ?⑦꽩?낅땲??</p>
+                <h2>11.3 동작 흐름</h2>
+                <p>Pico는 10초마다 DHT11 값을 읽어 온도와 습도 feed로 발행합니다. 동시에 <code>led-cmd</code> feed를 구독하고 있다가 클라우드 대시보드에서 명령이 들어오면 내장 LED를 켜거나 끕니다. 이 구조가 IoT에서 가장 기본적인 양방향 통신 패턴입니다.</p>
 
-                <h3>?룇 怨쇱젣 ?닿껐?대낫湲?</h3>
+                <h3>🏆 과제 해결해보기!</h3>
 
                 <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin-bottom: 24px;">
-                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 怨쇱젣 1. 諛쒗뻾 二쇨린 ?⑥텞?섍퀬 ??Feed 異붽??섍린</h4>
-                    <p style="margin-bottom:16px;">?꾩옱 肄붾뱶??10珥덈쭏??<code>temperature</code>, <code>humidity</code> ??媛쒖쓽 feed留?諛쒗뻾?⑸땲?? 諛쒗뻾 二쇨린瑜?<strong>5珥?/strong>濡?以꾩씠怨? DHT11???듬룄媛믪씠 <strong>70% ?댁긽</strong>????<code>alert</code>?쇰뒗 ?대쫫????feed??臾몄옄??<code>"HIGH_HUMIDITY"</code>瑜?異붽?濡?諛쒗뻾?섎룄濡?肄붾뱶瑜??섏젙??蹂댁꽭??</p>
+                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 과제 1. 발행 주기 단축하고 새 Feed 추가하기</h4>
+                    <p style="margin-bottom:16px;">현재 코드는 10초마다 <code>temperature</code>, <code>humidity</code> 두 개의 feed만 발행합니다. 발행 주기를 <strong>5초</strong>로 줄이고, DHT11의 습도값이 <strong>70% 이상</strong>일 때 <code>alert</code>라는 이름의 새 feed에 문자열 <code>"HIGH_HUMIDITY"</code>를 추가로 발행하도록 코드를 수정해 보세요.</p>
                     <details style="border-radius:8px; border:1px solid #c4b5fd; overflow:hidden;">
                         <summary style="background:#ede9fe; padding:11px 15px; cursor:pointer; font-weight:600; color:#6d28d9; list-style:none;">
-                            ?뮲 ?뺣떟 肄붾뱶 蹂닿린
+                            💻 정답 코드 보기
                         </summary>
                         <div style="padding:15px;">
 <pre style="margin:0;"><code>ALERT_FEED = AIO_USER + "/feeds/alert"
 
-# ... 湲곗〈 while True 諛섎났臾??? 諛쒗뻾 議곌굔???꾨옒泥섎읆 ?섏젙?⑸땲??
-if time.ticks_diff(time.ticks_ms(), last_publish) >= 5000:   # 10000 -> 5000?쇰줈 ?⑥텞
+# ... 기존 while True 반복문 안, 발행 조건을 아래처럼 수정합니다.
+if time.ticks_diff(time.ticks_ms(), last_publish) >= 5000:   # 10000 -> 5000으로 단축
     sensor.measure()
     temp = sensor.temperature()
     hum = sensor.humidity()
@@ -244,7 +245,7 @@ if time.ticks_diff(time.ticks_ms(), last_publish) >= 5000:   # 10000 -> 5000?쇰
 
     if hum >= 70:
         client.publish(ALERT_FEED, "HIGH_HUMIDITY")
-        print("寃쎄퀬: ?듬룄媛 ?덈Т ?믪뒿?덈떎!")
+        print("경고: 습도가 너무 높습니다!")
 
     print(f"Published: {temp}C, {hum}%")
     last_publish = time.ticks_ms()</code></pre>
@@ -253,11 +254,11 @@ if time.ticks_diff(time.ticks_ms(), last_publish) >= 5000:   # 10000 -> 5000?쇰
                 </div>
 
                 <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin-bottom: 30px;">
-                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 怨쇱젣 2. ?щ윭 媛쒖쓽 紐낅졊?대줈 LED 諛앷린 ?쒖뼱?섍린</h4>
-                    <p>?꾩옱 <code>led-cmd</code> feed??<code>on</code>/<code>off</code> ??媛吏 紐낅졊留?泥섎━?⑸땲?? PWM???댁슜??<code>0</code>~<code>100</code> ?ъ씠???レ옄 臾몄옄?댁쓣 諛쏆쑝硫?LED 諛앷린瑜?洹?媛믪뿉 鍮꾨??섎룄濡?議곗젅?섎뒗 <code>on_message</code> 肄쒕갚???묒꽦??蹂댁꽭?? (?뚰듃: <code>machine.PWM</code>怨?<code>duty_u16()</code>???ъ슜?⑸땲??)</p>
+                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 과제 2. 여러 개의 명령어로 LED 밝기 제어하기</h4>
+                    <p>현재 <code>led-cmd</code> feed는 <code>on</code>/<code>off</code> 두 가지 명령만 처리합니다. PWM을 이용해 <code>0</code>~<code>100</code> 사이의 숫자 문자열을 받으면 LED 밝기를 그 값에 비례하도록 조절하는 <code>on_message</code> 콜백을 작성해 보세요. (힌트: <code>machine.PWM</code>과 <code>duty_u16()</code>을 사용합니다.)</p>
                     <details style="border-radius:8px; border:1px solid #c4b5fd; overflow:hidden; margin-top:12px;">
                         <summary style="background:#ede9fe; padding:11px 15px; cursor:pointer; font-weight:600; color:#6d28d9; list-style:none;">
-                            ?뮲 ?뺣떟 肄붾뱶 蹂닿린
+                            💻 정답 코드 보기
                         </summary>
                         <div style="padding:15px;">
 <pre style="margin:0;"><code>from machine import Pin, PWM
@@ -267,7 +268,7 @@ led_pwm.freq(1000)
 
 def on_message(topic, msg):
     command = msg.decode().strip().lower()
-    print("?섏떊:", topic.decode(), command)
+    print("수신:", topic.decode(), command)
 
     if command in ("on", "1", "true"):
         led_pwm.duty_u16(65535)
@@ -280,18 +281,18 @@ def on_message(topic, msg):
                     </details>
                 </div>
 
-                <h2>11.4 Wokwi ?쒕??덉씠?섏쑝濡??ㅼ뒿?섍린</h2>
-                <p>Chapter 1(1.8)?먯꽌 ?뚭컻??<a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">Wokwi</a> ?⑤씪???쒕??덉씠?곕줈 ??梨뺥꽣??肄붾뱶 ?쇰?瑜?誘몃━ ?뚯뒪?명빐蹂????덉뒿?덈떎.</p>
+                <h2>11.4 Wokwi 시뮬레이션으로 실습하기</h2>
+                <p>Chapter 1(1.8)에서 소개한 <a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">Wokwi</a> 온라인 시뮬레이터로 이 챕터의 코드 일부를 미리 테스트해볼 수 있습니다.</p>
 
                 <div class="callout info">
-                    <h4>?좑툘 Wokwi?먯꽌???ㅼ젣 MQTT ?듭떊???뚯뒪?명븷 ???놁뼱??/h4>
-                    <p>Wokwi??臾대즺 ?쒕??덉씠??Pico 蹂대뱶??湲곕낯?곸쑝濡?<strong>?ㅼ젣 ?명꽣?룹뿉 ?곌껐?섏? ?딆뒿?덈떎.</strong> ?곕씪??<code>network.WLAN</code>?쇰줈 Wi-Fi???묒냽?섍굅??<code>umqtt.simple</code>濡?Adafruit IO 釉뚮줈而ㅼ뿉 ?ㅼ젣濡??곌껐?섎뒗 遺遺꾩? ?쒕??덉씠?곗뿉???숈옉?섏? ?딆뒿?덈떎.</p>
-                    <p style="margin-top:10px;">????꾨옒泥섎읆 ?섎늻???곗뒿?섎뒗 寃껋쓣 沅뚯옣?⑸땲??</p>
+                    <h4>⚠️ Wokwi에서는 실제 MQTT 통신을 테스트할 수 없어요</h4>
+                    <p>Wokwi의 무료 시뮬레이션 Pico 보드는 기본적으로 <strong>실제 인터넷에 연결되지 않습니다.</strong> 따라서 <code>network.WLAN</code>으로 Wi-Fi에 접속하거나 <code>umqtt.simple</code>로 Adafruit IO 브로커에 실제로 연결하는 부분은 시뮬레이터에서 동작하지 않습니다.</p>
+                    <p style="margin-top:10px;">대신 아래처럼 나누어 연습하는 것을 권장합니다.</p>
                     <ol style="margin-top: 8px; line-height: 2.2;">
-                        <li><strong>Wokwi?먯꽌 ?곗뒿:</strong> DHT11 ?쇱꽌瑜??쎌뼱 ?⑤룄/?듬룄 媛믪쓣 異쒕젰?섎뒗 遺遺?<code>sensor.measure()</code>, <code>sensor.temperature()</code>, <code>sensor.humidity()</code>)留??곕줈 ?쇱뼱 濡쒖뺄 ?숈옉???뺤씤?⑸땲??</li>
-                        <li><strong>?ㅼ젣 ?섎뱶?⑥뼱?먯꽌 ?뺤씤:</strong> Wi-Fi ?곌껐怨?<code>client.publish()</code>, <code>client.subscribe()</code> ???ㅼ젣 MQTT ?≪닔?좎? 諛섎뱶??吏꾩쭨 Pico 2 W 蹂대뱶? ?ㅼ젣 Wi-Fi ?섍꼍?먯꽌 ?뚯뒪?명븯?몄슂.</li>
+                        <li><strong>Wokwi에서 연습:</strong> DHT11 센서를 읽어 온도/습도 값을 출력하는 부분(<code>sensor.measure()</code>, <code>sensor.temperature()</code>, <code>sensor.humidity()</code>)만 따로 떼어 로컬 동작을 확인합니다.</li>
+                        <li><strong>실제 하드웨어에서 확인:</strong> Wi-Fi 연결과 <code>client.publish()</code>, <code>client.subscribe()</code> 등 실제 MQTT 송수신은 반드시 진짜 Pico 2 W 보드와 실제 Wi-Fi 환경에서 테스트하세요.</li>
                     </ol>
-                    <p style="margin-top: 12px;"><strong>?뮕 Tip:</strong> ?꾨옒??DHT11 ?쇱꽌 ?쎄린 濡쒖쭅留?寃利앺븷 ???덈뒗 理쒖냼 <code>diagram.json</code> ?덉떆?낅땲?? Wokwi ?붾㈃?먯꽌 [+ New Project] ??[MicroPython] ?좏깮 ?? ?꾨옒 <code>diagram.json</code> ?댁슜???꾨줈?앺듃??diagram ?몄쭛湲곗뿉 遺숈뿬?ｊ퀬, <code>main.py</code>?먮뒗 DHT11???쎌뼱 <code>print()</code>濡?異쒕젰?섎뒗 遺遺꾨쭔 ?ｌ뼱 珥덈줉???띰툘 ?ъ깮 踰꾪듉???뚮윭 ?ㅽ뻾?섏꽭??</p>
+                    <p style="margin-top: 12px;"><strong>💡 Tip:</strong> 아래는 DHT11 센서 읽기 로직만 검증할 수 있는 최소 <code>diagram.json</code> 예시입니다. Wokwi 화면에서 [+ New Project] → [MicroPython] 선택 후, 아래 <code>diagram.json</code> 내용을 프로젝트의 diagram 편집기에 붙여넣고, <code>main.py</code>에는 DHT11을 읽어 <code>print()</code>로 출력하는 부분만 넣어 초록색 ▶️ 재생 버튼을 눌러 실행하세요.</p>
                 </div>
 
                 <pre><code>{
@@ -310,12 +311,12 @@ def on_message(topic, msg):
 }</code></pre>
 
                 <div class="callout info">
-                    <p><strong>?뮕 李멸퀬:</strong> Wokwi 遺???쇱씠釉뚮윭由ъ뿉??DHT11 ?꾩슜 遺?덉씠 ?놁뼱 <code>wokwi-dht22</code> 遺?덉쑝濡??泥댄뻽?듬땲??肄붾뱶?먯꽌 <code>dht.DHT11</code> ???<code>dht.DHT22</code>瑜??ъ슜?섎㈃ ?⑸땲??. ?뺥솗??遺???대쫫? Wokwi ?몄쭛湲?醫뚯륫??遺??寃?됱갹?먯꽌 ?ㅼ떆 ?쒕쾲 ?뺤씤?섎뒗 寃껋쓣 沅뚯옣?⑸땲??</p>
+                    <p><strong>💡 참고:</strong> Wokwi 부품 라이브러리에는 DHT11 전용 부품이 없어 <code>wokwi-dht22</code> 부품으로 대체했습니다(코드에서 <code>dht.DHT11</code> 대신 <code>dht.DHT22</code>를 사용하면 됩니다). 정확한 부품 이름은 Wokwi 편집기 좌측의 부품 검색창에서 다시 한번 확인하는 것을 권장합니다.</p>
                 </div>
 
                 <div class="nav-btns">
-                    <a href="chapter_10.html" class="btn btn-prev">? CHAPTER 10</a>
-                    <a href="chapter_12.html" class="btn btn-next">CHAPTER 12濡??대룞 ??/a>
+                    <a href="chapter_10.html" class="btn btn-prev">◀ CHAPTER 10</a>
+                    <a href="chapter_12.html" class="btn btn-next">CHAPTER 12로 이동 ▶</a>
                 </div>
             </div>
         </main>
@@ -331,12 +332,12 @@ def on_message(topic, msg):
             wrapper.appendChild(preBlock);
             const topBtn = document.createElement('button');
             topBtn.className = 'copy-btn btn-top';
-            topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 蹂듭궗';
+            topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
             wrapper.appendChild(topBtn);
             topBtn.addEventListener('click', () => {
                 navigator.clipboard.writeText(codeBlock.innerText).then(() => {
-                    topBtn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> ?꾨즺';
-                    setTimeout(() => { topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 蹂듭궗'; }, 2000);
+                    topBtn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> 완료';
+                    setTimeout(() => { topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사'; }, 2000);
                 });
             });
         });
@@ -376,4 +377,3 @@ def on_message(topic, msg):
     <script src="mobile-nav.js"></script>
 </body>
 </html>
-

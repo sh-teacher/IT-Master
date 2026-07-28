@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ch 12. OLED & RTC - Pico 2 媛?대뱶</title>
+    <title>Ch 12. OLED & RTC - Pico 2 가이드</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -12,47 +12,48 @@
         <nav class="sidebar">
             <h2>PICO 2 IoT GUIDE</h2>
             <ul>
-                <li><a href="index.html">HOME - ?쒖옉?섍린</a></li>
-                <li class="menu-divider">湲곗큹 & ?듭떊 ?뚰듃</li>
-                <li><a href="chapter_01.html">CHAPTER 1 - ?섎뱶?⑥뼱 ?댄빐</a></li>
-                <li><a href="chapter_02.html">CHAPTER 2 - ?뚯썾???명똿</a></li>
-                <li><a href="chapter_03.html">CHAPTER 3 - 湲곗큹 肄붾뵫(Blink)</a></li>
-                <li><a href="chapter_04.html">CHAPTER 4 - 湲곕낯 ?낆텧???ㅼ쐞移?遺?)</a></li>
-                <li><a href="chapter_05.html">CHAPTER 5 - ?쇱꽌 ?쒖뼱(珥덉쓬??PIR)</a></li>
-                <li class="menu-divider">?ㅼ쟾 ?섎뱶?⑥뼱</li>
-                <li><a href="chapter_06.html">CHAPTER 6 - ?꾨궇濡쒓렇 & 紐⑦꽣</a></li>
-                <li><a href="chapter_07.html">CHAPTER 7 - ?⑥뒿??& ?곗씠??/a></li>
-                <li><a href="chapter_08.html">CHAPTER 8 - Neopixel ?쒖뼱</a></li>
-                <li><a href="chapter_09.html">CHAPTER 9 - I2C LCD ?붿뒪?뚮젅??/a></li>
-                <li><a href="chapter_10.html">CHAPTER 10 - 臾댁꽑 ?듭떊 & ?낅젰</a></li>
-                <li class="menu-divider">?ы솕 ?묒슜 ?꾨줈?앺듃</li>
-                <li><a href="chapter_11.html">CHAPTER 11 - MQTT ?대씪?곕뱶</a></li>
+                <li><a href="index.html">HOME - 시작하기</a></li>
+                <li class="menu-divider">기초 & 통신 파트</li>
+                <li><a href="chapter_01.html">CHAPTER 1 - 하드웨어 이해</a></li>
+                <li><a href="chapter_02.html">CHAPTER 2 - 펌웨어 세팅</a></li>
+                <li><a href="chapter_03.html">CHAPTER 3 - 기초 코딩(Blink)</a></li>
+                <li><a href="chapter_04.html">CHAPTER 4 - 기본 입출력(스위치/부저)</a></li>
+                <li><a href="chapter_05.html">CHAPTER 5 - 센서 제어(초음파/PIR)</a></li>
+                <li class="menu-divider">실전 하드웨어</li>
+                <li><a href="chapter_06.html">CHAPTER 6 - 아날로그 & 모터</a></li>
+                <li><a href="chapter_07.html">CHAPTER 7 - 온습도 & 데이터</a></li>
+                <li><a href="chapter_08.html">CHAPTER 8 - Neopixel 제어</a></li>
+                <li><a href="chapter_09.html">CHAPTER 9 - I2C LCD 디스플레이</a></li>
+                <li><a href="chapter_10.html">CHAPTER 10 - 무선 통신 & 입력</a></li>
+                <li class="menu-divider">심화 응용 프로젝트</li>
+                <li><a href="chapter_11.html">CHAPTER 11 - MQTT 클라우드</a></li>
                 <li><a href="chapter_12.html" class="active">CHAPTER 12 - OLED & RTC</a></li>
-                <li><a href="chapter_13.html">CHAPTER 13 - 醫낇빀 ?꾨줈?앺듃</a></li>
-                <li class="menu-divider">?섎쭔???묓뭹 留뚮뱾湲?/li>
-                <li><a href="chapter_16.html">CHAPTER 16 - 諛붿씠釉?肄붾뵫 罹≪뒪??/a></li>
+                <li><a href="chapter_13.html">CHAPTER 13 - 종합 프로젝트</a></li>
+                <li><a href="chapter_14.html">CHAPTER 14 - 스마트 온습도 모니터</a></li>
+                <li class="menu-divider">나만의 작품 만들기</li>
+                <li><a href="chapter_16.html">CHAPTER 16 - 바이브 코딩 캡스톤</a></li>
             </ul>
             <div class="sidebar-footer">
-                <button class="pinout-btn" id="openPinout"><i class="fa-solid fa-diagram-project"></i> GPIO ??꾩썐 留?蹂닿린</button>
+                <button class="pinout-btn" id="openPinout"><i class="fa-solid fa-diagram-project"></i> GPIO 핀아웃 맵 보기</button>
             </div>
         </nav>
         <main class="content">
             <div class="container">
-                <h1>Chapter 12. OLED? RTC瑜??댁슜???ㅻ쭏???쒓퀎</h1>
-                <p>怨좏빐?곷룄 0.96?몄튂 OLED? ?뺣? ?쒓컙 紐⑤뱢(RTC)???댁슜???섎쭔???곸긽?쒓퀎瑜?留뚮벊?덈떎. I2C 踰꾩뒪 ?섎굹????媛쒖쓽 ?μ튂瑜??곌껐?섎뒗 諛⑸쾿(Daisy Chain)???숈뒿?⑸땲??</p>
+                <h1>Chapter 12. OLED와 RTC를 이용한 스마트 시계</h1>
+                <p>고해상도 0.96인치 OLED와 정밀 시간 모듈(RTC)을 이용해 나만의 탁상시계를 만듭니다. I2C 버스 하나에 두 개의 장치를 연결하는 방법(Daisy Chain)을 학습합니다.</p>
 
                 <div style="text-align: center; margin: 30px 0;">
                     <svg viewBox="0 0 880 350" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="clockDiagramTitle clockDiagramDesc" style="max-width: 100%; height: auto; border-radius: 16px; background: #f8fafc; border: 1px solid #e2e8f0; box-shadow: 0 8px 24px rgba(15,23,42,0.08);">
-                        <title id="clockDiagramTitle">OLED? DS3231 RTC I2C 蹂묐젹 ?곌껐??/title>
-                        <desc id="clockDiagramDesc">Pico 2 W??GP8 SDA? GP9 SCL??OLED? DS3231 RTC 紐⑤뱢??媛숈? I2C 踰꾩뒪濡??곌껐?⑸땲??</desc>
+                        <title id="clockDiagramTitle">OLED와 DS3231 RTC I2C 병렬 연결도</title>
+                        <desc id="clockDiagramDesc">Pico 2 W의 GP8 SDA와 GP9 SCL에 OLED와 DS3231 RTC 모듈을 같은 I2C 버스로 연결합니다.</desc>
                         <defs>
                             <marker id="arr12Sda" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#2563eb"/></marker>
                             <marker id="arr12Scl" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#7c3aed"/></marker>
                             <filter id="shadow12" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.14"/></filter>
                         </defs>
 
-                        <text x="160" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">?쒖뼱 蹂대뱶</text>
-                        <text x="608" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">I2C 踰꾩뒪 怨듭쑀 ?μ튂</text>
+                        <text x="160" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">제어 보드</text>
+                        <text x="608" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">I2C 버스 공유 장치</text>
 
                         <g fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M282 118 H418 V94 H550" stroke="#2563eb" stroke-width="4" marker-end="url(#arr12Sda)"/>
@@ -65,7 +66,7 @@
                             <rect x="92" y="78" width="190" height="220" rx="14" fill="#059669"/>
                             <text x="187" y="142" text-anchor="middle" fill="white" font-size="20" font-weight="800">Pico 2 W</text>
                             <text x="187" y="166" text-anchor="middle" fill="#dcfce7" font-size="12">I2C Master</text>
-                            <text x="187" y="250" text-anchor="middle" fill="#bbf7d0" font-size="12">RTC ?쒓컙 ?쎄린 + OLED ?쒖떆</text>
+                            <text x="187" y="250" text-anchor="middle" fill="#bbf7d0" font-size="12">RTC 시간 읽기 + OLED 표시</text>
                         </g>
                         <circle cx="282" cy="118" r="6" fill="#dbeafe"/>
                         <text x="224" y="108" fill="#ecfeff" font-size="11" font-weight="800">GP8 SDA</text>
@@ -93,37 +94,37 @@
                         <circle cx="552" cy="276" r="6" fill="#7c3aed"/>
 
                         <rect x="92" y="318" width="670" height="28" rx="8" fill="#ffffff" stroke="#e2e8f0"/>
-                        <text x="427" y="337" text-anchor="middle" fill="#475569" font-size="12">OLED? RTC??SDA/SCL ???좎쓣 ?④퍡 ?곷땲?? 二쇱냼媛 ?ㅻⅤ湲??뚮Ц??媛숈? I2C 踰꾩뒪?먯꽌 ?숈떆???숈옉?⑸땲??</text>
+                        <text x="427" y="337" text-anchor="middle" fill="#475569" font-size="12">OLED와 RTC는 SDA/SCL 두 선을 함께 씁니다. 주소가 다르기 때문에 같은 I2C 버스에서 동시에 동작합니다.</text>
                     </svg>
-                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">I2C 蹂묐젹 ?곌껐: OLED? RTC??SDA/SCL??Pico??GP8/GP9??怨듯넻?쇰줈 ?곌껐?⑸땲?? OLED??蹂댄넻 <code>0x3C</code>, DS3231? <code>0x68</code> 二쇱냼瑜??ъ슜?⑸땲??</p>
+                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">I2C 병렬 연결: OLED와 RTC의 SDA/SCL을 Pico의 GP8/GP9에 공통으로 연결합니다. OLED는 보통 <code>0x3C</code>, DS3231은 <code>0x68</code> 주소를 사용합니다.</p>
                 </div>
 
                 <div class="callout info">
-                    <h4>?뮕 I2C? RTC 湲곕낯 媛쒕뀗 ?뺣━</h4>
-                    <p><strong>I2C(Inter-Integrated Circuit)</strong>??<code>SDA</code>(?곗씠?곗꽑)? <code>SCL</code>(?대윮??, ??2媛쒖쓽 ?좎쑝濡??щ윭 媛쒖쓽 ?μ튂瑜??숈떆???곌껐?????덈뒗 ?듭떊 諛⑹떇?낅땲?? 留덉튂 ?щ윭 ?щ엺??媛숈? 臾댁쟾湲?梨꾨꼸???곗?留?媛곸옄??"?몄텧 遺??二쇱냼)"濡??먯떊???ν븳 硫붿떆吏留??뚯븘?ｋ뒗 寃껉낵 鍮꾩듂?⑸땲?? ??梨뺥꽣?먯꽌??OLED(<code>0x3C</code>)? DS3231 RTC(<code>0x68</code>)媛 ?쒕줈 ?ㅻⅨ 二쇱냼瑜?媛吏怨??덉뼱 媛숈? ????<code>GP8</code>/<code>GP9</code>)??怨듭쑀?대룄 異⑸룎?섏? ?딆뒿?덈떎.</p>
-                    <p style="margin-top:10px;"><strong>RTC(Real Time Clock)</strong>??Pico???꾩썝??爰쇱졇???먯껜 諛고꽣由?蹂댄넻 CR2032)濡?怨꾩냽 ?쒓컙???몃뒗 ?꾩슜 ?쒓퀎 移⑹엯?덈떎. Pico ?먯껜?먮룄 ?뚰봽?몄썾????대㉧???덉?留? ?꾩썝???딄린硫??쒓컙??珥덇린?붾맗?덈떎. DS3231? ?⑤룄 蹂댁젙 ?섏젙 諛쒖쭊湲곕? ?댁옣???섎（???ㅼ감媛 紐?珥??대궡濡?留ㅼ슦 ?뺣???寃껋씠 ?뱀쭠?낅땲??</p>
+                    <h4>💡 I2C와 RTC 기본 개념 정리</h4>
+                    <p><strong>I2C(Inter-Integrated Circuit)</strong>는 <code>SDA</code>(데이터선)와 <code>SCL</code>(클럭선), 단 2개의 선으로 여러 개의 장치를 동시에 연결할 수 있는 통신 방식입니다. 마치 여러 사람이 같은 무전기 채널을 쓰지만 각자의 "호출 부호(주소)"로 자신을 향한 메시지만 알아듣는 것과 비슷합니다. 이 챕터에서는 OLED(<code>0x3C</code>)와 DS3231 RTC(<code>0x68</code>)가 서로 다른 주소를 가지고 있어 같은 두 선(<code>GP8</code>/<code>GP9</code>)을 공유해도 충돌하지 않습니다.</p>
+                    <p style="margin-top:10px;"><strong>RTC(Real Time Clock)</strong>는 Pico의 전원이 꺼져도 자체 배터리(보통 CR2032)로 계속 시간을 세는 전용 시계 칩입니다. Pico 자체에도 소프트웨어 타이머는 있지만, 전원이 끊기면 시간이 초기화됩니다. DS3231은 온도 보정 수정 발진기를 내장해 하루에 오차가 몇 초 이내로 매우 정밀한 것이 특징입니다.</p>
                 </div>
 
-                <h2>12.1 以鍮꾨Ъ怨??곌껐 ?</h2>
-                <p>I2C???щ윭 ?μ튂瑜?媛숈? ?좎뿉 ?곌껐?????덉뒿?덈떎. 以묒슂??寃껋? 紐⑤뱺 ?μ튂??<code>SDA</code>??<code>SDA</code>?쇰━, <code>SCL</code>? <code>SCL</code>?쇰━ 臾띔퀬 二쇱냼媛 寃뱀튂吏 ?딅뒗吏 ?뺤씤?섎뒗 寃껋엯?덈떎.</p>
+                <h2>12.1 준비물과 연결 핀</h2>
+                <p>I2C는 여러 장치를 같은 선에 연결할 수 있습니다. 중요한 것은 모든 장치의 <code>SDA</code>는 <code>SDA</code>끼리, <code>SCL</code>은 <code>SCL</code>끼리 묶고 주소가 겹치지 않는지 확인하는 것입니다.</p>
 
                 <table style="width: 100%; border-collapse: collapse; margin: 20px 0 30px; font-size: 0.98rem;">
                     <thead>
                         <tr style="background: #f1f5f9; color: #0f172a;">
-                            <th style="border: 1px solid #e2e8f0; padding: 10px;">?μ튂</th>
-                            <th style="border: 1px solid #e2e8f0; padding: 10px;">Pico 2 W ?</th>
-                            <th style="border: 1px solid #e2e8f0; padding: 10px;">??븷</th>
+                            <th style="border: 1px solid #e2e8f0; padding: 10px;">장치</th>
+                            <th style="border: 1px solid #e2e8f0; padding: 10px;">Pico 2 W 핀</th>
+                            <th style="border: 1px solid #e2e8f0; padding: 10px;">역할</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">OLED SDA / SCL</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>GP8</code> / <code>GP9</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">?쒓컙 ?쒖떆</td></tr>
-                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">DS3231 SDA / SCL</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>GP8</code> / <code>GP9</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">?뺣? ?쒓컙 ?좎?</td></tr>
-                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">VCC / GND</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>3V3</code>, <code>GND</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">怨듯넻 ?꾩썝</td></tr>
+                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">OLED SDA / SCL</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>GP8</code> / <code>GP9</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">시간 표시</td></tr>
+                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">DS3231 SDA / SCL</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>GP8</code> / <code>GP9</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">정밀 시간 유지</td></tr>
+                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">VCC / GND</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>3V3</code>, <code>GND</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">공통 전원</td></tr>
                     </tbody>
                 </table>
 
-                <h2>12.2 DS3231 湲곕컲 ?ㅻ쭏???쒓퀎 ?뚯뒪 肄붾뱶</h2>
-                <p>?ъ쟾 以鍮? Thonny ?⑦궎吏 愿由ъ옄?먯꽌 <strong><code>ssd1306</code></strong> ?쇱씠釉뚮윭由щ? ?ㅼ튂?댁빞 ?⑸땲??</p>
+                <h2>12.2 DS3231 기반 스마트 시계 소스 코드</h2>
+                <p>사전 준비: Thonny 패키지 관리자에서 <strong><code>ssd1306</code></strong> 라이브러리를 설치해야 합니다.</p>
 
                 <pre><code>import machine
 import ssd1306
@@ -182,10 +183,10 @@ if DS3231_ADDR not in devices:
     oled.show()
     raise RuntimeError("DS3231 not found")
 
-# 理쒖큹 1?뚮쭔 ?쒓컙??留욎텧 ???ъ슜?섍퀬, 留욎텣 ?ㅼ뿉??二쇱꽍 泥섎━?섏꽭??
+# 최초 1회만 시간을 맞출 때 사용하고, 맞춘 뒤에는 주석 처리하세요.
 # set_ds3231(2026, 6, 2, 2, 12, 0, 0)
 
-print("Smart Clock 媛??..")
+print("Smart Clock 가동...")
 
 while True:
     now = read_ds3231()
@@ -194,29 +195,29 @@ while True:
 </code></pre>
 
                 <div class="callout info">
-                    <h4>?뮕 I2C 二쇱냼 ?뺤씤</h4>
-                    <p>OLED??蹂댄넻 <code>0x3C</code>, RTC??<code>0x68</code> 二쇱냼瑜?媛吏묐땲?? Chapter 9???ㅼ틪 肄붾뱶瑜??쒖슜?????μ튂媛 紐⑤몢 ?몄떇?섎뒗吏 癒쇱? ?뺤씤?섏꽭??</p>
+                    <h4>💡 I2C 주소 확인</h4>
+                    <p>OLED는 보통 <code>0x3C</code>, RTC는 <code>0x68</code> 주소를 가집니다. Chapter 9의 스캔 코드를 활용해 두 장치가 모두 인식되는지 먼저 확인하세요.</p>
                 </div>
 
-                <h2>12.3 ?숈옉 ?먮쫫</h2>
-                <p>?꾨줈洹몃옩? 癒쇱? I2C 踰꾩뒪?먯꽌 OLED? DS3231??蹂댁씠?붿? ?뺤씤?⑸땲?? RTC媛 ?곌껐?섏뼱 ?덉쑝硫?DS3231??BCD ?뺤떇 ?쒓컙 ?곗씠?곕? ?쎌뼱 ?щ엺???쎈뒗 ?レ옄濡?諛붽씀怨? OLED???좎쭨? ?쒓컙??1珥덈쭏???ㅼ떆 洹몃┰?덈떎. ??踰??쒓컙??留욎텣 ?ㅼ뿉??DS3231??諛고꽣由ш? ?쒓컙??怨꾩냽 ?좎??⑸땲??</p>
+                <h2>12.3 동작 흐름</h2>
+                <p>프로그램은 먼저 I2C 버스에서 OLED와 DS3231이 보이는지 확인합니다. RTC가 연결되어 있으면 DS3231의 BCD 형식 시간 데이터를 읽어 사람이 읽는 숫자로 바꾸고, OLED에 날짜와 시간을 1초마다 다시 그립니다. 한 번 시간을 맞춘 뒤에는 DS3231의 배터리가 시간을 계속 유지합니다.</p>
 
                 <div class="callout info">
-                    <h4>?뮕 BCD(Binary-Coded Decimal)??</h4>
-                    <p>DS3231? ?쒓컙 媛믪쓣 <strong>BCD ?뺤떇</strong>?쇰줈 ??ν빀?덈떎. ?덈? ?ㅼ뼱 ?レ옄 <code>45</code>???댁쭊?섎줈 <code>101101</code>???꾨땲?? "4"? "5"瑜?媛곴컖 4鍮꾪듃???섎닠 <code>0100 0101</code>濡??쒗쁽?⑸땲?? <code>bcd_to_dec()</code>?????뺤떇???ㅼ떆 ?곕━媛 ?쎈뒗 10吏꾩닔濡?諛붽퓭二쇨퀬, <code>dec_to_bcd()</code>??諛섎?濡?蹂?섑빐 RTC??湲곕줉?????ъ슜?⑸땲??</p>
+                    <h4>💡 BCD(Binary-Coded Decimal)란?</h4>
+                    <p>DS3231은 시간 값을 <strong>BCD 형식</strong>으로 저장합니다. 예를 들어 숫자 <code>45</code>는 이진수로 <code>101101</code>이 아니라, "4"와 "5"를 각각 4비트씩 나눠 <code>0100 0101</code>로 표현합니다. <code>bcd_to_dec()</code>는 이 형식을 다시 우리가 읽는 10진수로 바꿔주고, <code>dec_to_bcd()</code>는 반대로 변환해 RTC에 기록할 때 사용합니다.</p>
                 </div>
 
-                <h3>?룇 怨쇱젣 ?닿껐?대낫湲?</h3>
+                <h3>🏆 과제 해결해보기!</h3>
 
                 <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin-bottom: 24px;">
-                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 怨쇱젣 1. ?붿씪???쒓?濡??쒖떆?섍린</h4>
-                    <p style="margin-bottom:16px;">DS3231??<code>weekday</code> 媛믪? 1(?붿슂??~7(?쇱슂?????レ옄濡쒕쭔 諛섑솚?⑸땲?? ???レ옄瑜?"??, "??, "?? ???쒓? ?붿씪 臾몄옄?대줈 諛붽퓭 OLED ?붾㈃???④퍡 ?쒖떆?섎룄濡?<code>draw_clock()</code> ?⑥닔瑜??섏젙??蹂댁꽭??</p>
+                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 과제 1. 요일을 한글로 표시하기</h4>
+                    <p style="margin-bottom:16px;">DS3231의 <code>weekday</code> 값은 1(월요일)~7(일요일)의 숫자로만 반환됩니다. 이 숫자를 "월", "화", "수" 등 한글 요일 문자열로 바꿔 OLED 화면에 함께 표시하도록 <code>draw_clock()</code> 함수를 수정해 보세요.</p>
                     <details style="border-radius:8px; border:1px solid #c4b5fd; overflow:hidden;">
                         <summary style="background:#ede9fe; padding:11px 15px; cursor:pointer; font-weight:600; color:#6d28d9; list-style:none;">
-                            ?뮲 ?뺣떟 肄붾뱶 蹂닿린
+                            💻 정답 코드 보기
                         </summary>
                         <div style="padding:15px;">
-<pre style="margin:0;"><code>WEEKDAY_KR = ["", "??, "??, "??, "紐?, "湲?, "??, "??]  # ?몃뜳??0? ?ъ슜 ????
+<pre style="margin:0;"><code>WEEKDAY_KR = ["", "월", "화", "수", "목", "금", "토", "일"]  # 인덱스 0은 사용 안 함
 
 def draw_clock(now):
     year, month, day, weekday, hour, minute, second = now
@@ -232,11 +233,11 @@ def draw_clock(now):
                 </div>
 
                 <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin-bottom: 30px;">
-                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 怨쇱젣 2. ?뚮엺 湲곕뒫 異붽??섍린</h4>
-                    <p>吏?뺥븳 ?쒓컖(?? 留ㅼ씪 ?ㅼ쟾 7??30遺????섎㈃ OLED??"ALARM!" 臾멸뎄瑜??쒖떆?섎뒗 湲곕뒫??異붽???蹂댁꽭?? (?뚰듃: <code>read_ds3231()</code>濡??쎌? <code>hour</code>, <code>minute</code> 媛믪쓣 ?먰븯???뚮엺 ?쒓컖怨?鍮꾧탳?⑸땲??)</p>
+                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 과제 2. 알람 기능 추가하기</h4>
+                    <p>지정한 시각(예: 매일 오전 7시 30분)이 되면 OLED에 "ALARM!" 문구를 표시하는 기능을 추가해 보세요. (힌트: <code>read_ds3231()</code>로 읽은 <code>hour</code>, <code>minute</code> 값을 원하는 알람 시각과 비교합니다.)</p>
                     <details style="border-radius:8px; border:1px solid #c4b5fd; overflow:hidden; margin-top:12px;">
                         <summary style="background:#ede9fe; padding:11px 15px; cursor:pointer; font-weight:600; color:#6d28d9; list-style:none;">
-                            ?뮲 ?뺣떟 肄붾뱶 蹂닿린
+                            💻 정답 코드 보기
                         </summary>
                         <div style="padding:15px;">
 <pre style="margin:0;"><code>ALARM_HOUR = 7
@@ -259,15 +260,15 @@ while True:
                     </details>
                 </div>
 
-                <h2>12.4 Wokwi ?쒕??덉씠?섏쑝濡??ㅼ뒿?섍린</h2>
-                <p>Chapter 1(1.8)?먯꽌 ?뚭컻??<a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">Wokwi</a> ?⑤씪???쒕??덉씠?곗뿉??OLED? RTC 議고빀??誘몃━ ?곗뒿?대낵 ???덉뒿?덈떎.</p>
+                <h2>12.4 Wokwi 시뮬레이션으로 실습하기</h2>
+                <p>Chapter 1(1.8)에서 소개한 <a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">Wokwi</a> 온라인 시뮬레이터에서 OLED와 RTC 조합을 미리 연습해볼 수 있습니다.</p>
 
                 <div class="callout info">
-                    <h4>?좑툘 DS3231 ???DS1307???ъ슜?⑸땲??/h4>
-                    <p>Wokwi??遺???쇱씠釉뚮윭由ъ뿉??<strong>DS3231???꾩쭅 ?뺤떇?쇰줈 ?깅줉?섏뼱 ?덉? ?딆뒿?덈떎.</strong> ????덉??ㅽ꽣 援ъ“媛 嫄곗쓽 ?숈씪??<code>wokwi-ds1307</code> 遺?덉쓣 ??덉쑝濡??ъ슜???쒕??덉씠?섑븷 ???덉뒿?덈떎. DS1307??媛숈? BCD ?뺤떇?쇰줈 珥?遺????붿씪/???????덉??ㅽ꽣(<code>0x00</code>~<code>0x06</code>)瑜??쒓났?섎?濡? ??肄붾뱶??<code>i2c.writeto_mem()</code> / <code>readfrom_mem()</code> ?몄텧 諛⑹떇? 嫄곗쓽 洹몃?濡??ъ궗?⑺븷 ???덉뒿?덈떎. ?ㅻ쭔 ?닿쾬? ?쒕??덉씠???꾩슜 ?泥댁씠硫? ?ㅼ젣 諛곗꽑/肄붾뱶 寃利앹? 諛섎뱶???ㅼ젣 DS3231 紐⑤뱢濡?吏꾪뻾?섏꽭??</p>
+                    <h4>⚠️ DS3231 대신 DS1307을 사용합니다</h4>
+                    <p>Wokwi의 부품 라이브러리에는 <strong>DS3231이 아직 정식으로 등록되어 있지 않습니다.</strong> 대신 레지스터 구조가 거의 동일한 <code>wokwi-ds1307</code> 부품을 대안으로 사용해 시뮬레이션할 수 있습니다. DS1307도 같은 BCD 형식으로 초/분/시/요일/일/월/년 레지스터(<code>0x00</code>~<code>0x06</code>)를 제공하므로, 위 코드의 <code>i2c.writeto_mem()</code> / <code>readfrom_mem()</code> 호출 방식은 거의 그대로 재사용할 수 있습니다. 다만 이것은 시뮬레이션 전용 대체이며, 실제 배선/코드 검증은 반드시 실제 DS3231 모듈로 진행하세요.</p>
                 </div>
 
-                <p>?꾨옒 <code>diagram.json</code>??Wokwi ?꾨줈?앺듃??diagram ?몄쭛湲곗뿉 遺숈뿬?ｊ퀬, <code>main.py</code>?먮뒗 ??12.2?덉쓽 肄붾뱶瑜?洹몃?濡?遺숈뿬?ｌ? ??珥덈줉???띰툘 ?ъ깮 踰꾪듉???꾨Ⅴ硫?OLED???쒓컙???쒖떆?섎뒗吏 ?뺤씤?????덉뒿?덈떎.</p>
+                <p>아래 <code>diagram.json</code>을 Wokwi 프로젝트의 diagram 편집기에 붙여넣고, <code>main.py</code>에는 위 12.2절의 코드를 그대로 붙여넣은 뒤 초록색 ▶️ 재생 버튼을 누르면 OLED에 시간이 표시되는지 확인할 수 있습니다.</p>
 
                 <pre><code>{
   "version": 1,
@@ -291,12 +292,12 @@ while True:
 }</code></pre>
 
                 <div class="callout info">
-                    <p><strong>?뮕 Tip:</strong> DS3231 二쇱냼(<code>0x68</code>)? DS1307 二쇱냼媛 ?숈씪?섍쾶 <code>0x68</code>?닿린 ?뚮Ц??<code>DS3231_ADDR = 0x68</code> 肄붾뱶???섏젙 ?놁씠 洹몃?濡??ъ슜?????덉뒿?덈떎. ?뺥솗??遺???대쫫怨??띿꽦? Wokwi ?몄쭛湲곗쓽 遺??寃?됱갹?먯꽌 ?ㅼ떆 ?뺤씤?섎뒗 寃껋쓣 沅뚯옣?⑸땲??</p>
+                    <p><strong>💡 Tip:</strong> DS3231 주소(<code>0x68</code>)와 DS1307 주소가 동일하게 <code>0x68</code>이기 때문에 <code>DS3231_ADDR = 0x68</code> 코드는 수정 없이 그대로 사용할 수 있습니다. 정확한 부품 이름과 속성은 Wokwi 편집기의 부품 검색창에서 다시 확인하는 것을 권장합니다.</p>
                 </div>
 
                 <div class="nav-btns">
-                    <a href="chapter_11.html" class="btn btn-prev">? CHAPTER 11</a>
-                    <a href="chapter_13.html" class="btn btn-next">CHAPTER 13?쇰줈 ?대룞 ??/a>
+                    <a href="chapter_11.html" class="btn btn-prev">◀ CHAPTER 11</a>
+                    <a href="chapter_13.html" class="btn btn-next">CHAPTER 13으로 이동 ▶</a>
                 </div>
             </div>
         </main>
@@ -312,12 +313,12 @@ while True:
             wrapper.appendChild(preBlock);
             const topBtn = document.createElement('button');
             topBtn.className = 'copy-btn btn-top';
-            topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 蹂듭궗';
+            topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
             wrapper.appendChild(topBtn);
             topBtn.addEventListener('click', () => {
                 navigator.clipboard.writeText(codeBlock.innerText).then(() => {
-                    topBtn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> ?꾨즺';
-                    setTimeout(() => { topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 蹂듭궗'; }, 2000);
+                    topBtn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> 완료';
+                    setTimeout(() => { topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사'; }, 2000);
                 });
             });
         });
@@ -357,4 +358,3 @@ while True:
     <script src="mobile-nav.js"></script>
 </body>
 </html>
-

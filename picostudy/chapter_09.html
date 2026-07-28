@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ch 9. LCD ?붿뒪?뚮젅??- Pico 2 媛?대뱶</title>
+    <title>Ch 9. LCD 디스플레이 - Pico 2 가이드</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -12,37 +12,38 @@
         <nav class="sidebar">
             <h2>PICO 2 IoT GUIDE</h2>
             <ul>
-                <li><a href="index.html">HOME - ?쒖옉?섍린</a></li>
-                <li class="menu-divider">湲곗큹 & ?듭떊 ?뚰듃</li>
-                <li><a href="chapter_01.html">CHAPTER 1 - ?섎뱶?⑥뼱 ?댄빐</a></li>
-                <li><a href="chapter_02.html">CHAPTER 2 - ?뚯썾???명똿</a></li>
-                <li><a href="chapter_03.html">CHAPTER 3 - 湲곗큹 肄붾뵫(Blink)</a></li>
-                <li><a href="chapter_04.html">CHAPTER 4 - 湲곕낯 ?낆텧???ㅼ쐞移?遺?)</a></li>
-                <li><a href="chapter_05.html">CHAPTER 5 - ?쇱꽌 ?쒖뼱(珥덉쓬??PIR)</a></li>
-                <li class="menu-divider">?ㅼ쟾 ?섎뱶?⑥뼱</li>
-                <li><a href="chapter_06.html">CHAPTER 6 - ?꾨궇濡쒓렇 & 紐⑦꽣</a></li>
-                <li><a href="chapter_07.html">CHAPTER 7 - ?⑥뒿??& ?곗씠??/a></li>
-                <li><a href="chapter_08.html">CHAPTER 8 - Neopixel ?쒖뼱</a></li>
-                <li><a href="chapter_09.html" class="active">CHAPTER 9 - I2C LCD ?붿뒪?뚮젅??/a></li>
-                <li><a href="chapter_10.html">CHAPTER 10 - 臾댁꽑 ?듭떊 & ?낅젰</a></li>
-                <li class="menu-divider">?ы솕 ?묒슜 ?꾨줈?앺듃</li>
-                <li><a href="chapter_11.html">CHAPTER 11 - MQTT ?대씪?곕뱶</a></li>
+                <li><a href="index.html">HOME - 시작하기</a></li>
+                <li class="menu-divider">기초 & 통신 파트</li>
+                <li><a href="chapter_01.html">CHAPTER 1 - 하드웨어 이해</a></li>
+                <li><a href="chapter_02.html">CHAPTER 2 - 펌웨어 세팅</a></li>
+                <li><a href="chapter_03.html">CHAPTER 3 - 기초 코딩(Blink)</a></li>
+                <li><a href="chapter_04.html">CHAPTER 4 - 기본 입출력(스위치/부저)</a></li>
+                <li><a href="chapter_05.html">CHAPTER 5 - 센서 제어(초음파/PIR)</a></li>
+                <li class="menu-divider">실전 하드웨어</li>
+                <li><a href="chapter_06.html">CHAPTER 6 - 아날로그 & 모터</a></li>
+                <li><a href="chapter_07.html">CHAPTER 7 - 온습도 & 데이터</a></li>
+                <li><a href="chapter_08.html">CHAPTER 8 - Neopixel 제어</a></li>
+                <li><a href="chapter_09.html" class="active">CHAPTER 9 - I2C LCD 디스플레이</a></li>
+                <li><a href="chapter_10.html">CHAPTER 10 - 무선 통신 & 입력</a></li>
+                <li class="menu-divider">심화 응용 프로젝트</li>
+                <li><a href="chapter_11.html">CHAPTER 11 - MQTT 클라우드</a></li>
                 <li><a href="chapter_12.html">CHAPTER 12 - OLED & RTC</a></li>
-                <li><a href="chapter_13.html">CHAPTER 13 - 醫낇빀 ?꾨줈?앺듃</a></li>
-                <li class="menu-divider">?섎쭔???묓뭹 留뚮뱾湲?/li>
-                <li><a href="chapter_16.html">CHAPTER 16 - 諛붿씠釉?肄붾뵫 罹≪뒪??/a></li>
+                <li><a href="chapter_13.html">CHAPTER 13 - 종합 프로젝트</a></li>
+                <li><a href="chapter_14.html">CHAPTER 14 - 스마트 온습도 모니터</a></li>
+                <li class="menu-divider">나만의 작품 만들기</li>
+                <li><a href="chapter_16.html">CHAPTER 16 - 바이브 코딩 캡스톤</a></li>
             </ul>
             <div class="sidebar-footer">
-                <button class="pinout-btn" id="openPinout"><i class="fa-solid fa-diagram-project"></i> GPIO ??꾩썐 留?蹂닿린</button>
+                <button class="pinout-btn" id="openPinout"><i class="fa-solid fa-diagram-project"></i> GPIO 핀아웃 맵 보기</button>
             </div>
         </nav>
         <main class="content">
             <div class="container">
-                <h1>Chapter 9. I2C LCD ?붿뒪?뚮젅??臾몄옄??異쒕젰</h1>
-                <p>而댄벂??紐⑤땲???놁씠??蹂대뱶???꾩옱 ?곹깭???쇱꽌 ?곗씠??媛믪쓣 ?쒓컖?곸쑝濡?肉뚮젮以????덈뒗 I2C 洹쒓꺽??LCD1602 紐⑤뱢???듭젣??遊낅땲??</p>
+                <h1>Chapter 9. I2C LCD 디스플레이 문자열 출력</h1>
+                <p>컴퓨터 모니터 없이도 보드의 현재 상태나 센서 데이터 값을 시각적으로 뿌려줄 수 있는 I2C 규격의 LCD1602 모듈을 통제해 봅니다.</p>
                 <div style="text-align: center; margin: 40px 0;">
-                    <img src="./chapter0901.jpg" alt="?ㅻ쭏?명룿 IoT ?쒖뼱" style="max-width: 100%; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
-                    <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">?룸㈃??遺李⑸맂 寃???I2C 諛깊뙥 紐⑤뱢 ?뺣텇????4媛?μ쓽 ?좊쭔?쇰줈 ?붾㈃ ?쒖뼱媛 媛?ν빀?덈떎.</p>
+                    <img src="./chapter0901.jpg" alt="스마트폰 IoT 제어" style="max-width: 100%; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+                    <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">뒷면에 부착된 검은색 I2C 백팩 모듈 덕분에 단 4가닥의 선만으로 화면 제어가 가능합니다.</p>
                 </div>
 
                 <div style="text-align: center; margin: 20px 0;">
@@ -81,7 +82,7 @@
                         </g>
                         <!-- I2C backpack indicator -->
                         <rect x="415" y="158" width="145" height="22" rx="3" fill="#dbeafe" stroke="#3b82f6" stroke-width="1"/>
-                        <text x="487" y="173" text-anchor="middle" fill="#1d4ed8" font-size="9" font-weight="bold" font-family="Arial,sans-serif">I2C 諛깊뙥 (PCF8574) addr: 0x27</text>
+                        <text x="487" y="173" text-anchor="middle" fill="#1d4ed8" font-size="9" font-weight="bold" font-family="Arial,sans-serif">I2C 백팩 (PCF8574) addr: 0x27</text>
 
                         <!-- Component pin dots and labels -->
                         <circle cx="395" cy="75" r="4" fill="#ef4444"/>
@@ -94,17 +95,17 @@
                         <text x="390" y="177" text-anchor="end" fill="#374151" font-size="10" font-weight="bold" font-family="Arial,sans-serif">GND</text>
 
                         <!-- I2C label -->
-                        <text x="272" y="104" text-anchor="middle" fill="#2563eb" font-size="10" font-family="Arial,sans-serif">??I2C ?곗씠??SDA)</text>
-                        <text x="272" y="139" text-anchor="middle" fill="#7c3aed" font-size="10" font-family="Arial,sans-serif">??I2C ?대윮(SCL)</text>
+                        <text x="272" y="104" text-anchor="middle" fill="#2563eb" font-size="10" font-family="Arial,sans-serif">↔ I2C 데이터(SDA)</text>
+                        <text x="272" y="139" text-anchor="middle" fill="#7c3aed" font-size="10" font-family="Arial,sans-serif">↔ I2C 클럭(SCL)</text>
                     </svg>
-                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">LCD I2C 諛깊뙥: VCC??V3, SDA?묰P8(8踰??), SCL?묰P9(9踰??), GND?묰ND. I2C 踰꾩뒪 ?뺣텇??4媛?λ쭔?쇰줈 16횞2 LCD ?꾩껜瑜??쒖뼱?⑸땲??</p>
+                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">LCD I2C 백팩: VCC→3V3, SDA→GP8(8번 핀), SCL→GP9(9번 핀), GND→GND. I2C 버스 덕분에 4가닥만으로 16×2 LCD 전체를 제어합니다.</p>
                 </div>
 
-                <h2>9.1 ?ъ쟾 以鍮? 援щ룞 ?쇱씠釉뚮윭由??뚯씪 ?낅줈??(留ㅼ슦 以묒슂)</h2>
-                <p>LCD瑜??뚯씠??肄붾뱶濡??쎄쾶 ?쒖뼱?섎젮硫? ???멸퀎 留덉씠?щ줈?뚯씠??媛쒕컻?먮뱾???쒖??쇰줈 ?ъ슜?섎뒗 ?ㅽ뵂?뚯뒪 ?쇱씠釉뚮윭由??뚯씪 <strong>2媛?/strong>媛 Pico 蹂대뱶 ?대???誘몃━ ??λ릺???덉뼱???⑸땲?? ?꾨옒 ??肄붾뱶瑜?媛곴컖 蹂듭궗?섏뿬 Thonny?먯꽌 ???뚯씪濡?留뚮뱺 ?? 吏?뺣맂 ?대쫫?쇰줈 ??ν빐 二쇱꽭??</p>
+                <h2>9.1 사전 준비: 구동 라이브러리 파일 업로드 (매우 중요)</h2>
+                <p>LCD를 파이썬 코드로 쉽게 제어하려면, 전 세계 마이크로파이썬 개발자들이 표준으로 사용하는 오픈소스 라이브러리 파일 <strong>2개</strong>가 Pico 보드 내부에 미리 저장되어 있어야 합니다. 아래 두 코드를 각각 복사하여 Thonny에서 새 파일로 만든 뒤, 지정된 이름으로 저장해 주세요.</p>
 
                 <div class="callout info">
-                    <p><i class="fa-solid fa-file-code"></i> <strong>泥?踰덉㎏ ?뚯씪:</strong> 怨듯넻 堉덈? ??븷???섎뒗 ?뚯씪?낅땲?? ?꾨옒 肄붾뱶瑜?<code>lcd_api.py</code> ?대쫫?쇰줈 ??ν븯?몄슂.</p>
+                    <p><i class="fa-solid fa-file-code"></i> <strong>첫 번째 파일:</strong> 공통 뼈대 역할을 하는 파일입니다. 아래 코드를 <code>lcd_api.py</code> 이름으로 저장하세요.</p>
                 </div>
                 <pre><code>import time
 
@@ -141,7 +142,7 @@ class LcdApi:
     LCD_5X10_DOTS = 0x04
     LCD_5X8_DOTS = 0x00
 
-    # I2cLcd媛 李얜뒗 由ъ뀑 鍮꾪듃 ?ㅼ젙??
+    # I2cLcd가 찾는 리셋 비트 설정들
     LCD_FUNCTION_RESET = 0x30
 
     def __init__(self, num_lines, num_columns):
@@ -260,7 +261,7 @@ class LcdApi:
 </code></pre>
 
                 <div class="callout info">
-                    <p><i class="fa-solid fa-file-code"></i> <strong>??踰덉㎏ ?뚯씪:</strong> I2C ?듭떊 洹쒓꺽???ㅻ（???뚯씪?낅땲?? ?꾨옒 肄붾뱶瑜?<code>pico_i2c_lcd.py</code> ?대쫫?쇰줈 ??ν븯?몄슂.</p>
+                    <p><i class="fa-solid fa-file-code"></i> <strong>두 번째 파일:</strong> I2C 통신 규격을 다루는 파일입니다. 아래 코드를 <code>pico_i2c_lcd.py</code> 이름으로 저장하세요.</p>
                 </div>
                 <pre><code>import time
 from machine import I2C
@@ -280,7 +281,7 @@ class I2cLcd(LcdApi):
         self.i2c.writeto(self.i2c_addr, bytes([0]))
         time.sleep_ms(20)
         
-        # ?먮윭 諛쒖깮 吏???듦낵瑜??꾪븳 珥덇린???꾨줈?좎퐳
+        # 에러 발생 지점 통과를 위한 초기화 프로토콜
         self.hal_write_init_nibble(self.LCD_FUNCTION_RESET)
         time.sleep_ms(5)
         self.hal_write_init_nibble(self.LCD_FUNCTION_RESET)
@@ -329,51 +330,51 @@ class I2cLcd(LcdApi):
 </code></pre>
 
                 <div class="callout info">
-                    <h4>?뮕 I2C? 臾댁뾿?닿퀬, ???좎씠 2媛쒕퓧?쇨퉴?</h4>
-                    <p><strong>I2C(?꾩씠?ㅽ섏뼱??</strong>???щ윭 遺?덉쓣 ??2媛쒖쓽 ?좏샇??<code>SDA</code>=?곗씠?? <code>SCL</code>=?대윮)留뚯쑝濡??듭떊?섍쾶 ?댁＜??洹쒓꺽?낅땲?? ?먮옒 LCD1602???곗씠???留?6~11媛쒓? ?꾩슂??遺?덉씠吏留? ?룸㈃??<strong>I2C 諛깊뙥(PCF8574 移?</strong>??異붽?濡?遺숈뼱??洹?留롮? ???SDA/SCL ??2媛?μ쑝濡??뺤텞쨌蹂?섑빐 以띾땲?? 洹몃옒???곕━??4媛??VCC, GND, SDA, SCL)留??곌껐?섎㈃ ?⑸땲??</p>
+                    <h4>💡 I2C란 무엇이고, 왜 선이 2개뿐일까?</h4>
+                    <p><strong>I2C(아이스퀘어씨)</strong>는 여러 부품을 단 2개의 신호선(<code>SDA</code>=데이터, <code>SCL</code>=클럭)만으로 통신하게 해주는 규격입니다. 원래 LCD1602는 데이터 핀만 6~11개가 필요한 부품이지만, 뒷면에 <strong>I2C 백팩(PCF8574 칩)</strong>이 추가로 붙어서 그 많은 핀을 SDA/SCL 단 2가닥으로 압축·변환해 줍니다. 그래서 우리는 4가닥(VCC, GND, SDA, SCL)만 연결하면 됩니다.</p>
                 </div>
 
-                <h2>9.2 I2C ?붾컮?댁뒪 二쇱냼 ?ㅼ틪?섍린</h2>
-                <p>?쇱씠釉뚮윭由?以鍮꾧? ?앸궗?ㅻ㈃ ?섎뱶?⑥뼱媛 ?щ컮瑜?臾쇰━ 梨꾨꼸???묒냽?섏뿀?붿? ?뺤씤?댁빞 ?⑸땲?? ?꾨옒 肄붾뱶瑜??ㅽ뻾?섏뿬 ???붿뒪?뚮젅?댁쓽 怨좎쑀 16吏꾩닔 二쇱냼(Address)瑜??뚯븘?낅땲??</p>
+                <h2>9.2 I2C 디바이스 주소 스캔하기</h2>
+                <p>라이브러리 준비가 끝났다면 하드웨어가 올바른 물리 채널에 접속되었는지 확인해야 합니다. 아래 코드를 실행하여 내 디스플레이의 고유 16진수 주소(Address)를 알아냅니다.</p>
                 <pre><code>from machine import I2C, Pin
 
-# Pico 2??I2C0踰?梨꾨꼸 ?쒖꽦??(SDA: GPIO 8, SCL: GPIO 9)
+# Pico 2의 I2C0번 채널 활성화 (SDA: GPIO 8, SCL: GPIO 9)
 i2c = I2C(0, sda=Pin(8), scl=Pin(9), freq=400000)
 
-print("I2C 臾댁꽑 ?μ튂 ?ㅼ틪 ?쒖옉...")
+print("I2C 무선 장치 스캔 시작...")
 devices = i2c.scan()
 
 if len(devices) == 0:
-    print("?곌껐??I2C 遺?덉쓣 李얠? 紐삵뻽?듬땲?? 諛곗꽑???뺤씤?섏꽭??")
+    print("연결된 I2C 부품을 찾지 못했습니다. 배선을 확인하세요.")
 else:
     for device in devices:
-        print(f"諛쒓껄???붾컮?댁뒪 16吏꾩닔 怨좎쑀 二쇱냼: {hex(device)}")
+        print(f"발견된 디바이스 16진수 고유 주소: {hex(device)}")
 </code></pre>
 
-                <h2>9.3 LCD ?붾㈃???ㅼ떆媛?臾몄옄???쒓컖??/h2>
-                <p>?꾩뿉????ν븳 ?쇱씠釉뚮윭由щ? ?꾪룷??import)?섏뿬 LCD ?붾㈃???듭젣?⑸땲?? ?붾㈃ ?곷떒?먮뒗 怨좎젙 臾몄옄瑜?李띻퀬, ?섎떒?먮뒗 ?ㅼ떆媛꾩쑝濡??곗씠?곌? 蹂?숇릺????쒕낫??異쒕젰 留덉뒪??肄붾뱶?낅땲??</p>
+                <h2>9.3 LCD 화면에 실시간 문자열 시각화</h2>
+                <p>위에서 저장한 라이브러리를 임포트(import)하여 LCD 화면을 통제합니다. 화면 상단에는 고정 문자를 찍고, 하단에는 실시간으로 데이터가 변동되는 대시보드 출력 마스터 코드입니다.</p>
                 <pre><code>from machine import I2C, Pin
 import time
-# 誘몃━ ??ν빐???쇱씠釉뚮윭由??뚯씪?먯꽌 ?대옒?ㅻ? 遺덈윭?듬땲??
+# 미리 저장해둔 라이브러리 파일에서 클래스를 불러옵니다.
 from pico_i2c_lcd import I2cLcd
 
 i2c = I2C(0, sda=Pin(8), scl=Pin(9), freq=400000)
 
-# ???ㅼ틪?먯꽌 諛쒓껄??16吏꾩닔 二쇱냼媛?蹂댄넻 0x27) ?낅젰
+# 위 스캔에서 발견된 16진수 주소값(보통 0x27) 입력
 lcd_address = 0x27
 lcd = I2cLcd(i2c, lcd_address, 2, 16)
 
-# ?붾㈃ 珥덇린??諛?諛깅씪?댄듃 ?먮벑
+# 화면 초기화 및 백라이트 점등
 lcd.clear()
 lcd.backlight_on()
 
-# 1?됱뿉 ?띿뒪??怨좎젙 異쒕젰 (0踰덈갑 ?? 0踰덈갑 ??
+# 1행에 텍스트 고정 출력 (0번방 열, 0번방 행)
 lcd.move_to(0, 0)
 lcd.putstr("Pico 2 IoT Monitor")
 
 count = 0
 while True:
-    # 2??0?대줈 而ㅼ꽌 ?대룞 ???ㅼ떆媛??곗씠??援먯껜
+    # 2행 0열로 커서 이동 후 실시간 데이터 교체
     lcd.move_to(0, 1)
     lcd.putstr(f"System Running:{count}")
     
@@ -381,8 +382,8 @@ while True:
     time.sleep(1.0)
 </code></pre>
 
-                <h2>9.4 湲?臾몄옄???ㅽ겕濡??④낵 留뚮뱾湲?/h2>
-                <p>LCD1602????以꾩뿉 16湲?먮컰???쒖떆?섏? 紐삵빀?덈떎. 洹몃낫??湲?臾몄옣??蹂댁뿬二쇨퀬 ?띕떎硫? 臾몄옄?댁쓽 ?쒖옉 ?꾩튂瑜???湲?먯뵫 諛?닿?硫?諛섎났 異쒕젰?섎뒗 "?ㅽ겕濡?scroll)" 湲곕쾿???ъ슜?⑸땲??</p>
+                <h2>9.4 긴 문자열 스크롤 효과 만들기</h2>
+                <p>LCD1602는 한 줄에 16글자밖에 표시하지 못합니다. 그보다 긴 문장을 보여주고 싶다면, 문자열의 시작 위치를 한 글자씩 밀어가며 반복 출력하는 "스크롤(scroll)" 기법을 사용합니다.</p>
                 <pre><code>from machine import I2C, Pin
 import time
 from pico_i2c_lcd import I2cLcd
@@ -392,7 +393,7 @@ lcd = I2cLcd(i2c, 0x27, 2, 16)
 lcd.backlight_on()
 
 def scroll_text(lcd, row, text, width=16, delay=0.3):
-    # 臾몄옣 ?욌뮘???щ갚??遺숈뿬???먯뿰?ㅻ읇寃??붾㈃ 諛뽰쑝濡??섎윭媛?꾨줉 留뚮벊?덈떎.
+    # 문장 앞뒤에 여백을 붙여서 자연스럽게 화면 밖으로 흘러가도록 만듭니다.
     padded = " " * width + text + " " * width
     for start in range(len(padded) - width + 1):
         frame = padded[start:start + width]
@@ -403,26 +404,26 @@ def scroll_text(lcd, row, text, width=16, delay=0.3):
 lcd.move_to(0, 0)
 lcd.putstr("Pico 2 IoT Monitor")
 
-message = "Chapter 9 - I2C LCD ?ㅽ겕濡??덉젣?낅땲?? 怨꾩냽 ?섎윭媛묐땲??"
+message = "Chapter 9 - I2C LCD 스크롤 예제입니다. 계속 흘러갑니다!"
 
 while True:
     scroll_text(lcd, 1, message)
 </code></pre>
 
                 <div class="callout info">
-                    <h4>?뮕 ?ㅽ겕濡??먮━</h4>
-                    <p><code>padded</code> 臾몄옄?댁? ?ㅼ젣 臾몄옣 ?욌뮘??16移?<code>width</code>)留뚰겮??怨듬갚??遺숈뿬???뺥깭?낅땲?? <code>start</code> 媛믪쓣 1???섎젮媛硫?洹??꾩튂遺??16湲?먮? ?섎씪 <code>putstr()</code>濡??ㅼ떆 李띿쑝硫? 留덉튂 湲?④? ?쇱そ?쇰줈 ?섎윭媛??寃껋쿂??蹂댁엯?덈떎. <code>lcd.move_to(0, row)</code>濡?留ㅻ쾲 而ㅼ꽌瑜?以?留??욎쑝濡??섎룎由щ뒗 寃껋씠 ?듭떖?낅땲??</p>
+                    <h4>💡 스크롤 원리</h4>
+                    <p><code>padded</code> 문자열은 실제 문장 앞뒤에 16칸(<code>width</code>)만큼의 공백을 붙여둔 형태입니다. <code>start</code> 값을 1씩 늘려가며 그 위치부터 16글자를 잘라 <code>putstr()</code>로 다시 찍으면, 마치 글씨가 왼쪽으로 흘러가는 것처럼 보입니다. <code>lcd.move_to(0, row)</code>로 매번 커서를 줄 맨 앞으로 되돌리는 것이 핵심입니다.</p>
                 </div>
 
-                <h2>9.5 怨쇱젣 ?닿껐?대낫湲?</h2>
+                <h2>9.5 과제 해결해보기!</h2>
 
                 <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin-bottom: 24px;">
-                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 怨쇱젣 1. 移댁슫?몃떎????대㉧ ?쒖떆?섍린</h4>
-                    <p style="margin-bottom:16px;">1?됱뿉??"Countdown:" 臾몄옄瑜?怨좎젙 異쒕젰?섍퀬, 2?됱뿉??<strong>10珥덈???0珥덇퉴吏 1珥?媛꾧꺽?쇰줈 ?レ옄媛 以꾩뼱?쒕뒗</strong> ??대㉧瑜?LCD???쒖떆??蹂댁꽭?? 0珥덉뿉 ?꾨떖?섎㈃ "Time Up!"??異쒕젰?⑸땲??</p>
+                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 과제 1. 카운트다운 타이머 표시하기</h4>
+                    <p style="margin-bottom:16px;">1행에는 "Countdown:" 문자를 고정 출력하고, 2행에는 <strong>10초부터 0초까지 1초 간격으로 숫자가 줄어드는</strong> 타이머를 LCD에 표시해 보세요. 0초에 도달하면 "Time Up!"을 출력합니다.</p>
 
                     <details style="border-radius:8px; border:1px solid #c4b5fd; overflow:hidden;">
                         <summary style="background:#ede9fe; padding:11px 15px; cursor:pointer; font-weight:600; color:#6d28d9; list-style:none;">
-                            ?뮲 ?뺣떟 肄붾뱶 蹂닿린
+                            💻 정답 코드 보기
                         </summary>
                         <div style="padding:15px;">
 <pre style="margin:0;"><code>from machine import I2C, Pin
@@ -439,7 +440,7 @@ lcd.putstr("Countdown:")
 
 for remaining in range(10, -1, -1):
     lcd.move_to(0, 1)
-    lcd.putstr(f"{remaining:>2} sec      ")  # ?ㅼ뿉 怨듬갚??遺숈뿬 ?댁쟾 ?レ옄 ?붿긽 ?쒓굅
+    lcd.putstr(f"{remaining:>2} sec      ")  # 뒤에 공백을 붙여 이전 숫자 잔상 제거
     time.sleep(1)
 
 lcd.move_to(0, 1)
@@ -449,15 +450,15 @@ lcd.putstr("Time Up!        ")</code></pre>
                 </div>
 
                 <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin-bottom: 30px;">
-                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 怨쇱젣 2. ?⑤룄 媛믪뿉 ?곕씪 寃쎄퀬 臾멸뎄 ?ㅽ겕濡ㅽ븯湲?/h4>
-                    <p>?꾩쓽???⑤룄 蹂??<code>temp = 32</code>媛 ?덉쓣 ?? <strong>?⑤룄媛 30 ?댁긽?대㈃</strong> 2?됱뿉 "WARNING: TOO HOT! PLEASE CHECK THE ROOM."?대씪??湲?臾몄옣??9.4?먯꽌 諛곗슫 <code>scroll_text()</code> ?⑥닔濡??섎젮蹂대궡怨? <strong>30 誘몃쭔?대㈃</strong> "Temp OK"瑜?怨좎젙 異쒕젰?섎뒗 肄붾뱶瑜??묒꽦??蹂댁꽭??</p>
+                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 과제 2. 온도 값에 따라 경고 문구 스크롤하기</h4>
+                    <p>임의의 온도 변수 <code>temp = 32</code>가 있을 때, <strong>온도가 30 이상이면</strong> 2행에 "WARNING: TOO HOT! PLEASE CHECK THE ROOM."이라는 긴 문장을 9.4에서 배운 <code>scroll_text()</code> 함수로 흘려보내고, <strong>30 미만이면</strong> "Temp OK"를 고정 출력하는 코드를 작성해 보세요.</p>
                     <ul style="line-height:2; color:#374151; margin-bottom:16px;">
-                        <li>1?됱뿉????긽 <code>f"Temp: {temp}C"</code>瑜?怨좎젙 異쒕젰?⑸땲??</li>
-                        <li>9.4??<code>scroll_text()</code> ?⑥닔瑜?洹몃?濡??ъ궗?⑺븯硫??⑸땲??</li>
+                        <li>1행에는 항상 <code>f"Temp: {temp}C"</code>를 고정 출력합니다.</li>
+                        <li>9.4의 <code>scroll_text()</code> 함수를 그대로 재사용하면 됩니다.</li>
                     </ul>
                     <details style="border-radius:8px; border:1px solid #c4b5fd; overflow:hidden;">
                         <summary style="background:#ede9fe; padding:11px 15px; cursor:pointer; font-weight:600; color:#6d28d9; list-style:none;">
-                            ?뮲 ?뺣떟 肄붾뱶 蹂닿린
+                            💻 정답 코드 보기
                         </summary>
                         <div style="padding:15px;">
 <pre style="margin:0;"><code>from machine import I2C, Pin
@@ -476,7 +477,7 @@ def scroll_text(lcd, row, text, width=16, delay=0.3):
         lcd.putstr(frame)
         time.sleep(delay)
 
-temp = 32  # ?ㅼ젣濡쒕뒗 ?⑤룄 ?쇱꽌 媛믪쓣 ?ш린????낇빀?덈떎.
+temp = 32  # 실제로는 온도 센서 값을 여기에 대입합니다.
 
 lcd.move_to(0, 0)
 lcd.putstr(f"Temp: {temp}C     ")
@@ -491,16 +492,16 @@ else:
                     </details>
                 </div>
 
-                <h2>9.6 Wokwi ?쒕??덉씠?섏쑝濡??ㅼ뒿?섍린</h2>
-                <p>Chapter 1.8?먯꽌 ?뚭컻??<a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">Wokwi</a> ?⑤씪???쒕??덉씠?곗뿉?쒕뒗 I2C LCD1602 紐⑤뱢??吏?먮릺誘濡? ?ㅼ젣 遺???놁씠??臾몄옄??異쒕젰怨??ㅽ겕濡??④낵瑜?誘몃━ ?뺤씤??蹂????덉뒿?덈떎.</p>
+                <h2>9.6 Wokwi 시뮬레이션으로 실습하기</h2>
+                <p>Chapter 1.8에서 소개한 <a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">Wokwi</a> 온라인 시뮬레이터에서는 I2C LCD1602 모듈도 지원되므로, 실제 부품 없이도 문자열 출력과 스크롤 효과를 미리 확인해 볼 수 있습니다.</p>
 
                 <div class="callout info">
-                    <h4>?뮲 ?ㅼ뒿 ?쒖꽌</h4>
+                    <h4>💻 실습 순서</h4>
                     <ol style="margin-top: 8px; line-height: 2.2;">
-                        <li><a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">wokwi.com</a>?먯꽌 [New Project] ??"Raspberry Pi Pico" (MicroPython) ?쒗뵆由우쓣 ?좏깮?⑸땲??</li>
-                        <li>?쇱そ <strong>diagram.json</strong> ??뿉 ?꾨옒 肄붾뱶瑜?遺숈뿬?ｌ뼱 Pico? I2C LCD1602瑜??먮룞?쇰줈 ?곌껐?⑸땲??</li>
-                        <li>Wokwi???뚯씪 ?몃━?먯꽌 <code>lcd_api.py</code>, <code>pico_i2c_lcd.py</code> ?뚯씪???덈줈 留뚮뱾??9.1???쇱씠釉뚮윭由?肄붾뱶瑜?媛곴컖 遺숈뿬?ｊ퀬, <code>main.py</code>?먮뒗 9.3 ?먮뒗 9.4??肄붾뱶瑜?遺숈뿬?ｌ뒿?덈떎.</li>
-                        <li>?붾㈃ ?곷떒??<strong>?띰툘 (?뱀깋 ?ъ깮 踰꾪듉)</strong>???대┃?섎㈃ ?쒕??덉씠?섏씠 ?쒖옉?섍퀬, LCD ?붾㈃??臾몄옄?댁씠 異쒕젰/?ㅽ겕濡ㅻ릺??寃껋쓣 ?뺤씤?????덉뒿?덈떎.</li>
+                        <li><a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">wokwi.com</a>에서 [New Project] → "Raspberry Pi Pico" (MicroPython) 템플릿을 선택합니다.</li>
+                        <li>왼쪽 <strong>diagram.json</strong> 탭에 아래 코드를 붙여넣어 Pico와 I2C LCD1602를 자동으로 연결합니다.</li>
+                        <li>Wokwi의 파일 트리에서 <code>lcd_api.py</code>, <code>pico_i2c_lcd.py</code> 파일을 새로 만들어 9.1의 라이브러리 코드를 각각 붙여넣고, <code>main.py</code>에는 9.3 또는 9.4의 코드를 붙여넣습니다.</li>
+                        <li>화면 상단의 <strong>▶️ (녹색 재생 버튼)</strong>을 클릭하면 시뮬레이션이 시작되고, LCD 화면에 문자열이 출력/스크롤되는 것을 확인할 수 있습니다.</li>
                     </ol>
                 </div>
 
@@ -521,13 +522,13 @@ else:
 }</code></pre>
 
                 <div class="callout warn">
-                    <h4>?좑툘 李멸퀬 ?ы빆</h4>
-                    <p>Wokwi??<code>wokwi-lcd1602</code> 遺???대쫫?대굹 <code>pins</code> ?띿꽦 媛믪? 踰꾩쟾???곕씪 ?щ씪吏????덉뒿?덈떎. I2C 二쇱냼媛 ?ㅻⅤ寃??쒖떆?섍굅???붾㈃???섏삤吏 ?딆쑝硫? ?먮뵒??醫뚯륫??<strong>遺??寃??parts search)</strong>?먯꽌 "lcd1602"瑜?寃?됲빐 ?뺥솗??遺?덈챸???뺤씤?섍퀬 <code>type</code> 媛믪쓣 ?뚮쭪寃??섏젙?섏꽭??</p>
+                    <h4>⚠️ 참고 사항</h4>
+                    <p>Wokwi의 <code>wokwi-lcd1602</code> 부품 이름이나 <code>pins</code> 속성 값은 버전에 따라 달라질 수 있습니다. I2C 주소가 다르게 표시되거나 화면이 나오지 않으면, 에디터 좌측의 <strong>부품 검색(parts search)</strong>에서 "lcd1602"를 검색해 정확한 부품명을 확인하고 <code>type</code> 값을 알맞게 수정하세요.</p>
                 </div>
 
                 <div class="nav-btns">
-                    <a href="chapter_08.html" class="btn btn-prev">? CHAPTER 8</a>
-                    <a href="chapter_10.html" class="btn btn-next">CHAPTER 10濡??대룞 ??/a>
+                    <a href="chapter_08.html" class="btn btn-prev">◀ CHAPTER 8</a>
+                    <a href="chapter_10.html" class="btn btn-next">CHAPTER 10로 이동 ▶</a>
                 </div>
             </div>
         </main>
@@ -545,11 +546,11 @@ else:
 
             const topBtn = document.createElement('button');
             topBtn.className = 'copy-btn btn-top';
-            topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 蹂듭궗';
+            topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
             
             const bottomBtn = document.createElement('button');
             bottomBtn.className = 'copy-btn btn-bottom';
-            bottomBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 蹂듭궗';
+            bottomBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
 
             wrapper.appendChild(topBtn);
             wrapper.appendChild(bottomBtn);
@@ -567,7 +568,7 @@ else:
                         document.execCommand('copy');
                         showSuccess(btn);
                     } catch (err) {
-                        console.error('?고쉶 蹂듭궗 ?ㅽ뙣:', err);
+                        console.error('우회 복사 실패:', err);
                     }
                     document.body.removeChild(textArea);
                     return;
@@ -576,16 +577,16 @@ else:
                 navigator.clipboard.writeText(codeText).then(() => {
                     showSuccess(btn);
                 }).catch(err => {
-                    console.error('?쒖? 蹂듭궗 ?ㅽ뙣:', err);
+                    console.error('표준 복사 실패:', err);
                 });
             };
 
             const showSuccess = (btn) => {
-                btn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> ?꾨즺';
+                btn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> 완료';
                 btn.classList.add('copied');
                 
                 setTimeout(() => {
-                    btn.innerHTML = '<i class="fa-regular fa-copy"></i> 蹂듭궗';
+                    btn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
                     btn.classList.remove('copied');
                 }, 2000);
             };
