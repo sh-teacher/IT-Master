@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ch 5. 센서 제어 - Pico 2 가이드</title>
+    <title>Ch 5. ?쇱꽌 ?쒖뼱 - Pico 2 媛?대뱶</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -12,34 +12,34 @@
         <nav class="sidebar">
             <h2>PICO 2 IoT GUIDE</h2>
             <ul>
-                <li><a href="index.html">HOME - 시작하기</a></li>
-                <li class="menu-divider">기초 & 통신 파트</li>
-                <li><a href="chapter_01.html">CHAPTER 1 - 하드웨어 이해</a></li>
-                <li><a href="chapter_02.html">CHAPTER 2 - 펌웨어 세팅</a></li>
-                <li><a href="chapter_03.html">CHAPTER 3 - 기초 코딩(Blink)</a></li>
-                <li><a href="chapter_04.html">CHAPTER 4 - 기본 입출력(스위치/부저)</a></li>
-                <li><a href="chapter_05.html" class="active">CHAPTER 5 - 센서 제어(초음파/PIR)</a></li>
-                <li class="menu-divider">실전 하드웨어</li>
-                <li><a href="chapter_06.html">CHAPTER 6 - 아날로그 & 모터</a></li>
-                <li><a href="chapter_07.html">CHAPTER 7 - 온습도 & 데이터</a></li>
-                <li><a href="chapter_08.html">CHAPTER 8 - Neopixel 제어</a></li>
-                <li><a href="chapter_09.html">CHAPTER 9 - I2C LCD 디스플레이</a></li>
-                <li><a href="chapter_10.html">CHAPTER 10 - 무선 통신 & 입력</a></li>
-                <li class="menu-divider">심화 응용 프로젝트</li>
-                <li><a href="chapter_11.html">CHAPTER 11 - MQTT 클라우드</a></li>
+                <li><a href="index.html">HOME - ?쒖옉?섍린</a></li>
+                <li class="menu-divider">湲곗큹 & ?듭떊 ?뚰듃</li>
+                <li><a href="chapter_01.html">CHAPTER 1 - ?섎뱶?⑥뼱 ?댄빐</a></li>
+                <li><a href="chapter_02.html">CHAPTER 2 - ?뚯썾???명똿</a></li>
+                <li><a href="chapter_03.html">CHAPTER 3 - 湲곗큹 肄붾뵫(Blink)</a></li>
+                <li><a href="chapter_04.html">CHAPTER 4 - 湲곕낯 ?낆텧???ㅼ쐞移?遺?)</a></li>
+                <li><a href="chapter_05.html" class="active">CHAPTER 5 - ?쇱꽌 ?쒖뼱(珥덉쓬??PIR)</a></li>
+                <li class="menu-divider">?ㅼ쟾 ?섎뱶?⑥뼱</li>
+                <li><a href="chapter_06.html">CHAPTER 6 - ?꾨궇濡쒓렇 & 紐⑦꽣</a></li>
+                <li><a href="chapter_07.html">CHAPTER 7 - ?⑥뒿??& ?곗씠??/a></li>
+                <li><a href="chapter_08.html">CHAPTER 8 - Neopixel ?쒖뼱</a></li>
+                <li><a href="chapter_09.html">CHAPTER 9 - I2C LCD ?붿뒪?뚮젅??/a></li>
+                <li><a href="chapter_10.html">CHAPTER 10 - 臾댁꽑 ?듭떊 & ?낅젰</a></li>
+                <li class="menu-divider">?ы솕 ?묒슜 ?꾨줈?앺듃</li>
+                <li><a href="chapter_11.html">CHAPTER 11 - MQTT ?대씪?곕뱶</a></li>
                 <li><a href="chapter_12.html">CHAPTER 12 - OLED & RTC</a></li>
-                <li><a href="chapter_13.html">CHAPTER 13 - 종합 프로젝트</a></li>
-                <li class="menu-divider">나만의 작품 만들기</li>
-                <li><a href="chapter_16.html">CHAPTER 16 - 바이브 코딩 캡스톤</a></li>
+                <li><a href="chapter_13.html">CHAPTER 13 - 醫낇빀 ?꾨줈?앺듃</a></li>
+                <li class="menu-divider">?섎쭔???묓뭹 留뚮뱾湲?/li>
+                <li><a href="chapter_16.html">CHAPTER 16 - 諛붿씠釉?肄붾뵫 罹≪뒪??/a></li>
             </ul>
             <div class="sidebar-footer">
-                <button class="pinout-btn" id="openPinout"><i class="fa-solid fa-diagram-project"></i> GPIO 핀아웃 맵 보기</button>
+                <button class="pinout-btn" id="openPinout"><i class="fa-solid fa-diagram-project"></i> GPIO ??꾩썐 留?蹂닿린</button>
             </div>
         </nav>
         <main class="content">
             <div class="container">
-                <h1>Chapter 5. 공간 인지 센서 제어 (초음파 센서, PIR 모션 센서)</h1>
-                <p>주변 환경을 인식하는 두 가지 핵심 센서를 제어합니다. 거리를 재는 초음파 센서와 인간의 움직임을 잡아내는 인체 감지 센서입니다.</p>
+                <h1>Chapter 5. 怨듦컙 ?몄? ?쇱꽌 ?쒖뼱 (珥덉쓬???쇱꽌, PIR 紐⑥뀡 ?쇱꽌)</h1>
+                <p>二쇰? ?섍꼍???몄떇?섎뒗 ??媛吏 ?듭떖 ?쇱꽌瑜??쒖뼱?⑸땲?? 嫄곕━瑜??щ뒗 珥덉쓬???쇱꽌? ?멸컙???吏곸엫???≪븘?대뒗 ?몄껜 媛먯? ?쇱꽌?낅땲??</p>
 
                 <div style="text-align: center; margin: 40px 0;">
                     <svg viewBox="0 0 800 250" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 16px; background: #ffffff;">
@@ -47,7 +47,7 @@
                         <rect x="100" y="80" width="120" height="60" rx="5" fill="#1e293b"/>
                         <circle cx="130" cy="110" r="20" fill="#94a3b8"/>
                         <circle cx="190" cy="110" r="20" fill="#94a3b8"/>
-                        <text x="160" y="165" text-anchor="middle" fill="#1e293b" font-weight="bold">초음파 (HC-SR04)</text>
+                        <text x="160" y="165" text-anchor="middle" fill="#1e293b" font-weight="bold">珥덉쓬??(HC-SR04)</text>
 
                         <!-- Waves -->
                         <path d="M230 90 Q 300 110 230 130" fill="none" stroke="#3b82f6" stroke-width="2">
@@ -56,18 +56,18 @@
 
                         <!-- Object -->
                         <rect x="500" y="50" width="20" height="150" fill="#cbd5e1"/>
-                        <text x="510" y="220" text-anchor="middle" fill="#64748b" font-size="12">물체</text>
+                        <text x="510" y="220" text-anchor="middle" fill="#64748b" font-size="12">臾쇱껜</text>
 
                         <!-- Calculation logic -->
                         <g transform="translate(250, 180)">
                             <rect width="220" height="40" rx="20" fill="#eff6ff" stroke="#3b82f6"/>
-                            <text x="110" y="25" text-anchor="middle" fill="#1d4ed8" font-size="12" font-weight="bold">거리 = (시간 × 음속) / 2</text>
+                            <text x="110" y="25" text-anchor="middle" fill="#1d4ed8" font-size="12" font-weight="bold">嫄곕━ = (?쒓컙 횞 ?뚯냽) / 2</text>
                         </g>
                     </svg>
                 </div>
 
-                <h2>5.1 HC-SR04 초음파 센서 거리 측정</h2>
-                <p>Trig 핀으로 초음파를 쏘고 Echo 핀으로 되돌아오는 시간을 마이크로초(us) 단위로 정밀 측정하여 물체와의 거리를 cm 단위로 계산해 냅니다.</p>
+                <h2>5.1 HC-SR04 珥덉쓬???쇱꽌 嫄곕━ 痢≪젙</h2>
+                <p>Trig ??쇰줈 珥덉쓬?뚮? ?섍퀬 Echo ??쇰줈 ?섎룎?꾩삤???쒓컙??留덉씠?щ줈珥?us) ?⑥쐞濡??뺣? 痢≪젙?섏뿬 臾쇱껜???嫄곕━瑜?cm ?⑥쐞濡?怨꾩궛???낅땲??</p>
 
                 <div style="text-align: center; margin: 20px 0;">
                     <svg viewBox="0 0 640 215" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 12px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.06);">
@@ -111,49 +111,49 @@
                         <text x="395" y="142" text-anchor="end" fill="#06b6d4" font-size="10" font-weight="bold" font-family="Arial,sans-serif">Echo</text>
                         <text x="395" y="177" text-anchor="end" fill="#374151" font-size="10" font-weight="bold" font-family="Arial,sans-serif">GND</text>
 
-                        <text x="275" y="105" text-anchor="middle" fill="#f59e0b" font-size="10" font-family="Arial,sans-serif">→ 발사 트리거(OUT)</text>
-                        <text x="275" y="140" text-anchor="middle" fill="#06b6d4" font-size="10" font-family="Arial,sans-serif">← 반사음 수신(IN)</text>
+                        <text x="275" y="105" text-anchor="middle" fill="#f59e0b" font-size="10" font-family="Arial,sans-serif">??諛쒖궗 ?몃━嫄?OUT)</text>
+                        <text x="275" y="140" text-anchor="middle" fill="#06b6d4" font-size="10" font-family="Arial,sans-serif">??諛섏궗???섏떊(IN)</text>
                     </svg>
-                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">HC-SR04: VCC→3V3, Trig→GP17(출력), Echo→GP16(입력), GND→GND. 안정적인 측정을 위해 VCC를 VSYS(5V) 핀에 연결하는 것을 권장합니다.</p>
+                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">HC-SR04: VCC??V3, Trig?묰P17(異쒕젰), Echo?묰P16(?낅젰), GND?묰ND. ?덉젙?곸씤 痢≪젙???꾪빐 VCC瑜?VSYS(5V) ????곌껐?섎뒗 寃껋쓣 沅뚯옣?⑸땲??</p>
                 </div>
 
                 <pre><code>from machine import Pin
 import time
 
-# 핀 설정
+# ? ?ㅼ젙
 trig = Pin(17, Pin.OUT)
 echo = Pin(16, Pin.IN)
 
 def get_distance():
-    # 1. Trig 핀을 깨끗하게 비운 뒤 10us 동안 초음파 발사 신호를 줍니다.
+    # 1. Trig ???源⑤걮?섍쾶 鍮꾩슫 ??10us ?숈븞 珥덉쓬??諛쒖궗 ?좏샇瑜?以띾땲??
     trig.value(0)
     time.sleep_us(2)
     trig.value(1)
     time.sleep_us(10)
     trig.value(0)
 
-    # 2. Echo 핀이 High(1)로 올라가는 순간(시작 시간)을 기록합니다.
+    # 2. Echo ???High(1)濡??щ씪媛???쒓컙(?쒖옉 ?쒓컙)??湲곕줉?⑸땲??
     while echo.value() == 0:
         signaloff = time.ticks_us()
 
-    # 3. Echo 핀이 다시 Low(0)로 떨어지는 순간(도착 시간)을 기록합니다.
+    # 3. Echo ????ㅼ떆 Low(0)濡??⑥뼱吏???쒓컙(?꾩갑 ?쒓컙)??湲곕줉?⑸땲??
     while echo.value() == 1:
         signalon = time.ticks_us()
 
-    # 4. 시간 차이를 계산하여 거리(cm)로 환산합니다. (음속 340m/s 반영)
+    # 4. ?쒓컙 李⑥씠瑜?怨꾩궛?섏뿬 嫄곕━(cm)濡??섏궛?⑸땲?? (?뚯냽 340m/s 諛섏쁺)
     time_passed = signalon - signaloff
     distance = (time_passed * 0.0343) / 2
     return distance
 
 while True:
     dist = get_distance()
-    print(f"물체와의 거리: {dist:.1f} cm")
+    print(f"臾쇱껜???嫄곕━: {dist:.1f} cm")
     time.sleep(0.5)
 </code></pre>
 
                 <div class="callout info">
-                    <h4>💡 왜 <code>time_pulse_us()</code> 대신 while문으로 시간을 직접 재나요?</h4>
-                    <p>MicroPython의 <code>machine.time_pulse_us(echo, 1)</code> 함수를 사용하면 위 코드의 2·3단계(Echo 핀의 상태 변화 감지)를 한 줄로 대체할 수 있습니다. 다만 원리를 이해하는 첫 학습 단계에서는 <code>while</code> 문으로 신호 시작·종료 시각을 직접 기록하는 방식이 "왜 초음파 센서가 시간을 측정하는지" 감을 잡기에 좋습니다. 아래는 <code>time_pulse_us()</code>를 사용한 더 안전한 버전입니다.</p>
+                    <h4>?뮕 ??<code>time_pulse_us()</code> ???while臾몄쑝濡??쒓컙??吏곸젒 ?щ굹??</h4>
+                    <p>MicroPython??<code>machine.time_pulse_us(echo, 1)</code> ?⑥닔瑜??ъ슜?섎㈃ ??肄붾뱶??2쨌3?④퀎(Echo ????곹깭 蹂??媛먯?)瑜???以꾨줈 ?泥댄븷 ???덉뒿?덈떎. ?ㅻ쭔 ?먮━瑜??댄빐?섎뒗 泥??숈뒿 ?④퀎?먯꽌??<code>while</code> 臾몄쑝濡??좏샇 ?쒖옉쨌醫낅즺 ?쒓컖??吏곸젒 湲곕줉?섎뒗 諛⑹떇??"??珥덉쓬???쇱꽌媛 ?쒓컙??痢≪젙?섎뒗吏" 媛먯쓣 ?↔린??醫뗭뒿?덈떎. ?꾨옒??<code>time_pulse_us()</code>瑜??ъ슜?????덉쟾??踰꾩쟾?낅땲??</p>
                     <pre style="margin-top:12px;"><code>from machine import Pin
 import machine
 import time
@@ -168,11 +168,11 @@ def get_distance():
     time.sleep_us(10)
     trig.value(0)
 
-    # timeout(30000us)을 지정하면 물체가 없어 반사파가 오지 않을 때도
-    # 프로그램이 멈추지 않고 -2(timeout) 등의 값을 반환합니다.
+    # timeout(30000us)??吏?뺥븯硫?臾쇱껜媛 ?놁뼱 諛섏궗?뚭? ?ㅼ? ?딆쓣 ?뚮룄
+    # ?꾨줈洹몃옩??硫덉텛吏 ?딄퀬 -2(timeout) ?깆쓽 媛믪쓣 諛섑솚?⑸땲??
     duration = machine.time_pulse_us(echo, 1, 30000)
     if duration < 0:
-        return None  # 측정 실패(범위 밖 또는 timeout)
+        return None  # 痢≪젙 ?ㅽ뙣(踰붿쐞 諛??먮뒗 timeout)
 
     distance = (duration * 0.0343) / 2
     return distance
@@ -180,28 +180,28 @@ def get_distance():
 while True:
     dist = get_distance()
     if dist is None:
-        print("측정 실패: 범위를 벗어났거나 물체가 없습니다.")
+        print("痢≪젙 ?ㅽ뙣: 踰붿쐞瑜?踰쀬뼱?ш굅??臾쇱껜媛 ?놁뒿?덈떎.")
     else:
-        print(f"물체와의 거리: {dist:.1f} cm")
+        print(f"臾쇱껜???嫄곕━: {dist:.1f} cm")
     time.sleep(0.5)</code></pre>
-                    <p style="margin-top:10px;"><code>time_pulse_us(pin, pulse_level, timeout_us)</code>는 지정한 레벨(여기서는 1=High)이 유지되는 시간을 마이크로초 단위로 반환하며, <code>while</code>문과 달리 반사파가 아예 오지 않아도 무한정 멈추지 않고 timeout 후 음수를 반환합니다. 실전 프로젝트에서는 이 방식을 권장합니다.</p>
+                    <p style="margin-top:10px;"><code>time_pulse_us(pin, pulse_level, timeout_us)</code>??吏?뺥븳 ?덈꺼(?ш린?쒕뒗 1=High)???좎??섎뒗 ?쒓컙??留덉씠?щ줈珥??⑥쐞濡?諛섑솚?섎ŉ, <code>while</code>臾멸낵 ?щ━ 諛섏궗?뚭? ?꾩삁 ?ㅼ? ?딆븘??臾댄븳??硫덉텛吏 ?딄퀬 timeout ???뚯닔瑜?諛섑솚?⑸땲?? ?ㅼ쟾 ?꾨줈?앺듃?먯꽌????諛⑹떇??沅뚯옣?⑸땲??</p>
                 </div>
 
                 <details style="margin: 20px 0; border-radius: 8px; border: 1px solid #fca5a5; overflow:hidden;">
                     <summary style="background:#fef2f2; padding:12px 16px; cursor:pointer; font-weight:600; color:#991b1b; list-style:none; display:flex; align-items:center; gap:8px;">
-                        <i class="fa-solid fa-circle-exclamation" style="color:#ef4444;"></i> 거리 값이 이상하게 튀거나 측정되지 않는다면?
+                        <i class="fa-solid fa-circle-exclamation" style="color:#ef4444;"></i> 嫄곕━ 媛믪씠 ?댁긽?섍쾶 ?嫄곕굹 痢≪젙?섏? ?딅뒗?ㅻ㈃?
                     </summary>
                     <ul style="margin:0; padding:15px 20px 15px 35px; background:#fff5f5; line-height:2.1; color:#374151;">
-                        <li>Trig와 Echo 핀이 <strong>서로 바뀌어</strong> 연결되지 않았는지 확인하기</li>
-                        <li>측정 대상 물체가 센서 정면 <strong>2cm~400cm</strong> 범위 안에 있는지 확인하기 (HC-SR04 공식 측정 범위)</li>
-                        <li>물체 표면이 소리를 잘 흡수하는 스펀지·천 등이면 반사파가 약해 오류가 날 수 있음</li>
-                        <li>VCC를 3V3이 아닌 <strong>VSYS(5V)</strong>에 연결하면 더 안정적으로 동작하는 경우가 많음</li>
-                        <li>배선이 길거나 느슨하면 노이즈로 인해 값이 튈 수 있으니 점퍼선 연결 상태 점검하기</li>
+                        <li>Trig? Echo ???<strong>?쒕줈 諛붾뚯뼱</strong> ?곌껐?섏? ?딆븯?붿? ?뺤씤?섍린</li>
+                        <li>痢≪젙 ???臾쇱껜媛 ?쇱꽌 ?뺣㈃ <strong>2cm~400cm</strong> 踰붿쐞 ?덉뿉 ?덈뒗吏 ?뺤씤?섍린 (HC-SR04 怨듭떇 痢≪젙 踰붿쐞)</li>
+                        <li>臾쇱껜 ?쒕㈃???뚮━瑜????≪닔?섎뒗 ?ㅽ?吏쨌泥??깆씠硫?諛섏궗?뚭? ?쏀빐 ?ㅻ쪟媛 ?????덉쓬</li>
+                        <li>VCC瑜?3V3???꾨땶 <strong>VSYS(5V)</strong>???곌껐?섎㈃ ???덉젙?곸쑝濡??숈옉?섎뒗 寃쎌슦媛 留롮쓬</li>
+                        <li>諛곗꽑??湲멸굅???먯뒯?섎㈃ ?몄씠利덈줈 ?명빐 媛믪씠 ?????덉쑝???먰띁???곌껐 ?곹깭 ?먭??섍린</li>
                     </ul>
                 </details>
 
-                <h2>5.2 PIR 적외선 인체 감지 센서</h2>
-                <p>사람이나 동물의 움직임으로 발생하는 적외선의 변화량을 측정하여 움직임 유무를 디지털 값(0 또는 1)으로 반환합니다.</p>
+                <h2>5.2 PIR ?곸쇅???몄껜 媛먯? ?쇱꽌</h2>
+                <p>?щ엺?대굹 ?숇Ъ???吏곸엫?쇰줈 諛쒖깮?섎뒗 ?곸쇅?좎쓽 蹂?붾웾??痢≪젙?섏뿬 ?吏곸엫 ?좊Т瑜??붿???媛?0 ?먮뒗 1)?쇰줈 諛섑솚?⑸땲??</p>
 
                 <div style="text-align: center; margin: 20px 0;">
                     <svg viewBox="0 0 600 185" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 12px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.06);">
@@ -223,7 +223,7 @@ while True:
                         <!-- PIR sensor body -->
                         <rect x="390" y="48" width="150" height="120" rx="8" fill="#fdf4ff" stroke="#9333ea" stroke-width="1.5"/>
                         <rect x="390" y="48" width="150" height="28" rx="8" fill="#9333ea"/>
-                        <text x="465" y="67" text-anchor="middle" fill="white" font-size="12" font-weight="bold" font-family="Arial,sans-serif">PIR 센서</text>
+                        <text x="465" y="67" text-anchor="middle" fill="white" font-size="12" font-weight="bold" font-family="Arial,sans-serif">PIR ?쇱꽌</text>
                         <ellipse cx="465" cy="118" rx="36" ry="20" fill="#e9d5ff" stroke="#9333ea" stroke-width="1.5"/>
                         <ellipse cx="465" cy="118" rx="20" ry="11" fill="#c4b5fd" stroke="#7c3aed" stroke-width="1"/>
                         <path d="M508 104 Q522 104 522 118 Q522 132 508 132" fill="none" stroke="#9333ea" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.65"/>
@@ -236,41 +236,41 @@ while True:
                         <text x="385" y="104" text-anchor="end" fill="#06b6d4" font-size="10" font-weight="bold" font-family="Arial,sans-serif">OUT</text>
                         <text x="385" y="139" text-anchor="end" fill="#374151" font-size="10" font-weight="bold" font-family="Arial,sans-serif">GND</text>
 
-                        <text x="272" y="101" text-anchor="middle" fill="#06b6d4" font-size="10" font-family="Arial,sans-serif">← 감지 신호(IN)</text>
+                        <text x="272" y="101" text-anchor="middle" fill="#06b6d4" font-size="10" font-family="Arial,sans-serif">??媛먯? ?좏샇(IN)</text>
                     </svg>
-                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">PIR 센서: VCC→3V3, OUT→GP18(입력), GND→GND. 전원 인가 후 약 2초 안정화 시간이 필요하며, 3핀 모듈의 경우 왼쪽부터 VCC·GND·OUT 순서가 일반적입니다 (구매 제품의 핀 배열 확인 필수).</p>
+                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">PIR ?쇱꽌: VCC??V3, OUT?묰P18(?낅젰), GND?묰ND. ?꾩썝 ?멸? ????2珥??덉젙???쒓컙???꾩슂?섎ŉ, 3? 紐⑤뱢??寃쎌슦 ?쇱そ遺??VCC쨌GND쨌OUT ?쒖꽌媛 ?쇰컲?곸엯?덈떎 (援щℓ ?쒗뭹??? 諛곗뿴 ?뺤씤 ?꾩닔).</p>
                 </div>
                 <pre><code>from machine import Pin
 import time
 
-# GPIO 18번에 PIR 센서의 Out 핀 연결
+# GPIO 18踰덉뿉 PIR ?쇱꽌??Out ? ?곌껐
 pir = Pin(18, Pin.IN)
 
-print("침입 감지 시스템 가동중...")
-time.sleep(2) # 센서 안정화를 위한 초기 대기
+print("移⑥엯 媛먯? ?쒖뒪??媛?숈쨷...")
+time.sleep(2) # ?쇱꽌 ?덉젙?붾? ?꾪븳 珥덇린 ?湲?
 
 while True:
     if pir.value() == 1:
-        print("🚨 경고: 구역 내 움직임이 감지되었습니다!")
-        time.sleep(2) # 중복 경고 방지 대기
+        print("?슚 寃쎄퀬: 援ъ뿭 ???吏곸엫??媛먯??섏뿀?듬땲??")
+        time.sleep(2) # 以묐났 寃쎄퀬 諛⑹? ?湲?
     else:
-        print("안전 - 움직임 없음")
+        print("?덉쟾 - ?吏곸엫 ?놁쓬")
     time.sleep(0.5)
 </code></pre>
 
                 <div class="callout info">
-                    <h4>💡 PIR 센서의 원리 이해하기</h4>
-                    <p>PIR(Passive Infrared, 수동형 적외선)은 모든 물체가 방출하는 적외선 열복사량을 감지합니다. 사람이나 동물처럼 체온을 가진 물체가 센서 앞을 지나가면 감지 영역 내 적외선 양이 급격히 변하고, 이 변화를 센서 내부 회로가 감지해 OUT 핀을 <strong>HIGH(1)</strong>로 바꿉니다. 움직임이 없으면 OUT 핀은 <strong>LOW(0)</strong> 상태를 유지합니다. 카메라처럼 이미지를 분석하는 것이 아니라 "변화량"만 보기 때문에 매우 저렴하고 소비전력도 적습니다.</p>
+                    <h4>?뮕 PIR ?쇱꽌???먮━ ?댄빐?섍린</h4>
+                    <p>PIR(Passive Infrared, ?섎룞???곸쇅??? 紐⑤뱺 臾쇱껜媛 諛⑹텧?섎뒗 ?곸쇅???대났?щ웾??媛먯??⑸땲?? ?щ엺?대굹 ?숇Ъ泥섎읆 泥댁삩??媛吏?臾쇱껜媛 ?쇱꽌 ?욎쓣 吏?섍?硫?媛먯? ?곸뿭 ???곸쇅???묒씠 湲됯꺽??蹂?섍퀬, ??蹂?붾? ?쇱꽌 ?대? ?뚮줈媛 媛먯???OUT ???<strong>HIGH(1)</strong>濡?諛붽퓠?덈떎. ?吏곸엫???놁쑝硫?OUT ?? <strong>LOW(0)</strong> ?곹깭瑜??좎??⑸땲?? 移대찓?쇱쿂???대?吏瑜?遺꾩꽍?섎뒗 寃껋씠 ?꾨땲??"蹂?붾웾"留?蹂닿린 ?뚮Ц??留ㅼ슦 ??댄븯怨??뚮퉬?꾨젰???곸뒿?덈떎.</p>
                 </div>
 
-                <h3>🏆 과제 해결해보기!</h3>
+                <h3>?룇 怨쇱젣 ?닿껐?대낫湲?</h3>
 
                 <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin-bottom: 24px;">
-                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 과제 1. 초음파 센서로 자동문 흉내내기</h4>
-                    <p style="margin-bottom:16px;">HC-SR04로 거리를 측정하여, 물체가 <strong>20cm 이내</strong>로 가까이 오면 "문이 열립니다!"를 출력하고, 그렇지 않으면 "문이 닫혀 있습니다."를 출력하는 코드를 작성해 보세요.</p>
+                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 怨쇱젣 1. 珥덉쓬???쇱꽌濡??먮룞臾??됰궡?닿린</h4>
+                    <p style="margin-bottom:16px;">HC-SR04濡?嫄곕━瑜?痢≪젙?섏뿬, 臾쇱껜媛 <strong>20cm ?대궡</strong>濡?媛源뚯씠 ?ㅻ㈃ "臾몄씠 ?대┰?덈떎!"瑜?異쒕젰?섍퀬, 洹몃젃吏 ?딆쑝硫?"臾몄씠 ?ロ? ?덉뒿?덈떎."瑜?異쒕젰?섎뒗 肄붾뱶瑜??묒꽦??蹂댁꽭??</p>
                     <details style="border-radius:8px; border:1px solid #c4b5fd; overflow:hidden;">
                         <summary style="background:#ede9fe; padding:11px 15px; cursor:pointer; font-weight:600; color:#6d28d9; list-style:none;">
-                            💻 정답 코드 보기
+                            ?뮲 ?뺣떟 肄붾뱶 蹂닿린
                         </summary>
                         <div style="padding:15px;">
 <pre style="margin:0;"><code>from machine import Pin
@@ -294,20 +294,20 @@ def get_distance():
 while True:
     dist = get_distance()
     if dist is not None and dist <= 20:
-        print("🚪 문이 열립니다! (거리: %.1f cm)" % dist)
+        print("?슞 臾몄씠 ?대┰?덈떎! (嫄곕━: %.1f cm)" % dist)
     else:
-        print("문이 닫혀 있습니다.")
+        print("臾몄씠 ?ロ? ?덉뒿?덈떎.")
     time.sleep(0.5)</code></pre>
                         </div>
                     </details>
                 </div>
 
                 <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin-bottom: 30px;">
-                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 과제 2. 초음파 + PIR 이중 보안 시스템</h4>
-                    <p>PIR 센서로 움직임이 감지되었을 때만 HC-SR04로 거리를 측정하여, <strong>움직임이 있고 동시에 거리가 50cm 이내</strong>일 경우에만 "🚨 침입 경고!"를 출력하는 코드를 작성해 보세요. (두 센서를 함께 써서 오작동을 줄이는 실무 아이디어입니다.)</p>
+                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 怨쇱젣 2. 珥덉쓬??+ PIR ?댁쨷 蹂댁븞 ?쒖뒪??/h4>
+                    <p>PIR ?쇱꽌濡??吏곸엫??媛먯??섏뿀???뚮쭔 HC-SR04濡?嫄곕━瑜?痢≪젙?섏뿬, <strong>?吏곸엫???덇퀬 ?숈떆??嫄곕━媛 50cm ?대궡</strong>??寃쎌슦?먮쭔 "?슚 移⑥엯 寃쎄퀬!"瑜?異쒕젰?섎뒗 肄붾뱶瑜??묒꽦??蹂댁꽭?? (???쇱꽌瑜??④퍡 ?⑥꽌 ?ㅼ옉?숈쓣 以꾩씠???ㅻТ ?꾩씠?붿뼱?낅땲??)</p>
                     <details style="border-radius:8px; border:1px solid #c4b5fd; overflow:hidden; margin-top:14px;">
                         <summary style="background:#ede9fe; padding:11px 15px; cursor:pointer; font-weight:600; color:#6d28d9; list-style:none;">
-                            💻 정답 코드 보기
+                            ?뮲 ?뺣떟 肄붾뱶 蹂닿린
                         </summary>
                         <div style="padding:15px;">
 <pre style="margin:0;"><code>from machine import Pin
@@ -329,29 +329,29 @@ def get_distance():
         return None
     return (duration * 0.0343) / 2
 
-print("이중 보안 시스템 가동중...")
-time.sleep(2)  # PIR 안정화 대기
+print("?댁쨷 蹂댁븞 ?쒖뒪??媛?숈쨷...")
+time.sleep(2)  # PIR ?덉젙???湲?
 
 while True:
     if pir.value() == 1:
         dist = get_distance()
         if dist is not None and dist <= 50:
-            print(f"🚨 침입 경고! (거리: {dist:.1f} cm)")
+            print(f"?슚 移⑥엯 寃쎄퀬! (嫄곕━: {dist:.1f} cm)")
         else:
-            print("움직임 감지됨 (거리 범위 밖)")
+            print("?吏곸엫 媛먯???(嫄곕━ 踰붿쐞 諛?")
     else:
-        print("안전 - 움직임 없음")
+        print("?덉쟾 - ?吏곸엫 ?놁쓬")
     time.sleep(0.5)</code></pre>
                         </div>
                     </details>
                 </div>
 
-                <h2>5.3 Wokwi 시뮬레이션으로 실습하기</h2>
-                <p>Chapter 1의 <a href="chapter_01.html">1.8 실물 없이도 실습! Wokwi 온라인 시뮬레이터</a>에서 소개한 대로, <a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">Wokwi</a>를 사용하면 실제 HC-SR04나 PIR 센서가 아직 없어도 브라우저에서 바로 회로 동작을 확인할 수 있습니다.</p>
+                <h2>5.3 Wokwi ?쒕??덉씠?섏쑝濡??ㅼ뒿?섍린</h2>
+                <p>Chapter 1??<a href="chapter_01.html">1.8 ?ㅻЪ ?놁씠???ㅼ뒿! Wokwi ?⑤씪???쒕??덉씠??/a>?먯꽌 ?뚭컻???濡? <a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">Wokwi</a>瑜??ъ슜?섎㈃ ?ㅼ젣 HC-SR04??PIR ?쇱꽌媛 ?꾩쭅 ?놁뼱??釉뚮씪?곗??먯꽌 諛붾줈 ?뚮줈 ?숈옉???뺤씤?????덉뒿?덈떎.</p>
 
                 <div class="callout info">
-                    <h4>📄 diagram.json 예시 (HC-SR04 + PIR)</h4>
-                    <p>Wokwi 프로젝트의 <code>diagram.json</code> 탭에 아래 내용을 붙여넣으면 Pico 2, 초음파 센서, PIR 센서가 자동으로 배치됩니다.</p>
+                    <h4>?뱞 diagram.json ?덉떆 (HC-SR04 + PIR)</h4>
+                    <p>Wokwi ?꾨줈?앺듃??<code>diagram.json</code> ??뿉 ?꾨옒 ?댁슜??遺숈뿬?ｌ쑝硫?Pico 2, 珥덉쓬???쇱꽌, PIR ?쇱꽌媛 ?먮룞?쇰줈 諛곗튂?⑸땲??</p>
 <pre style="margin-top:10px;"><code>{
   "version": 1,
   "author": "picostudy",
@@ -371,17 +371,17 @@ while True:
     [ "pico:GND",  "pir1:GND",  "black", [] ]
   ]
 }</code></pre>
-                    <p style="margin-top:12px;">회로를 구성한 뒤 <code>main.py</code> 탭을 열어 이 챕터에서 작성한 코드(5.1 또는 5.2의 코드)를 붙여넣고, 화면 상단의 <strong>▶️ (초록색 재생) 버튼</strong>을 누르면 시뮬레이션이 시작됩니다. PIR 센서는 Wokwi 화면에서 클릭하면 움직임 감지를 흉내내는 체크박스가 나타나고, HC-SR04는 슬라이더로 가상의 물체 거리를 조절할 수 있습니다.</p>
+                    <p style="margin-top:12px;">?뚮줈瑜?援ъ꽦????<code>main.py</code> ??쓣 ?댁뼱 ??梨뺥꽣?먯꽌 ?묒꽦??肄붾뱶(5.1 ?먮뒗 5.2??肄붾뱶)瑜?遺숈뿬?ｊ퀬, ?붾㈃ ?곷떒??<strong>?띰툘 (珥덈줉???ъ깮) 踰꾪듉</strong>???꾨Ⅴ硫??쒕??덉씠?섏씠 ?쒖옉?⑸땲?? PIR ?쇱꽌??Wokwi ?붾㈃?먯꽌 ?대┃?섎㈃ ?吏곸엫 媛먯?瑜??됰궡?대뒗 泥댄겕諛뺤뒪媛 ?섑??섍퀬, HC-SR04???щ씪?대뜑濡?媛?곸쓽 臾쇱껜 嫄곕━瑜?議곗젅?????덉뒿?덈떎.</p>
                 </div>
 
                 <div style="background:#fef2f2; padding:18px 20px; border-radius:8px; border-left:4px solid #ef4444; margin-bottom:30px;">
-                    <h4 style="margin-top:0; margin-bottom:8px; color:#991b1b;"><i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> 시뮬레이터 사용 시 주의사항</h4>
-                    <p style="margin-bottom:0; line-height:1.7;">Wokwi 라이브러리의 부품 이름은 버전에 따라 조금씩 바뀔 수 있으므로, 부품 검색창에서 "HC-SR04", "PIR Motion Sensor" 등으로 직접 검색해 정확한 <code>type</code> 값을 확인하세요. 시뮬레이션은 실제 하드웨어의 미세한 오차(노이즈, 반사각 등)까지 완벽히 재현하지는 않으므로, 코드 로직 검증용으로 활용하고 최종 확인은 실제 부품으로 진행하는 것을 권장합니다.</p>
+                    <h4 style="margin-top:0; margin-bottom:8px; color:#991b1b;"><i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> ?쒕??덉씠???ъ슜 ??二쇱쓽?ы빆</h4>
+                    <p style="margin-bottom:0; line-height:1.7;">Wokwi ?쇱씠釉뚮윭由ъ쓽 遺???대쫫? 踰꾩쟾???곕씪 議곌툑??諛붾????덉쑝誘濡? 遺??寃?됱갹?먯꽌 "HC-SR04", "PIR Motion Sensor" ?깆쑝濡?吏곸젒 寃?됲빐 ?뺥솗??<code>type</code> 媛믪쓣 ?뺤씤?섏꽭?? ?쒕??덉씠?섏? ?ㅼ젣 ?섎뱶?⑥뼱??誘몄꽭???ㅼ감(?몄씠利? 諛섏궗媛???源뚯? ?꾨꼍???ы쁽?섏????딆쑝誘濡? 肄붾뱶 濡쒖쭅 寃利앹슜?쇰줈 ?쒖슜?섍퀬 理쒖쥌 ?뺤씤? ?ㅼ젣 遺?덉쑝濡?吏꾪뻾?섎뒗 寃껋쓣 沅뚯옣?⑸땲??</p>
                 </div>
 
                 <div class="nav-btns">
-                    <a href="chapter_04.html" class="btn btn-prev">◀ CHAPTER 4</a>
-                    <a href="chapter_06.html" class="btn btn-next">CHAPTER 6으로 이동 ▶</a>
+                    <a href="chapter_04.html" class="btn btn-prev">? CHAPTER 4</a>
+                    <a href="chapter_06.html" class="btn btn-next">CHAPTER 6?쇰줈 ?대룞 ??/a>
                 </div>
             </div>
         </main>
@@ -399,11 +399,11 @@ while True:
 
             const topBtn = document.createElement('button');
             topBtn.className = 'copy-btn btn-top';
-            topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
+            topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 蹂듭궗';
 
             const bottomBtn = document.createElement('button');
             bottomBtn.className = 'copy-btn btn-bottom';
-            bottomBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
+            bottomBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 蹂듭궗';
 
             wrapper.appendChild(topBtn);
             wrapper.appendChild(bottomBtn);
@@ -421,7 +421,7 @@ while True:
                         document.execCommand('copy');
                         showSuccess(btn);
                     } catch (err) {
-                        console.error('우회 복사 실패:', err);
+                        console.error('?고쉶 蹂듭궗 ?ㅽ뙣:', err);
                     }
                     document.body.removeChild(textArea);
                     return;
@@ -429,15 +429,15 @@ while True:
                 navigator.clipboard.writeText(codeText).then(() => {
                     showSuccess(btn);
                 }).catch(err => {
-                    console.error('표준 복사 실패:', err);
+                    console.error('?쒖? 蹂듭궗 ?ㅽ뙣:', err);
                 });
             };
 
             const showSuccess = (btn) => {
-                btn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> 완료';
+                btn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> ?꾨즺';
                 btn.classList.add('copied');
                 setTimeout(() => {
-                    btn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
+                    btn.innerHTML = '<i class="fa-regular fa-copy"></i> 蹂듭궗';
                     btn.classList.remove('copied');
                 }, 2000);
             };
@@ -480,3 +480,4 @@ while True:
     <script src="mobile-nav.js"></script>
     </body>
 </html>
+

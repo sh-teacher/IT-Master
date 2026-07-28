@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ch 1. 하드웨어 이해 - Pico 2 W 가이드</title>
+    <title>Ch 1. ?섎뱶?⑥뼱 ?댄빐 - Pico 2 W 媛?대뱶</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -12,302 +12,302 @@
         <nav class="sidebar">
             <h2>PICO 2 IoT GUIDE</h2>
             <ul>
-                <li><a href="index.html">HOME - 시작하기</a></li>
-                <li class="menu-divider">기초 & 통신 파트</li>
-                <li><a href="chapter_01.html" class="active">CHAPTER 1 - 하드웨어 이해</a></li>
-                <li><a href="chapter_02.html">CHAPTER 2 - 펌웨어 세팅</a></li>
-                <li><a href="chapter_03.html">CHAPTER 3 - 기초 코딩(Blink)</a></li>
-                <li><a href="chapter_04.html">CHAPTER 4 - 기본 입출력(스위치/부저)</a></li>
-                <li><a href="chapter_05.html">CHAPTER 5 - 센서 제어(초음파/PIR)</a></li>
-                <li class="menu-divider">실전 하드웨어</li>
-                <li><a href="chapter_06.html">CHAPTER 6 - 아날로그 & 모터</a></li>
-                <li><a href="chapter_07.html">CHAPTER 7 - 온습도 & 데이터</a></li>
-                <li><a href="chapter_08.html">CHAPTER 8 - Neopixel 제어</a></li>
-                <li><a href="chapter_09.html">CHAPTER 9 - I2C LCD 디스플레이</a></li>
-                <li><a href="chapter_10.html">CHAPTER 10 - 무선 통신 & 입력</a></li>
-                <li class="menu-divider">심화 응용 프로젝트</li>
-                <li><a href="chapter_11.html">CHAPTER 11 - MQTT 클라우드</a></li>
+                <li><a href="index.html">HOME - ?쒖옉?섍린</a></li>
+                <li class="menu-divider">湲곗큹 & ?듭떊 ?뚰듃</li>
+                <li><a href="chapter_01.html" class="active">CHAPTER 1 - ?섎뱶?⑥뼱 ?댄빐</a></li>
+                <li><a href="chapter_02.html">CHAPTER 2 - ?뚯썾???명똿</a></li>
+                <li><a href="chapter_03.html">CHAPTER 3 - 湲곗큹 肄붾뵫(Blink)</a></li>
+                <li><a href="chapter_04.html">CHAPTER 4 - 湲곕낯 ?낆텧???ㅼ쐞移?遺?)</a></li>
+                <li><a href="chapter_05.html">CHAPTER 5 - ?쇱꽌 ?쒖뼱(珥덉쓬??PIR)</a></li>
+                <li class="menu-divider">?ㅼ쟾 ?섎뱶?⑥뼱</li>
+                <li><a href="chapter_06.html">CHAPTER 6 - ?꾨궇濡쒓렇 & 紐⑦꽣</a></li>
+                <li><a href="chapter_07.html">CHAPTER 7 - ?⑥뒿??& ?곗씠??/a></li>
+                <li><a href="chapter_08.html">CHAPTER 8 - Neopixel ?쒖뼱</a></li>
+                <li><a href="chapter_09.html">CHAPTER 9 - I2C LCD ?붿뒪?뚮젅??/a></li>
+                <li><a href="chapter_10.html">CHAPTER 10 - 臾댁꽑 ?듭떊 & ?낅젰</a></li>
+                <li class="menu-divider">?ы솕 ?묒슜 ?꾨줈?앺듃</li>
+                <li><a href="chapter_11.html">CHAPTER 11 - MQTT ?대씪?곕뱶</a></li>
                 <li><a href="chapter_12.html">CHAPTER 12 - OLED & RTC</a></li>
-                <li><a href="chapter_13.html">CHAPTER 13 - 종합 프로젝트</a></li>
-                <li class="menu-divider">나만의 작품 만들기</li>
-                <li><a href="chapter_16.html">CHAPTER 16 - 바이브 코딩 캡스톤</a></li>
+                <li><a href="chapter_13.html">CHAPTER 13 - 醫낇빀 ?꾨줈?앺듃</a></li>
+                <li class="menu-divider">?섎쭔???묓뭹 留뚮뱾湲?/li>
+                <li><a href="chapter_16.html">CHAPTER 16 - 諛붿씠釉?肄붾뵫 罹≪뒪??/a></li>
             </ul>
         </nav>
         <main class="content">
             <div class="container">
-                <h1>Chapter 1. 하드웨어 및 환경 구축</h1>
+                <h1>Chapter 1. ?섎뱶?⑥뼱 諛??섍꼍 援ъ텞</h1>
 
                 <!-- ============================== -->
-                <!-- 1.1 Pico 생김새                -->
+                <!-- 1.1 Pico ?앷???               -->
                 <!-- ============================== -->
-                <h2>1.1 라즈베리파이 Pico 생김새</h2>
-                <p>라즈베리파이 Pico는 영국의 라즈베리파이 재단에서 만든 소형 마이크로컨트롤러 보드입니다. 손바닥보다 작은 크기이지만, 각종 센서·LED·모터 등 전자부품을 직접 연결하여 제어할 수 있는 강력한 성능을 갖추고 있습니다.</p>
+                <h2>1.1 ?쇱쫰踰좊━?뚯씠 Pico ?앷???/h2>
+                <p>?쇱쫰踰좊━?뚯씠 Pico???곴뎅???쇱쫰踰좊━?뚯씠 ?щ떒?먯꽌 留뚮뱺 ?뚰삎 留덉씠?щ줈而⑦듃濡ㅻ윭 蹂대뱶?낅땲?? ?먮컮?λ낫???묒? ?ш린?댁?留? 媛곸쥌 ?쇱꽌쨌LED쨌紐⑦꽣 ???꾩옄遺?덉쓣 吏곸젒 ?곌껐?섏뿬 ?쒖뼱?????덈뒗 媛뺣젰???깅뒫??媛뽰텛怨??덉뒿?덈떎.</p>
 
                 <div style="text-align: center; margin: 40px 0; background-color: #f8fafc; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0;">
-                    <img src="chapter0101.png" alt="Pico 2 WH 보드 전체 설명" style="max-width: 100%; height: auto; border-radius: 8px;">
-                    <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">Pico 2 WH 보드 구성 (Raspberry Pi 공식 제공)</p>
+                    <img src="chapter0101.png" alt="Pico 2 WH 蹂대뱶 ?꾩껜 ?ㅻ챸" style="max-width: 100%; height: auto; border-radius: 8px;">
+                    <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">Pico 2 WH 蹂대뱶 援ъ꽦 (Raspberry Pi 怨듭떇 ?쒓났)</p>
                 </div>
 
                 <div class="callout info">
-                    <h4>💡 라즈베리파이 Pico 구성</h4>
+                    <h4>?뮕 ?쇱쫰踰좊━?뚯씠 Pico 援ъ꽦</h4>
                     <ul style="margin-top: 8px; line-height: 1.9;">
-                        <li>라즈베리파이 Pico는 <strong>초록색 보드</strong>와 보드와 PC를 연결하기 위한 <strong>마이크로 5핀 케이블</strong>로 구성되어 있습니다.</li>
-                        <li>보드 양쪽에는 <strong>40개의 핀(다리)</strong>이 있어 센서·LED 등 다양한 전자부품을 연결할 수 있습니다.</li>
-                        <li>보드 위의 작은 흰색 버튼은 <strong>BOOTSEL(부트셀) 버튼</strong>으로, 최초 펌웨어 설치 시 사용합니다.</li>
-                        <li>보드 뒤에 붙은 <strong>'H'</strong>는 Header(헤더 핀)의 약자로, 공장에서 미리 핀이 납땜된 제품입니다. 별도 납땜 없이 바로 사용 가능합니다.</li>
+                        <li>?쇱쫰踰좊━?뚯씠 Pico??<strong>珥덈줉??蹂대뱶</strong>? 蹂대뱶? PC瑜??곌껐?섍린 ?꾪븳 <strong>留덉씠?щ줈 5? 耳?대툝</strong>濡?援ъ꽦?섏뼱 ?덉뒿?덈떎.</li>
+                        <li>蹂대뱶 ?묒そ?먮뒗 <strong>40媛쒖쓽 ?(?ㅻ━)</strong>???덉뼱 ?쇱꽌쨌LED ???ㅼ뼇???꾩옄遺?덉쓣 ?곌껐?????덉뒿?덈떎.</li>
+                        <li>蹂대뱶 ?꾩쓽 ?묒? ?곗깋 踰꾪듉? <strong>BOOTSEL(遺?몄?) 踰꾪듉</strong>?쇰줈, 理쒖큹 ?뚯썾???ㅼ튂 ???ъ슜?⑸땲??</li>
+                        <li>蹂대뱶 ?ㅼ뿉 遺숈? <strong>'H'</strong>??Header(?ㅻ뜑 ?)???쎌옄濡? 怨듭옣?먯꽌 誘몃━ ????⑸븳???쒗뭹?낅땲?? 蹂꾨룄 ?⑸븳 ?놁씠 諛붾줈 ?ъ슜 媛?ν빀?덈떎.</li>
                     </ul>
                 </div>
 
                 <!-- ============================== -->
-                <!-- 1.2 RP2350 칩셋 스펙           -->
+                <!-- 1.2 RP2350 移⑹뀑 ?ㅽ럺           -->
                 <!-- ============================== -->
-                <h2>1.2 차세대 마이크로컨트롤러 RP2350 칩셋 스펙</h2>
-                <p>Pico 2 WH의 심장은 라즈베리파이 재단이 직접 설계한 차세대 고성능 마이크로컨트롤러 <strong>RP2350</strong> 칩셋입니다. 이전 세대인 RP2040에 비해 프로세서 아키텍처가 대폭 업그레이드되었으며, 연산 속도와 메모리 효율, 그리고 IoT 보안 기술인 Arm TrustZone-M이 탑재되어 더욱 강력하고 안전한 프로젝트 환경을 제공합니다.</p>
+                <h2>1.2 李⑥꽭? 留덉씠?щ줈而⑦듃濡ㅻ윭 RP2350 移⑹뀑 ?ㅽ럺</h2>
+                <p>Pico 2 WH???ъ옣? ?쇱쫰踰좊━?뚯씠 ?щ떒??吏곸젒 ?ㅺ퀎??李⑥꽭? 怨좎꽦??留덉씠?щ줈而⑦듃濡ㅻ윭 <strong>RP2350</strong> 移⑹뀑?낅땲?? ?댁쟾 ?몃???RP2040??鍮꾪빐 ?꾨줈?몄꽌 ?꾪궎?띿쿂媛 ????낃렇?덉씠?쒕릺?덉쑝硫? ?곗궛 ?띾룄? 硫붾え由??⑥쑉, 洹몃━怨?IoT 蹂댁븞 湲곗닠??Arm TrustZone-M???묒옱?섏뼱 ?붿슧 媛뺣젰?섍퀬 ?덉쟾???꾨줈?앺듃 ?섍꼍???쒓났?⑸땲??</p>
 
                 <table style="width:100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 40px; font-size: 0.95rem;">
                     <tr style="background-color: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
-                        <th style="padding: 12px 15px; text-align: left; width: 25%;">항목 (Specification)</th>
-                        <th style="padding: 12px 15px; text-align: left; width: 35%; color: #64748b;">이전 세대 (RP2040)</th>
-                        <th style="padding: 12px 15px; text-align: left; width: 40%; color: #0ea5e9; background-color: #f0f9ff;">차세대 프로세서 (RP2350)</th>
+                        <th style="padding: 12px 15px; text-align: left; width: 25%;">??ぉ (Specification)</th>
+                        <th style="padding: 12px 15px; text-align: left; width: 35%; color: #64748b;">?댁쟾 ?몃? (RP2040)</th>
+                        <th style="padding: 12px 15px; text-align: left; width: 40%; color: #0ea5e9; background-color: #f0f9ff;">李⑥꽭? ?꾨줈?몄꽌 (RP2350)</th>
                     </tr>
                     <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 12px 15px; font-weight: 600;">코어 아키텍처 (CPU)</td>
+                        <td style="padding: 12px 15px; font-weight: 600;">肄붿뼱 ?꾪궎?띿쿂 (CPU)</td>
                         <td style="padding: 12px 15px; color: #64748b;">Dual Arm Cortex-M0+</td>
-                        <td style="padding: 12px 15px; background-color: #f0f9ff;"><strong>Dual Arm Cortex-M33</strong><br>(또는 Dual Hazard3 RISC-V 코어 선택 가능)</td>
+                        <td style="padding: 12px 15px; background-color: #f0f9ff;"><strong>Dual Arm Cortex-M33</strong><br>(?먮뒗 Dual Hazard3 RISC-V 肄붿뼱 ?좏깮 媛??</td>
                     </tr>
                     <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 12px 15px; font-weight: 600;">기본 클럭 속도 (Clock)</td>
+                        <td style="padding: 12px 15px; font-weight: 600;">湲곕낯 ?대윮 ?띾룄 (Clock)</td>
                         <td style="padding: 12px 15px; color: #64748b;">133 MHz</td>
-                        <td style="padding: 12px 15px; background-color: #f0f9ff;"><strong>150 MHz</strong> (약 1.5배 연산 성능 향상)</td>
+                        <td style="padding: 12px 15px; background-color: #f0f9ff;"><strong>150 MHz</strong> (??1.5諛??곗궛 ?깅뒫 ?μ긽)</td>
                     </tr>
                     <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 12px 15px; font-weight: 600;">부동소수점 연산 (FPU)</td>
-                        <td style="padding: 12px 15px; color: #64748b;">하드웨어 FPU 미탑재 (소프트웨어 처리)</td>
-                        <td style="padding: 12px 15px; background-color: #f0f9ff;"><strong>하드웨어 부동소수점 연산 장치(FPU) 탑재</strong></td>
+                        <td style="padding: 12px 15px; font-weight: 600;">遺?숈냼?섏젏 ?곗궛 (FPU)</td>
+                        <td style="padding: 12px 15px; color: #64748b;">?섎뱶?⑥뼱 FPU 誘명깙??(?뚰봽?몄썾??泥섎━)</td>
+                        <td style="padding: 12px 15px; background-color: #f0f9ff;"><strong>?섎뱶?⑥뼱 遺?숈냼?섏젏 ?곗궛 ?μ튂(FPU) ?묒옱</strong></td>
                     </tr>
                     <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 12px 15px; font-weight: 600;">내부 RAM (SRAM)</td>
+                        <td style="padding: 12px 15px; font-weight: 600;">?대? RAM (SRAM)</td>
                         <td style="padding: 12px 15px; color: #64748b;">264 KB</td>
-                        <td style="padding: 12px 15px; background-color: #f0f9ff;"><strong>520 KB</strong> (데이터 적재 공간 약 2배 확장)</td>
+                        <td style="padding: 12px 15px; background-color: #f0f9ff;"><strong>520 KB</strong> (?곗씠???곸옱 怨듦컙 ??2諛??뺤옣)</td>
                     </tr>
                     <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 12px 15px; font-weight: 600;">하드웨어 보안 (Security)</td>
-                        <td style="padding: 12px 15px; color: #64748b;">기본적인 보안 기능 없음</td>
-                        <td style="padding: 12px 15px; background-color: #f0f9ff;"><strong>Arm TrustZone-M 하드웨어 보안 기술 안전 부팅(Secure Boot) 지원</strong></td>
+                        <td style="padding: 12px 15px; font-weight: 600;">?섎뱶?⑥뼱 蹂댁븞 (Security)</td>
+                        <td style="padding: 12px 15px; color: #64748b;">湲곕낯?곸씤 蹂댁븞 湲곕뒫 ?놁쓬</td>
+                        <td style="padding: 12px 15px; background-color: #f0f9ff;"><strong>Arm TrustZone-M ?섎뱶?⑥뼱 蹂댁븞 湲곗닠 ?덉쟾 遺??Secure Boot) 吏??/strong></td>
                     </tr>
                     <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 12px 15px; font-weight: 600;">저전력 모드 효율</td>
-                        <td style="padding: 12px 15px; color: #64748b;">일반 저전력 상태 지원</td>
-                        <td style="padding: 12px 15px; background-color: #f0f9ff;">초저전력 상태에서의 <strong>전류 소모 대폭 감소 (배터리 효율 상승)</strong></td>
+                        <td style="padding: 12px 15px; font-weight: 600;">??꾨젰 紐⑤뱶 ?⑥쑉</td>
+                        <td style="padding: 12px 15px; color: #64748b;">?쇰컲 ??꾨젰 ?곹깭 吏??/td>
+                        <td style="padding: 12px 15px; background-color: #f0f9ff;">珥덉??꾨젰 ?곹깭?먯꽌??<strong>?꾨쪟 ?뚮え ???媛먯냼 (諛고꽣由??⑥쑉 ?곸듅)</strong></td>
                     </tr>
                     <tr style="border-bottom: 1px solid #e2e8f0;">
                         <td style="padding: 12px 15px; font-weight: 600;">PIO (Programmable I/O)</td>
-                        <td style="padding: 12px 15px; color: #64748b;">2개 블록 (총 8개 상태 머신)</td>
-                        <td style="padding: 12px 15px; background-color: #f0f9ff;"><strong>3개 블록 (총 12개 상태 머신)</strong>으로 커스텀 인터페이스 확장성 강화</td>
+                        <td style="padding: 12px 15px; color: #64748b;">2媛?釉붾줉 (珥?8媛??곹깭 癒몄떊)</td>
+                        <td style="padding: 12px 15px; background-color: #f0f9ff;"><strong>3媛?釉붾줉 (珥?12媛??곹깭 癒몄떊)</strong>?쇰줈 而ㅼ뒪? ?명꽣?섏씠???뺤옣??媛뺥솕</td>
                     </tr>
                 </table>
 
                 <!-- ============================== -->
-                <!-- 1.3 핀 배열(Pinout)            -->
+                <!-- 1.3 ? 諛곗뿴(Pinout)            -->
                 <!-- ============================== -->
-                <h2>1.3 하드웨어 제어의 핵심: 핀 배열(Pinout)</h2>
-                <p>센서와 모터 등 외부 부품을 연결하려면 보드 양쪽에 일렬로 늘어선 40개의 금속 핀(다리)들의 역할을 정확히 알아야 합니다. 아래의 핀맵(Pinout) 다이어그램은 앞으로 하드웨어 조립 시 가장 많이 참고하게 될 핵심 지도입니다.</p>
+                <h2>1.3 ?섎뱶?⑥뼱 ?쒖뼱???듭떖: ? 諛곗뿴(Pinout)</h2>
+                <p>?쇱꽌? 紐⑦꽣 ???몃? 遺?덉쓣 ?곌껐?섎젮硫?蹂대뱶 ?묒そ???쇰젹濡??섏뼱??40媛쒖쓽 湲덉냽 ?(?ㅻ━)?ㅼ쓽 ??븷???뺥솗???뚯븘???⑸땲?? ?꾨옒???留?Pinout) ?ㅼ씠?닿렇?⑥? ?욎쑝濡??섎뱶?⑥뼱 議곕┰ ??媛??留롮씠 李멸퀬?섍쾶 ???듭떖 吏?꾩엯?덈떎.</p>
 
                 <div style="text-align: center; margin: 40px 0; background-color: #f8fafc; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0;">
-                    <img src="https://www.raspberrypi.com/documentation/microcontrollers/images/pico2w-pinout.svg" alt="Pico W 공식 핀맵 다이어그램" style="max-width: 100%; height: auto; border-radius: 8px;">
-                    <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">Pico 시리즈 공식 핀 배열도 (Raspberry Pi 공식 제공)</p>
+                    <img src="https://www.raspberrypi.com/documentation/microcontrollers/images/pico2w-pinout.svg" alt="Pico W 怨듭떇 ?留??ㅼ씠?닿렇?? style="max-width: 100%; height: auto; border-radius: 8px;">
+                    <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">Pico ?쒕━利?怨듭떇 ? 諛곗뿴??(Raspberry Pi 怨듭떇 ?쒓났)</p>
                 </div>
 
-                <h3>📌 초보자가 반드시 알아야 할 4가지 핵심 핀</h3>
-                <p>40개의 핀을 당장 모두 외울 필요는 없습니다. 색상별로 구분된 아래의 4가지 역할만 이해하면 대부분의 부품을 연결할 수 있습니다.</p>
+                <h3>?뱦 珥덈낫?먭? 諛섎뱶???뚯븘????4媛吏 ?듭떖 ?</h3>
+                <p>40媛쒖쓽 ????뱀옣 紐⑤몢 ?몄슱 ?꾩슂???놁뒿?덈떎. ?됱긽蹂꾨줈 援щ텇???꾨옒??4媛吏 ??븷留??댄빐?섎㈃ ?遺遺꾩쓽 遺?덉쓣 ?곌껐?????덉뒿?덈떎.</p>
 
                 <table style="width:100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 40px; font-size: 0.95rem;">
                     <tr style="background-color: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
-                        <th style="padding: 15px; text-align: left; width: 25%;">핀 이름 (색상)</th>
-                        <th style="padding: 15px; text-align: left;">역할 및 설명</th>
+                        <th style="padding: 15px; text-align: left; width: 25%;">? ?대쫫 (?됱긽)</th>
+                        <th style="padding: 15px; text-align: left;">??븷 諛??ㅻ챸</th>
                     </tr>
                     <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 15px;"><strong>GPIO (연두색)</strong><br><span style="font-size: 0.85rem; color: #64748b;">GP0 ~ GP28</span></td>
-                        <td style="padding: 15px;"><strong>General Purpose Input/Output (범용 입출력)</strong><br>우리가 직접 코딩으로 제어하는 다리입니다. LED에 전기를 보내 켜게 하거나(출력), 버튼이 눌렸는지 신호를 읽어오는(입력) 역할을 합니다.</td>
+                        <td style="padding: 15px;"><strong>GPIO (?곕몢??</strong><br><span style="font-size: 0.85rem; color: #64748b;">GP0 ~ GP28</span></td>
+                        <td style="padding: 15px;"><strong>General Purpose Input/Output (踰붿슜 ?낆텧??</strong><br>?곕━媛 吏곸젒 肄붾뵫?쇰줈 ?쒖뼱?섎뒗 ?ㅻ━?낅땲?? LED???꾧린瑜?蹂대궡 耳쒓쾶 ?섍굅??異쒕젰), 踰꾪듉???뚮졇?붿? ?좏샇瑜??쎌뼱?ㅻ뒗(?낅젰) ??븷???⑸땲??</td>
                     </tr>
                     <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 15px;"><strong>GND (검은색)</strong><br><span style="font-size: 0.85rem; color: #64748b;">Ground</span></td>
-                        <td style="padding: 15px;"><strong>접지 (전기의 마이너스 극)</strong><br>전기는 반드시 나간 곳으로 돌아와야 흐릅니다. 보드에서 출발한 전기가 센서를 거쳐 다시 보드로 돌아오는 '도착점' 역할을 합니다. 8개의 다리가 배치되어 있습니다.</td>
+                        <td style="padding: 15px;"><strong>GND (寃???</strong><br><span style="font-size: 0.85rem; color: #64748b;">Ground</span></td>
+                        <td style="padding: 15px;"><strong>?묒? (?꾧린??留덉씠?덉뒪 洹?</strong><br>?꾧린??諛섎뱶???섍컙 怨녹쑝濡??뚯븘????먮쫭?덈떎. 蹂대뱶?먯꽌 異쒕컻???꾧린媛 ?쇱꽌瑜?嫄곗퀜 ?ㅼ떆 蹂대뱶濡??뚯븘?ㅻ뒗 '?꾩갑?? ??븷???⑸땲?? 8媛쒖쓽 ?ㅻ━媛 諛곗튂?섏뼱 ?덉뒿?덈떎.</td>
                     </tr>
                     <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 15px;"><strong>3V3(OUT) (빨간색)</strong><br><span style="font-size: 0.85rem; color: #64748b;">3.3V 전원 출력</span></td>
-                        <td style="padding: 15px;"><strong>부품에 전원 공급 (전기의 플러스 극)</strong><br>보드가 USB로부터 전기를 받아서, 외부 센서나 디스플레이가 작동할 수 있도록 3.3V의 일정한 전기를 내어주는 다리입니다. 36번 핀 하나뿐입니다.</td>
+                        <td style="padding: 15px;"><strong>3V3(OUT) (鍮④컙??</strong><br><span style="font-size: 0.85rem; color: #64748b;">3.3V ?꾩썝 異쒕젰</span></td>
+                        <td style="padding: 15px;"><strong>遺?덉뿉 ?꾩썝 怨듦툒 (?꾧린???뚮윭??洹?</strong><br>蹂대뱶媛 USB濡쒕????꾧린瑜?諛쏆븘?? ?몃? ?쇱꽌???붿뒪?뚮젅?닿? ?묐룞?????덈룄濡?3.3V???쇱젙???꾧린瑜??댁뼱二쇰뒗 ?ㅻ━?낅땲?? 36踰?? ?섎굹肉먯엯?덈떎.</td>
                     </tr>
                     <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 15px;"><strong>ADC (진한 초록색)</strong><br><span style="font-size: 0.85rem; color: #64748b;">아날로그 입력</span></td>
-                        <td style="padding: 15px;"><strong>연속적인 값 읽기</strong><br>버튼처럼 켜짐/꺼짐(1/0)만 있는 것이 아니라, 온도의 미세한 변화나 빛의 밝기처럼 '연속적인 아날로그 신호'를 숫자로 변환해서 읽어들이는 다리입니다.</td>
+                        <td style="padding: 15px;"><strong>ADC (吏꾪븳 珥덈줉??</strong><br><span style="font-size: 0.85rem; color: #64748b;">?꾨궇濡쒓렇 ?낅젰</span></td>
+                        <td style="padding: 15px;"><strong>?곗냽?곸씤 媛??쎄린</strong><br>踰꾪듉泥섎읆 耳쒖쭚/爰쇱쭚(1/0)留??덈뒗 寃껋씠 ?꾨땲?? ?⑤룄??誘몄꽭??蹂?붾굹 鍮쏆쓽 諛앷린泥섎읆 '?곗냽?곸씤 ?꾨궇濡쒓렇 ?좏샇'瑜??レ옄濡?蹂?섑빐???쎌뼱?ㅼ씠???ㅻ━?낅땲??</td>
                     </tr>
                 </table>
 
                 <!-- ============================== -->
-                <!-- 1.4 Thonny 설치               -->
+                <!-- 1.4 Thonny ?ㅼ튂               -->
                 <!-- ============================== -->
-                <h2>1.4 개발 환경 Thonny IDE 설치</h2>
-                <p>하드웨어 준비가 완료되었다면, 이제 Pico에 명령(코드)을 전달할 번역기 프로그램이 필요합니다. 처음 입문할 때는 초보자 친화적인 <strong>Thonny(토니)</strong> 에디터 사용을 적극 권장합니다.</p>
+                <h2>1.4 媛쒕컻 ?섍꼍 Thonny IDE ?ㅼ튂</h2>
+                <p>?섎뱶?⑥뼱 以鍮꾧? ?꾨즺?섏뿀?ㅻ㈃, ?댁젣 Pico??紐낅졊(肄붾뱶)???꾨떖??踰덉뿭湲??꾨줈洹몃옩???꾩슂?⑸땲?? 泥섏쓬 ?낅Ц???뚮뒗 珥덈낫??移쒗솕?곸씤 <strong>Thonny(?좊땲)</strong> ?먮뵒???ъ슜???곴레 沅뚯옣?⑸땲??</p>
 
                 <div class="callout info">
-                    <h4>💻 Thonny 다운로드 및 설치 방법</h4>
+                    <h4>?뮲 Thonny ?ㅼ슫濡쒕뱶 諛??ㅼ튂 諛⑸쾿</h4>
                     <ol style="margin-top: 10px; margin-left: 15px; line-height: 2.2;">
-                        <li>공식 웹사이트 <a href="https://thonny.org" target="_blank" style="color: #0ea5e9; font-weight: 600;">thonny.org</a>에 접속합니다.</li>
-                        <li>화면 우측 상단의 <strong>Windows</strong> 글자를 클릭하여 설치 파일(.exe)을 다운로드합니다.</li>
-                        <li>다운로드된 파일을 실행하고, 특별한 설정 변경 없이 <strong>[Next]</strong>를 눌러 설치를 완료합니다.</li>
-                        <li>설치 완료 후 바탕화면에 <strong>Thonny 아이콘</strong>이 생성됩니다.</li>
+                        <li>怨듭떇 ?뱀궗?댄듃 <a href="https://thonny.org" target="_blank" style="color: #0ea5e9; font-weight: 600;">thonny.org</a>???묒냽?⑸땲??</li>
+                        <li>?붾㈃ ?곗륫 ?곷떒??<strong>Windows</strong> 湲?먮? ?대┃?섏뿬 ?ㅼ튂 ?뚯씪(.exe)???ㅼ슫濡쒕뱶?⑸땲??</li>
+                        <li>?ㅼ슫濡쒕뱶???뚯씪???ㅽ뻾?섍퀬, ?밸퀎???ㅼ젙 蹂寃??놁씠 <strong>[Next]</strong>瑜??뚮윭 ?ㅼ튂瑜??꾨즺?⑸땲??</li>
+                        <li>?ㅼ튂 ?꾨즺 ??諛뷀깢?붾㈃??<strong>Thonny ?꾩씠肄?/strong>???앹꽦?⑸땲??</li>
                     </ol>
                 </div>
 
                 <div style="text-align: center; margin: 40px 0;">
-                    <img src="chapter0102.png" alt="Thonny IDE에서 Pico 연결" style="max-width: 100%; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
-                    <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">Thonny IDE에서 Pico 연결 화면</p>
+                    <img src="chapter0102.png" alt="Thonny IDE?먯꽌 Pico ?곌껐" style="max-width: 100%; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+                    <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">Thonny IDE?먯꽌 Pico ?곌껐 ?붾㈃</p>
                 </div>
 
                 <!-- ============================== -->
-                <!-- 1.5 Thonny 시작하기            -->
+                <!-- 1.5 Thonny ?쒖옉?섍린            -->
                 <!-- ============================== -->
-                <h2>1.5 Thonny 시작 및 Pico 연결하기</h2>
-                <p>Thonny 설치가 끝났다면, Pico 보드와 연결하는 과정이 필요합니다. 아래 순서대로 따라하면 코드 작성을 바로 시작할 수 있습니다.</p>
+                <h2>1.5 Thonny ?쒖옉 諛?Pico ?곌껐?섍린</h2>
+                <p>Thonny ?ㅼ튂媛 ?앸궗?ㅻ㈃, Pico 蹂대뱶? ?곌껐?섎뒗 怨쇱젙???꾩슂?⑸땲?? ?꾨옒 ?쒖꽌?濡??곕씪?섎㈃ 肄붾뱶 ?묒꽦??諛붾줈 ?쒖옉?????덉뒿?덈떎.</p>
 
                 <div class="callout info">
-                    <h4>💡 Thonny와 Pico 연결 순서</h4>
+                    <h4>?뮕 Thonny? Pico ?곌껐 ?쒖꽌</h4>
                     <ol style="margin-top: 8px; line-height: 2.2;">
-                        <li>바탕화면의 <strong>Thonny 아이콘</strong>을 더블클릭하여 프로그램을 실행합니다.</li>
-                        <li>처음 실행 시 언어 선택 화면이 나타나면 <strong>한국어</strong>로 설정한 후 [Let's go!]를 클릭합니다.</li>
-                        <li>Thonny 화면 <strong>우측 하단의 인터프리터 버튼</strong>(예: "Local Python 3")을 클릭합니다.</li>
-                        <li>목록에서 <strong>MicroPython (Raspberry Pi Pico)</strong>를 선택합니다.</li>
-                        <li>하단 <strong>[쉘(Shell)]</strong> 창에 <code>>>></code> 프롬프트가 표시되면 연결 완료 — 코드 작성 준비 끝!</li>
+                        <li>諛뷀깢?붾㈃??<strong>Thonny ?꾩씠肄?/strong>???붾툝?대┃?섏뿬 ?꾨줈洹몃옩???ㅽ뻾?⑸땲??</li>
+                        <li>泥섏쓬 ?ㅽ뻾 ???몄뼱 ?좏깮 ?붾㈃???섑??섎㈃ <strong>?쒓뎅??/strong>濡??ㅼ젙????[Let's go!]瑜??대┃?⑸땲??</li>
+                        <li>Thonny ?붾㈃ <strong>?곗륫 ?섎떒???명꽣?꾨━??踰꾪듉</strong>(?? "Local Python 3")???대┃?⑸땲??</li>
+                        <li>紐⑸줉?먯꽌 <strong>MicroPython (Raspberry Pi Pico)</strong>瑜??좏깮?⑸땲??</li>
+                        <li>?섎떒 <strong>[??Shell)]</strong> 李쎌뿉 <code>>>></code> ?꾨＼?꾪듃媛 ?쒖떆?섎㈃ ?곌껐 ?꾨즺 ??肄붾뱶 ?묒꽦 以鍮???</li>
                     </ol>
                 </div>
 
                 <div style="background-color: #f0fdf4; padding: 20px; border-radius: 8px; border-left: 4px solid #22c55e; margin-bottom: 30px;">
-                    <h4 style="margin-top:0; margin-bottom:10px; color: #15803d;"><i class="fa-solid fa-circle-check" style="color:#22c55e;"></i> 연결 확인 방법</h4>
-                    <p style="margin-bottom: 0; line-height: 1.7;">Thonny 하단 [쉘] 창에 <code>MicroPython vX.X.X; Raspberry Pi Pico</code> 문구가 표시되면 Pico와 정상적으로 연결된 것입니다. 만약 연결이 되지 않는다면 Pico를 다시 꽂은 후 인터프리터를 재선택해 보세요.</p>
+                    <h4 style="margin-top:0; margin-bottom:10px; color: #15803d;"><i class="fa-solid fa-circle-check" style="color:#22c55e;"></i> ?곌껐 ?뺤씤 諛⑸쾿</h4>
+                    <p style="margin-bottom: 0; line-height: 1.7;">Thonny ?섎떒 [?? 李쎌뿉 <code>MicroPython vX.X.X; Raspberry Pi Pico</code> 臾멸뎄媛 ?쒖떆?섎㈃ Pico? ?뺤긽?곸쑝濡??곌껐??寃껋엯?덈떎. 留뚯빟 ?곌껐???섏? ?딅뒗?ㅻ㈃ Pico瑜??ㅼ떆 苑귥? ???명꽣?꾨━?곕? ?ъ꽑?앺빐 蹂댁꽭??</p>
                 </div>
 
                 <!-- ============================== -->
-                <!-- 1.6 브레드보드 및 점퍼선       -->
+                <!-- 1.6 釉뚮젅?쒕낫??諛??먰띁??      -->
                 <!-- ============================== -->
-                <h2>1.6 브레드보드 및 점퍼선 이해하기</h2>
-                <p>센서나 LED 등 전자부품을 Pico와 연결할 때는 <strong>브레드보드(빵판)</strong>와 <strong>점퍼선</strong>을 활용합니다. 납땜 없이 부품을 끼웠다 뺄 수 있어 초보자도 쉽게 회로를 구성하고 수정할 수 있습니다.</p>
+                <h2>1.6 釉뚮젅?쒕낫??諛??먰띁???댄빐?섍린</h2>
+                <p>?쇱꽌??LED ???꾩옄遺?덉쓣 Pico? ?곌껐???뚮뒗 <strong>釉뚮젅?쒕낫??鍮듯뙋)</strong>? <strong>?먰띁??/strong>???쒖슜?⑸땲?? ?⑸븳 ?놁씠 遺?덉쓣 ?쇱썱??類????덉뼱 珥덈낫?먮룄 ?쎄쾶 ?뚮줈瑜?援ъ꽦?섍퀬 ?섏젙?????덉뒿?덈떎.</p>
 
-                <h3>🔌 브레드보드(빵판) 구조와 원리</h3>
-                <p>브레드보드는 내부에 금속 클립이 가로 방향으로 연결되어 있어, <strong>같은 행(가로줄)에 꽂힌 핀들이 서로 전기적으로 연결</strong>됩니다.</p>
+                <h3>?뵆 釉뚮젅?쒕낫??鍮듯뙋) 援ъ“? ?먮━</h3>
+                <p>釉뚮젅?쒕낫?쒕뒗 ?대???湲덉냽 ?대┰??媛濡?諛⑺뼢?쇰줈 ?곌껐?섏뼱 ?덉뼱, <strong>媛숈? ??媛濡쒖쨪)??苑귦엺 ??ㅼ씠 ?쒕줈 ?꾧린?곸쑝濡??곌껐</strong>?⑸땲??</p>
 
                 <table style="width:100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 40px; font-size: 0.95rem;">
                     <tr style="background-color: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
-                        <th style="padding: 15px; text-align: left; width: 25%;">구성 영역</th>
-                        <th style="padding: 15px; text-align: left; width: 20%;">위치</th>
-                        <th style="padding: 15px; text-align: left;">역할 및 설명</th>
+                        <th style="padding: 15px; text-align: left; width: 25%;">援ъ꽦 ?곸뿭</th>
+                        <th style="padding: 15px; text-align: left; width: 20%;">?꾩튂</th>
+                        <th style="padding: 15px; text-align: left;">??븷 諛??ㅻ챸</th>
                     </tr>
                     <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 15px; font-weight: 600;">전원 레일<br><span style="font-size:0.85rem; color:#64748b;">(Power Rail)</span></td>
-                        <td style="padding: 15px; color: #64748b;">양쪽 끝 세로 줄</td>
-                        <td style="padding: 15px;"><strong>(+) 빨간 줄, (-) 파란 줄</strong>로 표시됩니다. 보드 전체에 전원(3.3V/5V)과 GND를 공급하는 통로입니다. 같은 줄은 세로 방향으로 모두 연결되어 있습니다.</td>
+                        <td style="padding: 15px; font-weight: 600;">?꾩썝 ?덉씪<br><span style="font-size:0.85rem; color:#64748b;">(Power Rail)</span></td>
+                        <td style="padding: 15px; color: #64748b;">?묒そ ???몃줈 以?/td>
+                        <td style="padding: 15px;"><strong>(+) 鍮④컙 以? (-) ?뚮? 以?/strong>濡??쒖떆?⑸땲?? 蹂대뱶 ?꾩껜???꾩썝(3.3V/5V)怨?GND瑜?怨듦툒?섎뒗 ?듬줈?낅땲?? 媛숈? 以꾩? ?몃줈 諛⑺뼢?쇰줈 紐⑤몢 ?곌껐?섏뼱 ?덉뒿?덈떎.</td>
                     </tr>
                     <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 15px; font-weight: 600;">부품 영역<br><span style="font-size:0.85rem; color:#64748b;">(Component Area)</span></td>
-                        <td style="padding: 15px; color: #64748b;">가운데 구멍들</td>
-                        <td style="padding: 15px;">센서·LED·저항 등 부품을 꽂는 공간입니다. <strong>같은 행(가로줄, a~e / f~j)의 구멍끼리 내부에서 연결</strong>되어 있습니다. 가운데 홈을 기준으로 위아래 구역은 분리됩니다.</td>
+                        <td style="padding: 15px; font-weight: 600;">遺???곸뿭<br><span style="font-size:0.85rem; color:#64748b;">(Component Area)</span></td>
+                        <td style="padding: 15px; color: #64748b;">媛?대뜲 援щ찉??/td>
+                        <td style="padding: 15px;">?쇱꽌쨌LED쨌?????遺?덉쓣 苑귣뒗 怨듦컙?낅땲?? <strong>媛숈? ??媛濡쒖쨪, a~e / f~j)??援щ찉?쇰━ ?대??먯꽌 ?곌껐</strong>?섏뼱 ?덉뒿?덈떎. 媛?대뜲 ?덉쓣 湲곗??쇰줈 ?꾩븘??援ъ뿭? 遺꾨━?⑸땲??</td>
                     </tr>
                 </table>
 
-                <h3>🔗 점퍼선 종류와 용도</h3>
-                <p>점퍼선은 전류가 지나갈 수 있도록 전자부품들을 이어주는 연결선입니다. 연결하려는 부품의 단자 형태에 따라 알맞은 종류를 선택해야 합니다.</p>
+                <h3>?뵕 ?먰띁??醫낅쪟? ?⑸룄</h3>
+                <p>?먰띁?좎? ?꾨쪟媛 吏?섍컝 ???덈룄濡??꾩옄遺?덈뱾???댁뼱二쇰뒗 ?곌껐?좎엯?덈떎. ?곌껐?섎젮??遺?덉쓽 ?⑥옄 ?뺥깭???곕씪 ?뚮쭪? 醫낅쪟瑜??좏깮?댁빞 ?⑸땲??</p>
 
                 <table style="width:100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 40px; font-size: 0.95rem;">
                     <tr style="background-color: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
-                        <th style="padding: 15px; text-align: left; width: 20%;">종류</th>
-                        <th style="padding: 15px; text-align: left; width: 20%;">양쪽 단자</th>
-                        <th style="padding: 15px; text-align: left;">주요 사용처</th>
+                        <th style="padding: 15px; text-align: left; width: 20%;">醫낅쪟</th>
+                        <th style="padding: 15px; text-align: left; width: 20%;">?묒そ ?⑥옄</th>
+                        <th style="padding: 15px; text-align: left;">二쇱슂 ?ъ슜泥?/th>
                     </tr>
                     <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 15px; font-weight: 600;">수수(Male-Male)</td>
-                        <td style="padding: 15px; color: #64748b;">핀 ↔ 핀</td>
-                        <td style="padding: 15px;">브레드보드와 브레드보드, 또는 브레드보드와 Pico 핀 헤더 사이를 연결할 때 가장 많이 사용합니다.</td>
+                        <td style="padding: 15px; font-weight: 600;">?섏닔(Male-Male)</td>
+                        <td style="padding: 15px; color: #64748b;">? ???</td>
+                        <td style="padding: 15px;">釉뚮젅?쒕낫?쒖? 釉뚮젅?쒕낫?? ?먮뒗 釉뚮젅?쒕낫?쒖? Pico ? ?ㅻ뜑 ?ъ씠瑜??곌껐????媛??留롮씠 ?ъ슜?⑸땲??</td>
                     </tr>
                     <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 15px; font-weight: 600;">암수(Female-Male)</td>
-                        <td style="padding: 15px; color: #64748b;">소켓 ↔ 핀</td>
-                        <td style="padding: 15px;">한쪽이 소켓, 반대쪽이 핀입니다. 초음파 센서·DHT22 등 핀이 튀어나온 센서 모듈을 브레드보드와 연결할 때 주로 사용합니다.</td>
+                        <td style="padding: 15px; font-weight: 600;">?붿닔(Female-Male)</td>
+                        <td style="padding: 15px; color: #64748b;">?뚯폆 ???</td>
+                        <td style="padding: 15px;">?쒖そ???뚯폆, 諛섎?履쎌씠 ??낅땲?? 珥덉쓬???쇱꽌쨌DHT22 ???????대굹???쇱꽌 紐⑤뱢??釉뚮젅?쒕낫?쒖? ?곌껐????二쇰줈 ?ъ슜?⑸땲??</td>
                     </tr>
                     <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 15px; font-weight: 600;">암암(Female-Female)</td>
-                        <td style="padding: 15px; color: #64748b;">소켓 ↔ 소켓</td>
-                        <td style="padding: 15px;">양쪽 모두 소켓입니다. 핀 헤더가 있는 두 모듈 사이를 직접 연결하거나 GPIO 확장 모듈 연결 시 사용합니다.</td>
+                        <td style="padding: 15px; font-weight: 600;">?붿븫(Female-Female)</td>
+                        <td style="padding: 15px; color: #64748b;">?뚯폆 ???뚯폆</td>
+                        <td style="padding: 15px;">?묒そ 紐⑤몢 ?뚯폆?낅땲?? ? ?ㅻ뜑媛 ?덈뒗 ??紐⑤뱢 ?ъ씠瑜?吏곸젒 ?곌껐?섍굅??GPIO ?뺤옣 紐⑤뱢 ?곌껐 ???ъ슜?⑸땲??</td>
                     </tr>
                 </table>
 
                 <div class="callout info">
-                    <h4>💡 브레드보드 + 점퍼선 사용 팁</h4>
+                    <h4>?뮕 釉뚮젅?쒕낫??+ ?먰띁???ъ슜 ??/h4>
                     <ul style="margin-top: 8px; line-height: 1.9;">
-                        <li>Pico의 <strong>3V3(OUT) 핀 → 브레드보드 (+) 레일</strong>, <strong>GND 핀 → 브레드보드 (-) 레일</strong>에 연결하면 모든 부품에 전원을 쉽게 분배할 수 있습니다.</li>
-                        <li>점퍼선 색상은 관례적으로 <strong>빨간색 = 전원(+)</strong>, <strong>검은색 = GND(-)</strong>를 사용하면 회로를 한눈에 파악하기 쉽습니다.</li>
-                        <li>브레드보드에 부품을 꽂을 때 <strong>가운데 홈(골짜기)을 기준</strong>으로 위아래 구역은 분리되어 있음을 항상 기억하세요.</li>
+                        <li>Pico??<strong>3V3(OUT) ? ??釉뚮젅?쒕낫??(+) ?덉씪</strong>, <strong>GND ? ??釉뚮젅?쒕낫??(-) ?덉씪</strong>???곌껐?섎㈃ 紐⑤뱺 遺?덉뿉 ?꾩썝???쎄쾶 遺꾨같?????덉뒿?덈떎.</li>
+                        <li>?먰띁???됱긽? 愿濡?곸쑝濡?<strong>鍮④컙??= ?꾩썝(+)</strong>, <strong>寃???= GND(-)</strong>瑜??ъ슜?섎㈃ ?뚮줈瑜??쒕늿???뚯븙?섍린 ?쎌뒿?덈떎.</li>
+                        <li>釉뚮젅?쒕낫?쒖뿉 遺?덉쓣 苑귥쓣 ??<strong>媛?대뜲 ??怨⑥쭨湲???湲곗?</strong>?쇰줈 ?꾩븘??援ъ뿭? 遺꾨━?섏뼱 ?덉쓬????긽 湲곗뼲?섏꽭??</li>
                     </ul>
                 </div>
 
                 <!-- ============================== -->
-                <!-- 1.7 VS Code (선택 사항)        -->
+                <!-- 1.7 VS Code (?좏깮 ?ы빆)        -->
                 <!-- ============================== -->
-                <h2>1.7 고급 개발 환경: VS Code 구축 (선택 사항)</h2>
-                <p>Thonny에 익숙해졌거나 더 강력한 코드 자동 완성 및 프로젝트 관리가 필요하다면, 실무 IoT 개발자들이 주로 사용하는 <strong>Visual Studio Code (VS Code)</strong>로 환경을 구성할 수 있습니다.</p>
+                <h2>1.7 怨좉툒 媛쒕컻 ?섍꼍: VS Code 援ъ텞 (?좏깮 ?ы빆)</h2>
+                <p>Thonny???듭닕?댁죱嫄곕굹 ??媛뺣젰??肄붾뱶 ?먮룞 ?꾩꽦 諛??꾨줈?앺듃 愿由ш? ?꾩슂?섎떎硫? ?ㅻТ IoT 媛쒕컻?먮뱾??二쇰줈 ?ъ슜?섎뒗 <strong>Visual Studio Code (VS Code)</strong>濡??섍꼍??援ъ꽦?????덉뒿?덈떎.</p>
 
-                <h3>[1단계] 필수 소프트웨어 설치</h3>
+                <h3>[1?④퀎] ?꾩닔 ?뚰봽?몄썾???ㅼ튂</h3>
                 <ul style="margin-bottom: 20px;">
-                    <li><strong>VS Code:</strong> 공식 홈페이지에서 다운로드 후 설치합니다.</li>
-                    <li><strong>Python:</strong> PC에 파이썬이 설치되어 있어야 합니다. (설치 시 반드시 <code>Add Python to PATH</code> 옵션을 체크하세요!)</li>
+                    <li><strong>VS Code:</strong> 怨듭떇 ?덊럹?댁??먯꽌 ?ㅼ슫濡쒕뱶 ???ㅼ튂?⑸땲??</li>
+                    <li><strong>Python:</strong> PC???뚯씠?ъ씠 ?ㅼ튂?섏뼱 ?덉뼱???⑸땲?? (?ㅼ튂 ??諛섎뱶??<code>Add Python to PATH</code> ?듭뀡??泥댄겕?섏꽭??)</li>
                 </ul>
 
-                <h3>[2단계] 핵심 확장 프로그램(Extension) 설치</h3>
-                <p>VS Code 좌측 메뉴의 <strong>Extensions(확장, <code>Ctrl+Shift+X</code>)</strong> 아이콘을 클릭하고 검색창에 아래 두 가지를 검색하여 설치합니다.</p>
+                <h3>[2?④퀎] ?듭떖 ?뺤옣 ?꾨줈洹몃옩(Extension) ?ㅼ튂</h3>
+                <p>VS Code 醫뚯륫 硫붾돱??<strong>Extensions(?뺤옣, <code>Ctrl+Shift+X</code>)</strong> ?꾩씠肄섏쓣 ?대┃?섍퀬 寃?됱갹???꾨옒 ??媛吏瑜?寃?됲븯???ㅼ튂?⑸땲??</p>
                 <ul style="margin-bottom: 20px;">
-                    <li><strong>Python:</strong> Microsoft에서 제공하는 공식 파이썬 확장 프로그램</li>
-                    <li><strong>MicroPico:</strong> (구 Pico-W-Go) Pico 보드와 VS Code를 완벽하게 연결해 주는 필수 확장 프로그램</li>
+                    <li><strong>Python:</strong> Microsoft?먯꽌 ?쒓났?섎뒗 怨듭떇 ?뚯씠???뺤옣 ?꾨줈洹몃옩</li>
+                    <li><strong>MicroPico:</strong> (援?Pico-W-Go) Pico 蹂대뱶? VS Code瑜??꾨꼍?섍쾶 ?곌껐??二쇰뒗 ?꾩닔 ?뺤옣 ?꾨줈洹몃옩</li>
                 </ul>
 
-                <h3>[3단계] 프로젝트 초기화 및 통신 포트 연결</h3>
+                <h3>[3?④퀎] ?꾨줈?앺듃 珥덇린??諛??듭떊 ?ы듃 ?곌껐</h3>
                 <ol style="margin-bottom: 20px;">
-                    <li>마이크로 5핀 케이블로 Pico 2 보드를 PC에 연결합니다.</li>
-                    <li>VS Code에서 코드를 저장할 <strong>새로운 빈 폴더(예: <code>Pico_Project</code>)</strong>를 생성하고 엽니다 (File &gt; Open Folder).</li>
-                    <li>단축키 <code>F1</code> 또는 <code>Ctrl + Shift + P</code>를 눌러 <strong>Command Palette(명령 팔레트)</strong>를 띄웁니다.</li>
-                    <li>검색창에 <strong><code>MicroPico: Configure project</code></strong>를 입력하고 엔터를 누릅니다. (자동으로 <code>.vscode</code> 폴더가 생성되며 마이크로파이썬 전용 공간으로 세팅됩니다.)</li>
-                    <li>VS Code 하단 파란색 상태 표시줄의 <strong><code>Pico Disconnected</code></strong>를 클릭하고, Pico의 포트(예: <code>COM3</code>)를 선택하여 <strong><code>Pico Connected</code></strong> 상태로 만듭니다.</li>
+                    <li>留덉씠?щ줈 5? 耳?대툝濡?Pico 2 蹂대뱶瑜?PC???곌껐?⑸땲??</li>
+                    <li>VS Code?먯꽌 肄붾뱶瑜???ν븷 <strong>?덈줈??鍮??대뜑(?? <code>Pico_Project</code>)</strong>瑜??앹꽦?섍퀬 ?쎈땲??(File &gt; Open Folder).</li>
+                    <li>?⑥텞??<code>F1</code> ?먮뒗 <code>Ctrl + Shift + P</code>瑜??뚮윭 <strong>Command Palette(紐낅졊 ?붾젅??</strong>瑜??꾩썎?덈떎.</li>
+                    <li>寃?됱갹??<strong><code>MicroPico: Configure project</code></strong>瑜??낅젰?섍퀬 ?뷀꽣瑜??꾨쫭?덈떎. (?먮룞?쇰줈 <code>.vscode</code> ?대뜑媛 ?앹꽦?섎ŉ 留덉씠?щ줈?뚯씠???꾩슜 怨듦컙?쇰줈 ?명똿?⑸땲??)</li>
+                    <li>VS Code ?섎떒 ?뚮????곹깭 ?쒖떆以꾩쓽 <strong><code>Pico Disconnected</code></strong>瑜??대┃?섍퀬, Pico???ы듃(?? <code>COM3</code>)瑜??좏깮?섏뿬 <strong><code>Pico Connected</code></strong> ?곹깭濡?留뚮벊?덈떎.</li>
                 </ol>
 
                 <div style="background-color: #fef2f2; padding: 20px; border-radius: 8px; border-left: 4px solid #ef4444; margin-bottom: 30px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
-                    <h4 style="margin-top:0; margin-bottom:12px; color: #991b1b;"><i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> VS Code와 Thonny의 결정적 차이점 (주의!)</h4>
-                    <p style="margin-bottom: 15px; line-height: 1.6;">Thonny는 저장 버튼을 누르면 보드 내부에 코드가 바로 저장되지만, VS Code는 기본적으로 <strong>PC 하드디스크에 파일을 저장</strong>합니다. 따라서 하단 상태 표시줄의 MicroPico 전용 버튼을 용도에 맞게 반드시 활용해야 합니다.</p>
+                    <h4 style="margin-top:0; margin-bottom:12px; color: #991b1b;"><i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> VS Code? Thonny??寃곗젙??李⑥씠??(二쇱쓽!)</h4>
+                    <p style="margin-bottom: 15px; line-height: 1.6;">Thonny?????踰꾪듉???꾨Ⅴ硫?蹂대뱶 ?대???肄붾뱶媛 諛붾줈 ??λ릺吏留? VS Code??湲곕낯?곸쑝濡?<strong>PC ?섎뱶?붿뒪?ъ뿉 ?뚯씪?????/strong>?⑸땲?? ?곕씪???섎떒 ?곹깭 ?쒖떆以꾩쓽 MicroPico ?꾩슜 踰꾪듉???⑸룄??留욊쾶 諛섎뱶???쒖슜?댁빞 ?⑸땲??</p>
                     <ul style="margin-bottom: 0; line-height: 1.8;">
-                        <li><strong>▶️ Run:</strong> 현재 파일을 보드 메모리에 올려 일회성으로 실행해 보는 테스트 버튼</li>
-                        <li><strong>⬆️ Upload project to Pico:</strong> PC의 파일들을 <strong>보드 내부로 영구 복사(업로드)</strong>하는 버튼 (전원을 껐다 켜도 실행되게 하려면 필수!)</li>
-                        <li><strong>⬇️ Download project from Pico:</strong> 보드 내부에 있는 파일을 PC로 백업해 오는 버튼</li>
+                        <li><strong>?띰툘 Run:</strong> ?꾩옱 ?뚯씪??蹂대뱶 硫붾え由ъ뿉 ?щ젮 ?쇳쉶?깆쑝濡??ㅽ뻾??蹂대뒗 ?뚯뒪??踰꾪듉</li>
+                        <li><strong>燧놅툘 Upload project to Pico:</strong> PC???뚯씪?ㅼ쓣 <strong>蹂대뱶 ?대?濡??곴뎄 蹂듭궗(?낅줈??</strong>?섎뒗 踰꾪듉 (?꾩썝??猿먮떎 耳쒕룄 ?ㅽ뻾?섍쾶 ?섎젮硫??꾩닔!)</li>
+                        <li><strong>燧뉛툘 Download project from Pico:</strong> 蹂대뱶 ?대????덈뒗 ?뚯씪??PC濡?諛깆뾽???ㅻ뒗 踰꾪듉</li>
                     </ul>
                 </div>
 
                 <!-- ============================== -->
-                <!-- 1.8 Wokwi 온라인 시뮬레이터    -->
+                <!-- 1.8 Wokwi ?⑤씪???쒕??덉씠??   -->
                 <!-- ============================== -->
-                <h2>1.8 실물 없이도 실습! Wokwi 온라인 시뮬레이터</h2>
-                <p>아직 Pico 2 보드나 센서 부품이 도착하지 않았거나, 배선을 틀릴까 걱정된다면 <strong><a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">Wokwi</a></strong>를 활용해 보세요. Wokwi는 브라우저에서 바로 회로를 구성하고 MicroPython 코드를 실행하여 LED, 센서, 모터 등의 동작을 실시간으로 시뮬레이션할 수 있는 무료 온라인 서비스입니다. 이 교재의 모든 실습 챕터 끝부분에는 <strong>"Wokwi 시뮬레이션으로 실습하기"</strong> 코너가 마련되어 있어, 실제 하드웨어 없이도 코드와 회로 동작을 먼저 검증해 볼 수 있습니다.</p>
+                <h2>1.8 ?ㅻЪ ?놁씠???ㅼ뒿! Wokwi ?⑤씪???쒕??덉씠??/h2>
+                <p>?꾩쭅 Pico 2 蹂대뱶???쇱꽌 遺?덉씠 ?꾩갑?섏? ?딆븯嫄곕굹, 諛곗꽑???由닿퉴 嫄깆젙?쒕떎硫?<strong><a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">Wokwi</a></strong>瑜??쒖슜??蹂댁꽭?? Wokwi??釉뚮씪?곗??먯꽌 諛붾줈 ?뚮줈瑜?援ъ꽦?섍퀬 MicroPython 肄붾뱶瑜??ㅽ뻾?섏뿬 LED, ?쇱꽌, 紐⑦꽣 ?깆쓽 ?숈옉???ㅼ떆媛꾩쑝濡??쒕??덉씠?섑븷 ???덈뒗 臾대즺 ?⑤씪???쒕퉬?ㅼ엯?덈떎. ??援먯옱??紐⑤뱺 ?ㅼ뒿 梨뺥꽣 ?앸?遺꾩뿉??<strong>"Wokwi ?쒕??덉씠?섏쑝濡??ㅼ뒿?섍린"</strong> 肄붾꼫媛 留덈젴?섏뼱 ?덉뼱, ?ㅼ젣 ?섎뱶?⑥뼱 ?놁씠??肄붾뱶? ?뚮줈 ?숈옉??癒쇱? 寃利앺빐 蹂????덉뒿?덈떎.</p>
 
                 <div class="callout info">
-                    <h4>💻 Wokwi로 첫 Pico 프로젝트 만들기</h4>
+                    <h4>?뮲 Wokwi濡?泥?Pico ?꾨줈?앺듃 留뚮뱾湲?/h4>
                     <ol style="margin-top: 8px; line-height: 2.2;">
-                        <li><a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">wokwi.com</a>에 접속하고 무료 회원가입(GitHub 계정 로그인 가능)을 합니다.</li>
-                        <li>상단 <strong>[New Project]</strong> 버튼을 클릭하고, 보드 목록에서 <strong>"Raspberry Pi Pico"</strong> (MicroPython 템플릿)를 선택합니다.</li>
-                        <li>왼쪽 <strong>diagram.json</strong> 탭에서 부품을 추가하고 배선을 그립니다. 이 교재에서 제공하는 diagram.json 코드를 그대로 붙여넣으면 회로가 자동으로 구성됩니다.</li>
-                        <li>오른쪽 <strong>main.py</strong> 탭에 이 교재의 파이썬 코드를 붙여넣습니다.</li>
-                        <li>화면 상단 <strong>▶️ (녹색 재생 버튼)</strong>을 누르면 시뮬레이션이 시작되고, LED 점멸이나 센서 값 변화를 실시간으로 확인할 수 있습니다.</li>
+                        <li><a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">wokwi.com</a>???묒냽?섍퀬 臾대즺 ?뚯썝媛??GitHub 怨꾩젙 濡쒓렇??媛?????⑸땲??</li>
+                        <li>?곷떒 <strong>[New Project]</strong> 踰꾪듉???대┃?섍퀬, 蹂대뱶 紐⑸줉?먯꽌 <strong>"Raspberry Pi Pico"</strong> (MicroPython ?쒗뵆由?瑜??좏깮?⑸땲??</li>
+                        <li>?쇱そ <strong>diagram.json</strong> ??뿉??遺?덉쓣 異붽??섍퀬 諛곗꽑??洹몃┰?덈떎. ??援먯옱?먯꽌 ?쒓났?섎뒗 diagram.json 肄붾뱶瑜?洹몃?濡?遺숈뿬?ｌ쑝硫??뚮줈媛 ?먮룞?쇰줈 援ъ꽦?⑸땲??</li>
+                        <li>?ㅻⅨ履?<strong>main.py</strong> ??뿉 ??援먯옱???뚯씠??肄붾뱶瑜?遺숈뿬?ｌ뒿?덈떎.</li>
+                        <li>?붾㈃ ?곷떒 <strong>?띰툘 (?뱀깋 ?ъ깮 踰꾪듉)</strong>???꾨Ⅴ硫??쒕??덉씠?섏씠 ?쒖옉?섍퀬, LED ?먮㈇?대굹 ?쇱꽌 媛?蹂?붾? ?ㅼ떆媛꾩쑝濡??뺤씤?????덉뒿?덈떎.</li>
                     </ol>
-                    <p style="margin-top: 12px;"><strong>💡 Tip:</strong> 실제 보드와 100% 동일하게 동작하지는 않지만(타이밍 오차, 일부 센서 미지원 등), 문법 오류를 잡거나 회로 아이디어를 빠르게 검증하기에 매우 유용합니다. 실물 보드가 준비되면 반드시 실제 하드웨어로도 다시 실습해 보세요.</p>
+                    <p style="margin-top: 12px;"><strong>?뮕 Tip:</strong> ?ㅼ젣 蹂대뱶? 100% ?숈씪?섍쾶 ?숈옉?섏????딆?留???대컢 ?ㅼ감, ?쇰? ?쇱꽌 誘몄?????, 臾몃쾿 ?ㅻ쪟瑜??↔굅???뚮줈 ?꾩씠?붿뼱瑜?鍮좊Ⅴ寃?寃利앺븯湲곗뿉 留ㅼ슦 ?좎슜?⑸땲?? ?ㅻЪ 蹂대뱶媛 以鍮꾨릺硫?諛섎뱶???ㅼ젣 ?섎뱶?⑥뼱濡쒕룄 ?ㅼ떆 ?ㅼ뒿??蹂댁꽭??</p>
                 </div>
 
                 <div class="nav-btns">
-                    <a href="index.html" class="btn btn-prev">◀ HOME으로</a>
-                    <a href="chapter_02.html" class="btn btn-next">CHAPTER 2로 이동 ▶</a>
+                    <a href="index.html" class="btn btn-prev">? HOME?쇰줈</a>
+                    <a href="chapter_02.html" class="btn btn-next">CHAPTER 2濡??대룞 ??/a>
                 </div>
             </div>
         </main>
@@ -321,11 +321,11 @@ document.querySelectorAll('pre').forEach((preBlock) => {
 
     const topBtn = document.createElement('button');
     topBtn.className = 'copy-btn btn-top';
-    topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
+    topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 蹂듭궗';
 
     const bottomBtn = document.createElement('button');
     bottomBtn.className = 'copy-btn btn-bottom';
-    bottomBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
+    bottomBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 蹂듭궗';
 
     wrapper.appendChild(topBtn);
     wrapper.appendChild(bottomBtn);
@@ -334,14 +334,14 @@ document.querySelectorAll('pre').forEach((preBlock) => {
 
     const copyToClipboard = (btn) => {
         navigator.clipboard.writeText(codeText).then(() => {
-            btn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> 완료';
+            btn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> ?꾨즺';
             btn.classList.add('copied');
             setTimeout(() => {
-                btn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
+                btn.innerHTML = '<i class="fa-regular fa-copy"></i> 蹂듭궗';
                 btn.classList.remove('copied');
             }, 2000);
         }).catch(err => {
-            console.error('복사 실패:', err);
+            console.error('蹂듭궗 ?ㅽ뙣:', err);
         });
     };
 
@@ -352,3 +352,4 @@ document.querySelectorAll('pre').forEach((preBlock) => {
     <script src="mobile-nav.js"></script>
 </body>
 </html>
+

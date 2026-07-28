@@ -1,10 +1,10 @@
-
+﻿
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ch 4. 기본 입출력 - Pico 2 가이드</title>
+    <title>Ch 4. 湲곕낯 ?낆텧??- Pico 2 媛?대뱶</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -13,49 +13,49 @@
         <nav class="sidebar">
             <h2>PICO 2 IoT GUIDE</h2>
             <ul>
-                <li><a href="index.html">HOME - 시작하기</a></li>
-                <li class="menu-divider">기초 & 통신 파트</li>
-                <li><a href="chapter_01.html">CHAPTER 1 - 하드웨어 이해</a></li>
-                <li><a href="chapter_02.html">CHAPTER 2 - 펌웨어 세팅</a></li>
-                <li><a href="chapter_03.html">CHAPTER 3 - 기초 코딩(Blink)</a></li>
-                <li><a href="chapter_04.html" class="active">CHAPTER 4 - 기본 입출력(스위치/부저)</a></li>
-                <li><a href="chapter_05.html">CHAPTER 5 - 센서 제어(초음파/PIR)</a></li>
-                <li class="menu-divider">실전 하드웨어</li>
-                <li><a href="chapter_06.html">CHAPTER 6 - 아날로그 & 모터</a></li>
-                <li><a href="chapter_07.html">CHAPTER 7 - 온습도 & 데이터</a></li>
-                <li><a href="chapter_08.html">CHAPTER 8 - Neopixel 제어</a></li>
-                <li><a href="chapter_09.html">CHAPTER 9 - I2C LCD 디스플레이</a></li>
-                <li><a href="chapter_10.html">CHAPTER 10 - 무선 통신 & 입력</a></li>
-                <li class="menu-divider">심화 응용 프로젝트</li>
-                <li><a href="chapter_11.html">CHAPTER 11 - MQTT 클라우드</a></li>
+                <li><a href="index.html">HOME - ?쒖옉?섍린</a></li>
+                <li class="menu-divider">湲곗큹 & ?듭떊 ?뚰듃</li>
+                <li><a href="chapter_01.html">CHAPTER 1 - ?섎뱶?⑥뼱 ?댄빐</a></li>
+                <li><a href="chapter_02.html">CHAPTER 2 - ?뚯썾???명똿</a></li>
+                <li><a href="chapter_03.html">CHAPTER 3 - 湲곗큹 肄붾뵫(Blink)</a></li>
+                <li><a href="chapter_04.html" class="active">CHAPTER 4 - 湲곕낯 ?낆텧???ㅼ쐞移?遺?)</a></li>
+                <li><a href="chapter_05.html">CHAPTER 5 - ?쇱꽌 ?쒖뼱(珥덉쓬??PIR)</a></li>
+                <li class="menu-divider">?ㅼ쟾 ?섎뱶?⑥뼱</li>
+                <li><a href="chapter_06.html">CHAPTER 6 - ?꾨궇濡쒓렇 & 紐⑦꽣</a></li>
+                <li><a href="chapter_07.html">CHAPTER 7 - ?⑥뒿??& ?곗씠??/a></li>
+                <li><a href="chapter_08.html">CHAPTER 8 - Neopixel ?쒖뼱</a></li>
+                <li><a href="chapter_09.html">CHAPTER 9 - I2C LCD ?붿뒪?뚮젅??/a></li>
+                <li><a href="chapter_10.html">CHAPTER 10 - 臾댁꽑 ?듭떊 & ?낅젰</a></li>
+                <li class="menu-divider">?ы솕 ?묒슜 ?꾨줈?앺듃</li>
+                <li><a href="chapter_11.html">CHAPTER 11 - MQTT ?대씪?곕뱶</a></li>
                 <li><a href="chapter_12.html">CHAPTER 12 - OLED & RTC</a></li>
-                <li><a href="chapter_13.html">CHAPTER 13 - 종합 프로젝트</a></li>
-                <li class="menu-divider">나만의 작품 만들기</li>
-                <li><a href="chapter_16.html">CHAPTER 16 - 바이브 코딩 캡스톤</a></li>
+                <li><a href="chapter_13.html">CHAPTER 13 - 醫낇빀 ?꾨줈?앺듃</a></li>
+                <li class="menu-divider">?섎쭔???묓뭹 留뚮뱾湲?/li>
+                <li><a href="chapter_16.html">CHAPTER 16 - 諛붿씠釉?肄붾뵫 罹≪뒪??/a></li>
             </ul>
             <div class="sidebar-footer">
-                <button class="pinout-btn" id="openPinout"><i class="fa-solid fa-diagram-project"></i> GPIO 핀아웃 맵 보기</button>
+                <button class="pinout-btn" id="openPinout"><i class="fa-solid fa-diagram-project"></i> GPIO ??꾩썐 留?蹂닿린</button>
             </div>
         </nav>
         <main class="content">
             <div class="container">
-                <h1>Chapter 4. 기본 디지털 입출력 (LED, 스위치, 부저)</h1>
-                <p>브레드보드를 활용해 외부 소자들을 연결해 봅시다. 전기를 내보내는 출력(Output)과 외부 상태를 읽어들이는 입력(Input)의 기초를 다집니다.</p>
+                <h1>Chapter 4. 湲곕낯 ?붿????낆텧??(LED, ?ㅼ쐞移? 遺?)</h1>
+                <p>釉뚮젅?쒕낫?쒕? ?쒖슜???몃? ?뚯옄?ㅼ쓣 ?곌껐??遊낆떆?? ?꾧린瑜??대낫?대뒗 異쒕젰(Output)怨??몃? ?곹깭瑜??쎌뼱?ㅼ씠???낅젰(Input)??湲곗큹瑜??ㅼ쭛?덈떎.</p>
 
                 <div style="text-align: center; margin: 40px 0;">
                     <svg viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 16px; background: #ffffff; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
-                        <!-- 회로 연결 개념도 -->
+                        <!-- ?뚮줈 ?곌껐 媛쒕뀗??-->
                         <rect x="350" y="50" width="100" height="200" rx="10" fill="#059669"/>
                         <text x="400" y="155" text-anchor="middle" fill="white" font-weight="bold">Pico 2</text>
 
-                        <!-- 입력 섹션 -->
+                        <!-- ?낅젰 ?뱀뀡 -->
                         <circle cx="150" cy="150" r="40" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
                         <line x1="135" y1="135" x2="165" y2="135" stroke="#1e293b" stroke-width="4"/>
-                        <text x="150" y="220" text-anchor="middle" fill="#64748b" font-weight="bold">스위치 (Input)</text>
+                        <text x="150" y="220" text-anchor="middle" fill="#64748b" font-weight="bold">?ㅼ쐞移?(Input)</text>
                         <path d="M190 150 H350" stroke="#3b82f6" stroke-width="3" marker-end="url(#arr)"/>
                         <text x="270" y="140" text-anchor="middle" fill="#3b82f6" font-size="12">GP14</text>
 
-                        <!-- 출력 섹션 -->
+                        <!-- 異쒕젰 ?뱀뀡 -->
                         <rect x="620" y="130" width="30" height="40" rx="5" fill="#ef4444"/>
                         <path d="M635 170 V200" stroke="#94a3b8" stroke-width="2"/>
                         <text x="635" y="220" text-anchor="middle" fill="#64748b" font-weight="bold">LED (Output)</text>
@@ -68,12 +68,12 @@
                             </marker>
                         </defs>
                     </svg>
-                    <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">디지털 입출력의 흐름: 스위치 신호 입력 → 보드 판단 → LED 전기 출력</p>
+                    <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">?붿????낆텧?μ쓽 ?먮쫫: ?ㅼ쐞移??좏샇 ?낅젰 ??蹂대뱶 ?먮떒 ??LED ?꾧린 異쒕젰</p>
                 </div>
 
-                <h2>4.1 스위치 입력을 받아 외장 LED 제어하기</h2>
-                <p>스위치가 눌렸을 때 발생하는 전류 신호를 읽어 외부 LED를 켜는 조건문 실습입니다. 안정적인 입력을 위해 내부 풀다운(Pull-Down) 저항을 활성화합니다.</p>
-                <p>스위치는 평소에 회로가 끊겨 있다가, 사람이 누르는 순간에만 회로를 연결해 전류가 흐르게 하는 부품입니다. 그런데 스위치를 누르지 않은 상태에서 GPIO 핀을 그냥 두면 전압이 정해지지 않고 <strong>공중에 떠 있는(floating)</strong> 상태가 되어, 노이즈로 인해 값이 0과 1 사이를 무작위로 오갈 수 있습니다. 이를 막기 위해 <code>Pin.PULL_DOWN</code> 옵션으로 <strong>내부 풀다운 저항</strong>을 활성화하면, 스위치를 누르지 않았을 때는 핀이 확실하게 GND(0)로 끌어당겨지고, 스위치를 눌러 3.3V가 연결되는 순간에만 1(High)로 값이 바뀝니다.</p>
+                <h2>4.1 ?ㅼ쐞移??낅젰??諛쏆븘 ?몄옣 LED ?쒖뼱?섍린</h2>
+                <p>?ㅼ쐞移섍? ?뚮졇????諛쒖깮?섎뒗 ?꾨쪟 ?좏샇瑜??쎌뼱 ?몃? LED瑜?耳쒕뒗 議곌굔臾??ㅼ뒿?낅땲?? ?덉젙?곸씤 ?낅젰???꾪빐 ?대? ??ㅼ슫(Pull-Down) ???쓣 ?쒖꽦?뷀빀?덈떎.</p>
+                <p>?ㅼ쐞移섎뒗 ?됱냼???뚮줈媛 ?딄꺼 ?덈떎媛, ?щ엺???꾨Ⅴ???쒓컙?먮쭔 ?뚮줈瑜??곌껐???꾨쪟媛 ?먮Ⅴ寃??섎뒗 遺?덉엯?덈떎. 洹몃윴???ㅼ쐞移섎? ?꾨Ⅴ吏 ?딆? ?곹깭?먯꽌 GPIO ???洹몃깷 ?먮㈃ ?꾩븬???뺥빐吏吏 ?딄퀬 <strong>怨듭쨷?????덈뒗(floating)</strong> ?곹깭媛 ?섏뼱, ?몄씠利덈줈 ?명빐 媛믪씠 0怨?1 ?ъ씠瑜?臾댁옉?꾨줈 ?ㅺ컝 ???덉뒿?덈떎. ?대? 留됯린 ?꾪빐 <code>Pin.PULL_DOWN</code> ?듭뀡?쇰줈 <strong>?대? ??ㅼ슫 ???/strong>???쒖꽦?뷀븯硫? ?ㅼ쐞移섎? ?꾨Ⅴ吏 ?딆븯???뚮뒗 ????뺤떎?섍쾶 GND(0)濡??뚯뼱?밴꺼吏怨? ?ㅼ쐞移섎? ?뚮윭 3.3V媛 ?곌껐?섎뒗 ?쒓컙?먮쭔 1(High)濡?媛믪씠 諛붾앸땲??</p>
 
                 <div style="text-align: center; margin: 20px 0;">
                     <svg viewBox="0 0 640 215" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 12px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.06);">
@@ -101,7 +101,7 @@
                         <circle cx="407" cy="92" r="4" fill="#374151"/>
                         <line x1="411" y1="92" x2="432" y2="80" stroke="#374151" stroke-width="2"/>
                         <circle cx="437" cy="92" r="4" fill="#374151" opacity="0.3"/>
-                        <text x="435" y="109" text-anchor="middle" fill="#374151" font-size="9" font-weight="bold" font-family="Arial,sans-serif">스위치</text>
+                        <text x="435" y="109" text-anchor="middle" fill="#374151" font-size="9" font-weight="bold" font-family="Arial,sans-serif">?ㅼ쐞移?/text>
                         <circle cx="480" cy="110" r="4" fill="#ef4444"/>
                         <circle cx="390" cy="110" r="4" fill="#06b6d4"/>
 
@@ -109,8 +109,8 @@
                         <line x1="156" y1="145" x2="275" y2="145" stroke="#f59e0b" stroke-width="2.5"/>
                         <!-- Resistor -->
                         <rect x="275" y="136" width="55" height="18" rx="4" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
-                        <text x="302" y="149" text-anchor="middle" fill="#92400e" font-size="10" font-weight="bold" font-family="Arial,sans-serif">330Ω</text>
-                        <!-- Wire resistor → LED -->
+                        <text x="302" y="149" text-anchor="middle" fill="#92400e" font-size="10" font-weight="bold" font-family="Arial,sans-serif">330廓</text>
+                        <!-- Wire resistor ??LED -->
                         <line x1="330" y1="145" x2="362" y2="145" stroke="#f59e0b" stroke-width="2.5"/>
                         <!-- LED symbol (triangle = anode left) -->
                         <polygon points="362,133 362,157 385,145" fill="#ef4444" opacity="0.9"/>
@@ -119,7 +119,7 @@
                         <line x1="389" y1="136" x2="397" y2="130" stroke="#ef4444" stroke-width="1.5"/>
                         <line x1="389" y1="143" x2="398" y2="139" stroke="#ef4444" stroke-width="1.5"/>
                         <text x="374" y="167" text-anchor="middle" fill="#ef4444" font-size="9" font-weight="bold" font-family="Arial,sans-serif">LED</text>
-                        <!-- LED cathode → GND return -->
+                        <!-- LED cathode ??GND return -->
                         <line x1="385" y1="145" x2="440" y2="145" stroke="#374151" stroke-width="2.5"/>
                         <line x1="440" y1="145" x2="440" y2="180" stroke="#374151" stroke-width="2.5"/>
                         <!-- GND wire from Pico with junction -->
@@ -127,58 +127,58 @@
                         <circle cx="440" cy="180" r="4" fill="#374151"/>
 
                         <!-- Signal direction hint -->
-                        <text x="270" y="105" text-anchor="middle" fill="#06b6d4" font-size="10" font-family="Arial,sans-serif">← 읽기(INPUT)</text>
-                        <text x="270" y="140" text-anchor="middle" fill="#f59e0b" font-size="10" font-family="Arial,sans-serif">→ 출력(OUTPUT)</text>
+                        <text x="270" y="105" text-anchor="middle" fill="#06b6d4" font-size="10" font-family="Arial,sans-serif">???쎄린(INPUT)</text>
+                        <text x="270" y="140" text-anchor="middle" fill="#f59e0b" font-size="10" font-family="Arial,sans-serif">??異쒕젰(OUTPUT)</text>
 
                         <!-- Legend -->
                         <rect x="500" y="110" width="118" height="80" rx="6" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
-                        <circle cx="513" cy="124" r="4" fill="#ef4444"/><text x="521" y="128" fill="#64748b" font-size="10" font-family="Arial,sans-serif">3.3V (전원)</text>
-                        <circle cx="513" cy="141" r="4" fill="#06b6d4"/><text x="521" y="145" fill="#64748b" font-size="10" font-family="Arial,sans-serif">GP14 (입력)</text>
-                        <circle cx="513" cy="158" r="4" fill="#f59e0b"/><text x="521" y="162" fill="#64748b" font-size="10" font-family="Arial,sans-serif">GP15 (출력)</text>
+                        <circle cx="513" cy="124" r="4" fill="#ef4444"/><text x="521" y="128" fill="#64748b" font-size="10" font-family="Arial,sans-serif">3.3V (?꾩썝)</text>
+                        <circle cx="513" cy="141" r="4" fill="#06b6d4"/><text x="521" y="145" fill="#64748b" font-size="10" font-family="Arial,sans-serif">GP14 (?낅젰)</text>
+                        <circle cx="513" cy="158" r="4" fill="#f59e0b"/><text x="521" y="162" fill="#64748b" font-size="10" font-family="Arial,sans-serif">GP15 (異쒕젰)</text>
                         <circle cx="513" cy="175" r="4" fill="#374151"/><text x="521" y="179" fill="#64748b" font-size="10" font-family="Arial,sans-serif">GND</text>
                     </svg>
-                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">스위치 한쪽 → GP14, 반대쪽 → 3.3V. LED는 330Ω 저항과 직렬로 GP15 → 저항 → LED(+) → LED(−) → GND 순으로 연결합니다.</p>
+                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">?ㅼ쐞移??쒖そ ??GP14, 諛섎?履???3.3V. LED??330廓 ???낵 吏곷젹濡?GP15 ???????LED(+) ??LED(?? ??GND ?쒖쑝濡??곌껐?⑸땲??</p>
                 </div>
 
                 <pre><code>from machine import Pin
 import time
 
-# GPIO 15번에 외장 LED 연결 (출력 모드)
+# GPIO 15踰덉뿉 ?몄옣 LED ?곌껐 (異쒕젰 紐⑤뱶)
 external_led = Pin(15, Pin.OUT)
 
-# GPIO 14번에 푸시 스위치 연결 (입력 모드 및 내부 풀다운 저항 활성화)
-# 버튼을 누르면 1(High), 떼면 0(Low)이 입력됩니다.
+# GPIO 14踰덉뿉 ?몄떆 ?ㅼ쐞移??곌껐 (?낅젰 紐⑤뱶 諛??대? ??ㅼ슫 ????쒖꽦??
+# 踰꾪듉???꾨Ⅴ硫?1(High), ?쇰㈃ 0(Low)???낅젰?⑸땲??
 switch = Pin(14, Pin.IN, Pin.PULL_DOWN)
 
-print("스위치 감지 시스템 가동...")
+print("?ㅼ쐞移?媛먯? ?쒖뒪??媛??..")
 
 while True:
-    if switch.value() == 1:       # 스위치가 눌렸다면
-        external_led.value(1)     # 외장 LED 켜기
-        print("버튼 클릭 -> LED ON")
-    else:                         # 스위치가 떨어졌다면
-        external_led.value(0)     # 외장 LED 끄기
+    if switch.value() == 1:       # ?ㅼ쐞移섍? ?뚮졇?ㅻ㈃
+        external_led.value(1)     # ?몄옣 LED 耳쒓린
+        print("踰꾪듉 ?대┃ -> LED ON")
+    else:                         # ?ㅼ쐞移섍? ?⑥뼱議뚮떎硫?
+        external_led.value(0)     # ?몄옣 LED ?꾧린
 
-    time.sleep(0.05)              # 채터링(흔들림) 방지를 위한 짧은 대기
+    time.sleep(0.05)              # 梨꾪꽣留??붾뱾由? 諛⑹?瑜??꾪븳 吏㏃? ?湲?
 </code></pre>
 
-                <h2>4.2 능동 부저 vs 수동 부저 제어</h2>
-                <p>능동 부저(Active Buzzer)는 전원만 주면 단일 경고음이 나고, 수동 부저(Passive Buzzer)는 주파수 신호(PWM)를 주어야 원하는 음계(도레미파)를 연주할 수 있습니다.</p>
-                <p>능동 부저 내부에는 발진 회로가 이미 내장되어 있어서, 전기가 흐르기만 하면 정해진 하나의 음(삐- 소리)이 자동으로 납니다. 그래서 능동 부저는 LED처럼 <code>Pin.OUT</code>으로 설정하고 <code>on()</code> / <code>off()</code>만으로 제어할 수 있습니다. 반면 수동 부저는 발진 회로가 없어서, 우리가 직접 <strong>PWM(Pulse Width Modulation)</strong> 신호로 주파수(Hz)를 만들어 보내주어야만 소리가 나며, 주파수를 바꾸면 음높이도 바뀌기 때문에 멜로디 연주가 가능합니다.</p>
+                <h2>4.2 ?λ룞 遺? vs ?섎룞 遺? ?쒖뼱</h2>
+                <p>?λ룞 遺?(Active Buzzer)???꾩썝留?二쇰㈃ ?⑥씪 寃쎄퀬?뚯씠 ?섍퀬, ?섎룞 遺?(Passive Buzzer)??二쇳뙆???좏샇(PWM)瑜?二쇱뼱???먰븯???뚭퀎(?꾨젅誘명뙆)瑜??곗＜?????덉뒿?덈떎.</p>
+                <p>?λ룞 遺? ?대??먮뒗 諛쒖쭊 ?뚮줈媛 ?대? ?댁옣?섏뼱 ?덉뼱?? ?꾧린媛 ?먮Ⅴ湲곕쭔 ?섎㈃ ?뺥빐吏??섎굹?????? ?뚮━)???먮룞?쇰줈 ?⑸땲?? 洹몃옒???λ룞 遺???LED泥섎읆 <code>Pin.OUT</code>?쇰줈 ?ㅼ젙?섍퀬 <code>on()</code> / <code>off()</code>留뚯쑝濡??쒖뼱?????덉뒿?덈떎. 諛섎㈃ ?섎룞 遺???諛쒖쭊 ?뚮줈媛 ?놁뼱?? ?곕━媛 吏곸젒 <strong>PWM(Pulse Width Modulation)</strong> ?좏샇濡?二쇳뙆??Hz)瑜?留뚮뱾??蹂대궡二쇱뼱?쇰쭔 ?뚮━媛 ?섎ŉ, 二쇳뙆?섎? 諛붽씀硫??뚮넂?대룄 諛붾뚭린 ?뚮Ц??硫쒕줈???곗＜媛 媛?ν빀?덈떎.</p>
 
-                <h3>[실습] 능동 부저로 단일음 울리기</h3>
-                <p>능동 부저는 아래처럼 LED와 동일한 방식으로 간단하게 제어할 수 있습니다.</p>
+                <h3>[?ㅼ뒿] ?λ룞 遺?濡??⑥씪???몃━湲?/h3>
+                <p>?λ룞 遺????꾨옒泥섎읆 LED? ?숈씪??諛⑹떇?쇰줈 媛꾨떒?섍쾶 ?쒖뼱?????덉뒿?덈떎.</p>
                 <pre><code>from machine import Pin
 import time
 
-# GPIO 16번에 능동 부저 연결 (출력 모드)
+# GPIO 16踰덉뿉 ?λ룞 遺? ?곌껐 (異쒕젰 紐⑤뱶)
 active_buzzer = Pin(16, Pin.OUT)
 
-print("능동 부저 테스트를 시작합니다.")
+print("?λ룞 遺? ?뚯뒪?몃? ?쒖옉?⑸땲??")
 
-active_buzzer.on()     # 부저 울리기
+active_buzzer.on()     # 遺? ?몃━湲?
 time.sleep(0.5)
-active_buzzer.off()    # 부저 끄기
+active_buzzer.off()    # 遺? ?꾧린
 time.sleep(0.5)</code></pre>
 
                 <div style="text-align: center; margin: 20px 0;">
@@ -198,7 +198,7 @@ time.sleep(0.5)</code></pre>
                         <!-- Buzzer body -->
                         <rect x="360" y="50" width="140" height="100" rx="8" fill="#fff1f2" stroke="#e11d48" stroke-width="1.5"/>
                         <rect x="360" y="50" width="140" height="28" rx="8" fill="#e11d48"/>
-                        <text x="430" y="69" text-anchor="middle" fill="white" font-size="12" font-weight="bold" font-family="Arial,sans-serif">부저 (Buzzer)</text>
+                        <text x="430" y="69" text-anchor="middle" fill="white" font-size="12" font-weight="bold" font-family="Arial,sans-serif">遺? (Buzzer)</text>
                         <!-- Buzzer dome + sound waves -->
                         <circle cx="430" cy="108" r="24" fill="#fecdd3" stroke="#e11d48" stroke-width="1.5"/>
                         <circle cx="430" cy="108" r="12" fill="#fb7185" stroke="#e11d48" stroke-width="1"/>
@@ -210,21 +210,21 @@ time.sleep(0.5)</code></pre>
                         <circle cx="360" cy="80" r="4" fill="#a855f7"/>
                         <circle cx="360" cy="125" r="4" fill="#374151"/>
                         <text x="355" y="77" text-anchor="end" fill="#a855f7" font-size="10" font-weight="bold" font-family="Arial,sans-serif">+ (Signal)</text>
-                        <text x="355" y="122" text-anchor="end" fill="#374151" font-size="10" font-weight="bold" font-family="Arial,sans-serif">− (GND)</text>
+                        <text x="355" y="122" text-anchor="end" fill="#374151" font-size="10" font-weight="bold" font-family="Arial,sans-serif">??(GND)</text>
                         <!-- PWM label -->
-                        <text x="252" y="74" text-anchor="middle" fill="#a855f7" font-size="10" font-family="Arial,sans-serif">→ PWM 신호(OUT)</text>
+                        <text x="252" y="74" text-anchor="middle" fill="#a855f7" font-size="10" font-family="Arial,sans-serif">??PWM ?좏샇(OUT)</text>
                     </svg>
-                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">부저 + 단자(S 핀)→GP16, − 단자→GND. 능동 부저도 동일 배선이며, 수동 부저와 달리 GP16을 ON/OFF하는 것만으로 소리가 납니다.</p>
+                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">遺? + ?⑥옄(S ?)?묰P16, ???⑥옄?묰ND. ?λ룞 遺????숈씪 諛곗꽑?대ŉ, ?섎룞 遺?? ?щ━ GP16??ON/OFF?섎뒗 寃껊쭔?쇰줈 ?뚮━媛 ?⑸땲??</p>
                 </div>
 
-                <h3>[실습] 수동 부저를 이용한 도레미파 멜로디 연주</h3>
+                <h3>[?ㅼ뒿] ?섎룞 遺?瑜??댁슜???꾨젅誘명뙆 硫쒕줈???곗＜</h3>
                 <pre><code>from machine import Pin, PWM
 import time
 
-# GPIO 16번에 수동 부저 연결 후 PWM 인스턴스 생성
+# GPIO 16踰덉뿉 ?섎룞 遺? ?곌껐 ??PWM ?몄뒪?댁뒪 ?앹꽦
 buzzer = PWM(Pin(16))
 
-# 음계별 주파수 정의 (도, 레, 미, 파)
+# ?뚭퀎蹂?二쇳뙆???뺤쓽 (?? ?? 誘? ??
 tones = {
     'DO': 262,
     'RE': 294,
@@ -234,35 +234,35 @@ tones = {
 
 def play_tone(frequency, duration):
     if frequency == 0:
-        buzzer.duty_u16(0) # 소리 끄기
+        buzzer.duty_u16(0) # ?뚮━ ?꾧린
     else:
-        buzzer.freq(frequency)       # 주파수 설정
-        buzzer.duty_u16(32768)       # 소리 크기 설정 (50% 듀티폭)
+        buzzer.freq(frequency)       # 二쇳뙆???ㅼ젙
+        buzzer.duty_u16(32768)       # ?뚮━ ?ш린 ?ㅼ젙 (50% ??고룺)
     time.sleep(duration)
-    buzzer.duty_u16(0)               # 음과 음 사이 음소거
+    buzzer.duty_u16(0)               # ?뚭낵 ???ъ씠 ?뚯냼嫄?
     time.sleep(0.05)
 
 try:
-    print("멜로디 연주를 시작합니다.")
+    print("硫쒕줈???곗＜瑜??쒖옉?⑸땲??")
     play_tone(tones['DO'], 0.5)
     play_tone(tones['RE'], 0.5)
     play_tone(tones['MI'], 0.5)
     play_tone(tones['FA'], 0.5)
 finally:
-    # 에러가 발생하거나 연주가 끝나면 안전하게 소리를 끄고 객체 해제
+    # ?먮윭媛 諛쒖깮?섍굅???곗＜媛 ?앸굹硫??덉쟾?섍쾶 ?뚮━瑜??꾧퀬 媛앹껜 ?댁젣
     buzzer.duty_u16(0)
     buzzer.deinit()
-    print("시스템이 안전하게 종료되었습니다.")
+    print("?쒖뒪?쒖씠 ?덉쟾?섍쾶 醫낅즺?섏뿀?듬땲??")
 </code></pre>
 
-                <h3>🏆 과제 해결해보기!</h3>
+                <h3>?룇 怨쇱젣 ?닿껐?대낫湲?</h3>
 
                 <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin-bottom: 24px;">
-                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 과제 1. 스위치를 누를 때만 LED 깜빡이기</h4>
-                    <p style="margin-bottom:16px;">4.1절 회로를 그대로 사용해서, 스위치를 누르고 있는 동안에는 LED가 <strong>계속 켜져 있는 것이 아니라 0.2초 간격으로 깜빡이도록</strong> 코드를 수정해 봅시다. 스위치를 떼면 LED는 완전히 꺼져야 합니다.</p>
+                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 怨쇱젣 1. ?ㅼ쐞移섎? ?꾨? ?뚮쭔 LED 源쒕묀?닿린</h4>
+                    <p style="margin-bottom:16px;">4.1???뚮줈瑜?洹몃?濡??ъ슜?댁꽌, ?ㅼ쐞移섎? ?꾨Ⅴ怨??덈뒗 ?숈븞?먮뒗 LED媛 <strong>怨꾩냽 耳쒖졇 ?덈뒗 寃껋씠 ?꾨땲??0.2珥?媛꾧꺽?쇰줈 源쒕묀?대룄濡?/strong> 肄붾뱶瑜??섏젙??遊낆떆?? ?ㅼ쐞移섎? ?쇰㈃ LED???꾩쟾??爰쇱졇???⑸땲??</p>
                     <details style="border-radius:8px; border:1px solid #c4b5fd; overflow:hidden;">
                         <summary style="background:#ede9fe; padding:11px 15px; cursor:pointer; font-weight:600; color:#6d28d9; list-style:none;">
-                            💻 정답 코드 보기
+                            ?뮲 ?뺣떟 肄붾뱶 蹂닿린
                         </summary>
                         <div style="padding:15px;">
 <pre style="margin:0;"><code>from machine import Pin
@@ -272,21 +272,21 @@ external_led = Pin(15, Pin.OUT)
 switch = Pin(14, Pin.IN, Pin.PULL_DOWN)
 
 while True:
-    if switch.value() == 1:      # 스위치가 눌린 동안
-        external_led.toggle()    # LED 상태를 반전시켜 깜빡이게 함
+    if switch.value() == 1:      # ?ㅼ쐞移섍? ?뚮┛ ?숈븞
+        external_led.toggle()    # LED ?곹깭瑜?諛섏쟾?쒖폒 源쒕묀?닿쾶 ??
         time.sleep(0.2)
-    else:                        # 스위치를 떼면
-        external_led.off()       # LED를 완전히 끔</code></pre>
+    else:                        # ?ㅼ쐞移섎? ?쇰㈃
+        external_led.off()       # LED瑜??꾩쟾????/code></pre>
                         </div>
                     </details>
                 </div>
 
                 <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin-bottom: 30px;">
-                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 과제 2. 수동 부저로 도레미파솔라시도 연주하기</h4>
-                    <p style="margin-bottom:16px;">4.2절의 <code>tones</code> 딕셔너리에 '솔(SOL, 392Hz)', '라(LA, 440Hz)', '시(SI, 494Hz)', '높은 도(DO2, 523Hz)'를 추가하여, 도레미파솔라시도 8음계를 순서대로 연주하는 코드를 작성해 봅시다.</p>
+                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 怨쇱젣 2. ?섎룞 遺?濡??꾨젅誘명뙆?붾씪?쒕룄 ?곗＜?섍린</h4>
+                    <p style="margin-bottom:16px;">4.2?덉쓽 <code>tones</code> ?뺤뀛?덈━??'??SOL, 392Hz)', '??LA, 440Hz)', '??SI, 494Hz)', '?믪? ??DO2, 523Hz)'瑜?異붽??섏뿬, ?꾨젅誘명뙆?붾씪?쒕룄 8?뚭퀎瑜??쒖꽌?濡??곗＜?섎뒗 肄붾뱶瑜??묒꽦??遊낆떆??</p>
                     <details style="border-radius:8px; border:1px solid #c4b5fd; overflow:hidden;">
                         <summary style="background:#ede9fe; padding:11px 15px; cursor:pointer; font-weight:600; color:#6d28d9; list-style:none;">
-                            💻 정답 코드 보기
+                            ?뮲 ?뺣떟 肄붾뱶 蹂닿린
                         </summary>
                         <div style="padding:15px;">
 <pre style="margin:0;"><code>from machine import Pin, PWM
@@ -316,8 +316,8 @@ finally:
                     </details>
                 </div>
 
-                <h2>4.3 Wokwi 시뮬레이션으로 실습하기</h2>
-                <p>1.8절에서 소개한 <strong><a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">Wokwi</a></strong>에서 이번 챕터의 스위치·LED·부저 회로를 실제 부품 없이 미리 실습해 볼 수 있습니다. 아래 <code>diagram.json</code>을 Wokwi 프로젝트의 회로 편집기(diagram.json)에 붙여넣고, 4.1절과 4.2절의 <code>main.py</code> 코드를 코드 편집기에 붙여넣은 뒤 초록색 ▶ 실행 버튼을 누르면 동작을 확인할 수 있습니다.</p>
+                <h2>4.3 Wokwi ?쒕??덉씠?섏쑝濡??ㅼ뒿?섍린</h2>
+                <p>1.8?덉뿉???뚭컻??<strong><a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">Wokwi</a></strong>?먯꽌 ?대쾲 梨뺥꽣???ㅼ쐞移샕텹ED쨌遺? ?뚮줈瑜??ㅼ젣 遺???놁씠 誘몃━ ?ㅼ뒿??蹂????덉뒿?덈떎. ?꾨옒 <code>diagram.json</code>??Wokwi ?꾨줈?앺듃???뚮줈 ?몄쭛湲?diagram.json)??遺숈뿬?ｊ퀬, 4.1?덇낵 4.2?덉쓽 <code>main.py</code> 肄붾뱶瑜?肄붾뱶 ?몄쭛湲곗뿉 遺숈뿬?ｌ? ??珥덈줉?????ㅽ뻾 踰꾪듉???꾨Ⅴ硫??숈옉???뺤씤?????덉뒿?덈떎.</p>
 
                 <pre><code>{
   "version": 1,
@@ -343,13 +343,13 @@ finally:
 }</code></pre>
 
                 <div class="callout info">
-                    <h4>💡 참고</h4>
-                    <p>Wokwi의 부품 이름(<code>wokwi-pushbutton</code>, <code>wokwi-buzzer</code> 등)이나 핀 이름은 라이브러리 버전에 따라 조금씩 달라질 수 있습니다. 부품을 추가했는데 오류가 표시된다면, 좌측 부품 라이브러리(Parts) 검색창에서 정확한 이름을 다시 확인해 보세요.</p>
+                    <h4>?뮕 李멸퀬</h4>
+                    <p>Wokwi??遺???대쫫(<code>wokwi-pushbutton</code>, <code>wokwi-buzzer</code> ???대굹 ? ?대쫫? ?쇱씠釉뚮윭由?踰꾩쟾???곕씪 議곌툑???щ씪吏????덉뒿?덈떎. 遺?덉쓣 異붽??덈뒗???ㅻ쪟媛 ?쒖떆?쒕떎硫? 醫뚯륫 遺???쇱씠釉뚮윭由?Parts) 寃?됱갹?먯꽌 ?뺥솗???대쫫???ㅼ떆 ?뺤씤??蹂댁꽭??</p>
                 </div>
 
                 <div class="nav-btns">
-                    <a href="chapter_03.html" class="btn btn-prev">◀ CHAPTER 3</a>
-                    <a href="chapter_05.html" class="btn btn-next">CHAPTER 5로 이동 ▶</a>
+                    <a href="chapter_03.html" class="btn btn-prev">? CHAPTER 3</a>
+                    <a href="chapter_05.html" class="btn btn-next">CHAPTER 5濡??대룞 ??/a>
                 </div>
             </div>
         </main>
@@ -367,11 +367,11 @@ finally:
 
             const topBtn = document.createElement('button');
             topBtn.className = 'copy-btn btn-top';
-            topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
+            topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 蹂듭궗';
 
             const bottomBtn = document.createElement('button');
             bottomBtn.className = 'copy-btn btn-bottom';
-            bottomBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
+            bottomBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 蹂듭궗';
 
             wrapper.appendChild(topBtn);
             wrapper.appendChild(bottomBtn);
@@ -389,7 +389,7 @@ finally:
                         document.execCommand('copy');
                         showSuccess(btn);
                     } catch (err) {
-                        console.error('우회 복사 실패:', err);
+                        console.error('?고쉶 蹂듭궗 ?ㅽ뙣:', err);
                     }
                     document.body.removeChild(textArea);
                     return;
@@ -398,16 +398,16 @@ finally:
                 navigator.clipboard.writeText(codeText).then(() => {
                     showSuccess(btn);
                 }).catch(err => {
-                    console.error('표준 복사 실패:', err);
+                    console.error('?쒖? 蹂듭궗 ?ㅽ뙣:', err);
                 });
             };
 
             const showSuccess = (btn) => {
-                btn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> 완료';
+                btn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> ?꾨즺';
                 btn.classList.add('copied');
 
                 setTimeout(() => {
-                    btn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
+                    btn.innerHTML = '<i class="fa-regular fa-copy"></i> 蹂듭궗';
                     btn.classList.remove('copied');
                 }, 2000);
             };
@@ -451,3 +451,4 @@ finally:
     <script src="mobile-nav.js"></script>
     </body>
 </html>
+

@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ch 8. Neopixel 제어 - Pico 2 가이드</title>
+    <title>Ch 8. Neopixel ?쒖뼱 - Pico 2 媛?대뱶</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -12,39 +12,39 @@
         <nav class="sidebar">
             <h2>PICO 2 IoT GUIDE</h2>
             <ul>
-                <li><a href="index.html">HOME - 시작하기</a></li>
-                <li class="menu-divider">기초 & 통신 파트</li>
-                <li><a href="chapter_01.html">CHAPTER 1 - 하드웨어 이해</a></li>
-                <li><a href="chapter_02.html">CHAPTER 2 - 펌웨어 세팅</a></li>
-                <li><a href="chapter_03.html">CHAPTER 3 - 기초 코딩(Blink)</a></li>
-                <li><a href="chapter_04.html">CHAPTER 4 - 기본 입출력(스위치/부저)</a></li>
-                <li><a href="chapter_05.html">CHAPTER 5 - 센서 제어(초음파/PIR)</a></li>
-                <li class="menu-divider">실전 하드웨어</li>
-                <li><a href="chapter_06.html">CHAPTER 6 - 아날로그 & 모터</a></li>
-                <li><a href="chapter_07.html">CHAPTER 7 - 온습도 & 데이터</a></li>
-                <li><a href="chapter_08.html" class="active">CHAPTER 8 - Neopixel 제어</a></li>
-                <li><a href="chapter_09.html">CHAPTER 9 - I2C LCD 디스플레이</a></li>
-                <li><a href="chapter_10.html">CHAPTER 10 - 무선 통신 & 입력</a></li>
-                <li class="menu-divider">심화 응용 프로젝트</li>
-                <li><a href="chapter_11.html">CHAPTER 11 - MQTT 클라우드</a></li>
+                <li><a href="index.html">HOME - ?쒖옉?섍린</a></li>
+                <li class="menu-divider">湲곗큹 & ?듭떊 ?뚰듃</li>
+                <li><a href="chapter_01.html">CHAPTER 1 - ?섎뱶?⑥뼱 ?댄빐</a></li>
+                <li><a href="chapter_02.html">CHAPTER 2 - ?뚯썾???명똿</a></li>
+                <li><a href="chapter_03.html">CHAPTER 3 - 湲곗큹 肄붾뵫(Blink)</a></li>
+                <li><a href="chapter_04.html">CHAPTER 4 - 湲곕낯 ?낆텧???ㅼ쐞移?遺?)</a></li>
+                <li><a href="chapter_05.html">CHAPTER 5 - ?쇱꽌 ?쒖뼱(珥덉쓬??PIR)</a></li>
+                <li class="menu-divider">?ㅼ쟾 ?섎뱶?⑥뼱</li>
+                <li><a href="chapter_06.html">CHAPTER 6 - ?꾨궇濡쒓렇 & 紐⑦꽣</a></li>
+                <li><a href="chapter_07.html">CHAPTER 7 - ?⑥뒿??& ?곗씠??/a></li>
+                <li><a href="chapter_08.html" class="active">CHAPTER 8 - Neopixel ?쒖뼱</a></li>
+                <li><a href="chapter_09.html">CHAPTER 9 - I2C LCD ?붿뒪?뚮젅??/a></li>
+                <li><a href="chapter_10.html">CHAPTER 10 - 臾댁꽑 ?듭떊 & ?낅젰</a></li>
+                <li class="menu-divider">?ы솕 ?묒슜 ?꾨줈?앺듃</li>
+                <li><a href="chapter_11.html">CHAPTER 11 - MQTT ?대씪?곕뱶</a></li>
                 <li><a href="chapter_12.html">CHAPTER 12 - OLED & RTC</a></li>
-                <li><a href="chapter_13.html">CHAPTER 13 - 종합 프로젝트</a></li>
-                <li class="menu-divider">나만의 작품 만들기</li>
-                <li><a href="chapter_16.html">CHAPTER 16 - 바이브 코딩 캡스톤</a></li>
+                <li><a href="chapter_13.html">CHAPTER 13 - 醫낇빀 ?꾨줈?앺듃</a></li>
+                <li class="menu-divider">?섎쭔???묓뭹 留뚮뱾湲?/li>
+                <li><a href="chapter_16.html">CHAPTER 16 - 諛붿씠釉?肄붾뵫 罹≪뒪??/a></li>
             </ul>
             <div class="sidebar-footer">
-                <button class="pinout-btn" id="openPinout"><i class="fa-solid fa-diagram-project"></i> GPIO 핀아웃 맵 보기</button>
+                <button class="pinout-btn" id="openPinout"><i class="fa-solid fa-diagram-project"></i> GPIO ??꾩썐 留?蹂닿린</button>
             </div>
         </nav>
         <main class="content">
             <div class="container">
-                <h1>Chapter 8. Neopixel(WS2812B) 화려한 조명 제어</h1>
-                <p>단 한 가닥의 데이터 선으로 수많은 RGB LED를 개별 제어하는 기술을 배웁니다. Pico 2의 고속 PIO 기능을 활용해 부드러운 무지개 효과를 구현합니다.</p>
+                <h1>Chapter 8. Neopixel(WS2812B) ?붾젮??議곕챸 ?쒖뼱</h1>
+                <p>????媛?μ쓽 ?곗씠???좎쑝濡??섎쭖? RGB LED瑜?媛쒕퀎 ?쒖뼱?섎뒗 湲곗닠??諛곗썎?덈떎. Pico 2??怨좎냽 PIO 湲곕뒫???쒖슜??遺?쒕윭??臾댁?媛??④낵瑜?援ы쁽?⑸땲??</p>
 
                 <div style="text-align: center; margin: 30px 0;">
                     <svg viewBox="0 0 860 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="neoDiagramTitle neoDiagramDesc" style="max-width: 100%; height: auto; border-radius: 16px; background: #f8fafc; border: 1px solid #e2e8f0; box-shadow: 0 8px 24px rgba(15,23,42,0.08);">
-                        <title id="neoDiagramTitle">Pico 2 W와 Neopixel LED 스트립 연결도</title>
-                        <desc id="neoDiagramDesc">Pico의 GP22 데이터 핀을 Neopixel DIN에 연결하고, VSYS와 GND로 전원을 공급합니다.</desc>
+                        <title id="neoDiagramTitle">Pico 2 W? Neopixel LED ?ㅽ듃由??곌껐??/title>
+                        <desc id="neoDiagramDesc">Pico??GP22 ?곗씠?????Neopixel DIN???곌껐?섍퀬, VSYS? GND濡??꾩썝??怨듦툒?⑸땲??</desc>
                         <defs>
                             <marker id="arr8Data" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#7c3aed"/></marker>
                             <marker id="arr8Power" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#ef4444"/></marker>
@@ -52,8 +52,8 @@
                             <filter id="shadow8" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.14"/></filter>
                         </defs>
 
-                        <text x="170" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">제어 보드</text>
-                        <text x="610" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">주소 지정 RGB LED</text>
+                        <text x="170" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">?쒖뼱 蹂대뱶</text>
+                        <text x="610" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">二쇱냼 吏??RGB LED</text>
 
                         <g fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M278 122 H414" stroke="#7c3aed" stroke-width="4" marker-end="url(#arr8Data)"/>
@@ -65,7 +65,7 @@
                             <rect x="94" y="76" width="184" height="190" rx="14" fill="#059669"/>
                             <text x="186" y="138" text-anchor="middle" fill="white" font-size="20" font-weight="800">Pico 2 W</text>
                             <text x="186" y="162" text-anchor="middle" fill="#dcfce7" font-size="12">Neopixel Controller</text>
-                            <text x="186" y="230" text-anchor="middle" fill="#bbf7d0" font-size="12">색상 데이터 1선 제어</text>
+                            <text x="186" y="230" text-anchor="middle" fill="#bbf7d0" font-size="12">?됱긽 ?곗씠??1???쒖뼱</text>
                         </g>
                         <circle cx="278" cy="122" r="6" fill="#ede9fe"/>
                         <text x="220" y="112" fill="#ecfeff" font-size="11" font-weight="800">GP22 DATA</text>
@@ -95,64 +95,64 @@
                         <text x="426" y="258" fill="#475569" font-size="11" font-weight="800">GND</text>
 
                         <rect x="90" y="286" width="696" height="30" rx="8" fill="#ffffff" stroke="#e2e8f0"/>
-                        <text x="438" y="306" text-anchor="middle" fill="#475569" font-size="12">데이터 방향은 Pico GP22 -> LED DIN입니다. LED가 많아질수록 외부 5V 전원과 공통 GND가 중요합니다.</text>
+                        <text x="438" y="306" text-anchor="middle" fill="#475569" font-size="12">?곗씠??諛⑺뼢? Pico GP22 -> LED DIN?낅땲?? LED媛 留롮븘吏덉닔濡??몃? 5V ?꾩썝怨?怨듯넻 GND媛 以묒슂?⑸땲??</text>
                     </svg>
-                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">Neopixel: VCC→5V(VSYS), DIN→GP22, GND→GND. LED 개수가 많으면 별도 5V 전원을 사용하고 GND는 Pico와 공통으로 묶습니다.</p>
+                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">Neopixel: VCC??V(VSYS), DIN?묰P22, GND?묰ND. LED 媛쒖닔媛 留롮쑝硫?蹂꾨룄 5V ?꾩썝???ъ슜?섍퀬 GND??Pico? 怨듯넻?쇰줈 臾띠뒿?덈떎.</p>
                 </div>
 
-                <h2>8.1 준비물과 연결 핀</h2>
-                <p>Neopixel은 데이터 선 하나로 여러 LED를 순서대로 제어합니다. 첫 번째 LED의 <code>DIN</code> 방향을 꼭 확인하고, 전류가 커지는 프로젝트에서는 밝기를 제한해서 시작하세요.</p>
+                <h2>8.1 以鍮꾨Ъ怨??곌껐 ?</h2>
+                <p>Neopixel? ?곗씠?????섎굹濡??щ윭 LED瑜??쒖꽌?濡??쒖뼱?⑸땲?? 泥?踰덉㎏ LED??<code>DIN</code> 諛⑺뼢??瑗??뺤씤?섍퀬, ?꾨쪟媛 而ㅼ????꾨줈?앺듃?먯꽌??諛앷린瑜??쒗븳?댁꽌 ?쒖옉?섏꽭??</p>
 
                 <table style="width: 100%; border-collapse: collapse; margin: 20px 0 30px; font-size: 0.98rem;">
                     <thead>
                         <tr style="background: #f1f5f9; color: #0f172a;">
-                            <th style="border: 1px solid #e2e8f0; padding: 10px;">Neopixel 핀</th>
-                            <th style="border: 1px solid #e2e8f0; padding: 10px;">Pico 2 W 핀</th>
-                            <th style="border: 1px solid #e2e8f0; padding: 10px;">설명</th>
+                            <th style="border: 1px solid #e2e8f0; padding: 10px;">Neopixel ?</th>
+                            <th style="border: 1px solid #e2e8f0; padding: 10px;">Pico 2 W ?</th>
+                            <th style="border: 1px solid #e2e8f0; padding: 10px;">?ㅻ챸</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">DIN</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>GP22</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">색상 데이터 입력</td></tr>
-                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">5V / VCC</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>VSYS</code> 또는 외부 5V</td><td style="border: 1px solid #e2e8f0; padding: 10px;">LED 전원</td></tr>
-                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">GND</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>GND</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">공통 기준 전압</td></tr>
+                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">DIN</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>GP22</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">?됱긽 ?곗씠???낅젰</td></tr>
+                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">5V / VCC</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>VSYS</code> ?먮뒗 ?몃? 5V</td><td style="border: 1px solid #e2e8f0; padding: 10px;">LED ?꾩썝</td></tr>
+                        <tr><td style="border: 1px solid #e2e8f0; padding: 10px;">GND</td><td style="border: 1px solid #e2e8f0; padding: 10px;"><code>GND</code></td><td style="border: 1px solid #e2e8f0; padding: 10px;">怨듯넻 湲곗? ?꾩븬</td></tr>
                     </tbody>
                 </table>
 
-                <h2>8.2 WS2812B(Neopixel) 통신 원리 쉽게 이해하기</h2>
-                <p>WS2812B는 하나의 데이터 선(DIN)만으로 수십~수백 개의 LED를 각각 다른 색으로 제어할 수 있는 "주소 지정형(addressable)" LED입니다. 초보자가 헷갈리기 쉬운 핵심 3가지를 짚고 넘어갑시다.</p>
+                <h2>8.2 WS2812B(Neopixel) ?듭떊 ?먮━ ?쎄쾶 ?댄빐?섍린</h2>
+                <p>WS2812B???섎굹???곗씠????DIN)留뚯쑝濡??섏떗~?섎갚 媛쒖쓽 LED瑜?媛곴컖 ?ㅻⅨ ?됱쑝濡??쒖뼱?????덈뒗 "二쇱냼 吏?뺥삎(addressable)" LED?낅땲?? 珥덈낫?먭? ?룰컝由ш린 ?ъ슫 ?듭떖 3媛吏瑜?吏싰퀬 ?섏뼱媛묒떆??</p>
 
                 <div class="callout info">
-                    <h4>💡 ① 데이터가 체인처럼 전달됩니다</h4>
-                    <p>Pico가 GP22로 색상 데이터를 보내면, 첫 번째 LED가 자신의 몫(24비트)만 읽어서 저장하고, 나머지 데이터는 그대로 다음 LED로 흘려보냅니다. 이 과정이 줄줄이 반복되어 LED 여러 개를 한 가닥의 선으로 순서대로 제어할 수 있습니다.</p>
+                    <h4>?뮕 ???곗씠?곌? 泥댁씤泥섎읆 ?꾨떖?⑸땲??/h4>
+                    <p>Pico媛 GP22濡??됱긽 ?곗씠?곕? 蹂대궡硫? 泥?踰덉㎏ LED媛 ?먯떊??紐?24鍮꾪듃)留??쎌뼱????ν븯怨? ?섎㉧吏 ?곗씠?곕뒗 洹몃?濡??ㅼ쓬 LED濡??섎젮蹂대깄?덈떎. ??怨쇱젙??以꾩쨪??諛섎났?섏뼱 LED ?щ윭 媛쒕? ??媛?μ쓽 ?좎쑝濡??쒖꽌?濡??쒖뼱?????덉뒿?덈떎.</p>
                 </div>
 
                 <div class="callout info">
-                    <h4>💡 ② 색상 순서는 GRB (RGB 아님!)</h4>
-                    <p>WS2812B 칩은 내부적으로 <strong>초록(G) → 빨강(R) → 파랑(B)</strong> 순서로 24비트(각 8비트씩)의 데이터를 받습니다. 다행히 MicroPython의 <code>neopixel</code> 라이브러리가 이 변환을 자동으로 처리해 주기 때문에, 우리는 코드에서 항상 <code>(R, G, B)</code> 순서의 튜플만 신경 쓰면 됩니다. 예: <code>np[0] = (255, 0, 0)</code> → 빨간색.</p>
+                    <h4>?뮕 ???됱긽 ?쒖꽌??GRB (RGB ?꾨떂!)</h4>
+                    <p>WS2812B 移⑹? ?대??곸쑝濡?<strong>珥덈줉(G) ??鍮④컯(R) ???뚮옉(B)</strong> ?쒖꽌濡?24鍮꾪듃(媛?8鍮꾪듃?????곗씠?곕? 諛쏆뒿?덈떎. ?ㅽ뻾??MicroPython??<code>neopixel</code> ?쇱씠釉뚮윭由ш? ??蹂?섏쓣 ?먮룞?쇰줈 泥섎━??二쇨린 ?뚮Ц?? ?곕━??肄붾뱶?먯꽌 ??긽 <code>(R, G, B)</code> ?쒖꽌???쒗뵆留??좉꼍 ?곕㈃ ?⑸땲?? ?? <code>np[0] = (255, 0, 0)</code> ??鍮④컙??</p>
                 </div>
 
                 <div class="callout info">
-                    <h4>💡 ③ 타이밍이 매우 중요합니다</h4>
-                    <p>WS2812B는 "0"과 "1"을 <strong>펄스의 길이(마이크로초 단위)</strong>로 구분합니다. 대략 0.4µs(짧은 펄스)면 0, 0.8µs(긴 펄스)면 1로 인식하는 방식입니다. 이 미세한 타이밍은 사람이 <code>time.sleep()</code>으로 직접 맞추기 불가능할 정도로 정밀해서, Pico 2(RP2350)는 <strong>PIO(Programmable I/O)</strong>라는 전용 하드웨어 회로를 이용해 CPU 부담 없이 정확한 타이밍을 자동 생성합니다. <code>neopixel.NeoPixel()</code> 객체를 만드는 순간 이 PIO 설정이 내부적으로 완료됩니다.</p>
+                    <h4>?뮕 ????대컢??留ㅼ슦 以묒슂?⑸땲??/h4>
+                    <p>WS2812B??"0"怨?"1"??<strong>?꾩뒪??湲몄씠(留덉씠?щ줈珥??⑥쐞)</strong>濡?援щ텇?⑸땲?? ???0.4쨉s(吏㏃? ?꾩뒪)硫?0, 0.8쨉s(湲??꾩뒪)硫?1濡??몄떇?섎뒗 諛⑹떇?낅땲?? ??誘몄꽭????대컢? ?щ엺??<code>time.sleep()</code>?쇰줈 吏곸젒 留욎텛湲?遺덇??ν븷 ?뺣룄濡??뺣??댁꽌, Pico 2(RP2350)??<strong>PIO(Programmable I/O)</strong>?쇰뒗 ?꾩슜 ?섎뱶?⑥뼱 ?뚮줈瑜??댁슜??CPU 遺???놁씠 ?뺥솗????대컢???먮룞 ?앹꽦?⑸땲?? <code>neopixel.NeoPixel()</code> 媛앹껜瑜?留뚮뱶???쒓컙 ??PIO ?ㅼ젙???대??곸쑝濡??꾨즺?⑸땲??</p>
                 </div>
 
                 <div style="text-align: center; margin: 30px 0;">
                     <svg viewBox="0 0 700 160" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto; border-radius: 12px; background: #f8fafc; border: 1px solid #e2e8f0;">
-                        <text x="350" y="24" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">비트 "0"과 "1"의 펄스 길이 차이</text>
-                        <text x="90" y="48" fill="#7c3aed" font-size="12" font-weight="700">비트 0</text>
+                        <text x="350" y="24" text-anchor="middle" fill="#475569" font-size="13" font-weight="700">鍮꾪듃 "0"怨?"1"???꾩뒪 湲몄씠 李⑥씠</text>
+                        <text x="90" y="48" fill="#7c3aed" font-size="12" font-weight="700">鍮꾪듃 0</text>
                         <rect x="60" y="55" width="30" height="30" fill="#7c3aed"/>
                         <rect x="90" y="70" width="120" height="15" fill="#e2e8f0"/>
-                        <text x="150" y="105" text-anchor="middle" fill="#64748b" font-size="10">짧게 HIGH(~0.4µs) + 길게 LOW</text>
+                        <text x="150" y="105" text-anchor="middle" fill="#64748b" font-size="10">吏㏐쾶 HIGH(~0.4쨉s) + 湲멸쾶 LOW</text>
 
-                        <text x="450" y="48" fill="#ef4444" font-size="12" font-weight="700">비트 1</text>
+                        <text x="450" y="48" fill="#ef4444" font-size="12" font-weight="700">鍮꾪듃 1</text>
                         <rect x="420" y="55" width="120" height="30" fill="#ef4444"/>
                         <rect x="540" y="70" width="30" height="15" fill="#e2e8f0"/>
-                        <text x="480" y="105" text-anchor="middle" fill="#64748b" font-size="10">길게 HIGH(~0.8µs) + 짧게 LOW</text>
+                        <text x="480" y="105" text-anchor="middle" fill="#64748b" font-size="10">湲멸쾶 HIGH(~0.8쨉s) + 吏㏐쾶 LOW</text>
                     </svg>
-                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">이런 정밀 타이밍 생성을 Pico 2의 PIO 하드웨어가 자동으로 처리해 줍니다.</p>
+                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">?대윴 ?뺣? ??대컢 ?앹꽦??Pico 2??PIO ?섎뱶?⑥뼱媛 ?먮룞?쇰줈 泥섎━??以띾땲??</p>
                 </div>
 
-                <h2>8.3 밝기 제한 무지개 효과 코드</h2>
+                <h2>8.3 諛앷린 ?쒗븳 臾댁?媛??④낵 肄붾뱶</h2>
                 <pre><code>import machine
 import neopixel
 import time
@@ -190,23 +190,23 @@ def rainbow_cycle(delay=0.02):
         np.write()
         time.sleep(delay)
 
-print("Neopixel 효과 시작...")
+print("Neopixel ?④낵 ?쒖옉...")
 clear()
 
 while True:
     rainbow_cycle()
 </code></pre>
 
-                <h2>8.6 동작 흐름</h2>
-                <p><code>wheel()</code> 함수는 0~255 값을 빨강, 초록, 파랑이 이어지는 색상으로 바꿉니다. 각 LED에 서로 다른 색상 인덱스를 주고, 반복할 때마다 인덱스를 조금씩 밀어주면 무지개가 흐르는 것처럼 보입니다. <code>BRIGHTNESS</code> 값은 전류를 줄이기 위한 안전 장치입니다.</p>
+                <h2>8.6 ?숈옉 ?먮쫫</h2>
+                <p><code>wheel()</code> ?⑥닔??0~255 媛믪쓣 鍮④컯, 珥덈줉, ?뚮옉???댁뼱吏???됱긽?쇰줈 諛붽퓠?덈떎. 媛?LED???쒕줈 ?ㅻⅨ ?됱긽 ?몃뜳?ㅻ? 二쇨퀬, 諛섎났???뚮쭏???몃뜳?ㅻ? 議곌툑??諛?댁＜硫?臾댁?媛쒓? ?먮Ⅴ??寃껋쿂??蹂댁엯?덈떎. <code>BRIGHTNESS</code> 媛믪? ?꾨쪟瑜?以꾩씠湲??꾪븳 ?덉쟾 ?μ튂?낅땲??</p>
 
                 <div class="callout warn">
-                    <h4>⚠️ 전원 주의사항</h4>
-                    <p>Neopixel은 밝기가 밝을수록 많은 전류를 소비합니다. Pico의 <code>3V3</code> 핀 대신 <code>VSYS</code>(5V) 핀을 사용하세요. LED가 30개 이상이라면 5V 외부 전원 어댑터를 사용해야 보드가 손상되지 않습니다.</p>
+                    <h4>?좑툘 ?꾩썝 二쇱쓽?ы빆</h4>
+                    <p>Neopixel? 諛앷린媛 諛앹쓣?섎줉 留롮? ?꾨쪟瑜??뚮퉬?⑸땲?? Pico??<code>3V3</code> ? ???<code>VSYS</code>(5V) ????ъ슜?섏꽭?? LED媛 30媛??댁긽?대씪硫?5V ?몃? ?꾩썝 ?대뙌?곕? ?ъ슜?댁빞 蹂대뱶媛 ?먯긽?섏? ?딆뒿?덈떎.</p>
                 </div>
 
-                <h2>8.4 특정 LED만 색칠하기</h2>
-                <p>전체 LED를 한 번에 다루기 전에, 인덱스 번호로 <strong>원하는 LED 딱 하나(혹은 몇 개)만</strong> 켜는 연습을 해봅시다. <code>np[i]</code>에서 <code>i</code>는 0번부터 시작하는 LED의 순서 번호입니다.</p>
+                <h2>8.4 ?뱀젙 LED留??됱튌?섍린</h2>
+                <p>?꾩껜 LED瑜???踰덉뿉 ?ㅻ（湲??꾩뿉, ?몃뜳??踰덊샇濡?<strong>?먰븯??LED ???섎굹(?뱀? 紐?媛?留?/strong> 耳쒕뒗 ?곗뒿???대큶?쒕떎. <code>np[i]</code>?먯꽌 <code>i</code>??0踰덈????쒖옉?섎뒗 LED???쒖꽌 踰덊샇?낅땲??</p>
                 <pre><code>import machine
 import neopixel
 import time
@@ -216,26 +216,26 @@ DATA_PIN = 22
 
 np = neopixel.NeoPixel(machine.Pin(DATA_PIN), NUM_LEDS)
 
-# 먼저 전체 소등
+# 癒쇱? ?꾩껜 ?뚮벑
 for i in range(NUM_LEDS):
     np[i] = (0, 0, 0)
 np.write()
 
-# 0번 LED만 빨간색, 3번 LED만 초록색, 7번(마지막) LED만 파란색
-np[0] = (50, 0, 0)     # 빨강 (밝기를 낮게 설정: 0~255 중 50)
-np[3] = (0, 50, 0)     # 초록
-np[7] = (0, 0, 50)     # 파랑
-np.write()   # write()를 호출해야 실제로 LED에 반영됩니다!
+# 0踰?LED留?鍮④컙?? 3踰?LED留?珥덈줉?? 7踰?留덉?留? LED留??뚮???
+np[0] = (50, 0, 0)     # 鍮④컯 (諛앷린瑜???쾶 ?ㅼ젙: 0~255 以?50)
+np[3] = (0, 50, 0)     # 珥덈줉
+np[7] = (0, 0, 50)     # ?뚮옉
+np.write()   # write()瑜??몄텧?댁빞 ?ㅼ젣濡?LED??諛섏쁺?⑸땲??
 
-print("0번, 3번, 7번 LED만 켜졌습니다.")</code></pre>
+print("0踰? 3踰? 7踰?LED留?耳쒖죱?듬땲??")</code></pre>
 
                 <div class="callout info">
-                    <h4>💡 np.write()를 꼭 호출해야 하는 이유</h4>
-                    <p><code>np[i] = (r, g, b)</code>는 아직 <strong>메모리 상의 색상 값</strong>만 바꿔놓은 상태입니다. 실제로 LED에 데이터가 전송되어 화면에 반영되려면 반드시 <code>np.write()</code>를 호출해야 합니다. 초보자가 가장 자주 하는 실수가 이 <code>write()</code>를 빠뜨리는 것입니다!</p>
+                    <h4>?뮕 np.write()瑜?瑗??몄텧?댁빞 ?섎뒗 ?댁쑀</h4>
+                    <p><code>np[i] = (r, g, b)</code>???꾩쭅 <strong>硫붾え由??곸쓽 ?됱긽 媛?/strong>留?諛붽퓭?볦? ?곹깭?낅땲?? ?ㅼ젣濡?LED???곗씠?곌? ?꾩넚?섏뼱 ?붾㈃??諛섏쁺?섎젮硫?諛섎뱶??<code>np.write()</code>瑜??몄텧?댁빞 ?⑸땲?? 珥덈낫?먭? 媛???먯＜ ?섎뒗 ?ㅼ닔媛 ??<code>write()</code>瑜?鍮좊쑉由щ뒗 寃껋엯?덈떎!</p>
                 </div>
 
-                <h2>8.5 밝기 조절하기</h2>
-                <p>같은 색상이라도 RGB 숫자 값 자체를 낮추면 더 어둡게, 높이면 더 밝게 표현됩니다(0~255 범위). 아래 예제는 하나의 색상을 점점 밝게 켰다가 다시 어둡게 줄이는 "숨쉬기(breathing)" 효과입니다.</p>
+                <h2>8.5 諛앷린 議곗젅?섍린</h2>
+                <p>媛숈? ?됱긽?대씪??RGB ?レ옄 媛??먯껜瑜???텛硫????대몼寃? ?믪씠硫???諛앷쾶 ?쒗쁽?⑸땲??0~255 踰붿쐞). ?꾨옒 ?덉젣???섎굹???됱긽???먯젏 諛앷쾶 耳곕떎媛 ?ㅼ떆 ?대몼寃?以꾩씠??"?⑥돩湲?breathing)" ?④낵?낅땲??</p>
                 <pre><code>import machine
 import neopixel
 import time
@@ -250,31 +250,31 @@ def set_all(r, g, b):
         np[i] = (r, g, b)
     np.write()
 
-print("밝기 조절(숨쉬기) 효과 시작...")
+print("諛앷린 議곗젅(?⑥돩湲? ?④낵 ?쒖옉...")
 while True:
-    # 0 -> 100까지 점점 밝게 (흰색 기준)
+    # 0 -> 100源뚯? ?먯젏 諛앷쾶 (?곗깋 湲곗?)
     for level in range(0, 101, 5):
         set_all(level, level, level)
         time.sleep(0.03)
-    # 100 -> 0까지 점점 어둡게
+    # 100 -> 0源뚯? ?먯젏 ?대몼寃?
     for level in range(100, -1, -5):
         set_all(level, level, level)
         time.sleep(0.03)</code></pre>
 
                 <div class="callout info">
-                    <h4>💡 밝기 조절 팁</h4>
-                    <p>모든 LED를 최대 밝기(255,255,255)로 오래 켜두면 전류 소모가 매우 커집니다. 실습 중에는 밝기 값을 <strong>100 이하</strong>로 제한하는 습관을 들이면 USB 전원만으로도 안전하게 실습할 수 있습니다.</p>
+                    <h4>?뮕 諛앷린 議곗젅 ??/h4>
+                    <p>紐⑤뱺 LED瑜?理쒕? 諛앷린(255,255,255)濡??ㅻ옒 耳쒕몢硫??꾨쪟 ?뚮え媛 留ㅼ슦 而ㅼ쭛?덈떎. ?ㅼ뒿 以묒뿉??諛앷린 媛믪쓣 <strong>100 ?댄븯</strong>濡??쒗븳?섎뒗 ?듦????ㅼ씠硫?USB ?꾩썝留뚯쑝濡쒕룄 ?덉쟾?섍쾶 ?ㅼ뒿?????덉뒿?덈떎.</p>
                 </div>
 
-                <h2>8.7 과제 해결해보기!</h2>
+                <h2>8.7 怨쇱젣 ?닿껐?대낫湲?</h2>
 
                 <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin-bottom: 24px;">
-                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 과제 1. 짝수/홀수 LED 다른 색으로 켜기</h4>
-                    <p style="margin-bottom:16px;">8개의 LED 중에서 <strong>짝수 번째(0, 2, 4, 6)는 파란색</strong>, <strong>홀수 번째(1, 3, 5, 7)는 노란색</strong>으로 켜는 코드를 작성해 보세요. (힌트: <code>i % 2</code> 연산을 활용하면 짝수/홀수를 구분할 수 있습니다.)</p>
+                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 怨쇱젣 1. 吏앹닔/???LED ?ㅻⅨ ?됱쑝濡?耳쒓린</h4>
+                    <p style="margin-bottom:16px;">8媛쒖쓽 LED 以묒뿉??<strong>吏앹닔 踰덉㎏(0, 2, 4, 6)???뚮???/strong>, <strong>???踰덉㎏(1, 3, 5, 7)???몃???/strong>?쇰줈 耳쒕뒗 肄붾뱶瑜??묒꽦??蹂댁꽭?? (?뚰듃: <code>i % 2</code> ?곗궛???쒖슜?섎㈃ 吏앹닔/??섎? 援щ텇?????덉뒿?덈떎.)</p>
 
                     <details style="border-radius:8px; border:1px solid #c4b5fd; overflow:hidden;">
                         <summary style="background:#ede9fe; padding:11px 15px; cursor:pointer; font-weight:600; color:#6d28d9; list-style:none;">
-                            ✅ 정답 보기
+                            ???뺣떟 蹂닿린
                         </summary>
                         <div style="padding:15px;">
 <pre style="margin:0;"><code>import machine
@@ -285,9 +285,9 @@ np = neopixel.NeoPixel(machine.Pin(22), NUM_LEDS)
 
 for i in range(NUM_LEDS):
     if i % 2 == 0:
-        np[i] = (0, 0, 50)     # 짝수 -> 파란색
+        np[i] = (0, 0, 50)     # 吏앹닔 -> ?뚮???
     else:
-        np[i] = (50, 50, 0)    # 홀수 -> 노란색(R+G)
+        np[i] = (50, 50, 0)    # ???-> ?몃???R+G)
 
 np.write()</code></pre>
                         </div>
@@ -295,15 +295,15 @@ np.write()</code></pre>
                 </div>
 
                 <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin-bottom: 30px;">
-                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 과제 2. 한 칸씩 이동하는 "달리는 불빛" 만들기</h4>
-                    <p>8개의 LED 중 <strong>단 하나의 LED만 흰색으로 켜지고, 그 위치가 0번 → 7번까지 한 칸씩 이동</strong>하다가 끝에 도달하면 다시 0번으로 돌아오는(무한 반복) 효과를 만들어 보세요.</p>
+                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 怨쇱젣 2. ??移몄뵫 ?대룞?섎뒗 "?щ━??遺덈튆" 留뚮뱾湲?/h4>
+                    <p>8媛쒖쓽 LED 以?<strong>???섎굹??LED留??곗깋?쇰줈 耳쒖?怨? 洹??꾩튂媛 0踰???7踰덇퉴吏 ??移몄뵫 ?대룞</strong>?섎떎媛 ?앹뿉 ?꾨떖?섎㈃ ?ㅼ떆 0踰덉쑝濡??뚯븘?ㅻ뒗(臾댄븳 諛섎났) ?④낵瑜?留뚮뱾??蹂댁꽭??</p>
                     <ul style="line-height:2; color:#374151; margin-bottom:16px;">
-                        <li>현재 켜진 LED를 제외한 나머지는 항상 꺼져 있어야 합니다.</li>
-                        <li>이동 속도는 <code>time.sleep(0.15)</code> 정도로 설정합니다.</li>
+                        <li>?꾩옱 耳쒖쭊 LED瑜??쒖쇅???섎㉧吏????긽 爰쇱졇 ?덉뼱???⑸땲??</li>
+                        <li>?대룞 ?띾룄??<code>time.sleep(0.15)</code> ?뺣룄濡??ㅼ젙?⑸땲??</li>
                     </ul>
                     <details style="border-radius:8px; border:1px solid #c4b5fd; overflow:hidden;">
                         <summary style="background:#ede9fe; padding:11px 15px; cursor:pointer; font-weight:600; color:#6d28d9; list-style:none;">
-                            💻 정답 코드 보기
+                            ?뮲 ?뺣떟 肄붾뱶 蹂닿린
                         </summary>
                         <div style="padding:15px;">
 <pre style="margin:0;"><code>import machine
@@ -319,24 +319,24 @@ def clear():
 
 while True:
     for pos in range(NUM_LEDS):
-        clear()                    # 모든 LED 끄기
-        np[pos] = (60, 60, 60)     # 현재 위치만 흰색으로 켜기
+        clear()                    # 紐⑤뱺 LED ?꾧린
+        np[pos] = (60, 60, 60)     # ?꾩옱 ?꾩튂留??곗깋?쇰줈 耳쒓린
         np.write()
         time.sleep(0.15)</code></pre>
                         </div>
                     </details>
                 </div>
 
-                <h2>8.8 Wokwi 시뮬레이션으로 실습하기</h2>
-                <p>Chapter 1.8에서 소개한 <a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">Wokwi</a> 온라인 시뮬레이터를 이용하면 실제 Neopixel LED 스트립이 없어도 브라우저에서 바로 색상 제어 코드를 테스트해 볼 수 있습니다.</p>
+                <h2>8.8 Wokwi ?쒕??덉씠?섏쑝濡??ㅼ뒿?섍린</h2>
+                <p>Chapter 1.8?먯꽌 ?뚭컻??<a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">Wokwi</a> ?⑤씪???쒕??덉씠?곕? ?댁슜?섎㈃ ?ㅼ젣 Neopixel LED ?ㅽ듃由쎌씠 ?놁뼱??釉뚮씪?곗??먯꽌 諛붾줈 ?됱긽 ?쒖뼱 肄붾뱶瑜??뚯뒪?명빐 蹂????덉뒿?덈떎.</p>
 
                 <div class="callout info">
-                    <h4>💻 실습 순서</h4>
+                    <h4>?뮲 ?ㅼ뒿 ?쒖꽌</h4>
                     <ol style="margin-top: 8px; line-height: 2.2;">
-                        <li><a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">wokwi.com</a>에서 [New Project] → "Raspberry Pi Pico" (MicroPython) 템플릿을 선택합니다.</li>
-                        <li>왼쪽 <strong>diagram.json</strong> 탭을 열고, 아래 제공된 코드를 그대로 붙여넣어 Pico와 Neopixel(8구 스트립)을 자동으로 연결합니다.</li>
-                        <li>오른쪽 <strong>main.py</strong> 탭에 이번 챕터의 무지개 효과 코드(8.3) 또는 밝기 조절 코드(8.5)를 붙여넣습니다.</li>
-                        <li>화면 상단의 <strong>▶️ (녹색 재생 버튼)</strong>을 클릭하면 시뮬레이션이 시작되고, 8개의 LED가 실시간으로 색이 바뀌는 모습을 확인할 수 있습니다.</li>
+                        <li><a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">wokwi.com</a>?먯꽌 [New Project] ??"Raspberry Pi Pico" (MicroPython) ?쒗뵆由우쓣 ?좏깮?⑸땲??</li>
+                        <li>?쇱そ <strong>diagram.json</strong> ??쓣 ?닿퀬, ?꾨옒 ?쒓났??肄붾뱶瑜?洹몃?濡?遺숈뿬?ｌ뼱 Pico? Neopixel(8援??ㅽ듃由????먮룞?쇰줈 ?곌껐?⑸땲??</li>
+                        <li>?ㅻⅨ履?<strong>main.py</strong> ??뿉 ?대쾲 梨뺥꽣??臾댁?媛??④낵 肄붾뱶(8.3) ?먮뒗 諛앷린 議곗젅 肄붾뱶(8.5)瑜?遺숈뿬?ｌ뒿?덈떎.</li>
+                        <li>?붾㈃ ?곷떒??<strong>?띰툘 (?뱀깋 ?ъ깮 踰꾪듉)</strong>???대┃?섎㈃ ?쒕??덉씠?섏씠 ?쒖옉?섍퀬, 8媛쒖쓽 LED媛 ?ㅼ떆媛꾩쑝濡??됱씠 諛붾뚮뒗 紐⑥뒿???뺤씤?????덉뒿?덈떎.</li>
                     </ol>
                 </div>
 
@@ -356,13 +356,13 @@ while True:
 }</code></pre>
 
                 <div class="callout warn">
-                    <h4>⚠️ 참고 사항</h4>
-                    <p>Wokwi 에디터의 부품 이름이나 속성 키(<code>pixels</code> 등)는 버전 업데이트에 따라 달라질 수 있습니다. 위 diagram.json을 붙여넣었을 때 부품이 보이지 않는다면, 에디터 좌측의 <strong>부품 검색(parts search)</strong>창에서 "neopixel"을 직접 검색하여 이름을 확인하고 <code>type</code> 값을 알맞게 수정하세요.</p>
+                    <h4>?좑툘 李멸퀬 ?ы빆</h4>
+                    <p>Wokwi ?먮뵒?곗쓽 遺???대쫫?대굹 ?띿꽦 ??<code>pixels</code> ????踰꾩쟾 ?낅뜲?댄듃???곕씪 ?щ씪吏????덉뒿?덈떎. ??diagram.json??遺숈뿬?ｌ뿀????遺?덉씠 蹂댁씠吏 ?딅뒗?ㅻ㈃, ?먮뵒??醫뚯륫??<strong>遺??寃??parts search)</strong>李쎌뿉??"neopixel"??吏곸젒 寃?됲븯???대쫫???뺤씤?섍퀬 <code>type</code> 媛믪쓣 ?뚮쭪寃??섏젙?섏꽭??</p>
                 </div>
 
                 <div class="nav-btns">
-                    <a href="chapter_07.html" class="btn btn-prev">◀ CHAPTER 7</a>
-                    <a href="chapter_09.html" class="btn btn-next">CHAPTER 9로 이동 ▶</a>
+                    <a href="chapter_07.html" class="btn btn-prev">? CHAPTER 7</a>
+                    <a href="chapter_09.html" class="btn btn-next">CHAPTER 9濡??대룞 ??/a>
                 </div>
             </div>
         </main>
@@ -378,12 +378,12 @@ while True:
             wrapper.appendChild(preBlock);
             const topBtn = document.createElement('button');
             topBtn.className = 'copy-btn btn-top';
-            topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
+            topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 蹂듭궗';
             wrapper.appendChild(topBtn);
             topBtn.addEventListener('click', () => {
                 navigator.clipboard.writeText(codeBlock.innerText).then(() => {
-                    topBtn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> 완료';
-                    setTimeout(() => { topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사'; }, 2000);
+                    topBtn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> ?꾨즺';
+                    setTimeout(() => { topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 蹂듭궗'; }, 2000);
                 });
             });
         });
@@ -423,3 +423,4 @@ while True:
     <script src="mobile-nav.js"></script>
 </body>
 </html>
+

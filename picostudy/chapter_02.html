@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ch 2. 펌웨어 세팅 - Pico 2 W 가이드</title>
+    <title>Ch 2. ?뚯썾???명똿 - Pico 2 W 媛?대뱶</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -12,103 +12,103 @@
         <nav class="sidebar">
             <h2>PICO 2 IoT GUIDE</h2>
             <ul>
-                <li><a href="index.html">HOME - 시작하기</a></li>
-                <li class="menu-divider">기초 & 통신 파트</li>
-                <li><a href="chapter_01.html">CHAPTER 1 - 하드웨어 이해</a></li>
-                <li><a href="chapter_02.html" class="active">CHAPTER 2 - 펌웨어 세팅</a></li>
-                <li><a href="chapter_03.html">CHAPTER 3 - 기초 코딩(Blink)</a></li>
-                <li><a href="chapter_04.html">CHAPTER 4 - 기본 입출력(스위치/부저)</a></li>
-                <li><a href="chapter_05.html">CHAPTER 5 - 센서 제어(초음파/PIR)</a></li>
-                <li class="menu-divider">실전 하드웨어</li>
-                <li><a href="chapter_06.html">CHAPTER 6 - 아날로그 & 모터</a></li>
-                <li><a href="chapter_07.html">CHAPTER 7 - 온습도 & 데이터</a></li>
-                <li><a href="chapter_08.html">CHAPTER 8 - Neopixel 제어</a></li>
-                <li><a href="chapter_09.html">CHAPTER 9 - I2C LCD 디스플레이</a></li>
-                <li><a href="chapter_10.html">CHAPTER 10 - 무선 통신 & 입력</a></li>
-                <li class="menu-divider">심화 응용 프로젝트</li>
-                <li><a href="chapter_11.html">CHAPTER 11 - MQTT 클라우드</a></li>
+                <li><a href="index.html">HOME - ?쒖옉?섍린</a></li>
+                <li class="menu-divider">湲곗큹 & ?듭떊 ?뚰듃</li>
+                <li><a href="chapter_01.html">CHAPTER 1 - ?섎뱶?⑥뼱 ?댄빐</a></li>
+                <li><a href="chapter_02.html" class="active">CHAPTER 2 - ?뚯썾???명똿</a></li>
+                <li><a href="chapter_03.html">CHAPTER 3 - 湲곗큹 肄붾뵫(Blink)</a></li>
+                <li><a href="chapter_04.html">CHAPTER 4 - 湲곕낯 ?낆텧???ㅼ쐞移?遺?)</a></li>
+                <li><a href="chapter_05.html">CHAPTER 5 - ?쇱꽌 ?쒖뼱(珥덉쓬??PIR)</a></li>
+                <li class="menu-divider">?ㅼ쟾 ?섎뱶?⑥뼱</li>
+                <li><a href="chapter_06.html">CHAPTER 6 - ?꾨궇濡쒓렇 & 紐⑦꽣</a></li>
+                <li><a href="chapter_07.html">CHAPTER 7 - ?⑥뒿??& ?곗씠??/a></li>
+                <li><a href="chapter_08.html">CHAPTER 8 - Neopixel ?쒖뼱</a></li>
+                <li><a href="chapter_09.html">CHAPTER 9 - I2C LCD ?붿뒪?뚮젅??/a></li>
+                <li><a href="chapter_10.html">CHAPTER 10 - 臾댁꽑 ?듭떊 & ?낅젰</a></li>
+                <li class="menu-divider">?ы솕 ?묒슜 ?꾨줈?앺듃</li>
+                <li><a href="chapter_11.html">CHAPTER 11 - MQTT ?대씪?곕뱶</a></li>
                 <li><a href="chapter_12.html">CHAPTER 12 - OLED & RTC</a></li>
-                <li><a href="chapter_13.html">CHAPTER 13 - 종합 프로젝트</a></li>
-                <li class="menu-divider">나만의 작품 만들기</li>
-                <li><a href="chapter_16.html">CHAPTER 16 - 바이브 코딩 캡스톤</a></li>
+                <li><a href="chapter_13.html">CHAPTER 13 - 醫낇빀 ?꾨줈?앺듃</a></li>
+                <li class="menu-divider">?섎쭔???묓뭹 留뚮뱾湲?/li>
+                <li><a href="chapter_16.html">CHAPTER 16 - 諛붿씠釉?肄붾뵫 罹≪뒪??/a></li>
             </ul>
         </nav>
         <main class="content">
             <div class="container">
-                <h1>Chapter 2. 펌웨어 설치 및 초기 설정</h1>
-                <p>보드가 파이썬 언어를 알아듣게 하려면 <strong>MicroPython 펌웨어</strong>라는 소프트웨어를 보드의 두뇌에 심어줘야 합니다.</p>
+                <h1>Chapter 2. ?뚯썾???ㅼ튂 諛?珥덇린 ?ㅼ젙</h1>
+                <p>蹂대뱶媛 ?뚯씠???몄뼱瑜??뚯븘?ｊ쾶 ?섎젮硫?<strong>MicroPython ?뚯썾??/strong>?쇰뒗 ?뚰봽?몄썾?대? 蹂대뱶???먮뇤???ъ뼱以섏빞 ?⑸땲??</p>
 
-                <h2>2.1 BOOTSEL 모드 진입</h2>
-                <p>펌웨어를 설치하기 위해서는 보드를 특별한 '파일 전송 모드'로 부팅해야 합니다. 공장에서 갓 출고된 Pico 2 보드는 아직 파이썬을 이해하지 못하는 "빈 두뇌" 상태이기 때문에, 컴퓨터가 보드를 하나의 USB 저장장치처럼 인식하도록 만들어 그 안에 펌웨어 파일(.uf2)을 통째로 복사해 넣어야 합니다. 이 특수한 상태로 진입하는 방법이 바로 <strong>BOOTSEL 버튼</strong>을 누른 채로 전원을 연결하는 것입니다.</p>
+                <h2>2.1 BOOTSEL 紐⑤뱶 吏꾩엯</h2>
+                <p>?뚯썾?대? ?ㅼ튂?섍린 ?꾪빐?쒕뒗 蹂대뱶瑜??밸퀎??'?뚯씪 ?꾩넚 紐⑤뱶'濡?遺?낇빐???⑸땲?? 怨듭옣?먯꽌 媛?異쒓퀬??Pico 2 蹂대뱶???꾩쭅 ?뚯씠?ъ쓣 ?댄빐?섏? 紐삵븯??"鍮??먮뇤" ?곹깭?닿린 ?뚮Ц?? 而댄벂?곌? 蹂대뱶瑜??섎굹??USB ??μ옣移섏쿂???몄떇?섎룄濡?留뚮뱾??洹??덉뿉 ?뚯썾???뚯씪(.uf2)???듭㎏濡?蹂듭궗???ｌ뼱???⑸땲?? ???뱀닔???곹깭濡?吏꾩엯?섎뒗 諛⑸쾿??諛붾줈 <strong>BOOTSEL 踰꾪듉</strong>???꾨Ⅸ 梨꾨줈 ?꾩썝???곌껐?섎뒗 寃껋엯?덈떎.</p>
 
                 <div class="callout info">
-                    <h4>💡 BOOTSEL 모드란?</h4>
-                    <p>평소 Pico 2를 USB에 연결하면 이미 설치된 펌웨어가 곧바로 실행되지만, BOOTSEL 버튼을 누른 채로 연결하면 부트로더(Bootloader)라는 아주 작은 초기 프로그램만 실행되어 보드가 <strong>USB 이동식 디스크</strong>로만 동작합니다. 이 상태에서만 새 펌웨어를 "설치"할 수 있습니다.</p>
+                    <h4>?뮕 BOOTSEL 紐⑤뱶??</h4>
+                    <p>?됱냼 Pico 2瑜?USB???곌껐?섎㈃ ?대? ?ㅼ튂???뚯썾?닿? 怨㏓컮濡??ㅽ뻾?섏?留? BOOTSEL 踰꾪듉???꾨Ⅸ 梨꾨줈 ?곌껐?섎㈃ 遺?몃줈??Bootloader)?쇰뒗 ?꾩＜ ?묒? 珥덇린 ?꾨줈洹몃옩留??ㅽ뻾?섏뼱 蹂대뱶媛 <strong>USB ?대룞???붿뒪??/strong>濡쒕쭔 ?숈옉?⑸땲?? ???곹깭?먯꽌留????뚯썾?대? "?ㅼ튂"?????덉뒿?덈떎.</p>
                 </div>
 
                 <div style="text-align: center; margin: 40px 0;">
-                    <img src="https://electrocredible.com/wp-content/uploads/2024/02/press-the-BOOTSEL-button-while-connecting-Raspberry-Pi-Pico-to-USB-cable-1024x582.webp" alt="USB 연결" style="max-width: 100%; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
-                    <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">BOOTSEL 버튼을 누른 채 PC와 USB로 연결하기</p>
+                    <img src="https://electrocredible.com/wp-content/uploads/2024/02/press-the-BOOTSEL-button-while-connecting-Raspberry-Pi-Pico-to-USB-cable-1024x582.webp" alt="USB ?곌껐" style="max-width: 100%; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+                    <p style="color: #64748b; font-size: 0.95rem; margin-top: 15px; font-weight: 500;">BOOTSEL 踰꾪듉???꾨Ⅸ 梨?PC? USB濡??곌껐?섍린</p>
                 </div>
 
                 <ol>
-                    <li>보드에서 케이블을 분리합니다.</li>
-                    <li>보드 위의 <strong>하얀색 BOOTSEL 버튼</strong>을 꾹 누릅니다.</li>
-                    <li>버튼을 누른 상태에서 USB 케이블을 컴퓨터에 연결합니다.</li>
-                    <li>윈도우 탐색기에 <code>RP2350</code>이라는 이름의 이동식 디스크가 나타나면 버튼에서 손을 뗍니다.</li>
+                    <li>蹂대뱶?먯꽌 耳?대툝??遺꾨━?⑸땲??</li>
+                    <li>蹂대뱶 ?꾩쓽 <strong>?섏???BOOTSEL 踰꾪듉</strong>??袁??꾨쫭?덈떎.</li>
+                    <li>踰꾪듉???꾨Ⅸ ?곹깭?먯꽌 USB 耳?대툝??而댄벂?곗뿉 ?곌껐?⑸땲??</li>
+                    <li>?덈룄???먯깋湲곗뿉 <code>RP2350</code>?대씪???대쫫???대룞???붿뒪?ш? ?섑??섎㈃ 踰꾪듉?먯꽌 ?먯쓣 ?띾땲??</li>
                 </ol>
 
-                <h2>2.2 Thonny에서 펌웨어 설치</h2>
-                <p>이제 Thonny 소프트웨어를 통해 자동으로 펌웨어를 다운로드하겠습니다. Thonny는 "Configure interpreter" 메뉴를 통해 인터넷에서 최신 MicroPython 펌웨어 파일을 내려받아, BOOTSEL 모드로 진입한 보드에 자동으로 구워주는(flash) 기능을 내장하고 있어 초보자도 쉽게 설치할 수 있습니다.</p>
+                <h2>2.2 Thonny?먯꽌 ?뚯썾???ㅼ튂</h2>
+                <p>?댁젣 Thonny ?뚰봽?몄썾?대? ?듯빐 ?먮룞?쇰줈 ?뚯썾?대? ?ㅼ슫濡쒕뱶?섍쿋?듬땲?? Thonny??"Configure interpreter" 硫붾돱瑜??듯빐 ?명꽣?룹뿉??理쒖떊 MicroPython ?뚯썾???뚯씪???대젮諛쏆븘, BOOTSEL 紐⑤뱶濡?吏꾩엯??蹂대뱶???먮룞?쇰줈 援ъ썙二쇰뒗(flash) 湲곕뒫???댁옣?섍퀬 ?덉뼱 珥덈낫?먮룄 ?쎄쾶 ?ㅼ튂?????덉뒿?덈떎.</p>
                 <ul>
-                    <li>Thonny 우측 하단의 인터프리터 설정(예: Python 3.10)을 클릭합니다.</li>
-                    <li><strong>Configure interpreter...</strong>를 선택합니다.</li>
-                    <li>인터프리터 탭에서 <strong>MicroPython (Raspberry Pi Pico)</strong>를 고릅니다.</li>
-                    <li>보드 종류 목록에서 <strong>Raspberry Pi Pico 2 / Pico 2 W</strong> (RP2350) 항목을 선택합니다. 목록에 없다면 최신 버전의 Thonny로 업데이트하세요.</li>
-                    <li>하단의 <strong>Install or update MicroPython</strong> 버튼을 눌러 펌웨어를 보드에 굽습니다.</li>
-                    <li>진행 막대(progress bar)가 100%까지 채워질 때까지 USB 케이블을 뽑지 않고 기다립니다.</li>
+                    <li>Thonny ?곗륫 ?섎떒???명꽣?꾨━???ㅼ젙(?? Python 3.10)???대┃?⑸땲??</li>
+                    <li><strong>Configure interpreter...</strong>瑜??좏깮?⑸땲??</li>
+                    <li>?명꽣?꾨━????뿉??<strong>MicroPython (Raspberry Pi Pico)</strong>瑜?怨좊쫭?덈떎.</li>
+                    <li>蹂대뱶 醫낅쪟 紐⑸줉?먯꽌 <strong>Raspberry Pi Pico 2 / Pico 2 W</strong> (RP2350) ??ぉ???좏깮?⑸땲?? 紐⑸줉???녿떎硫?理쒖떊 踰꾩쟾??Thonny濡??낅뜲?댄듃?섏꽭??</li>
+                    <li>?섎떒??<strong>Install or update MicroPython</strong> 踰꾪듉???뚮윭 ?뚯썾?대? 蹂대뱶??援쎌뒿?덈떎.</li>
+                    <li>吏꾪뻾 留됰?(progress bar)媛 100%源뚯? 梨꾩썙吏??뚭퉴吏 USB 耳?대툝??戮묒? ?딄퀬 湲곕떎由쎈땲??</li>
                 </ul>
 
                 <div class="callout warn">
-                    <h4>⚠️ 주의사항</h4>
-                    <p>펌웨어 설치가 끝나면 이동식 디스크 창이 사라집니다. 이는 정상적인 현상입니다. 이제 보드는 이동식 디스크가 아닌 <strong>컴퓨터 통신 포트(COM)</strong>로 인식됩니다.</p>
+                    <h4>?좑툘 二쇱쓽?ы빆</h4>
+                    <p>?뚯썾???ㅼ튂媛 ?앸굹硫??대룞???붿뒪??李쎌씠 ?щ씪吏묐땲?? ?대뒗 ?뺤긽?곸씤 ?꾩긽?낅땲?? ?댁젣 蹂대뱶???대룞???붿뒪?ш? ?꾨땶 <strong>而댄벂???듭떊 ?ы듃(COM)</strong>濡??몄떇?⑸땲??</p>
                 </div>
 
-                <h2>2.3 설치 확인 및 문제 해결</h2>
-                <p>펌웨어 설치가 끝났다면 Thonny 하단의 <strong>[쉘]</strong> 창에 <code>MicroPython v1.2x ... on RP2350</code>과 같은 문구가 나타나고, <code>&gt;&gt;&gt;</code> 프롬프트가 깜빡이는지 확인합니다. 이 프롬프트가 보이면 설치가 성공적으로 끝난 것입니다.</p>
+                <h2>2.3 ?ㅼ튂 ?뺤씤 諛?臾몄젣 ?닿껐</h2>
+                <p>?뚯썾???ㅼ튂媛 ?앸궗?ㅻ㈃ Thonny ?섎떒??<strong>[??</strong> 李쎌뿉 <code>MicroPython v1.2x ... on RP2350</code>怨?媛숈? 臾멸뎄媛 ?섑??섍퀬, <code>&gt;&gt;&gt;</code> ?꾨＼?꾪듃媛 源쒕묀?대뒗吏 ?뺤씤?⑸땲?? ???꾨＼?꾪듃媛 蹂댁씠硫??ㅼ튂媛 ?깃났?곸쑝濡??앸궃 寃껋엯?덈떎.</p>
 
                 <div class="callout info">
-                    <h4>🔧 설치가 잘 안될 때 확인할 사항</h4>
+                    <h4>?뵩 ?ㅼ튂媛 ???덈맆 ???뺤씤???ы빆</h4>
                     <ul style="margin-top: 8px; line-height: 2.2;">
-                        <li>BOOTSEL 버튼을 <strong>누른 상태 그대로</strong> USB 케이블을 연결했는지 다시 확인하기 (연결 후에 누르면 인식되지 않습니다)</li>
-                        <li>USB 케이블이 <strong>데이터 전송을 지원하는 케이블</strong>인지 확인하기 (충전 전용 케이블은 인식되지 않습니다)</li>
-                        <li>Thonny 우측 하단에 여전히 이전 인터프리터(예: CPython)가 선택되어 있지 않은지 확인하기</li>
-                        <li>설치 후에도 쉘 창에 아무 반응이 없다면, USB 케이블을 뽑았다가 <strong>BOOTSEL 없이</strong> 다시 연결해 보기</li>
+                        <li>BOOTSEL 踰꾪듉??<strong>?꾨Ⅸ ?곹깭 洹몃?濡?/strong> USB 耳?대툝???곌껐?덈뒗吏 ?ㅼ떆 ?뺤씤?섍린 (?곌껐 ?꾩뿉 ?꾨Ⅴ硫??몄떇?섏? ?딆뒿?덈떎)</li>
+                        <li>USB 耳?대툝??<strong>?곗씠???꾩넚??吏?먰븯??耳?대툝</strong>?몄? ?뺤씤?섍린 (異⑹쟾 ?꾩슜 耳?대툝? ?몄떇?섏? ?딆뒿?덈떎)</li>
+                        <li>Thonny ?곗륫 ?섎떒???ъ쟾???댁쟾 ?명꽣?꾨━???? CPython)媛 ?좏깮?섏뼱 ?덉? ?딆?吏 ?뺤씤?섍린</li>
+                        <li>?ㅼ튂 ?꾩뿉????李쎌뿉 ?꾨Т 諛섏쓳???녿떎硫? USB 耳?대툝??戮묒븯?ㅺ? <strong>BOOTSEL ?놁씠</strong> ?ㅼ떆 ?곌껐??蹂닿린</li>
                     </ul>
                 </div>
 
-                <h3>🏆 과제 해결해보기!</h3>
+                <h3>?룇 怨쇱젣 ?닿껐?대낫湲?</h3>
                 <div style="background:#faf5ff; border: 1px solid #d8b4fe; border-radius: 12px; padding: 22px 24px; margin-bottom: 30px;">
-                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 과제. 나만의 설치 체크리스트 만들기</h4>
-                    <p style="margin-bottom:16px;">친구가 처음으로 Pico 2에 MicroPython을 설치하려고 합니다. BOOTSEL 모드 진입부터 설치 완료 확인까지, 순서대로 실행해야 할 단계를 5단계 이내로 요약해서 설명해 봅시다.</p>
+                    <h4 style="margin-top:0; color:#7e22ce;"><i class="fa-solid fa-flag-checkered" style="color:#a855f7;"></i> 怨쇱젣. ?섎쭔???ㅼ튂 泥댄겕由ъ뒪??留뚮뱾湲?/h4>
+                    <p style="margin-bottom:16px;">移쒓뎄媛 泥섏쓬?쇰줈 Pico 2??MicroPython???ㅼ튂?섎젮怨??⑸땲?? BOOTSEL 紐⑤뱶 吏꾩엯遺???ㅼ튂 ?꾨즺 ?뺤씤源뚯?, ?쒖꽌?濡??ㅽ뻾?댁빞 ???④퀎瑜?5?④퀎 ?대궡濡??붿빟?댁꽌 ?ㅻ챸??遊낆떆??</p>
                     <details style="border-radius:8px; border:1px solid #c4b5fd; overflow:hidden;">
                         <summary style="background:#ede9fe; padding:11px 15px; cursor:pointer; font-weight:600; color:#6d28d9; list-style:none;">
-                            ✅ 정답 예시 보기
+                            ???뺣떟 ?덉떆 蹂닿린
                         </summary>
                         <div style="padding:15px 18px; background:white; line-height:2;">
                             <ol style="margin:0; padding-left:20px;">
-                                <li>보드에서 USB 케이블을 분리한다.</li>
-                                <li>BOOTSEL 버튼을 누른 채로 USB 케이블을 컴퓨터에 연결한다.</li>
-                                <li>이동식 디스크(RP2350)가 보이면 버튼에서 손을 뗀다.</li>
-                                <li>Thonny에서 인터프리터를 MicroPython (Raspberry Pi Pico)로 설정하고 Install or update MicroPython을 클릭한다.</li>
-                                <li>설치 완료 후 쉘 창에 <code>&gt;&gt;&gt;</code> 프롬프트가 뜨는지 확인한다.</li>
+                                <li>蹂대뱶?먯꽌 USB 耳?대툝??遺꾨━?쒕떎.</li>
+                                <li>BOOTSEL 踰꾪듉???꾨Ⅸ 梨꾨줈 USB 耳?대툝??而댄벂?곗뿉 ?곌껐?쒕떎.</li>
+                                <li>?대룞???붿뒪??RP2350)媛 蹂댁씠硫?踰꾪듉?먯꽌 ?먯쓣 ???</li>
+                                <li>Thonny?먯꽌 ?명꽣?꾨━?곕? MicroPython (Raspberry Pi Pico)濡??ㅼ젙?섍퀬 Install or update MicroPython???대┃?쒕떎.</li>
+                                <li>?ㅼ튂 ?꾨즺 ????李쎌뿉 <code>&gt;&gt;&gt;</code> ?꾨＼?꾪듃媛 ?⑤뒗吏 ?뺤씤?쒕떎.</li>
                             </ol>
                         </div>
                     </details>
                 </div>
 
-                <h2>2.4 Wokwi 시뮬레이션으로 실습하기</h2>
-                <p>1.8절에서 소개한 <strong><a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">Wokwi</a></strong>를 활용하면, 실제 보드에 펌웨어를 설치하기 전에도 브라우저에서 Pico 2 보드와 내장 LED가 정상적으로 동작하는 모습을 미리 확인해볼 수 있습니다. Wokwi 프로젝트는 이미 MicroPython 실행 환경이 준비되어 있으므로, 별도의 펌웨어 설치 과정 없이 바로 코드를 실행해 볼 수 있습니다.</p>
+                <h2>2.4 Wokwi ?쒕??덉씠?섏쑝濡??ㅼ뒿?섍린</h2>
+                <p>1.8?덉뿉???뚭컻??<strong><a href="https://wokwi.com/" target="_blank" style="color:#0ea5e9; font-weight:600;">Wokwi</a></strong>瑜??쒖슜?섎㈃, ?ㅼ젣 蹂대뱶???뚯썾?대? ?ㅼ튂?섍린 ?꾩뿉??釉뚮씪?곗??먯꽌 Pico 2 蹂대뱶? ?댁옣 LED媛 ?뺤긽?곸쑝濡??숈옉?섎뒗 紐⑥뒿??誘몃━ ?뺤씤?대낵 ???덉뒿?덈떎. Wokwi ?꾨줈?앺듃???대? MicroPython ?ㅽ뻾 ?섍꼍??以鍮꾨릺???덉쑝誘濡? 蹂꾨룄???뚯썾???ㅼ튂 怨쇱젙 ?놁씠 諛붾줈 肄붾뱶瑜??ㅽ뻾??蹂????덉뒿?덈떎.</p>
 
                 <pre><code>{
   "version": 1,
@@ -121,58 +121,58 @@
   "dependencies": {}
 }</code></pre>
 
-                <p>Wokwi 프로젝트를 새로 만든 뒤 위 <code>diagram.json</code>을 붙여넣고, 코드 편집기에는 3장에서 배울 내장 LED 블링크 코드(<code>from machine import Pin</code> ... <code>led = Pin("LED", Pin.OUT)</code>)를 넣어 초록색 ▶ 실행 버튼을 누르면, 실제 보드 없이도 Pico 2가 정상적으로 동작하는지 미리 테스트할 수 있습니다.</p>
+                <p>Wokwi ?꾨줈?앺듃瑜??덈줈 留뚮뱺 ????<code>diagram.json</code>??遺숈뿬?ｊ퀬, 肄붾뱶 ?몄쭛湲곗뿉??3?μ뿉??諛곗슱 ?댁옣 LED 釉붾쭅??肄붾뱶(<code>from machine import Pin</code> ... <code>led = Pin("LED", Pin.OUT)</code>)瑜??ｌ뼱 珥덈줉?????ㅽ뻾 踰꾪듉???꾨Ⅴ硫? ?ㅼ젣 蹂대뱶 ?놁씠??Pico 2媛 ?뺤긽?곸쑝濡??숈옉?섎뒗吏 誘몃━ ?뚯뒪?명븷 ???덉뒿?덈떎.</p>
 
                 <div class="callout info">
-                    <h4>💡 참고</h4>
-                    <p>Wokwi의 부품 이름이나 속성은 버전 업데이트에 따라 조금씩 달라질 수 있습니다. 만약 부품 이름을 입력했는데 오류가 발생한다면, Wokwi 편집기 좌측의 부품 라이브러리(Parts) 검색창에서 비슷한 이름을 검색해 정확한 명칭을 확인하세요.</p>
+                    <h4>?뮕 李멸퀬</h4>
+                    <p>Wokwi??遺???대쫫?대굹 ?띿꽦? 踰꾩쟾 ?낅뜲?댄듃???곕씪 議곌툑???щ씪吏????덉뒿?덈떎. 留뚯빟 遺???대쫫???낅젰?덈뒗???ㅻ쪟媛 諛쒖깮?쒕떎硫? Wokwi ?몄쭛湲?醫뚯륫??遺???쇱씠釉뚮윭由?Parts) 寃?됱갹?먯꽌 鍮꾩듂???대쫫??寃?됲빐 ?뺥솗??紐낆묶???뺤씤?섏꽭??</p>
                 </div>
 
                 <div class="nav-btns">
-                    <a href="chapter_01.html" class="btn btn-prev">◀ CHAPTER 1</a>
-                    <a href="chapter_03.html" class="btn btn-next">CHAPTER 3으로 이동 ▶</a>
+                    <a href="chapter_01.html" class="btn btn-prev">? CHAPTER 1</a>
+                    <a href="chapter_03.html" class="btn btn-next">CHAPTER 3?쇰줈 ?대룞 ??/a>
                 </div>
             </div>
         </main>
     </div>
     <script>
 document.querySelectorAll('pre').forEach((preBlock) => {
-    // 1. 코드를 감싸는 부모 박스(Wrapper) 동적 생성
+    // 1. 肄붾뱶瑜?媛먯떥??遺紐?諛뺤뒪(Wrapper) ?숈쟻 ?앹꽦
     const wrapper = document.createElement('div');
     wrapper.className = 'code-wrapper';
     preBlock.parentNode.insertBefore(wrapper, preBlock);
     wrapper.appendChild(preBlock);
 
-    // 2. 우측 상단 복사 버튼 생성
+    // 2. ?곗륫 ?곷떒 蹂듭궗 踰꾪듉 ?앹꽦
     const topBtn = document.createElement('button');
     topBtn.className = 'copy-btn btn-top';
-    topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
+    topBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 蹂듭궗';
     
-    // 3. 우측 하단 복사 버튼 생성
+    // 3. ?곗륫 ?섎떒 蹂듭궗 踰꾪듉 ?앹꽦
     const bottomBtn = document.createElement('button');
     bottomBtn.className = 'copy-btn btn-bottom';
-    bottomBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
+    bottomBtn.innerHTML = '<i class="fa-regular fa-copy"></i> 蹂듭궗';
 
-    // 부모 박스에 버튼들 추가
+    // 遺紐?諛뺤뒪??踰꾪듉??異붽?
     wrapper.appendChild(topBtn);
     wrapper.appendChild(bottomBtn);
 
-    // 4. 복사 기능 구현 (버튼 클릭 시 동작)
+    // 4. 蹂듭궗 湲곕뒫 援ы쁽 (踰꾪듉 ?대┃ ???숈옉)
     const codeText = preBlock.querySelector('code').innerText;
     
     const copyToClipboard = (btn) => {
         navigator.clipboard.writeText(codeText).then(() => {
-            // 복사 성공 시 아이콘과 텍스트 변경
-            btn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> 완료';
+            // 蹂듭궗 ?깃났 ???꾩씠肄섍낵 ?띿뒪??蹂寃?
+            btn.innerHTML = '<i class="fa-solid fa-check" style="color: #10b981;"></i> ?꾨즺';
             btn.classList.add('copied');
             
-            // 2초 후에 다시 원래대로 복구
+            // 2珥??꾩뿉 ?ㅼ떆 ?먮옒?濡?蹂듦뎄
             setTimeout(() => {
-                btn.innerHTML = '<i class="fa-regular fa-copy"></i> 복사';
+                btn.innerHTML = '<i class="fa-regular fa-copy"></i> 蹂듭궗';
                 btn.classList.remove('copied');
             }, 2000);
         }).catch(err => {
-            console.error('복사 실패:', err);
+            console.error('蹂듭궗 ?ㅽ뙣:', err);
         });
     };
 
@@ -199,14 +199,14 @@ document.querySelectorAll('pre').forEach((preBlock) => {
         const backdrop = modal.querySelector('.modal-backdrop');
 
         if (openBtn && modal) {
-            // 버튼 누르면 열기
+            // 踰꾪듉 ?꾨Ⅴ硫??닿린
             openBtn.addEventListener('click', () => modal.classList.add('active'));
-            // X 버튼 누르면 닫기
+            // X 踰꾪듉 ?꾨Ⅴ硫??リ린
             closeBtn.addEventListener('click', () => modal.classList.remove('active'));
-            // 흐린 배경 누르면 닫기
+            // ?먮┛ 諛곌꼍 ?꾨Ⅴ硫??リ린
             backdrop.addEventListener('click', () => modal.classList.remove('active'));
             
-            // ESC 키 누르면 닫히는 센스있는 단축키 기능 추가
+            // ESC ???꾨Ⅴ硫??ロ엳???쇱뒪?덈뒗 ?⑥텞??湲곕뒫 異붽?
             window.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && modal.classList.contains('active')) {
                     modal.classList.remove('active');
