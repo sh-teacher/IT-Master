@@ -44,7 +44,7 @@
 
                 <div class="callout warn">
                     <h4>💡 이 프로젝트에서 배우는 것</h4>
-                    <ul style="padding-left: 22px;">
+                    <ul style="margin-top: 8px; line-height: 2.2;">
                         <li><strong>비동기 프로그래밍(Async)</strong> - 센서 읽기와 웹 서버를 동시에 구동</li>
                         <li><strong>실시간 데이터 수집</strong> - DHT11 센서를 2초 주기로 읽고 저장</li>
                         <li><strong>멀티 출력</strong> - 같은 데이터를 LCD와 웹에 동시 표시</li>
@@ -131,46 +131,46 @@
                 <h2>14.1 프로젝트 개요 및 준비물</h2>
                 <p>이 프로젝트는 <strong>센서 입력</strong>, <strong>로컬 출력(LCD)</strong>, <strong>원격 접근(웹)</strong>의 세 가지 레이어를 동시에 구동합니다. 비동기 프로그래밍(asyncio)을 활용해 센서 읽기와 웹 서버가 서로 방해하지 않고 독립적으로 작동하도록 설계했습니다.</p>
 
-                <table style="width: 100%; border-collapse: collapse; margin: 20px 0 30px; font-size: 0.95rem;">
+                <table style="width: 100%; border-collapse: collapse; margin: 20px 0 30px; font-size: 0.98rem;">
                     <thead>
                         <tr style="background: #f1f5f9; color: #0f172a;">
-                            <th style="border: 1px solid #e2e8f0; padding: 12px;">부품</th>
-                            <th style="border: 1px solid #e2e8f0; padding: 12px;">Pico 핀</th>
-                            <th style="border: 1px solid #e2e8f0; padding: 12px;">역할</th>
-                            <th style="border: 1px solid #e2e8f0; padding: 12px;">참고</th>
+                            <th style="border: 1px solid #e2e8f0; padding: 10px;">부품</th>
+                            <th style="border: 1px solid #e2e8f0; padding: 10px;">Pico 핀</th>
+                            <th style="border: 1px solid #e2e8f0; padding: 10px;">역할</th>
+                            <th style="border: 1px solid #e2e8f0; padding: 10px;">참고</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td style="border: 1px solid #e2e8f0; padding: 12px;"><strong>DHT11</strong> 온습도 센서</td>
-                            <td style="border: 1px solid #e2e8f0; padding: 12px;"><code>GP15</code></td>
-                            <td style="border: 1px solid #e2e8f0; padding: 12px;">온도·습도 데이터 입력</td>
-                            <td style="border: 1px solid #e2e8f0; padding: 12px;">Chapter 7 참고</td>
-                        </tr>
-                        <tr style="background: #f8fafc;">
-                            <td style="border: 1px solid #e2e8f0; padding: 12px;"><strong>I2C LCD</strong> 16x2</td>
-                            <td style="border: 1px solid #e2e8f0; padding: 12px;"><code>GP8</code> (SDA), <code>GP9</code> (SCL)</td>
-                            <td style="border: 1px solid #e2e8f0; padding: 12px;">로컬 LCD 디스플레이</td>
-                            <td style="border: 1px solid #e2e8f0; padding: 12px;">Chapter 9 참고</td>
+                            <td style="border: 1px solid #e2e8f0; padding: 10px;"><strong>DHT11</strong> 온습도 센서</td>
+                            <td style="border: 1px solid #e2e8f0; padding: 10px;"><code>GP15</code></td>
+                            <td style="border: 1px solid #e2e8f0; padding: 10px;">온도·습도 데이터 입력</td>
+                            <td style="border: 1px solid #e2e8f0; padding: 10px;">Chapter 7 참고</td>
                         </tr>
                         <tr>
-                            <td style="border: 1px solid #e2e8f0; padding: 12px;"><strong>내장 Wi-Fi</strong></td>
-                            <td style="border: 1px solid #e2e8f0; padding: 12px;">—</td>
-                            <td style="border: 1px solid #e2e8f0; padding: 12px;">무선 네트워크 연결</td>
-                            <td style="border: 1px solid #e2e8f0; padding: 12px;">Chapter 10 참고</td>
+                            <td style="border: 1px solid #e2e8f0; padding: 10px;"><strong>I2C LCD</strong> 16x2</td>
+                            <td style="border: 1px solid #e2e8f0; padding: 10px;"><code>GP8</code> (SDA), <code>GP9</code> (SCL)</td>
+                            <td style="border: 1px solid #e2e8f0; padding: 10px;">로컬 LCD 디스플레이</td>
+                            <td style="border: 1px solid #e2e8f0; padding: 10px;">Chapter 9 참고</td>
                         </tr>
-                        <tr style="background: #f8fafc;">
-                            <td style="border: 1px solid #e2e8f0; padding: 12px;"><strong>전원</strong></td>
-                            <td style="border: 1px solid #e2e8f0; padding: 12px;"><code>3V3</code>, <code>GND</code></td>
-                            <td style="border: 1px solid #e2e8f0; padding: 12px;">공통 전원 & 접지</td>
-                            <td style="border: 1px solid #e2e8f0; padding: 12px;">모든 부품 GND 공통</td>
+                        <tr>
+                            <td style="border: 1px solid #e2e8f0; padding: 10px;"><strong>내장 Wi-Fi</strong></td>
+                            <td style="border: 1px solid #e2e8f0; padding: 10px;">—</td>
+                            <td style="border: 1px solid #e2e8f0; padding: 10px;">무선 네트워크 연결</td>
+                            <td style="border: 1px solid #e2e8f0; padding: 10px;">Chapter 10 참고</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #e2e8f0; padding: 10px;"><strong>전원</strong></td>
+                            <td style="border: 1px solid #e2e8f0; padding: 10px;"><code>3V3</code>, <code>GND</code></td>
+                            <td style="border: 1px solid #e2e8f0; padding: 10px;">공통 전원 & 접지</td>
+                            <td style="border: 1px solid #e2e8f0; padding: 10px;">모든 부품 GND 공통</td>
                         </tr>
                     </tbody>
                 </table>
 
                 <h2>14.2 전체 소스 코드</h2>
                 <p>이 코드는 <strong>세 가지 작업을 동시에 처리</strong>합니다:</p>
-                <ol style="padding-left: 22px;">
+                <ol style="margin-top: 8px; line-height: 2.2;">
                     <li><code>read_sensor_loop()</code> - 2초마다 DHT11을 읽고, LCD와 웹 데이터 업데이트</li>
                     <li><code>start_webserver()</code> - 포트 80에서 HTTP 요청 대기, JSON 응답 및 HTML 페이지 제공</li>
                     <li><code>main()</code> - 둘을 asyncio로 동시 구동</li>
@@ -381,7 +381,7 @@ await asyncio.gather(
 
                 <div class="callout info">
                     <h4>📡 HTTP 요청은 어떻게 처리되나요?</h4>
-                    <ul style="padding-left: 22px;">
+                    <ul style="margin-top: 8px; line-height: 2.2;">
                         <li><strong>GET /data</strong> - 브라우저가 JSON 데이터를 요청 → <code>latest</code> 딕셔너리를 JSON으로 변환해 응답</li>
                         <li><strong>GET / (나머지 경로)</strong> - 브라우저가 처음 접속 → HTML 페이지 전송</li>
                         <li>각 요청마다 <code>asyncio.start_server()</code>가 클라이언트와 연결을 맺고, <code>handle_client()</code>가 요청 처리 후 연결 종료</li>
@@ -559,7 +559,7 @@ if lcd is None:
                             💡 힌트 보기
                         </summary>
                         <div style="padding:15px;">
-                            <ul style="margin:0; padding-left: 22px;">
+                            <ul style="margin-top: 8px; line-height: 2.2;">
                                 <li><strong>LCD 부분:</strong> <code>if h >= 70:</code> 조건으로 경고 메시지 출력</li>
                                 <li><strong>웹 부분:</strong> HTML의 습도 카드에 <code>id="humi-card"</code> 속성 추가</li>
                                 <li><strong>CSS 추가:</strong> JavaScript에서 <code>humiCard.style.borderColor = '#ef4444'</code> 로 테두리 색상 변경</li>
