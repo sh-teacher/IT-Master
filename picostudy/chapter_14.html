@@ -95,7 +95,7 @@
                             <text x="660" y="105" text-anchor="middle" fill="#38bdf8" font-size="10" font-weight="800">Temp: 24.5 C</text>
                             <text x="660" y="118" text-anchor="middle" fill="#38bdf8" font-size="10" font-weight="800">Hum : 58.3 %</text>
                             <text x="660" y="175" text-anchor="middle" fill="#166534" font-size="11" font-weight="700">I2C LCD</text>
-                            <text x="660" y="190" text-anchor="middle" fill="#166534" font-size="10">(GP8,9)</text>
+                            <text x="660" y="190" text-anchor="middle" fill="#166534" font-size="10">(GP4,5)</text>
                         </g>
                         <path d="M420 140 H590" stroke="#16a34a" stroke-width="3" marker-end="url(#arrow14Green)"/>
 
@@ -125,7 +125,7 @@
                         <circle cx="320" cy="287" r="3" fill="#a855f7"/>
                         <text x="330" y="290" fill="#475569" font-size="10">무선 통신 (HTTP)</text>
                     </svg>
-                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">DHT11: VCC→3V3, Data→GP15, GND→GND. LCD는 SDA→GP8, SCL→GP9에 연결하고, 측정값은 LCD와 웹 대시보드로 동시에 전달됩니다.</p>
+                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 10px;">DHT11: VCC→3V3, Data→GP15, GND→GND. LCD는 SDA→GP4, SCL→GP5에 연결하고, 측정값은 LCD와 웹 대시보드로 동시에 전달됩니다.</p>
                 </div>
 
                 <h2>14.1 프로젝트 개요 및 준비물</h2>
@@ -260,13 +260,13 @@ async def read_sensor_loop():
 
 
 # ================= 웹 페이지 =================
-HTML_PAGE = """&lt;!DOCTYPE html&gt;
-&lt;html lang="ko"&gt;
-&lt;head&gt;
-&lt;meta charset="utf-8"&gt;
-&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
-&lt;title&gt;Pico 온습도 모니터&lt;/title&gt;
-&lt;style&gt;
+HTML_PAGE = """<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pico 온습도 모니터</title>
+<style>
   body { font-family: -apple-system, sans-serif; background:#0f172a; color:#e2e8f0;
          display:flex; flex-direction:column; align-items:center; justify-content:center;
          min-height:100vh; margin:0; }
@@ -279,24 +279,24 @@ HTML_PAGE = """&lt;!DOCTYPE html&gt;
   .humi { color:#38bdf8; }
   .updated { margin-top:1.5rem; color:#64748b; font-size:0.85rem; }
   .error { color:#f87171; margin-top:1rem; }
-&lt;/style&gt;
-&lt;/head&gt;
-&lt;body&gt;
-  &lt;h1&gt;실시간 온습도 모니터&lt;/h1&gt;
-  &lt;div class="cards"&gt;
-    &lt;div class="card"&gt;
-      &lt;div class="value temp" id="temp"&gt;--&lt;/div&gt;
-      &lt;div class="label"&gt;온도 (C)&lt;/div&gt;
-    &lt;/div&gt;
-    &lt;div class="card"&gt;
-      &lt;div class="value humi" id="humi"&gt;--&lt;/div&gt;
-      &lt;div class="label"&gt;습도 (%)&lt;/div&gt;
-    &lt;/div&gt;
-  &lt;/div&gt;
-  &lt;div class="updated" id="updated"&gt;불러오는 중...&lt;/div&gt;
-  &lt;div class="error" id="error"&gt;&lt;/div&gt;
+</style>
+</head>
+<body>
+  <h1>실시간 온습도 모니터</h1>
+  <div class="cards">
+    <div class="card">
+      <div class="value temp" id="temp">--</div>
+      <div class="label">온도 (C)</div>
+    </div>
+    <div class="card">
+      <div class="value humi" id="humi">--</div>
+      <div class="label">습도 (%)</div>
+    </div>
+  </div>
+  <div class="updated" id="updated">불러오는 중...</div>
+  <div class="error" id="error"></div>
 
-&lt;script&gt;
+<script>
 async function refresh() {
   try {
     const res = await fetch('/data');
@@ -312,9 +312,9 @@ async function refresh() {
 }
 refresh();
 setInterval(refresh, 2000);
-&lt;/script&gt;
-&lt;/body&gt;
-&lt;/html&gt;
+</script>
+</body>
+</html>
 """
 
 
@@ -400,7 +400,7 @@ await asyncio.gather(
                             💻그래프 코드 보기
                         </summary>
                         <div style="padding:15px;">
-<pre style="margin:0;"><code>// HTML &lt;head&gt; 섹션에 추가
+<pre style="margin:0;"><code>// HTML <head> 섹션에 추가
 &lt;script src="https://cdn.jsdelivr.net/npm/chart.js"&gt;&lt;/script&gt;
 
 // 그래프 데이터 저장
